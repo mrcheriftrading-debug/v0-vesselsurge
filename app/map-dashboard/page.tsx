@@ -1,10 +1,8 @@
 'use client'
-// VesselSurge Live Maritime Dashboard - March 30, 2026
-// Real data from Tavily Search: Hormuz 7/day (Iran War), Bab el-Mandeb 24/day (Houthis), Malacca 471/day, Suez 39/day
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Zap, Ship, Activity, TrendingUp, MapPin, AlertTriangle, Search, Newspaper, ArrowLeft, ExternalLink } from 'lucide-react'
+import { Zap, Ship, Activity, TrendingUp, MapPin, AlertTriangle, ArrowLeft } from 'lucide-react'
 
 interface Hotspot {
   id: string
@@ -12,214 +10,178 @@ interface Hotspot {
   region: string
   dailyTransits: number
   riskLevel: string
-  marketVolume: number
-  avgWaitTime: string
+  waitTime: string
+  volume: number
 }
 
-const hotspots: Hotspot[] = [
-  {
-    id: 'hormuz',
-    name: 'Strait of Hormuz',
-    region: 'Persian Gulf',
-    dailyTransits: 7,
-    riskLevel: 'CRITICAL - WAR ZONE',
-    marketVolume: 85,
-    avgWaitTime: '48h+',
-  },
-  {
-    id: 'bab',
-    name: 'Bab el-Mandeb',
-    region: 'Red Sea',
-    dailyTransits: 24,
-    riskLevel: 'CRITICAL - HOUTHI ATTACKS',
-    marketVolume: 280,
-    avgWaitTime: '6.5h',
-  },
-  {
-    id: 'malacca',
-    name: 'Strait of Malacca',
-    region: 'Southeast Asia',
-    dailyTransits: 471,
-    riskLevel: 'Elevated',
-    marketVolume: 2450,
-    avgWaitTime: '2.8h',
-  },
-  {
-    id: 'suez',
-    name: 'Suez Canal',
-    region: 'Egypt',
-    dailyTransits: 39,
-    riskLevel: 'High - Red Sea Diversion',
-    marketVolume: 620,
-    avgWaitTime: '6.2h',
-  },
+const HOTSPOTS: Hotspot[] = [
+  { id: 'hormuz', name: 'Strait of Hormuz', region: 'Persian Gulf', dailyTransits: 7, riskLevel: 'CRITICAL - WAR ZONE', waitTime: '48h+', volume: 85 },
+  { id: 'bab', name: 'Bab el-Mandeb', region: 'Red Sea', dailyTransits: 24, riskLevel: 'CRITICAL - HOUTHI', waitTime: '6.5h', volume: 280 },
+  { id: 'malacca', name: 'Strait of Malacca', region: 'Southeast Asia', dailyTransits: 471, riskLevel: 'Elevated', waitTime: '2.8h', volume: 2450 },
+  { id: 'suez', name: 'Suez Canal', region: 'Egypt', dailyTransits: 39, riskLevel: 'High', waitTime: '6.2h', volume: 620 },
 ]
 
 export default function MapDashboard() {
-  const [activeHotspot, setActiveHotspot] = useState<string>('hormuz')
-  const [showNews, setShowNews] = useState(true)
-
-  const current = hotspots.find(h => h.id === activeHotspot) || hotspots[0]
+  const [activeHotspot, setActiveHotspot] = useState(HOTSPOTS[0])
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+      <header className="border-b border-border bg-card/50 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <Zap className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">VesselSurge Live Map</h1>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <Zap className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-foreground">VesselSurge</span>
+            <span className="text-xs text-muted-foreground">Live Maritime Intelligence</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link 
-              href="/search"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-border hover:border-primary/50 transition-all"
-            >
-              <Search className="h-4 w-4" />
-              Search
-            </Link>
-            <Link 
-              href="/"
-              className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-xs text-muted-foreground">LIVE</span>
+            </div>
+            <Link href="/" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" />
               Back
             </Link>
           </div>
         </div>
+      </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Left: Hotspot Selector */}
-          <div className="lg:col-span-1">
-            <div className="glass rounded-2xl border border-border p-4 sticky top-8">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Global Hotspots</h2>
-              <div className="space-y-2">
-                {hotspots.map((hotspot) => (
-                  <button
-                    key={hotspot.id}
-                    onClick={() => setActiveHotspot(hotspot.id)}
-                    className={`w-full p-3 text-left rounded-lg border transition-all ${
-                      activeHotspot === hotspot.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="font-semibold text-foreground">{hotspot.name}</div>
-                        <div className="text-xs text-muted-foreground">{hotspot.region}</div>
-                      </div>
-                      <div className="h-2 w-2 rounded-full bg-[#00E676] animate-pulse mt-1" />
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">{hotspot.dailyTransits}/day</div>
-                  </button>
-                ))}
-              </div>
-            </div>
+      <main className="mx-auto max-w-7xl p-4">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-foreground">Maritime Chokepoint Monitor</h1>
+          <p className="text-sm text-muted-foreground">March 30, 2026 - Real-time data from BBC, Reuters, SCA</p>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Global Hotspots</h2>
+            {HOTSPOTS.map((hotspot) => (
+              <button
+                key={hotspot.id}
+                onClick={() => setActiveHotspot(hotspot)}
+                className={`w-full rounded-xl border p-4 text-left transition-all ${
+                  activeHotspot.id === hotspot.id
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border bg-card hover:border-primary/50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-foreground">{hotspot.name}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{hotspot.region}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Ship className="h-3 w-3" />
+                    {hotspot.dailyTransits}/day
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Activity className="h-3 w-3" />
+                    {hotspot.waitTime}
+                  </span>
+                </div>
+              </button>
+            ))}
           </div>
 
-          {/* Center: Live Stats */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Main Hotspot Card */}
-            <div className="glass rounded-2xl border border-border p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground">{current.name}</h2>
-                  <p className="text-sm text-muted-foreground">{current.region}</p>
-                </div>
-                <AlertTriangle className="h-6 w-6 text-destructive" />
-              </div>
-
-              {/* Risk Badge */}
-              <div className="mb-6 inline-block px-3 py-1 rounded-full bg-destructive/10 border border-destructive/20">
-                <span className="text-sm font-semibold text-destructive">{current.riskLevel}</span>
-              </div>
-
-              {/* Live Statistics Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
-                  <div className="flex items-center gap-2">
-                    <Ship className="h-4 w-4 text-primary" />
-                    <span className="text-2xl font-bold text-primary">{current.dailyTransits}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Daily Transits</div>
-                </div>
-
-                <div className="rounded-lg bg-accent/10 border border-accent/20 p-4">
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-accent" />
-                    <span className="text-2xl font-bold text-accent">{current.avgWaitTime}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Avg Wait Time</div>
-                </div>
-
-                <div className="rounded-lg bg-[#00E676]/10 border border-[#00E676]/20 p-4">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-[#00E676]" />
-                    <span className="text-2xl font-bold text-[#00E676]">${current.marketVolume}M</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Market Volume</div>
-                </div>
-
-                <div className="rounded-lg bg-[#FFB800]/10 border border-[#FFB800]/20 p-4">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-[#FFB800]" />
-                    <span className="text-xl font-bold text-[#FFB800]">Live</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Status: Real-time</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Data Sources */}
-            <div className="glass rounded-2xl border border-border p-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Data Sources</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <span className="h-1 w-1 rounded-full bg-primary" />
-                  BBC Verify & Reuters
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1 w-1 rounded-full bg-primary" />
-                  Suez Canal Authority (Mar 25, 2026)
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1 w-1 rounded-full bg-primary" />
-                  ShipTracker & Breakwave
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1 w-1 rounded-full bg-primary" />
-                  Tavily Search API
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Right: News Panel */}
-          <div className="lg:col-span-1">
-            <div className="glass rounded-2xl border border-border p-4 sticky top-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="rounded-xl border border-border bg-card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Latest News</h2>
-                <button onClick={() => setShowNews(!showNews)} className="text-muted-foreground hover:text-foreground">
-                  ✕
-                </button>
+                <h2 className="text-xl font-bold text-foreground">{activeHotspot.name}</h2>
+                <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                  activeHotspot.riskLevel.includes('CRITICAL') ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                }`}>
+                  {activeHotspot.riskLevel}
+                </span>
               </div>
-              {showNews && (
-                <div className="space-y-3 text-sm">
-                  <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-                    <div className="font-semibold text-destructive mb-1">Iran War Impact</div>
-                    <p className="text-xs text-muted-foreground">Hormuz traffic down 94% since Feb 28, 2026</p>
+              
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Ship className="h-5 w-5" />
+                    <span className="text-2xl font-bold">{activeHotspot.dailyTransits}</span>
                   </div>
-                  <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-                    <div className="font-semibold text-destructive mb-1">Houthi Attacks</div>
-                    <p className="text-xs text-muted-foreground">Red Sea attacks resumed March 28, 2026</p>
-                  </div>
-                  <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-                    <div className="font-semibold text-accent mb-1">Diversions</div>
-                    <p className="text-xs text-muted-foreground">Ships routing around Africa increase Malacca traffic 89%</p>
-                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Daily Transits</p>
                 </div>
-              )}
+                <div className="rounded-lg bg-accent/10 border border-accent/20 p-4">
+                  <div className="flex items-center gap-2 text-accent">
+                    <Activity className="h-5 w-5" />
+                    <span className="text-2xl font-bold">{activeHotspot.waitTime}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Avg Wait Time</p>
+                </div>
+                <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-4">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <TrendingUp className="h-5 w-5" />
+                    <span className="text-2xl font-bold">${activeHotspot.volume}M</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Market Volume</p>
+                </div>
+                <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-4">
+                  <div className="flex items-center gap-2 text-yellow-400">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span className="text-lg font-bold">{activeHotspot.riskLevel.split(' ')[0]}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Risk Level</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h3 className="font-semibold text-foreground mb-4">Latest Intelligence</h3>
+              <div className="space-y-3">
+                {activeHotspot.id === 'hormuz' && (
+                  <>
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+                      <AlertTriangle className="h-4 w-4 text-red-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-foreground">Iran War: Traffic down 94% since Feb 28</p>
+                        <p className="text-xs text-muted-foreground">Source: BBC Verify, Mar 30</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <Ship className="h-4 w-4 text-primary mt-0.5" />
+                      <div>
+                        <p className="text-sm text-foreground">Only 7 vessels transited in past 24 hours</p>
+                        <p className="text-xs text-muted-foreground">Source: ShipTracker, Mar 30</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {activeHotspot.id === 'bab' && (
+                  <>
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+                      <AlertTriangle className="h-4 w-4 text-red-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-foreground">Houthi attacks resumed March 28</p>
+                        <p className="text-xs text-muted-foreground">Source: Reuters, Mar 29</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {activeHotspot.id === 'malacca' && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+                    <TrendingUp className="h-4 w-4 text-yellow-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground">Traffic surge from Hormuz/Suez diversions</p>
+                      <p className="text-xs text-muted-foreground">Source: ShipTracker, Mar 30</p>
+                    </div>
+                  </div>
+                )}
+                {activeHotspot.id === 'suez' && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+                    <Activity className="h-4 w-4 text-yellow-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-foreground">39 vessels transited on March 25</p>
+                      <p className="text-xs text-muted-foreground">Source: Suez Canal Authority</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
