@@ -1,5 +1,9 @@
 "use client"
 
+// Force dynamic rendering - no caching of API calls
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio } from "lucide-react"
@@ -248,6 +252,24 @@ export default function MapDashboardPage() {
   const [showNewsPanel, setShowNewsPanel] = useState(false)
   const [hormuzLiveData, setHormuzLiveData] = useState<HormuzLiveData | null>(null)
   const [liveDataSource, setLiveDataSource] = useState<"default" | "live" | "error">("default")
+  const [isTriggeringUpdate, setIsTriggeringUpdate] = useState(false)
+
+  // Trigger the Tavily bot to fetch fresh data
+  const triggerLiveUpdate = async () => {
+    setIsTriggeringUpdate(true)
+    try {
+      const res = await fetch("/api/update", { method: "POST", cache: "no-store" })
+      const data = await res.json()
+      if (data.success) {
+        // After update, fetch the fresh data
+        await fetchHormuzLiveData()
+      }
+    } catch (error) {
+      // Silently fail
+    } finally {
+      setIsTriggeringUpdate(false)
+    }
+  }
 
   // Fetch live data from Upstash Redis via API
   const fetchHormuzLiveData = async () => {
@@ -792,9 +814,19 @@ export default function MapDashboardPage() {
                           {liveDataSource === "live" ? "Tavily Bot Active" : liveDataSource === "error" ? "Bot Error" : "Using Cached Data"}
                         </span>
                       </div>
-                      <span className="text-muted-foreground font-mono">
-                        {hormuzLiveData?.lastUpdated ? new Date(hormuzLiveData.lastUpdated).toLocaleTimeString() : liveIntel?.timestamp ? new Date(liveIntel.timestamp).toLocaleTimeString() : "--:--"}
-                      </span>
+                      <button
+                        onClick={triggerLiveUpdate}
+                        disabled={isTriggeringUpdate}
+                        className="flex items-center gap-1 px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${isTriggeringUpdate ? "animate-spin" : ""}`} />
+                        <span className="font-mono text-[10px]">
+                          {isTriggeringUpdate ? "Updating..." : "Refresh Now"}
+                        </span>
+                      </button>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground font-mono">
+                      Last Updated: {hormuzLiveData?.lastUpdated ? new Date(hormuzLiveData.lastUpdated).toLocaleString() : liveIntel?.timestamp ? new Date(liveIntel.timestamp).toLocaleString() : "Never"}
                     </div>
                     {activeRegion.id === "hormuz" && hormuzLiveData && (
                       <div className="flex items-center gap-2 text-[10px]">
