@@ -1,8 +1,5 @@
 "use client"
 
-// Prevent caching of old data - always fetch fresh
-export const revalidate = 0
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio } from "lucide-react"
@@ -255,7 +252,7 @@ export default function MapDashboardPage() {
   // Fetch live data from Upstash Redis via API
   const fetchHormuzLiveData = async () => {
     try {
-      const res = await fetch("/api/live-data")
+      const res = await fetch("/api/live-data", { cache: "no-store" })
       const data = await res.json()
       if (data.success && data.data) {
         setHormuzLiveData(data.data)
@@ -285,7 +282,7 @@ export default function MapDashboardPage() {
   // Fetch maritime news from news API
   const fetchMaritimeNews = async () => {
     try {
-      const res = await fetch("/api/maritime-news")
+      const res = await fetch("/api/maritime-news", { cache: "no-store" })
       const data = await res.json()
       if (data.success) {
         setNewsItems(data.data.news)
@@ -300,7 +297,7 @@ export default function MapDashboardPage() {
   // Fetch live intelligence from API
   const fetchLiveIntelligence = async () => {
     try {
-      const res = await fetch("/api/maritime-intelligence")
+      const res = await fetch("/api/maritime-intelligence", { cache: "no-store" })
       const data = await res.json()
       if (data.success) {
         setLiveIntel(data.data)
