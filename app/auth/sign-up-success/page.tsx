@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Radio, Mail, CheckCircle } from "lucide-react"
+import { Zap, Mail, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function SignUpSuccessPage() {
@@ -9,8 +9,8 @@ export default function SignUpSuccessPage() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold text-foreground">VesselPro</span>
+            <Zap className="h-5 w-5 text-primary" />
+            <span className="text-lg font-semibold text-foreground">VesselSurge</span>
           </Link>
         </div>
       </header>

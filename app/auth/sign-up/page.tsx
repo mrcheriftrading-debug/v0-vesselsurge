@@ -6,7 +6,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Radio, Ship, Package, Loader2 } from "lucide-react"
+import { Zap, Ship, Package, Loader2 } from "lucide-react"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -55,8 +55,8 @@ export default function SignUpPage() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold text-foreground">VesselPro</span>
+            <Zap className="h-5 w-5 text-primary" />
+            <span className="text-lg font-semibold text-foreground">VesselSurge</span>
           </Link>
           <Link href="/auth/login">
             <Button variant="ghost" size="sm">
@@ -73,7 +73,7 @@ export default function SignUpPage() {
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-bold text-foreground">Create Your Account</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Join VesselPro to list vessels or find freight
+                Join VesselSurge to list vessels or find freight
               </p>
             </div>
 

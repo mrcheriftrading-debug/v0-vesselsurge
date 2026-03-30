@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Build timestamp: 2026-03-30T12:00:00Z - Tavily-powered maritime stats
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
