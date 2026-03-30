@@ -1,5 +1,8 @@
 "use client"
 
+// Prevent caching of old data - always fetch fresh
+export const revalidate = 0
+
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio } from "lucide-react"
@@ -214,6 +217,25 @@ interface MarketData {
   vesselCounts: Record<string, { total: number; tankers: number; container: number; cargo: number; lng: number }>
 }
 
+// Live data from Upstash Redis (populated by /api/update cron job)
+interface HormuzLiveData {
+  vesselCount: number
+  riskLevel: "low" | "moderate" | "high" | "critical"
+  dailyTransits: number
+  avgWaitTime: string
+  marketVolume: number
+  latestIncidents: Array<{
+    id: string
+    severity: "info" | "warning" | "critical"
+    message: string
+    source: string
+    timestamp: string
+  }>
+  vessels: VesselData[]
+  summary: string
+  lastUpdated: string | null
+}
+
 export default function MapDashboardPage() {
   const [activeRegion, setActiveRegion] = useState<MaritimeHotspot>(maritimeData.hormuz)
   const [vessels, setVessels] = useState<VesselData[]>(maritimeData.hormuz.vessels)
@@ -227,6 +249,38 @@ export default function MapDashboardPage() {
   const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([])
   const [marketData, setMarketData] = useState<MarketData | null>(null)
   const [showNewsPanel, setShowNewsPanel] = useState(false)
+  const [hormuzLiveData, setHormuzLiveData] = useState<HormuzLiveData | null>(null)
+  const [liveDataSource, setLiveDataSource] = useState<"default" | "live" | "error">("default")
+
+  // Fetch live data from Upstash Redis via API
+  const fetchHormuzLiveData = async () => {
+    try {
+      const res = await fetch("/api/live-data")
+      const data = await res.json()
+      if (data.success && data.data) {
+        setHormuzLiveData(data.data)
+        setLiveDataSource(data.source)
+        
+        // Update Hormuz stats and vessels with live data if currently viewing Hormuz
+        if (activeRegion.id === "hormuz" && data.source === "live") {
+          setStats({
+            activeVessels: data.data.vesselCount,
+            dailyTransits: data.data.dailyTransits,
+            avgWaitTime: data.data.avgWaitTime,
+            marketVolume: data.data.marketVolume,
+          })
+          
+          // Update vessels if live data has vessel positions
+          if (data.data.vessels && data.data.vessels.length > 0) {
+            setVessels(data.data.vessels)
+          }
+        }
+      }
+    } catch (error) {
+      // Silently fail - will retry on next interval
+      setLiveDataSource("error")
+    }
+  }
 
   // Fetch maritime news from news API
   const fetchMaritimeNews = async () => {
@@ -263,7 +317,7 @@ export default function MapDashboardPage() {
         }
       }
     } catch (error) {
-      console.log("[v0] Failed to fetch live intelligence:", error)
+      // Silently fail - will retry on next interval
     }
   }
 
@@ -272,15 +326,30 @@ export default function MapDashboardPage() {
     setLastUpdate(new Date())
     fetchLiveIntelligence()
     fetchMaritimeNews()
+    fetchHormuzLiveData() // Fetch live data from Redis on mount
   }, [])
 
   useEffect(() => {
-    setVessels(activeRegion.vessels)
-    setStats(activeRegion.stats)
+    // For Hormuz, use live data if available
+    if (activeRegion.id === "hormuz" && hormuzLiveData && liveDataSource === "live") {
+      setVessels(hormuzLiveData.vessels.length > 0 ? hormuzLiveData.vessels : activeRegion.vessels)
+      setStats({
+        activeVessels: hormuzLiveData.vesselCount,
+        dailyTransits: hormuzLiveData.dailyTransits,
+        avgWaitTime: hormuzLiveData.avgWaitTime,
+        marketVolume: hormuzLiveData.marketVolume,
+      })
+    } else {
+      setVessels(activeRegion.vessels)
+      setStats(activeRegion.stats)
+    }
     setSelectedVessel(null)
     // Fetch updated stats for new region
-    if (mounted) fetchLiveIntelligence()
-  }, [activeRegion, mounted])
+    if (mounted) {
+      fetchLiveIntelligence()
+      if (activeRegion.id === "hormuz") fetchHormuzLiveData()
+    }
+  }, [activeRegion, mounted, hormuzLiveData, liveDataSource])
 
   // Auto-refresh every 8 seconds for vessel positions, every 60 seconds for API data
   useEffect(() => {
@@ -304,10 +373,16 @@ export default function MapDashboardPage() {
       fetchMaritimeNews()
     }, 30000)
     
+    // Live data refresh from Redis (every 2 minutes)
+    const liveDataInterval = setInterval(() => {
+      fetchHormuzLiveData()
+    }, 120000)
+    
     return () => {
       clearInterval(vesselInterval)
       clearInterval(apiInterval)
       clearInterval(newsInterval)
+      clearInterval(liveDataInterval)
     }
   }, [mounted])
 
@@ -352,8 +427,8 @@ export default function MapDashboardPage() {
               )}
             </button>
             <div className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-1.5">
-              <div className="h-2 w-2 rounded-full bg-[#00E676] animate-pulse" />
-              <span className="text-xs text-muted-foreground">Live</span>
+              <div className={`h-2 w-2 rounded-full ${liveDataSource === "live" ? "bg-[#00E676]" : "bg-[#FFB800]"} animate-pulse`} />
+              <span className="text-xs text-muted-foreground">{liveDataSource === "live" ? "Live" : "Cached"}</span>
             </div>
             <div className="glass rounded-lg border border-border px-3 py-1.5">
               <span className="text-xs font-mono text-muted-foreground">
@@ -676,16 +751,69 @@ export default function MapDashboardPage() {
                   </div>
                 ))}
 
+                {/* Live Incidents from Tavily/Redis */}
+                {activeRegion.id === "hormuz" && hormuzLiveData?.latestIncidents?.map((incident) => (
+                  <div 
+                    key={incident.id}
+                    className={`rounded-xl p-4 border ${
+                      incident.severity === "critical" 
+                        ? "bg-destructive/10 border-destructive/30" 
+                        : incident.severity === "warning"
+                        ? "bg-[#FFB800]/10 border-[#FFB800]/30"
+                        : "bg-primary/10 border-primary/30"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className={`h-4 w-4 mt-0.5 shrink-0 ${
+                        incident.severity === "critical" ? "text-destructive" : 
+                        incident.severity === "warning" ? "text-[#FFB800]" : "text-primary"
+                      }`} />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-semibold uppercase ${
+                            incident.severity === "critical" ? "text-destructive" : 
+                            incident.severity === "warning" ? "text-[#FFB800]" : "text-primary"
+                          }`}>
+                            {incident.severity}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-medium">LIVE</span>
+                          <span className="text-xs text-muted-foreground">via {incident.source}</span>
+                        </div>
+                        <div className="mt-1 text-sm text-foreground">{incident.message}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
                 {/* Bot Status */}
                 <div className="rounded-xl p-3 border border-dashed border-border bg-background/50">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-[#00E676] animate-pulse" />
-                      <span className="text-muted-foreground">Intelligence Bot Active</span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className={`h-2 w-2 rounded-full ${liveDataSource === "live" ? "bg-[#00E676]" : liveDataSource === "error" ? "bg-destructive" : "bg-[#FFB800]"} animate-pulse`} />
+                        <span className="text-muted-foreground">
+                          {liveDataSource === "live" ? "Tavily Bot Active" : liveDataSource === "error" ? "Bot Error" : "Using Cached Data"}
+                        </span>
+                      </div>
+                      <span className="text-muted-foreground font-mono">
+                        {hormuzLiveData?.lastUpdated ? new Date(hormuzLiveData.lastUpdated).toLocaleTimeString() : liveIntel?.timestamp ? new Date(liveIntel.timestamp).toLocaleTimeString() : "--:--"}
+                      </span>
                     </div>
-                    <span className="text-muted-foreground font-mono">
-                      {liveIntel?.timestamp ? new Date(liveIntel.timestamp).toLocaleTimeString() : "--:--"}
-                    </span>
+                    {activeRegion.id === "hormuz" && hormuzLiveData && (
+                      <div className="flex items-center gap-2 text-[10px]">
+                        <span className={`px-1.5 py-0.5 rounded font-medium ${
+                          hormuzLiveData.riskLevel === "critical" ? "bg-destructive/20 text-destructive" :
+                          hormuzLiveData.riskLevel === "high" ? "bg-[#FFB800]/20 text-[#FFB800]" :
+                          hormuzLiveData.riskLevel === "moderate" ? "bg-accent/20 text-accent" :
+                          "bg-[#00E676]/20 text-[#00E676]"
+                        }`}>
+                          Risk: {hormuzLiveData.riskLevel.toUpperCase()}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {hormuzLiveData.vesselCount} vessels tracked
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
