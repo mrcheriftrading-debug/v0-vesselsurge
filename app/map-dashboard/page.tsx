@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio } from "lucide-react"
+import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio, Search } from "lucide-react"
 
 // Types
 interface VesselData {
@@ -357,6 +357,13 @@ export default function MapDashboardPage() {
                 <span className="text-xs font-medium">Syncing...</span>
               </div>
             )}
+            <Link 
+              href="/search"
+              className="flex items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-1.5 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-xs font-medium hidden sm:inline">Search</span>
+            </Link>
             <button
               onClick={() => setShowNewsPanel(!showNewsPanel)}
               className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all ${
