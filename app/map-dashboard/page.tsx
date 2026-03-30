@@ -460,9 +460,6 @@ export default function MapDashboardPage() {
                     </button>
                   ))}
                 </div>
-</div>
-                  ))}
-                </div>
               </div>
 
               {/* Live Statistics Panel */}
