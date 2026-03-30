@@ -279,7 +279,7 @@ export default function MapDashboardPage() {
         }
       }
     } catch (error) {
-      console.log("[v0] Failed to fetch live intelligence:", error)
+      // Silently fail, will retry on next interval
     }
   }
 
@@ -461,7 +461,7 @@ export default function MapDashboardPage() {
                   ))}
                 </div>
               </div>
-
+              
               {/* Live Statistics Panel */}
               <div className="glass rounded-2xl border border-border p-4">
                 <div className="flex items-center justify-between mb-4">

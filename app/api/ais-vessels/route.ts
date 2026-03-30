@@ -51,7 +51,6 @@ async function fetchFromAISStream(bounds: { minLat: number; maxLat: number; minL
     })
 
     if (!response.ok) {
-      console.log("[v0] AISStream API returned status:", response.status)
       return null
     }
 
@@ -74,7 +73,6 @@ async function fetchFromAISStream(bounds: { minLat: number; maxLat: number; minL
 
     return null
   } catch (error) {
-    console.log("[v0] AISStream API error:", error)
     return null
   }
 }
@@ -253,8 +251,6 @@ export async function GET(request: Request) {
       },
     })
   } catch (error) {
-    console.error("[v0] AIS API Error:", error)
-    
     // Return simulated data on error
     const vessels = generateSimulatedVessels(hotspot)
     const stats = calculateStats(vessels, hotspot)
