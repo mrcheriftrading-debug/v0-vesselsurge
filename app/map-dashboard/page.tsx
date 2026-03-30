@@ -1,8 +1,5 @@
 "use client"
 
-// Prevent caching of old data - always fetch fresh
-export const revalidate = 0
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio } from "lucide-react"
@@ -19,7 +16,6 @@ interface VesselData {
   destination: string
   eta: string
   flag: string
-  matchScore: number
 }
 
 interface MaritimeHotspot {
@@ -50,15 +46,15 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     stats: { activeVessels: 58, dailyTransits: 174, avgWaitTime: "2.1h", marketVolume: 1380 },
     vessels: [
       // Vessels positioned in the Inbound Traffic Lane (ITL) - southern route at ~26.2°N
-      { mmsi: "477328900", name: "FRONT COURAGE", type: "tanker", lat: 26.2145, lng: 56.5823, speed: 12.4, course: 295, destination: "RAS TANURA", eta: "2026-03-27 08:00", flag: "SG", matchScore: 94 },
-      { mmsi: "311000289", name: "NISSOS THERASSIA", type: "tanker", lat: 26.1987, lng: 56.4156, speed: 11.8, course: 298, destination: "BANDAR ABBAS", eta: "2026-03-26 22:00", flag: "GR", matchScore: 89 },
+      { mmsi: "477328900", name: "FRONT COURAGE", type: "tanker", lat: 26.2145, lng: 56.5823, speed: 12.4, course: 295, destination: "RAS TANURA", eta: "2026-03-27 08:00", flag: "SG" },
+      { mmsi: "311000289", name: "NISSOS THERASSIA", type: "tanker", lat: 26.1987, lng: 56.4156, speed: 11.8, course: 298, destination: "BANDAR ABBAS", eta: "2026-03-26 22:00", flag: "GR" },
       // Vessels in Outbound Traffic Lane (OTL) - northern route at ~26.5°N
-      { mmsi: "636019825", name: "GENCO PICARDY", type: "cargo", lat: 26.5012, lng: 56.2891, speed: 13.2, course: 115, destination: "NHAVA SHEVA", eta: "2026-03-29 14:00", flag: "MH", matchScore: 86 },
-      { mmsi: "538008452", name: "MSC ANNA", type: "container", lat: 26.4834, lng: 56.6234, speed: 17.8, course: 118, destination: "JEBEL ALI", eta: "2026-03-26 20:30", flag: "PA", matchScore: 82 },
+      { mmsi: "636019825", name: "GENCO PICARDY", type: "cargo", lat: 26.5012, lng: 56.2891, speed: 13.2, course: 115, destination: "NHAVA SHEVA", eta: "2026-03-29 14:00", flag: "MH" },
+      { mmsi: "538008452", name: "MSC ANNA", type: "container", lat: 26.4834, lng: 56.6234, speed: 17.8, course: 118, destination: "JEBEL ALI", eta: "2026-03-26 20:30", flag: "PA" },
       // LNG carrier in deep water channel
-      { mmsi: "249589000", name: "AL HUWAILA", type: "lng", lat: 26.3456, lng: 56.1234, speed: 16.2, course: 112, destination: "INCHEON", eta: "2026-04-06 06:00", flag: "QA", matchScore: 96 },
+      { mmsi: "249589000", name: "AL HUWAILA", type: "lng", lat: 26.3456, lng: 56.1234, speed: 16.2, course: 112, destination: "INCHEON", eta: "2026-04-06 06:00", flag: "QA" },
       // VLCC in designated tanker lane
-      { mmsi: "477995100", name: "HAIKUN", type: "tanker", lat: 26.2678, lng: 56.7012, speed: 11.5, course: 292, destination: "KHARG ISLAND", eta: "2026-03-28 04:00", flag: "PA", matchScore: 91 },
+      { mmsi: "477995100", name: "HAIKUN", type: "tanker", lat: 26.2678, lng: 56.7012, speed: 11.5, course: 292, destination: "KHARG ISLAND", eta: "2026-03-28 04:00", flag: "PA" },
     ],
     alerts: [
       { severity: "critical", message: "UKMTO WARNING 001/2026: Iranian naval exercises ongoing 26°30'N-27°00'N, 56°00'E-57°00'E. Maintain CPA 5nm." },
@@ -75,12 +71,12 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     stats: { activeVessels: 28, dailyTransits: 52, avgWaitTime: "0.8h", marketVolume: 420 },
     vessels: [
       // Northbound vessels in IRTC (Internationally Recommended Transit Corridor)
-      { mmsi: "353136000", name: "EVER ACE", type: "container", lat: 12.7123, lng: 43.3456, speed: 18.5, course: 338, destination: "SUEZ CANAL", eta: "2026-03-27 06:00", flag: "PA", matchScore: 94 },
-      { mmsi: "371289000", name: "MARAN TANKERS", type: "tanker", lat: 12.5834, lng: 43.4512, speed: 14.2, course: 335, destination: "AIN SUKHNA", eta: "2026-03-28 18:00", flag: "GR", matchScore: 87 },
+      { mmsi: "353136000", name: "EVER ACE", type: "container", lat: 12.7123, lng: 43.3456, speed: 18.5, course: 338, destination: "SUEZ CANAL", eta: "2026-03-27 06:00", flag: "PA" },
+      { mmsi: "371289000", name: "MARAN TANKERS", type: "tanker", lat: 12.5834, lng: 43.4512, speed: 14.2, course: 335, destination: "AIN SUKHNA", eta: "2026-03-28 18:00", flag: "GR" },
       // Southbound in western lane
-      { mmsi: "215812000", name: "STAR ANTARES", type: "cargo", lat: 12.8234, lng: 43.2891, speed: 12.8, course: 162, destination: "DJIBOUTI", eta: "2026-03-26 16:00", flag: "MT", matchScore: 79 },
-      { mmsi: "477412300", name: "PACIFIC PEARL", type: "cargo", lat: 12.4567, lng: 43.5678, speed: 15.1, course: 158, destination: "COLOMBO", eta: "2026-03-29 22:00", flag: "HK", matchScore: 85 },
-      { mmsi: "538912345", name: "CMA CGM THALASSA", type: "container", lat: 12.6789, lng: 43.3123, speed: 21.2, course: 340, destination: "PORT SAID", eta: "2026-03-27 02:00", flag: "FR", matchScore: 91 },
+      { mmsi: "215812000", name: "STAR ANTARES", type: "cargo", lat: 12.8234, lng: 43.2891, speed: 12.8, course: 162, destination: "DJIBOUTI", eta: "2026-03-26 16:00", flag: "MT" },
+      { mmsi: "477412300", name: "PACIFIC PEARL", type: "cargo", lat: 12.4567, lng: 43.5678, speed: 15.1, course: 158, destination: "COLOMBO", eta: "2026-03-29 22:00", flag: "HK" },
+      { mmsi: "538912345", name: "CMA CGM THALASSA", type: "container", lat: 12.6789, lng: 43.3123, speed: 21.2, course: 340, destination: "PORT SAID", eta: "2026-03-27 02:00", flag: "FR" },
     ],
     alerts: [
       { severity: "critical", message: "MSCHOA/UKMTO: THREAT LEVEL CRITICAL. Houthi ASM/UAV attacks ongoing. All vessels transit at max speed, darken ship." },
@@ -99,14 +95,14 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     stats: { activeVessels: 94, dailyTransits: 328, avgWaitTime: "3.2h", marketVolume: 1920 },
     vessels: [
       // Singapore Strait TSS - Westbound deep water route
-      { mmsi: "563045200", name: "MAERSK EDINBURGH", type: "container", lat: 1.2234, lng: 103.8823, speed: 14.2, course: 278, destination: "PORT KLANG", eta: "2026-03-27 04:00", flag: "SG", matchScore: 97 },
-      { mmsi: "477891234", name: "EAGLE TACOMA", type: "tanker", lat: 1.1956, lng: 103.7512, speed: 12.8, course: 275, destination: "PENGERANG", eta: "2026-03-26 18:00", flag: "SG", matchScore: 90 },
+      { mmsi: "563045200", name: "MAERSK EDINBURGH", type: "container", lat: 1.2234, lng: 103.8823, speed: 14.2, course: 278, destination: "PORT KLANG", eta: "2026-03-27 04:00", flag: "SG" },
+      { mmsi: "477891234", name: "EAGLE TACOMA", type: "tanker", lat: 1.1956, lng: 103.7512, speed: 12.8, course: 275, destination: "PENGERANG", eta: "2026-03-26 18:00", flag: "SG" },
       // Eastbound traffic lane
-      { mmsi: "538123789", name: "LOWLANDS BOREAS", type: "cargo", lat: 1.2678, lng: 103.6234, speed: 11.5, course: 88, destination: "SINGAPORE PSA", eta: "2026-03-26 14:30", flag: "MH", matchScore: 84 },
-      { mmsi: "249567890", name: "PACIFIC BREEZE", type: "lng", lat: 1.2891, lng: 103.9012, speed: 17.8, course: 92, destination: "YOKOHAMA", eta: "2026-04-02 12:00", flag: "BM", matchScore: 95 },
+      { mmsi: "538123789", name: "LOWLANDS BOREAS", type: "cargo", lat: 1.2678, lng: 103.6234, speed: 11.5, course: 88, destination: "SINGAPORE PSA", eta: "2026-03-26 14:30", flag: "MH" },
+      { mmsi: "249567890", name: "PACIFIC BREEZE", type: "lng", lat: 1.2891, lng: 103.9012, speed: 17.8, course: 92, destination: "YOKOHAMA", eta: "2026-04-02 12:00", flag: "BM" },
       // Container traffic at Singapore anchorage approach
-      { mmsi: "636092145", name: "ONE CONTINUITY", type: "container", lat: 1.2012, lng: 103.8456, speed: 8.5, course: 265, destination: "TANJUNG PELEPAS", eta: "2026-03-26 22:00", flag: "PA", matchScore: 88 },
-      { mmsi: "311045678", name: "HAFNIA AUSTRALIA", type: "tanker", lat: 1.2345, lng: 103.7123, speed: 13.4, course: 95, destination: "SINGAPORE STS", eta: "2026-03-26 16:45", flag: "SG", matchScore: 86 },
+      { mmsi: "636092145", name: "ONE CONTINUITY", type: "container", lat: 1.2012, lng: 103.8456, speed: 8.5, course: 265, destination: "TANJUNG PELEPAS", eta: "2026-03-26 22:00", flag: "PA" },
+      { mmsi: "311045678", name: "HAFNIA AUSTRALIA", type: "tanker", lat: 1.2345, lng: 103.7123, speed: 13.4, course: 95, destination: "SINGAPORE STS", eta: "2026-03-26 16:45", flag: "SG" },
     ],
     alerts: [
       { severity: "warning", message: "ReCAAP ISC Alert 03/2026: Armed robbery at 01°12'N, 103°32'E (Phillip Channel). 4 perpetrators boarded product tanker." },
@@ -124,12 +120,12 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     stats: { activeVessels: 44, dailyTransits: 68, avgWaitTime: "8.4h", marketVolume: 780 },
     vessels: [
       // Vessels in the actual canal channel (30.4-31.3°N, ~32.3-32.5°E)
-      { mmsi: "353819000", name: "HMM ALGECIRAS", type: "container", lat: 30.8234, lng: 32.3178, speed: 7.2, course: 352, destination: "ROTTERDAM", eta: "2026-04-02 16:00", flag: "PA", matchScore: 93 },
-      { mmsi: "371456000", name: "SUEZMAX FORTUNE", type: "tanker", lat: 30.4512, lng: 32.3589, speed: 6.8, course: 172, destination: "JEDDAH", eta: "2026-03-27 20:00", flag: "GR", matchScore: 85 },
+      { mmsi: "353819000", name: "HMM ALGECIRAS", type: "container", lat: 30.8234, lng: 32.3178, speed: 7.2, course: 352, destination: "ROTTERDAM", eta: "2026-04-02 16:00", flag: "PA" },
+      { mmsi: "371456000", name: "SUEZMAX FORTUNE", type: "tanker", lat: 30.4512, lng: 32.3589, speed: 6.8, course: 172, destination: "JEDDAH", eta: "2026-03-27 20:00", flag: "GR" },
       // Great Bitter Lake waiting area (~30.35°N)
-      { mmsi: "215945000", name: "FEDERAL YUKON", type: "cargo", lat: 30.3678, lng: 32.4012, speed: 0.2, course: 0, destination: "PIRAEUS", eta: "2026-03-29 08:00", flag: "MH", matchScore: 77 },
-      { mmsi: "636018234", name: "CELSIUS RIGA", type: "tanker", lat: 30.6891, lng: 32.3234, speed: 7.5, course: 175, destination: "SINGAPORE", eta: "2026-04-10 14:00", flag: "MH", matchScore: 89 },
-      { mmsi: "538567890", name: "OOCL PIRAEUS", type: "container", lat: 31.0123, lng: 32.3145, speed: 7.8, course: 348, destination: "FELIXSTOWE", eta: "2026-04-01 22:00", flag: "HK", matchScore: 91 },
+      { mmsi: "215945000", name: "FEDERAL YUKON", type: "cargo", lat: 30.3678, lng: 32.4012, speed: 0.2, course: 0, destination: "PIRAEUS", eta: "2026-03-29 08:00", flag: "MH" },
+      { mmsi: "636018234", name: "CELSIUS RIGA", type: "tanker", lat: 30.6891, lng: 32.3234, speed: 7.5, course: 175, destination: "SINGAPORE", eta: "2026-04-10 14:00", flag: "MH" },
+      { mmsi: "538567890", name: "OOCL PIRAEUS", type: "container", lat: 31.0123, lng: 32.3145, speed: 7.8, course: 348, destination: "FELIXSTOWE", eta: "2026-04-01 22:00", flag: "HK" },
     ],
     alerts: [
       { severity: "warning", message: "SCA Notice 12/2026: Revised convoy schedule due to Red Sea diversions. Southbound priority for laden tankers." },
@@ -217,25 +213,6 @@ interface MarketData {
   vesselCounts: Record<string, { total: number; tankers: number; container: number; cargo: number; lng: number }>
 }
 
-// Live data from Upstash Redis (populated by /api/update cron job)
-interface HormuzLiveData {
-  vesselCount: number
-  riskLevel: "low" | "moderate" | "high" | "critical"
-  dailyTransits: number
-  avgWaitTime: string
-  marketVolume: number
-  latestIncidents: Array<{
-    id: string
-    severity: "info" | "warning" | "critical"
-    message: string
-    source: string
-    timestamp: string
-  }>
-  vessels: VesselData[]
-  summary: string
-  lastUpdated: string | null
-}
-
 export default function MapDashboardPage() {
   const [activeRegion, setActiveRegion] = useState<MaritimeHotspot>(maritimeData.hormuz)
   const [vessels, setVessels] = useState<VesselData[]>(maritimeData.hormuz.vessels)
@@ -249,43 +226,28 @@ export default function MapDashboardPage() {
   const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([])
   const [marketData, setMarketData] = useState<MarketData | null>(null)
   const [showNewsPanel, setShowNewsPanel] = useState(false)
-  const [hormuzLiveData, setHormuzLiveData] = useState<HormuzLiveData | null>(null)
-  const [liveDataSource, setLiveDataSource] = useState<"default" | "live" | "error">("default")
 
-  // Fetch live data from Upstash Redis via API
-  const fetchHormuzLiveData = async () => {
+  // Fetch real AIS vessel data from API
+  const fetchAISVessels = async (hotspotId: string) => {
     try {
-      const res = await fetch("/api/live-data")
+      const res = await fetch(`/api/ais-vessels?hotspot=${hotspotId}`)
       const data = await res.json()
-      if (data.success && data.data) {
-        setHormuzLiveData(data.data)
-        setLiveDataSource(data.source)
-        
-        // Update Hormuz stats and vessels with live data if currently viewing Hormuz
-        if (activeRegion.id === "hormuz" && data.source === "live") {
-          setStats({
-            activeVessels: data.data.vesselCount,
-            dailyTransits: data.data.dailyTransits,
-            avgWaitTime: data.data.avgWaitTime,
-            marketVolume: data.data.marketVolume,
-          })
-          
-          // Update vessels if live data has vessel positions
-          if (data.data.vessels && data.data.vessels.length > 0) {
-            setVessels(data.data.vessels)
-          }
+      if (data.success && data.data.vessels) {
+        setVessels(data.data.vessels)
+        if (data.data.stats) {
+          setStats(data.data.stats)
         }
       }
     } catch (error) {
-      // Silently fail - will retry on next interval
-      setLiveDataSource("error")
+      // Fall back to static data on error
     }
   }
 
-  // Fetch maritime news from news API
-  const fetchMaritimeNews = async () => {
+  // Fetch maritime news from news API (filtered by region)
+  const fetchMaritimeNews = async (regionId?: string) => {
     try {
-      const res = await fetch("/api/maritime-news")
+      const url = regionId ? `/api/maritime-news?region=${regionId}` : "/api/maritime-news"
+      const res = await fetch(url)
       const data = await res.json()
       if (data.success) {
         setNewsItems(data.data.news)
@@ -317,7 +279,7 @@ export default function MapDashboardPage() {
         }
       }
     } catch (error) {
-      // Silently fail - will retry on next interval
+      console.log("[v0] Failed to fetch live intelligence:", error)
     }
   }
 
@@ -326,39 +288,30 @@ export default function MapDashboardPage() {
     setLastUpdate(new Date())
     fetchLiveIntelligence()
     fetchMaritimeNews()
-    fetchHormuzLiveData() // Fetch live data from Redis on mount
+    fetchAISVessels("hormuz")
   }, [])
 
   useEffect(() => {
-    // For Hormuz, use live data if available
-    if (activeRegion.id === "hormuz" && hormuzLiveData && liveDataSource === "live") {
-      setVessels(hormuzLiveData.vessels.length > 0 ? hormuzLiveData.vessels : activeRegion.vessels)
-      setStats({
-        activeVessels: hormuzLiveData.vesselCount,
-        dailyTransits: hormuzLiveData.dailyTransits,
-        avgWaitTime: hormuzLiveData.avgWaitTime,
-        marketVolume: hormuzLiveData.marketVolume,
-      })
-    } else {
-      setVessels(activeRegion.vessels)
-      setStats(activeRegion.stats)
-    }
+    // Start with static data immediately
+    setVessels(activeRegion.vessels)
+    setStats(activeRegion.stats)
     setSelectedVessel(null)
-    // Fetch updated stats for new region
+    // Then fetch real data for this region
     if (mounted) {
       fetchLiveIntelligence()
-      if (activeRegion.id === "hormuz") fetchHormuzLiveData()
+      fetchAISVessels(activeRegion.id)
+      fetchMaritimeNews(activeRegion.id)
     }
-  }, [activeRegion, mounted, hormuzLiveData, liveDataSource])
+  }, [activeRegion, mounted])
 
   // Auto-refresh every 8 seconds for vessel positions, every 60 seconds for API data
   useEffect(() => {
     if (!mounted) return
     
-    // Vessel position updates (every 8 seconds)
+    // Vessel position updates (every 8 seconds) - fetch fresh AIS data
     const vesselInterval = setInterval(() => {
       setIsRefreshing(true)
-      setVessels(prev => prev.map(applyJitter))
+      fetchAISVessels(activeRegion.id)
       setLastUpdate(new Date())
       setTimeout(() => setIsRefreshing(false), 500)
     }, 8000)
@@ -373,16 +326,10 @@ export default function MapDashboardPage() {
       fetchMaritimeNews()
     }, 30000)
     
-    // Live data refresh from Redis (every 2 minutes)
-    const liveDataInterval = setInterval(() => {
-      fetchHormuzLiveData()
-    }, 120000)
-    
     return () => {
       clearInterval(vesselInterval)
       clearInterval(apiInterval)
       clearInterval(newsInterval)
-      clearInterval(liveDataInterval)
     }
   }, [mounted])
 
@@ -427,8 +374,8 @@ export default function MapDashboardPage() {
               )}
             </button>
             <div className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-1.5">
-              <div className={`h-2 w-2 rounded-full ${liveDataSource === "live" ? "bg-[#00E676]" : "bg-[#FFB800]"} animate-pulse`} />
-              <span className="text-xs text-muted-foreground">{liveDataSource === "live" ? "Live" : "Cached"}</span>
+              <div className="h-2 w-2 rounded-full bg-[#00E676] animate-pulse" />
+              <span className="text-xs text-muted-foreground">Live</span>
             </div>
             <div className="glass rounded-lg border border-border px-3 py-1.5">
               <span className="text-xs font-mono text-muted-foreground">
@@ -508,31 +455,7 @@ export default function MapDashboardPage() {
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="glass rounded-2xl border border-border p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                  Region Statistics
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
-                    <div className="text-2xl font-bold text-primary">{stats.activeVessels}</div>
-                    <div className="text-xs text-muted-foreground">Active Vessels</div>
-                  </div>
-                  <div className="rounded-xl bg-accent/10 border border-accent/20 p-3">
-                    <div className="text-2xl font-bold text-accent">{stats.dailyTransits}</div>
-                    <div className="text-xs text-muted-foreground">Daily Transits</div>
-                  </div>
-                  <div className="rounded-xl bg-[#00E676]/10 border border-[#00E676]/20 p-3">
-                    <div className="text-2xl font-bold text-[#00E676]">{stats.avgWaitTime}</div>
-                    <div className="text-xs text-muted-foreground">Avg Wait</div>
-                  </div>
-                  <div className="rounded-xl bg-[#FFB800]/10 border border-[#FFB800]/20 p-3">
-                    <div className="text-2xl font-bold text-[#FFB800]">${stats.marketVolume}M</div>
-                    <div className="text-xs text-muted-foreground">Market Volume</div>
-                  </div>
-                </div>
               </div>
-            </div>
 
             {/* Center - Map */}
             <div className="relative h-[500px] lg:h-[650px] rounded-2xl overflow-hidden border border-border">
@@ -628,8 +551,8 @@ export default function MapDashboardPage() {
                       <div className="mt-1 text-xs text-muted-foreground">MMSI: {selectedVessel.mmsi}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-muted-foreground">Match Score</div>
-                      <div className="text-lg font-bold text-primary">{selectedVessel.matchScore}%</div>
+                      <div className="text-xs text-muted-foreground">Type</div>
+                      <div className="text-lg font-bold text-primary capitalize">{selectedVessel.type}</div>
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-4 gap-3 text-center">
@@ -751,80 +674,21 @@ export default function MapDashboardPage() {
                   </div>
                 ))}
 
-                {/* Live Incidents from Tavily/Redis */}
-                {activeRegion.id === "hormuz" && hormuzLiveData?.latestIncidents?.map((incident) => (
-                  <div 
-                    key={incident.id}
-                    className={`rounded-xl p-4 border ${
-                      incident.severity === "critical" 
-                        ? "bg-destructive/10 border-destructive/30" 
-                        : incident.severity === "warning"
-                        ? "bg-[#FFB800]/10 border-[#FFB800]/30"
-                        : "bg-primary/10 border-primary/30"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className={`h-4 w-4 mt-0.5 shrink-0 ${
-                        incident.severity === "critical" ? "text-destructive" : 
-                        incident.severity === "warning" ? "text-[#FFB800]" : "text-primary"
-                      }`} />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-semibold uppercase ${
-                            incident.severity === "critical" ? "text-destructive" : 
-                            incident.severity === "warning" ? "text-[#FFB800]" : "text-primary"
-                          }`}>
-                            {incident.severity}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-medium">LIVE</span>
-                          <span className="text-xs text-muted-foreground">via {incident.source}</span>
-                        </div>
-                        <div className="mt-1 text-sm text-foreground">{incident.message}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
                 {/* Bot Status */}
                 <div className="rounded-xl p-3 border border-dashed border-border bg-background/50">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className={`h-2 w-2 rounded-full ${liveDataSource === "live" ? "bg-[#00E676]" : liveDataSource === "error" ? "bg-destructive" : "bg-[#FFB800]"} animate-pulse`} />
-                        <span className="text-muted-foreground">
-                          {liveDataSource === "live" ? "Tavily Bot Active" : liveDataSource === "error" ? "Bot Error" : "Using Cached Data"}
-                        </span>
-                      </div>
-                      <span className="text-muted-foreground font-mono">
-                        {hormuzLiveData?.lastUpdated ? new Date(hormuzLiveData.lastUpdated).toLocaleTimeString() : liveIntel?.timestamp ? new Date(liveIntel.timestamp).toLocaleTimeString() : "--:--"}
-                      </span>
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#00E676] animate-pulse" />
+                      <span className="text-muted-foreground">Intelligence Bot Active</span>
                     </div>
-                    {activeRegion.id === "hormuz" && hormuzLiveData && (
-                      <div className="flex items-center gap-2 text-[10px]">
-                        <span className={`px-1.5 py-0.5 rounded font-medium ${
-                          hormuzLiveData.riskLevel === "critical" ? "bg-destructive/20 text-destructive" :
-                          hormuzLiveData.riskLevel === "high" ? "bg-[#FFB800]/20 text-[#FFB800]" :
-                          hormuzLiveData.riskLevel === "moderate" ? "bg-accent/20 text-accent" :
-                          "bg-[#00E676]/20 text-[#00E676]"
-                        }`}>
-                          Risk: {hormuzLiveData.riskLevel.toUpperCase()}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {hormuzLiveData.vesselCount} vessels tracked
-                        </span>
-                      </div>
-                    )}
+                    <span className="text-muted-foreground font-mono">
+                      {liveIntel?.timestamp ? new Date(liveIntel.timestamp).toLocaleTimeString() : "--:--"}
+                    </span>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-4 pt-4 border-t border-border">
-                <Link href="/#surge-form" className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90">
-                  Get Matched with Vessels
-                  <ChevronRight className="h-4 w-4" />
-                </Link>
               </div>
-            </div>
           </div>
 
           {/* Sliding News Panel */}

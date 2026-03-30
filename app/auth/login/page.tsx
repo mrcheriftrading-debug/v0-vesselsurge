@@ -6,7 +6,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Radio, Loader2 } from "lucide-react"
+import { Zap, Loader2 } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -45,8 +45,8 @@ export default function LoginPage() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold text-foreground">VesselPro</span>
+            <Zap className="h-5 w-5 text-primary" />
+            <span className="text-lg font-semibold text-foreground">VesselSurge</span>
           </Link>
           <Link href="/auth/sign-up">
             <Button variant="ghost" size="sm">
@@ -63,7 +63,7 @@ export default function LoginPage() {
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Log in to your VesselPro account
+                Log in to your VesselSurge account
               </p>
             </div>
 

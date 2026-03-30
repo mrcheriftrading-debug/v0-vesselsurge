@@ -278,11 +278,20 @@ function generateMarketStats() {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const news = generateRealNewsItems()
-    const alerts = generateSecurityAlerts()
+    const { searchParams } = new URL(request.url)
+    const regionFilter = searchParams.get("region")
+    
+    let news = generateRealNewsItems()
+    let alerts = generateSecurityAlerts()
     const market = generateMarketStats()
+    
+    // Filter by region if specified (include global news always)
+    if (regionFilter) {
+      news = news.filter(n => n.region === regionFilter || n.region === "global")
+      alerts = alerts.filter(a => a.region === regionFilter)
+    }
     
     return NextResponse.json({
       success: true,
