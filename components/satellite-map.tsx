@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Hotspot {
   id: string
@@ -23,15 +23,28 @@ export default function SatelliteMap({ hotspots, selected, onSelect }: Satellite
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
+  const [isReady, setIsReady] = useState(false)
+
+  // Wait for DOM to be ready
+  useEffect(() => {
+    setIsReady(true)
+  }, [])
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapRef.current) return
-    if (mapInstanceRef.current) return // Already initialized
+    if (!isReady) return
+    if (typeof window === 'undefined') return
+    if (!mapRef.current) return
+    if (mapInstanceRef.current) return
 
-    // Check if map already exists in container
-    if ((mapRef.current as any)._leaflet_id) return
+    // Check if container already has a map
+    if ((mapRef.current as any)._leaflet_id) {
+      delete (mapRef.current as any)._leaflet_id
+    }
 
     import('leaflet').then((L) => {
+      // Double check ref is still valid
+      if (!mapRef.current) return
+      if (mapInstanceRef.current) return
       // Fix Leaflet default icon paths
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
@@ -95,11 +108,16 @@ export default function SatelliteMap({ hotspots, selected, onSelect }: Satellite
 
     return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
+        try {
+          mapInstanceRef.current.remove()
+        } catch (e) {
+          // Ignore cleanup errors
+        }
         mapInstanceRef.current = null
+        markersRef.current = []
       }
     }
-  }, [])
+  }, [isReady, hotspots, onSelect])
 
   // Pan to selected hotspot
   useEffect(() => {
