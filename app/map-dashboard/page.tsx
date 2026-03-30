@@ -268,16 +268,20 @@ export default function MapDashboardPage() {
   }
 
   // Fetch live data from Upstash Redis via API
-  const fetchHormuzLiveData = async () => {
+  const fetchHormuzLiveData = async (autoTriggerIfEmpty: boolean = false) => {
     try {
+      console.log("[v0] Fetching live data from /api/live-data")
       const res = await fetch("/api/live-data", { cache: "no-store" })
       const data = await res.json()
+      console.log("[v0] Live data response:", data.source, data.data?.vesselCount)
+      
       if (data.success && data.data) {
         setHormuzLiveData(data.data)
         setLiveDataSource(data.source)
         
-        // Update Hormuz stats and vessels with live data if currently viewing Hormuz
-        if (activeRegion.id === "hormuz" && data.source === "live") {
+        // Update Hormuz stats and vessels with any data (live or default)
+        if (activeRegion.id === "hormuz") {
+          console.log("[v0] Updating Hormuz stats:", data.data.vesselCount, data.data.dailyTransits)
           setStats({
             activeVessels: data.data.vesselCount,
             dailyTransits: data.data.dailyTransits,
@@ -290,8 +294,15 @@ export default function MapDashboardPage() {
             setVessels(data.data.vessels)
           }
         }
+        
+        // If source is "default" (no cached data), auto-trigger Tavily update
+        if (autoTriggerIfEmpty && data.source === "default") {
+          console.log("[v0] No cached data, auto-triggering Tavily update...")
+          triggerLiveUpdate()
+        }
       }
     } catch (error) {
+      console.log("[v0] Error fetching live data:", error)
       // Silently fail - will retry on next interval
       setLiveDataSource("error")
     }
@@ -341,13 +352,14 @@ export default function MapDashboardPage() {
     setLastUpdate(new Date())
     fetchLiveIntelligence()
     fetchMaritimeNews()
-    fetchHormuzLiveData() // Fetch live data from Redis on mount
+    fetchHormuzLiveData(true) // Fetch live data from Redis on mount, auto-trigger if empty
   }, [])
 
   useEffect(() => {
-    // For Hormuz, use live data if available
-    if (activeRegion.id === "hormuz" && hormuzLiveData && liveDataSource === "live") {
-      setVessels(hormuzLiveData.vessels.length > 0 ? hormuzLiveData.vessels : activeRegion.vessels)
+    // For Hormuz, use live data if available (both "live" and "default" sources have data)
+    if (activeRegion.id === "hormuz" && hormuzLiveData) {
+      console.log("[v0] Region effect: Using Hormuz live data", hormuzLiveData.vesselCount)
+      setVessels(hormuzLiveData.vessels && hormuzLiveData.vessels.length > 0 ? hormuzLiveData.vessels : activeRegion.vessels)
       setStats({
         activeVessels: hormuzLiveData.vesselCount,
         dailyTransits: hormuzLiveData.dailyTransits,
@@ -355,6 +367,7 @@ export default function MapDashboardPage() {
         marketVolume: hormuzLiveData.marketVolume,
       })
     } else {
+      console.log("[v0] Region effect: Using default region stats for", activeRegion.id)
       setVessels(activeRegion.vessels)
       setStats(activeRegion.stats)
     }
