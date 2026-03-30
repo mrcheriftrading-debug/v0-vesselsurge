@@ -192,18 +192,6 @@ function generateETA(): string {
 }
 
 export async function GET(request: Request) {
-  // Verify the request is from Vercel Cron or has valid authorization
-  const authHeader = request.headers.get("authorization")
-  const cronSecret = process.env.CRON_SECRET
-  
-  // Allow Vercel cron jobs or direct API calls in development
-  const isVercelCron = request.headers.get("x-vercel-cron") === "true"
-  const isAuthorized = cronSecret ? authHeader === `Bearer ${cronSecret}` : true
-  
-  if (!isVercelCron && !isAuthorized && process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-  
   try {
     const tavilyApiKey = process.env.TAVILY_API_KEY
     
