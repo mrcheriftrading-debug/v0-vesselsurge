@@ -115,13 +115,9 @@ export default function MapDashboard() {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Activity className="h-3 w-3" />
                       {hotspot.dailyTransits} ships/day
-                    </div>
-                  </button>
-                ))}
               </div>
             </div>
-
-            <div className="glass rounded-2xl border border-border p-4">
+          </div>
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Details</h3>
               <div className="space-y-3">
                 <div>
