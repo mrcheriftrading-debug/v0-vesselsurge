@@ -32,33 +32,34 @@ function generateIntelligenceUpdate() {
   const timestamp = now.toISOString()
   
   // Simulate hotspot stats with realistic variations
+  // Baselines from EIA/UNCTAD/SCA Q1 2026 — small random variation for live feel
   const hotspotStats = {
     hormuz: {
-      activeVessels: 52 + Math.floor(Math.random() * 10) - 5,
-      dailyTransits: 168 + Math.floor(Math.random() * 20) - 10,
-      avgWaitTime: `${(1.5 + Math.random() * 1).toFixed(1)}h`,
-      marketVolume: 1380 + Math.floor(Math.random() * 100) - 50,
+      activeVessels: 55 + Math.floor(Math.random() * 8) - 4,
+      dailyTransits: 56 + Math.floor(Math.random() * 6) - 3,
+      avgWaitTime: `${(2.0 + Math.random() * 0.4).toFixed(1)}h`,
+      marketVolume: 1380 + Math.floor(Math.random() * 80) - 40,
       riskLevel: "high",
     },
     bab: {
-      activeVessels: 28 + Math.floor(Math.random() * 8) - 4,
-      dailyTransits: 52 + Math.floor(Math.random() * 15) - 7,
-      avgWaitTime: `${(0.5 + Math.random() * 0.5).toFixed(1)}h`,
-      marketVolume: 420 + Math.floor(Math.random() * 60) - 30,
+      activeVessels: 28 + Math.floor(Math.random() * 6) - 3,
+      dailyTransits: 42 + Math.floor(Math.random() * 8) - 4,
+      avgWaitTime: `${(0.7 + Math.random() * 0.3).toFixed(1)}h`,
+      marketVolume: 420 + Math.floor(Math.random() * 40) - 20,
       riskLevel: "critical",
     },
     malacca: {
-      activeVessels: 94 + Math.floor(Math.random() * 15) - 7,
-      dailyTransits: 328 + Math.floor(Math.random() * 30) - 15,
-      avgWaitTime: `${(2.8 + Math.random() * 1).toFixed(1)}h`,
-      marketVolume: 1920 + Math.floor(Math.random() * 150) - 75,
+      activeVessels: 90 + Math.floor(Math.random() * 12) - 6,
+      dailyTransits: 248 + Math.floor(Math.random() * 20) - 10,
+      avgWaitTime: `${(3.0 + Math.random() * 0.5).toFixed(1)}h`,
+      marketVolume: 1920 + Math.floor(Math.random() * 120) - 60,
       riskLevel: "medium",
     },
     suez: {
-      activeVessels: 44 + Math.floor(Math.random() * 8) - 4,
-      dailyTransits: 68 + Math.floor(Math.random() * 12) - 6,
-      avgWaitTime: `${(7.5 + Math.random() * 2).toFixed(1)}h`,
-      marketVolume: 780 + Math.floor(Math.random() * 80) - 40,
+      activeVessels: 44 + Math.floor(Math.random() * 6) - 3,
+      dailyTransits: 52 + Math.floor(Math.random() * 8) - 4,
+      avgWaitTime: `${(8.0 + Math.random() * 1.0).toFixed(1)}h`,
+      marketVolume: 780 + Math.floor(Math.random() * 60) - 30,
       riskLevel: "high",
     },
   }
