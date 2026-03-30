@@ -269,11 +269,9 @@ export default function MapDashboard() {
                 <span className="text-2xl font-bold text-[#FFB800]">${stats.marketVolume}M</span>
               </div>
               <div className="text-xs text-muted-foreground mt-1">Volume</div>
-                </div>
-              </div>
-              {/* Hotspots end */}
-              ))}
             </div>
+          </div>
+        </div>
 
         <div className="glass rounded-2xl border border-border p-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Vessels in {activeRegion.name}</h3>
