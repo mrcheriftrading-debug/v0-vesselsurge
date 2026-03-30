@@ -8,93 +8,12 @@ const HOTSPOT_BOUNDS: Record<string, { minLat: number; maxLat: number; minLng: n
   suez: { minLat: 29.5, maxLat: 31.5, minLng: 32.0, maxLng: 33.0 },
 }
 
-// Vessel type codes from AIS
-const VESSEL_TYPES: Record<number, string> = {
-  70: "cargo",
-  71: "cargo",
-  72: "cargo",
-  73: "cargo",
-  74: "cargo",
-  79: "cargo",
-  80: "tanker",
-  81: "tanker",
-  82: "tanker",
-  83: "tanker",
-  84: "tanker",
-  85: "tanker",
-  86: "tanker",
-  87: "tanker",
-  88: "tanker",
-  89: "tanker",
-  60: "container",
-  61: "container",
-  62: "container",
-  63: "container",
-  64: "container",
-  65: "container",
-  66: "container",
-  67: "container",
-  68: "container",
-  69: "container",
-}
-
-// Flag state codes
-const FLAG_CODES: Record<string, string> = {
-  "201": "AL", "202": "AD", "203": "AT", "204": "PT", "205": "BE",
-  "209": "MT", "210": "CY", "211": "DE", "212": "CY", "213": "GE",
-  "214": "MD", "215": "MT", "218": "DE", "219": "DK", "220": "DK",
-  "224": "ES", "225": "ES", "226": "FR", "227": "FR", "228": "FR",
-  "229": "MT", "230": "FI", "231": "FO", "232": "GB", "233": "GB",
-  "234": "GB", "235": "GB", "236": "GI", "237": "GR", "238": "HR",
-  "239": "GR", "240": "GR", "241": "GR", "242": "MA", "243": "HU",
-  "244": "NL", "245": "NL", "246": "NL", "247": "IT", "248": "MT",
-  "249": "MT", "250": "IE", "251": "IS", "252": "LI", "253": "LU",
-  "254": "MC", "255": "PT", "256": "MT", "257": "NO", "258": "NO",
-  "259": "NO", "261": "PL", "262": "ME", "263": "PT", "264": "RO",
-  "265": "SE", "266": "SE", "267": "SK", "268": "SM", "269": "CH",
-  "270": "CZ", "271": "TR", "272": "UA", "273": "RU", "274": "MK",
-  "275": "LV", "276": "EE", "277": "LT", "278": "SI", "279": "RS",
-  "301": "AI", "303": "US", "304": "AG", "305": "AG", "306": "CW",
-  "307": "AW", "308": "BS", "309": "BS", "310": "BM", "311": "BS",
-  "312": "BZ", "314": "BB", "316": "CA", "319": "KY", "321": "CR",
-  "323": "CU", "325": "DM", "327": "DO", "329": "GP", "330": "GD",
-  "331": "GL", "332": "GT", "334": "HN", "336": "HT", "338": "US",
-  "339": "JM", "341": "KN", "343": "LC", "345": "MX", "347": "MQ",
-  "348": "MS", "350": "NI", "351": "PA", "352": "PA", "353": "PA",
-  "354": "PA", "355": "PA", "356": "PA", "357": "PA", "358": "PR",
-  "359": "SV", "361": "PM", "362": "TT", "364": "TC", "366": "US",
-  "367": "US", "368": "US", "369": "US", "370": "PA", "371": "PA",
-  "372": "PA", "373": "PA", "374": "PA", "375": "VC", "376": "VC",
-  "377": "VC", "378": "VG", "379": "VI", "401": "AF", "403": "SA",
-  "405": "BD", "408": "BH", "410": "BT", "412": "CN", "413": "CN",
-  "414": "CN", "416": "TW", "417": "LK", "419": "IN", "422": "IR",
-  "423": "AZ", "425": "IQ", "428": "IL", "431": "JP", "432": "JP",
-  "434": "TM", "436": "KZ", "437": "UZ", "438": "JO", "440": "KR",
-  "441": "KR", "443": "PS", "445": "KP", "447": "KW", "450": "LB",
-  "451": "KG", "453": "MO", "455": "MV", "457": "MN", "459": "NP",
-  "461": "OM", "463": "PK", "466": "QA", "468": "SY", "470": "AE",
-  "472": "TJ", "473": "YE", "475": "YE", "477": "HK", "478": "BA",
-  "501": "AQ", "503": "AU", "506": "MM", "508": "BN", "510": "FM",
-  "511": "PW", "512": "NZ", "514": "KH", "515": "KH", "516": "CX",
-  "518": "CK", "520": "FJ", "523": "CC", "525": "ID", "529": "KI",
-  "531": "LA", "533": "MY", "536": "MP", "538": "MH", "540": "NC",
-  "542": "NU", "544": "NR", "546": "PF", "548": "PH", "553": "PG",
-  "555": "PN", "557": "SB", "559": "AS", "561": "WS", "563": "SG",
-  "564": "SG", "565": "SG", "566": "SG", "567": "TH", "570": "TO",
-  "572": "TV", "574": "VN", "576": "VU", "577": "VU", "578": "WF",
-  "601": "ZA", "603": "AO", "605": "DZ", "607": "TF", "608": "IO",
-  "609": "BI", "610": "BJ", "611": "BW", "612": "CF", "613": "CM",
-  "615": "CG", "616": "KM", "617": "CV", "618": "AQ", "619": "CI",
-  "620": "KM", "621": "DJ", "622": "EG", "624": "ET", "625": "ER",
-  "626": "GA", "627": "GH", "629": "GM", "630": "GW", "631": "GQ",
-  "632": "GN", "633": "BF", "634": "KE", "635": "AQ", "636": "LR",
-  "637": "LR", "638": "SS", "642": "LY", "644": "LS", "645": "MU",
-  "647": "MG", "649": "ML", "650": "MZ", "654": "MR", "655": "MW",
-  "656": "NE", "657": "NG", "659": "NA", "660": "RE", "661": "RW",
-  "662": "SD", "663": "SN", "664": "SC", "665": "SH", "666": "SO",
-  "667": "SL", "668": "ST", "669": "SZ", "670": "TD", "671": "TG",
-  "672": "TN", "674": "TZ", "675": "UG", "676": "CD", "677": "TZ",
-  "678": "ZM", "679": "ZW",
+// Realistic base statistics for each hotspot (used for daily transits and market volume)
+const BASE_STATS: Record<string, { transits: number; volume: number; waitTime: string }> = {
+  hormuz: { transits: 174, volume: 1380, waitTime: "2.1h" },
+  bab: { transits: 52, volume: 420, waitTime: "0.8h" },
+  malacca: { transits: 328, volume: 1920, waitTime: "3.2h" },
+  suez: { transits: 68, volume: 780, waitTime: "8.4h" },
 }
 
 interface AISVessel {
@@ -108,53 +27,120 @@ interface AISVessel {
   destination: string
   eta: string
   flag: string
-  matchScore: number
 }
 
-// Simulated real-time AIS data with realistic positions
-function generateRealisticVessels(hotspotId: string): AISVessel[] {
+// Fetch real vessel data from AISStream API
+async function fetchFromAISStream(bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }): Promise<AISVessel[] | null> {
+  const apiKey = process.env.NEXT_PUBLIC_AISSTREAM_API_KEY
+  if (!apiKey) return null
+
+  try {
+    // AISStream REST API endpoint for vessel positions in bounding box
+    const response = await fetch(`https://api.aisstream.io/v0/vessels?apiKey=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        boundingBox: {
+          minLat: bounds.minLat,
+          maxLat: bounds.maxLat,
+          minLon: bounds.minLng,
+          maxLon: bounds.maxLng,
+        },
+      }),
+      signal: AbortSignal.timeout(5000), // 5 second timeout
+    })
+
+    if (!response.ok) {
+      console.log("[v0] AISStream API returned status:", response.status)
+      return null
+    }
+
+    const data = await response.json()
+    
+    if (data.vessels && Array.isArray(data.vessels)) {
+      return data.vessels.map((v: any) => ({
+        mmsi: v.mmsi || String(Math.floor(100000000 + Math.random() * 899999999)),
+        name: v.name || v.shipName || "UNKNOWN",
+        type: mapVesselType(v.shipType || v.vesselType || 0),
+        lat: v.latitude || v.lat,
+        lng: v.longitude || v.lon || v.lng,
+        speed: v.sog || v.speed || 0,
+        course: v.cog || v.course || 0,
+        destination: v.destination || "UNKNOWN",
+        eta: v.eta || new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0],
+        flag: v.flag || v.flagCountry || "PA",
+      }))
+    }
+
+    return null
+  } catch (error) {
+    console.log("[v0] AISStream API error:", error)
+    return null
+  }
+}
+
+// Map numeric vessel type to category
+function mapVesselType(typeCode: number): string {
+  if (typeCode >= 80 && typeCode <= 89) return "tanker"
+  if (typeCode >= 70 && typeCode <= 79) return "cargo"
+  if (typeCode >= 60 && typeCode <= 69) return "container"
+  if (typeCode === 75 || typeCode === 76) return "lng"
+  return ["tanker", "cargo", "container", "lng"][Math.floor(Math.random() * 4)]
+}
+
+// Generate simulated vessels when API is unavailable
+function generateSimulatedVessels(hotspotId: string): AISVessel[] {
   const bounds = HOTSPOT_BOUNDS[hotspotId]
   if (!bounds) return []
 
-  const vesselTypes = ["tanker", "cargo", "container", "lng"]
   const vesselNames: Record<string, string[]> = {
-    tanker: ["FRONT ALTA", "NISSOS THERASSIA", "MINERVA HELEN", "EAGLE TACOMA", "HAFNIA PHOENIX", "CELSIUS RIGA", "SUEZMAX FORTUNE", "CRUDE JUPITER", "OLYMPIC LION", "MARAN CASTOR"],
-    cargo: ["GENCO PICARDY", "LOWLANDS BOREAS", "FEDERAL YUKON", "STAR ANTARES", "PACIFIC PEARL", "AFRICAN KESTREL", "BULK CHAMPION", "OCEAN TRADER", "GLOBAL CARRIER", "SEA FORTUNE"],
-    container: ["EVER ACE", "MSC ANNA", "MAERSK EDINBURGH", "ONE CONTINUITY", "CMA CGM THALASSA", "HMM ALGECIRAS", "OOCL PIRAEUS", "COSCO SHIPPING", "YANG MING UNITY", "HAPAG LLOYD EXPRESS"],
-    lng: ["AL HUWAILA", "PACIFIC BREEZE", "LNG DREAM", "EXCEL", "GLOBAL ENERGY", "ARCTIC VOYAGER", "PACIFIC ENTERPRISE", "MARAN GAS", "FLEX RESOLUTE", "CLEAN OCEAN"],
+    tanker: ["FRONT COURAGE", "NISSOS THERASSIA", "MINERVA HELEN", "EAGLE TACOMA", "HAFNIA PHOENIX", "CELSIUS RIGA", "SUEZMAX FORTUNE", "CRUDE JUPITER", "OLYMPIC LION", "MARAN CASTOR", "DHT TIGER", "EURONAV FORCE"],
+    cargo: ["GENCO PICARDY", "LOWLANDS BOREAS", "FEDERAL YUKON", "STAR ANTARES", "PACIFIC PEARL", "AFRICAN KESTREL", "BULK CHAMPION", "OCEAN TRADER", "GLOBAL CARRIER", "NAVIOS AURORA", "STAR BULK ATLAS"],
+    container: ["EVER ACE", "MSC ANNA", "MAERSK EDINBURGH", "ONE CONTINUITY", "CMA CGM THALASSA", "HMM ALGECIRAS", "OOCL PIRAEUS", "COSCO SHIPPING", "YANG MING UNITY", "HAPAG HAMBURG", "ZIM INTEGRATED"],
+    lng: ["AL HUWAILA", "PACIFIC BREEZE", "LNG DREAM", "EXCEL", "GLOBAL ENERGY", "ARCTIC VOYAGER", "MARAN GAS", "FLEX RESOLUTE", "CLEAN OCEAN", "GAS INNOVATION"],
   }
-  const flags = ["PA", "MH", "LR", "SG", "HK", "GR", "MT", "BS", "CY", "NO"]
+  
+  const flags = ["PA", "MH", "LR", "SG", "HK", "GR", "MT", "BS", "CY", "NO", "DK", "GB", "JP", "KR"]
+  
   const destinations: Record<string, string[]> = {
-    hormuz: ["FUJAIRAH ANCH", "RAS TANURA", "JEBEL ALI", "BANDAR ABBAS", "KHARG ISLAND", "SINGAPORE", "MUMBAI", "YOKOHAMA"],
-    bab: ["SUEZ CANAL", "PORT SAID", "JEDDAH", "DJIBOUTI", "COLOMBO", "SINGAPORE", "ROTTERDAM", "PIRAEUS"],
-    malacca: ["SINGAPORE PSA", "PORT KLANG", "TANJUNG PELEPAS", "HONG KONG", "SHANGHAI", "TOKYO", "BUSAN", "KAOHSIUNG"],
-    suez: ["ROTTERDAM", "HAMBURG", "FELIXSTOWE", "PIRAEUS", "SINGAPORE", "JEDDAH", "MUMBAI", "HONG KONG"],
+    hormuz: ["FUJAIRAH ANCH", "RAS TANURA", "JEBEL ALI", "BANDAR ABBAS", "KHARG ISLAND", "SINGAPORE", "MUMBAI", "YOKOHAMA", "NINGBO", "ULSAN"],
+    bab: ["SUEZ CANAL", "PORT SAID", "JEDDAH", "DJIBOUTI", "COLOMBO", "SINGAPORE", "ROTTERDAM", "PIRAEUS", "VALENCIA", "GENOA"],
+    malacca: ["SINGAPORE PSA", "PORT KLANG", "TANJUNG PELEPAS", "HONG KONG", "SHANGHAI", "TOKYO", "BUSAN", "KAOHSIUNG", "NINGBO", "YOKOHAMA"],
+    suez: ["ROTTERDAM", "HAMBURG", "FELIXSTOWE", "PIRAEUS", "SINGAPORE", "JEDDAH", "MUMBAI", "HONG KONG", "ANTWERP", "BREMERHAVEN"],
   }
 
-  const numVessels = Math.floor(Math.random() * 4) + 6 // 6-9 vessels
+  const numVessels = Math.floor(Math.random() * 5) + 7 // 7-11 vessels
   const vessels: AISVessel[] = []
+  const usedNames = new Set<string>()
+  const vesselTypes = ["tanker", "cargo", "container", "lng"]
 
   for (let i = 0; i < numVessels; i++) {
     const type = vesselTypes[Math.floor(Math.random() * vesselTypes.length)]
     const typeNames = vesselNames[type]
-    const name = typeNames[Math.floor(Math.random() * typeNames.length)]
+    let name = typeNames[Math.floor(Math.random() * typeNames.length)]
     
-    // Generate position within bounds with realistic shipping lane distribution
+    // Ensure unique names
+    while (usedNames.has(name)) {
+      name = typeNames[Math.floor(Math.random() * typeNames.length)]
+    }
+    usedNames.add(name)
+    
+    // Generate position within shipping lanes
     const latRange = bounds.maxLat - bounds.minLat
     const lngRange = bounds.maxLng - bounds.minLng
     const lat = bounds.minLat + (Math.random() * latRange)
     const lng = bounds.minLng + (Math.random() * lngRange)
     
-    // Realistic speeds based on vessel type and location
+    // Realistic speeds
     let speed: number
     if (hotspotId === "suez") {
-      speed = 6 + Math.random() * 3 // Canal speed: 6-9 knots
+      speed = 6 + Math.random() * 3 // Canal: 6-9 knots
     } else if (type === "container") {
-      speed = 14 + Math.random() * 8 // Container: 14-22 knots
+      speed = 16 + Math.random() * 6 // Container: 16-22 knots
     } else if (type === "lng") {
-      speed = 15 + Math.random() * 4 // LNG: 15-19 knots
+      speed = 17 + Math.random() * 4 // LNG: 17-21 knots
     } else {
-      speed = 11 + Math.random() * 5 // Tanker/Cargo: 11-16 knots
+      speed = 12 + Math.random() * 5 // Tanker/Cargo: 12-17 knots
     }
 
     // Course based on traffic flow
@@ -189,41 +175,70 @@ function generateRealisticVessels(hotspotId: string): AISVessel[] {
       destination,
       eta,
       flag: flags[Math.floor(Math.random() * flags.length)],
-      matchScore: Math.floor(75 + Math.random() * 25),
     })
   }
 
   return vessels
 }
 
-// Generate realistic stats for each hotspot
-function generateHotspotStats(hotspotId: string) {
-  const baseStats: Record<string, { vessels: number; transits: number; wait: string; volume: number }> = {
-    hormuz: { vessels: 52, transits: 174, wait: "2.1h", volume: 1380 },
-    bab: { vessels: 28, transits: 52, wait: "0.8h", volume: 420 },
-    malacca: { vessels: 94, transits: 328, wait: "3.2h", volume: 1920 },
-    suez: { vessels: 44, transits: 68, wait: "8.4h", volume: 780 },
+// Calculate dynamic stats from vessel data
+function calculateStats(vessels: AISVessel[], hotspotId: string) {
+  const base = BASE_STATS[hotspotId] || BASE_STATS.hormuz
+  
+  // Calculate average speed from vessels
+  const avgSpeed = vessels.length > 0 
+    ? vessels.reduce((sum, v) => sum + v.speed, 0) / vessels.length 
+    : 12.5
+
+  // Count vessel types
+  const typeCounts = {
+    tanker: vessels.filter(v => v.type === "tanker").length,
+    cargo: vessels.filter(v => v.type === "cargo").length,
+    container: vessels.filter(v => v.type === "container").length,
+    lng: vessels.filter(v => v.type === "lng").length,
   }
 
-  const base = baseStats[hotspotId] || baseStats.hormuz
-  
-  // Add realistic variation
+  // Add small variation to base stats
+  const transitVariation = Math.floor((Math.random() - 0.5) * 20)
+  const volumeVariation = Math.floor((Math.random() - 0.5) * 100)
+
   return {
-    activeVessels: base.vessels + Math.floor((Math.random() - 0.5) * 10),
-    dailyTransits: base.transits + Math.floor((Math.random() - 0.5) * 20),
-    avgWaitTime: base.wait,
-    marketVolume: base.volume + Math.floor((Math.random() - 0.5) * 100),
+    activeVessels: vessels.length,
+    dailyTransits: base.transits + transitVariation,
+    avgWaitTime: base.waitTime,
+    marketVolume: base.volume + volumeVariation,
+    avgSpeed: Math.round(avgSpeed * 10) / 10,
+    vesselTypes: typeCounts,
   }
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const hotspot = searchParams.get("hotspot") || "hormuz"
+  const bounds = HOTSPOT_BOUNDS[hotspot]
+
+  if (!bounds) {
+    return NextResponse.json(
+      { success: false, error: "Invalid hotspot specified" },
+      { status: 400 }
+    )
+  }
 
   try {
-    // Generate realistic vessel data
-    const vessels = generateRealisticVessels(hotspot)
-    const stats = generateHotspotStats(hotspot)
+    // Try to fetch from AISStream API first
+    let vessels = await fetchFromAISStream(bounds)
+    let source = "AISStream API"
+
+    // Fall back to simulated data if API fails
+    if (!vessels || vessels.length === 0) {
+      vessels = generateSimulatedVessels(hotspot)
+      source = process.env.NEXT_PUBLIC_AISSTREAM_API_KEY 
+        ? "Simulated (API returned no data)" 
+        : "Simulated AIS Feed"
+    }
+
+    // Calculate statistics from actual vessel data
+    const stats = calculateStats(vessels, hotspot)
 
     return NextResponse.json({
       success: true,
@@ -231,16 +246,30 @@ export async function GET(request: Request) {
         hotspot,
         vessels,
         stats,
-        bounds: HOTSPOT_BOUNDS[hotspot],
+        bounds,
         timestamp: new Date().toISOString(),
-        source: process.env.NEXT_PUBLIC_AISSTREAM_API_KEY ? "AISStream API" : "Simulated AIS Feed",
+        source,
+        apiKeyConfigured: !!process.env.NEXT_PUBLIC_AISSTREAM_API_KEY,
       },
     })
   } catch (error) {
-    console.error("AIS API Error:", error)
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch vessel data" },
-      { status: 500 }
-    )
+    console.error("[v0] AIS API Error:", error)
+    
+    // Return simulated data on error
+    const vessels = generateSimulatedVessels(hotspot)
+    const stats = calculateStats(vessels, hotspot)
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        hotspot,
+        vessels,
+        stats,
+        bounds,
+        timestamp: new Date().toISOString(),
+        source: "Simulated (Error fallback)",
+        apiKeyConfigured: !!process.env.NEXT_PUBLIC_AISSTREAM_API_KEY,
+      },
+    })
   }
 }

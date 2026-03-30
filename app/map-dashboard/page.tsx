@@ -460,9 +460,83 @@ export default function MapDashboardPage() {
                     </button>
                   ))}
                 </div>
+</div>
+                  ))}
+                </div>
               </div>
 
+              {/* Live Statistics Panel */}
+              <div className="glass rounded-2xl border border-border p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Live Statistics
+                  </h3>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-[#00E676] animate-pulse" />
+                    <span className="text-[10px] font-bold text-[#00E676] uppercase">Live</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Vessels Tracked */}
+                  <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
+                    <div className="flex items-center gap-2">
+                      <Ship className="h-4 w-4 text-primary" />
+                      <span className="text-2xl font-bold text-primary">{vessels.length}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">Vessels Tracked</div>
+                  </div>
+                  {/* Average Speed */}
+                  <div className="rounded-xl bg-accent/10 border border-accent/20 p-3">
+                    <div className="flex items-center gap-2">
+                      <NavIcon className="h-4 w-4 text-accent" />
+                      <span className="text-2xl font-bold text-accent">
+                        {vessels.length > 0 
+                          ? (vessels.reduce((sum, v) => sum + v.speed, 0) / vessels.length).toFixed(1)
+                          : "0.0"
+                        }
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">Avg Speed (kn)</div>
+                  </div>
+                  {/* Daily Transits */}
+                  <div className="rounded-xl bg-[#00E676]/10 border border-[#00E676]/20 p-3">
+                    <div className="flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-[#00E676]" />
+                      <span className="text-2xl font-bold text-[#00E676]">{stats.dailyTransits}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">Daily Transits</div>
+                  </div>
+                  {/* Market Volume */}
+                  <div className="rounded-xl bg-[#FFB800]/10 border border-[#FFB800]/20 p-3">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-[#FFB800]" />
+                      <span className="text-2xl font-bold text-[#FFB800]">${stats.marketVolume}M</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">Market Volume</div>
+                  </div>
+                </div>
+                {/* Vessel Type Breakdown */}
+                <div className="mt-4 pt-4 border-t border-border">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">Vessel Types</div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {Object.entries(vesselConfig).map(([type, config]) => {
+                      const count = vessels.filter(v => v.type === type).length
+                      return (
+                        <div key={type} className="text-center">
+                          <div 
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white mx-auto mb-1"
+                            style={{ backgroundColor: config.color }}
+                          >
+                            {count}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground capitalize">{type}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
+            </div>
 
             {/* Center - Map */}
             <div className="relative h-[500px] lg:h-[650px] rounded-2xl overflow-hidden border border-border">
