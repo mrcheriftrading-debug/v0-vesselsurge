@@ -57,7 +57,7 @@ const hotspots: Hotspot[] = [
     risk: 'HIGH',
     riskColor: '#f97316',
     dailyTransits: 471,
-    note: 'World\'s busiest strait. Elevated due to diversions. 3,298 ships/week.',
+    note: "World's busiest strait. Elevated due to diversions. 3,298 ships/week.",
   },
   {
     id: 'suez',
@@ -77,11 +77,10 @@ export default function MapDashboard() {
   return (
     <div className="min-h-screen bg-background py-6 px-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Live Maritime Intelligence</h1>
-            <p className="text-muted-foreground mt-1">Real-time vessel tracking & chokepoint analysis</p>
+            <p className="text-muted-foreground mt-1">Real-time vessel tracking and chokepoint analysis</p>
           </div>
           <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
@@ -90,7 +89,6 @@ export default function MapDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Sidebar - Hotspots & Stats */}
           <div className="lg:col-span-1 space-y-4">
             <div className="glass rounded-2xl border border-border p-4">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Critical Hotspots</h3>
@@ -107,7 +105,10 @@ export default function MapDashboard() {
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">{hotspot.name}</span>
-                      <span className={`text-xs font-bold px-2 py-1 rounded`} style={{ backgroundColor: hotspot.riskColor + '20', color: hotspot.riskColor }}>
+                      <span
+                        className="text-xs font-bold px-2 py-1 rounded"
+                        style={{ backgroundColor: hotspot.riskColor + '20', color: hotspot.riskColor }}
+                      >
                         {hotspot.risk}
                       </span>
                     </div>
@@ -120,7 +121,6 @@ export default function MapDashboard() {
               </div>
             </div>
 
-            {/* Selected Hotspot Details */}
             <div className="glass rounded-2xl border border-border p-4">
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Details</h3>
               <div className="space-y-3">
@@ -135,7 +135,6 @@ export default function MapDashboard() {
               </div>
             </div>
 
-            {/* Data Sources */}
             <div className="glass rounded-2xl border border-border p-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Data Sources</h3>
               <ul className="text-xs text-muted-foreground space-y-1.5">
@@ -148,20 +147,17 @@ export default function MapDashboard() {
             </div>
           </div>
 
-          {/* Right Content - Satellite Map & Alert */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Live Satellite Map */}
             <div className="glass rounded-2xl border border-border overflow-hidden h-[500px]">
               <SatelliteMap hotspots={hotspots} selected={selected} onSelect={setSelected} />
             </div>
 
-            {/* Alert Banner */}
             <div className="glass rounded-2xl border border-destructive/30 bg-destructive/5 p-4 flex gap-3">
               <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm text-destructive mb-1">Critical Maritime Events - March 30, 2026</p>
                 <p className="text-xs text-foreground leading-relaxed">
-                  <strong>Iran War (Feb 28):</strong> Hormuz traffic down 94% (7→100+ ships/day). 21M barrels/day at risk.
+                  <strong>Iran War (Feb 28):</strong> Hormuz traffic down 94% (7 vs 100+ ships/day). 21M barrels/day at risk.
                   <br />
                   <strong>Houthi Attacks (Mar 28):</strong> Red Sea routes critical. Malacca traffic surged 89% due to diversions.
                   <br />
@@ -175,4 +171,3 @@ export default function MapDashboard() {
     </div>
   )
 }
-
