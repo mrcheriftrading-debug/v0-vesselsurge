@@ -1,12 +1,27 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ArrowLeft, AlertTriangle, Activity, Zap } from 'lucide-react'
+
+const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-muted/20">
+      <div className="text-center space-y-2">
+        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto" />
+        <p className="text-sm text-muted-foreground">Loading satellite imagery...</p>
+      </div>
+    </div>
+  ),
+})
 
 interface Hotspot {
   id: string
   name: string
+  lat: number
+  lng: number
   risk: string
   riskColor: string
   dailyTransits: number
@@ -17,6 +32,8 @@ const hotspots: Hotspot[] = [
   {
     id: 'hormuz',
     name: 'Strait of Hormuz',
+    lat: 26.34,
+    lng: 56.47,
     risk: 'CRITICAL',
     riskColor: '#ef4444',
     dailyTransits: 7,
@@ -25,6 +42,8 @@ const hotspots: Hotspot[] = [
   {
     id: 'bab',
     name: 'Bab el-Mandeb',
+    lat: 12.65,
+    lng: 43.32,
     risk: 'CRITICAL',
     riskColor: '#ef4444',
     dailyTransits: 24,
@@ -33,6 +52,8 @@ const hotspots: Hotspot[] = [
   {
     id: 'malacca',
     name: 'Strait of Malacca',
+    lat: 2.45,
+    lng: 102.15,
     risk: 'HIGH',
     riskColor: '#f97316',
     dailyTransits: 471,
@@ -41,6 +62,8 @@ const hotspots: Hotspot[] = [
   {
     id: 'suez',
     name: 'Suez Canal',
+    lat: 29.95,
+    lng: 32.58,
     risk: 'HIGH',
     riskColor: '#f97316',
     dailyTransits: 39,
@@ -125,19 +148,11 @@ export default function MapDashboard() {
             </div>
           </div>
 
-          {/* Right Content - Map Placeholder & Alert */}
+          {/* Right Content - Satellite Map & Alert */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Satellite Map Placeholder */}
-            <div className="glass rounded-2xl border border-border p-8 h-[400px] flex items-center justify-center bg-gradient-to-br from-muted/50 to-muted/20">
-              <div className="text-center space-y-2">
-                <div className="flex justify-center mb-3">
-                  <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center animate-pulse">
-                    <Zap className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-                <p className="font-semibold text-foreground">Live Satellite Map</p>
-                <p className="text-sm text-muted-foreground">Esri World Imagery with real-time vessel tracking</p>
-              </div>
+            {/* Live Satellite Map */}
+            <div className="glass rounded-2xl border border-border overflow-hidden h-[500px]">
+              <SatelliteMap hotspots={hotspots} selected={selected} onSelect={setSelected} />
             </div>
 
             {/* Alert Banner */}
