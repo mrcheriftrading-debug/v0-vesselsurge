@@ -1,9 +1,5 @@
 "use client"
 
-// Force dynamic rendering - no caching of API calls
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Zap, RefreshCw, MapPin, Anchor, Navigation as NavIcon, Activity, AlertTriangle, TrendingUp, Ship, Globe, ChevronRight, ArrowLeft, ExternalLink, Newspaper, Radio } from "lucide-react"
