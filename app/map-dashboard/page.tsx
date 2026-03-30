@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Zap, RefreshCw, MapPin, Ship, Search, Newspaper, ChevronRight, ArrowLeft, ExternalLink, AlertTriangle, TrendingUp, Activity, Navigation as NavIcon, Anchor } from 'lucide-react'
+import { Zap, RefreshCw, MapPin, Ship, Search, Newspaper, ChevronRight, ArrowLeft, ExternalLink, AlertTriangle, TrendingUp, Activity, Navigation as NavIcon } from 'lucide-react'
 
 interface VesselData {
   mmsi: string
@@ -57,7 +57,6 @@ interface SecurityAlert {
   timestamp: string
 }
 
-// Real-world baseline maritime data Q1 2026
 const maritimeData: Record<string, MaritimeHotspot> = {
   hormuz: {
     id: 'hormuz',
@@ -109,7 +108,6 @@ export default function MapDashboard() {
   const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([])
   const [showNewsPanel, setShowNewsPanel] = useState(false)
 
-  // Fetch real AIS vessel data
   const fetchAISVessels = async (hotspotId: string) => {
     try {
       const res = await fetch(`/api/ais-vessels?hotspot=${hotspotId}`)
@@ -118,11 +116,10 @@ export default function MapDashboard() {
         setVessels(data.data.vessels)
       }
     } catch {
-      // fallback
+      // silent
     }
   }
 
-  // Fetch live maritime stats powered by Tavily
   const fetchLiveStats = async (hotspotId: string) => {
     try {
       const res = await fetch(`/api/maritime-stats?hotspot=${hotspotId}`)
@@ -135,7 +132,6 @@ export default function MapDashboard() {
     }
   }
 
-  // Fetch maritime news
   const fetchMaritimeNews = async (regionId?: string) => {
     try {
       const url = regionId ? `/api/maritime-news?region=${regionId}` : '/api/maritime-news'
@@ -187,14 +183,12 @@ export default function MapDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
             <span className="text-lg font-semibold text-foreground">VesselSurge</span>
           </Link>
-
           <div className="flex items-center gap-4">
             {isRefreshing && (
               <div className="flex items-center gap-2 text-accent">
@@ -220,7 +214,6 @@ export default function MapDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Hotspot Selector */}
         <div className="glass rounded-2xl border border-border p-4">
           <div className="space-y-2">
             {Object.values(maritimeData).map((hotspot) => (
@@ -246,7 +239,6 @@ export default function MapDashboard() {
           </div>
         </div>
 
-        {/* Live Stats */}
         <div className="glass rounded-2xl border border-border p-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Live Statistics</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -281,7 +273,6 @@ export default function MapDashboard() {
           </div>
         </div>
 
-        {/* Vessels List */}
         <div className="glass rounded-2xl border border-border p-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Vessels in {activeRegion.name}</h3>
           <div className="space-y-2">
@@ -302,7 +293,6 @@ export default function MapDashboard() {
           </div>
         </div>
 
-        {/* News Panel */}
         {showNewsPanel && (
           <div className="glass rounded-2xl border border-border p-6">
             <div className="grid gap-4 md:grid-cols-2">
