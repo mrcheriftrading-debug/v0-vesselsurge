@@ -26,7 +26,10 @@ export default function SatelliteMap({ hotspots, selected, onSelect }: Satellite
 
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return
-    if (mapInstanceRef.current) return
+    if (mapInstanceRef.current) return // Already initialized
+
+    // Check if map already exists in container
+    if ((mapRef.current as any)._leaflet_id) return
 
     import('leaflet').then((L) => {
       // Fix Leaflet default icon paths
