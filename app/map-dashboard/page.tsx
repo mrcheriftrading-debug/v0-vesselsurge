@@ -35,7 +35,11 @@ interface MaritimeHotspot {
 }
 
 // Verified Real-World Maritime Intelligence Data - Q1 2026
-// Coordinates verified against actual TSS (Traffic Separation Schemes) and shipping lanes
+// Daily transit figures from EIA, UNCTAD, and port authority reports
+// Hormuz: ~21M bbl/day = ~17-20 VLCCs/day + smaller tankers + dry cargo = 50-60 ships/day
+// Bab el-Mandeb: ~7M bbl/day + container traffic = 40-50 ships/day (reduced due to Houthi attacks)
+// Malacca: 90,000+ ships/year = ~250 ships/day (world's busiest strait)
+// Suez: ~50-60 ships/day (reduced from 80+ due to Red Sea diversions)
 const maritimeData: Record<string, MaritimeHotspot> = {
   hormuz: {
     id: "hormuz",
@@ -43,7 +47,7 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     region: "Persian Gulf / Gulf of Oman",
     center: { lat: 26.34, lng: 56.47 },
     zoom: 8,
-    stats: { activeVessels: 58, dailyTransits: 174, avgWaitTime: "2.1h", marketVolume: 1380 },
+    stats: { activeVessels: 58, dailyTransits: 56, avgWaitTime: "2.1h", marketVolume: 1380 },
     vessels: [
       // Vessels positioned in the Inbound Traffic Lane (ITL) - southern route at ~26.2°N
       { mmsi: "477328900", name: "FRONT COURAGE", type: "tanker", lat: 26.2145, lng: 56.5823, speed: 12.4, course: 295, destination: "RAS TANURA", eta: "2026-03-27 08:00", flag: "SG" },
@@ -68,7 +72,7 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     region: "Red Sea / Gulf of Aden",
     center: { lat: 12.65, lng: 43.42 },
     zoom: 8,
-    stats: { activeVessels: 28, dailyTransits: 52, avgWaitTime: "0.8h", marketVolume: 420 },
+    stats: { activeVessels: 28, dailyTransits: 42, avgWaitTime: "0.8h", marketVolume: 420 },
     vessels: [
       // Northbound vessels in IRTC (Internationally Recommended Transit Corridor)
       { mmsi: "353136000", name: "EVER ACE", type: "container", lat: 12.7123, lng: 43.3456, speed: 18.5, course: 338, destination: "SUEZ CANAL", eta: "2026-03-27 06:00", flag: "PA" },
@@ -92,7 +96,7 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     region: "Singapore / Malaysia / Indonesia",
     center: { lat: 1.27, lng: 103.75 },
     zoom: 9,
-    stats: { activeVessels: 94, dailyTransits: 328, avgWaitTime: "3.2h", marketVolume: 1920 },
+    stats: { activeVessels: 94, dailyTransits: 248, avgWaitTime: "3.2h", marketVolume: 1920 },
     vessels: [
       // Singapore Strait TSS - Westbound deep water route
       { mmsi: "563045200", name: "MAERSK EDINBURGH", type: "container", lat: 1.2234, lng: 103.8823, speed: 14.2, course: 278, destination: "PORT KLANG", eta: "2026-03-27 04:00", flag: "SG" },
@@ -117,7 +121,7 @@ const maritimeData: Record<string, MaritimeHotspot> = {
     region: "Egypt / Mediterranean",
     center: { lat: 30.58, lng: 32.31 },
     zoom: 9,
-    stats: { activeVessels: 44, dailyTransits: 68, avgWaitTime: "8.4h", marketVolume: 780 },
+    stats: { activeVessels: 44, dailyTransits: 52, avgWaitTime: "8.4h", marketVolume: 780 },
     vessels: [
       // Vessels in the actual canal channel (30.4-31.3°N, ~32.3-32.5°E)
       { mmsi: "353819000", name: "HMM ALGECIRAS", type: "container", lat: 30.8234, lng: 32.3178, speed: 7.2, course: 352, destination: "ROTTERDAM", eta: "2026-04-02 16:00", flag: "PA" },
@@ -461,7 +465,6 @@ export default function MapDashboardPage() {
                   ))}
                 </div>
               </div>
-              
               {/* Live Statistics Panel */}
               <div className="glass rounded-2xl border border-border p-4">
                 <div className="flex items-center justify-between mb-4">
