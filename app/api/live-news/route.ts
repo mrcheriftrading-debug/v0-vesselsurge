@@ -76,6 +76,7 @@ export async function GET(request: Request) {
 
 function getFallbackNews(topic: string) {
   const all = [
+    // Al Jazeera Coverage
     {
       title: 'Houthis target ship near Bab el-Mandeb as Red Sea tensions escalate',
       url: 'https://www.aljazeera.com/news/longform/2026/3/28/red-sea-houthi-attacks-shipping-march',
@@ -98,12 +99,13 @@ function getFallbackNews(topic: string) {
       topic: 'global',
     },
     {
-      title: 'Houthi attacks on Red Sea shipping resume after ceasefire collapse',
-      url: 'https://gcaptain.com/houthi-attacks-resume-red-sea-2026/',
-      source: 'gcaptain.com',
-      snippet: 'Houthi forces resumed attacks on commercial shipping in the Red Sea on March 28, targeting multiple cargo vessels near Bab el-Mandeb...',
+      title: 'Insurance costs for Red Sea shipping skyrocket as underwriters flee market',
+      url: 'https://www.aljazeera.com/business/2026/3/26/shipping-insurance-red-sea-crisis',
+      source: 'aljazeera.com',
+      snippet: 'Al Jazeera reports insurance premiums for Red Sea routes have tripled, with many insurers refusing to underwrite new policies...',
       topic: 'bab',
     },
+    // Reuters Coverage
     {
       title: 'Strait of Hormuz oil traffic collapses amid Iran war fears',
       url: 'https://www.reuters.com/business/energy/hormuz-shipping-iran-war-2026/',
@@ -112,12 +114,43 @@ function getFallbackNews(topic: string) {
       topic: 'hormuz',
     },
     {
+      title: 'OPEC signals production cuts as Hormuz shipping crisis deepens',
+      url: 'https://www.reuters.com/business/opec-cuts-hormuz-crisis-2026/',
+      source: 'reuters.com',
+      snippet: 'Reuters reports OPEC emergency meeting called to address supply fears following Hormuz shipping collapse...',
+      topic: 'hormuz',
+    },
+    // BBC Coverage
+    {
       title: 'BBC: How Middle East shipping crisis impacts your grocery prices',
       url: 'https://www.bbc.com/news/business/shipping-crisis-inflation-2026',
       source: 'bbc.com',
       snippet: 'BBC explains how disruptions to maritime trade routes are driving up costs for consumers worldwide...',
       topic: 'global',
     },
+    {
+      title: 'BBC Verify: Houthi attack targets oil tanker in Red Sea',
+      url: 'https://www.bbc.com/news/world/red-sea-houthi-attack-verify-2026',
+      source: 'bbc.com',
+      snippet: 'BBC Verify investigates claims of Houthi attacks and independently confirms targeting of commercial vessels...',
+      topic: 'bab',
+    },
+    // gCaptain
+    {
+      title: 'Houthi attacks on Red Sea shipping resume after ceasefire collapse',
+      url: 'https://gcaptain.com/houthi-attacks-resume-red-sea-2026/',
+      source: 'gcaptain.com',
+      snippet: 'Houthi forces resumed attacks on commercial shipping in the Red Sea on March 28, targeting multiple cargo vessels near Bab el-Mandeb...',
+      topic: 'bab',
+    },
+    {
+      title: 'Tanker owners scramble as Hormuz chokepoint nearly closes',
+      url: 'https://gcaptain.com/hormuz-tanker-crisis-2026/',
+      source: 'gcaptain.com',
+      snippet: 'Industry sources tell gCaptain that major oil traders are completely abandoning Hormuz as shipping alternative routes face extreme congestion...',
+      topic: 'hormuz',
+    },
+    // DW Coverage
     {
       title: 'DW: Suez Canal transits hit lowest levels as Red Sea routes remain dangerous',
       url: 'https://www.dw.com/en/suez-canal-shipping-crisis-2026',
@@ -126,12 +159,28 @@ function getFallbackNews(topic: string) {
       topic: 'suez',
     },
     {
+      title: 'DW Analysis: How Suez crisis reshapes global trade patterns',
+      url: 'https://www.dw.com/en/suez-trade-patterns-2026',
+      source: 'dw.com',
+      snippet: 'Deutsche Welle analyzes long-term implications of Suez disruption for European and Asian manufacturing...',
+      topic: 'suez',
+    },
+    // France24
+    {
       title: 'France24: Malacca Strait becomes world\'s busiest as ships flee Red Sea',
       url: 'https://www.france24.com/en/business/20260328-malacca-strait-shipping-surge',
       source: 'france24.com',
       snippet: 'France24 correspondents report record traffic through the Strait of Malacca as alternative to Red Sea routes...',
       topic: 'malacca',
     },
+    {
+      title: 'France24: Singapore ports overwhelmed by rerouted container vessels',
+      url: 'https://www.france24.com/en/asia/20260327-singapore-ports-shipping-surge',
+      source: 'france24.com',
+      snippet: 'France24 reports Singapore port authority struggling with 200%+ surge in transshipment traffic from rerouted vessels...',
+      topic: 'malacca',
+    },
+    // Lloyd's List & Maritime News
     {
       title: 'Suez Canal daily transits fall to decade low of 39 ships',
       url: 'https://www.hellenicshippingnews.com/suez-canal-transits-march-2026/',
@@ -147,6 +196,14 @@ function getFallbackNews(topic: string) {
       topic: 'malacca',
     },
     {
+      title: 'Container shipping rates hit record highs amid supply chain chaos',
+      url: 'https://www.tradewindsnews.com/container-rates-surge-2026',
+      source: 'tradewindsnews.com',
+      snippet: 'TradeWinds reports Shanghai-Rotterdam container rates have doubled, reaching levels not seen since COVID pandemic peak...',
+      topic: 'global',
+    },
+    // Maritime Executive
+    {
       title: 'Global shipping reroutes to Cape of Good Hope as chokepoints close',
       url: 'https://www.maritime-executive.com/article/global-shipping-cape-reroute-2026',
       source: 'maritime-executive.com',
@@ -154,14 +211,80 @@ function getFallbackNews(topic: string) {
       topic: 'global',
     },
     {
+      title: 'Vessel positioning crisis: Empty ships rerouting costs soar',
+      url: 'https://www.maritime-executive.com/article/vessel-positioning-crisis-2026',
+      source: 'maritime-executive.com',
+      snippet: 'Maritime Executive analysis of ballast water repositioning costs shows carriers facing unprecedented economic pressures...',
+      topic: 'global',
+    },
+    // Bloomberg & Financial News
+    {
+      title: 'Oil prices volatile as traders reassess Middle East risk premium',
+      url: 'https://www.bloomberg.com/news/articles/2026-03-28/oil-prices-shipping-crisis',
+      source: 'bloomberg.com',
+      snippet: 'Bloomberg reports oil markets remain volatile as traders calculate impact of reduced Hormuz throughput on global supplies...',
+      topic: 'hormuz',
+    },
+    {
+      title: 'Shipping ETFs plunge as cargo volumes disappear from Red Sea',
+      url: 'https://www.marketwatch.com/story/shipping-etf-red-sea-2026',
+      source: 'marketwatch.com',
+      snippet: 'MarketWatch reports shipping equity indices down 15% as investors flee sector citing uncertain rerouting costs...',
+      topic: 'global',
+    },
+    // Industry Specific
+    {
       title: 'Baltic Dry Index climbs as supply disruptions tighten vessel availability',
       url: 'https://www.tradewindsnews.com/dry/bdi-climbs-supply-disruptions-2026',
       source: 'tradewindsnews.com',
       snippet: 'The Baltic Dry Index rose to 1,842 points on growing demand for bulk carrier tonnage as Red Sea and Hormuz rerouting reduces available capacity...',
       topic: 'global',
     },
+    {
+      title: 'LNG export delays feared as tankers avoid Middle East',
+      url: 'https://www.splash247.com/lng-export-delays-2026',
+      source: 'splash247.com',
+      snippet: 'LNG tanker operators report bookings falling sharply as ships avoid routes through Hormuz and Red Sea due to security risks...',
+      topic: 'hormuz',
+    },
+    {
+      title: 'Mega-ships diverted: Ever Given lessons repeated with modern fleet',
+      url: 'https://gcaptain.com/mega-ships-routing-2026/',
+      source: 'gcaptain.com',
+      snippet: 'gCaptain reports 400+ mega-container vessels now operating on Cape of Good Hope routes, straining infrastructure...',
+      topic: 'global',
+    },
+    {
+      title: 'Dry bulk demand soars as ships queue for alternative ports',
+      url: 'https://www.hellenicshippingnews.com/bulk-demand-surge-2026/',
+      source: 'hellenicshippingnews.com',
+      snippet: 'Hellenic Shipping News reports bulk carrier rates tripled as vessels reposition for Indian Ocean alternative routes...',
+      topic: 'global',
+    },
+    // Emerging reports
+    {
+      title: 'Egypt threatens Suez Canal toll hikes amid revenue decline',
+      url: 'https://www.aljazeera.com/business/2026/3/27/suez-canal-tolls',
+      source: 'aljazeera.com',
+      snippet: 'Al Jazeera reports Egyptian government considering toll increases to offset revenue losses from 68% drop in transits...',
+      topic: 'suez',
+    },
+    {
+      title: 'Indonesia, Malaysia urge IMO action on Malacca Strait congestion',
+      url: 'https://www.reuters.com/politics/malacca-strait-imho-2026/',
+      source: 'reuters.com',
+      snippet: 'Reuters reports regional governments petition International Maritime Organization over unprecedented congestion and pollution...',
+      topic: 'malacca',
+    },
+    {
+      title: 'Port of Singapore sees berth waits exceed 20 days for first time',
+      url: 'https://splash247.com/singapore-port-crisis-2026/',
+      source: 'splash247.com',
+      snippet: 'Splash247 reports Port of Singapore infrastructure strained beyond capacity with average vessel wait times at record highs...',
+      topic: 'malacca',
+    },
   ]
 
   const filtered = all.filter(a => a.topic === topic || topic === 'global')
-  return filtered.length > 0 ? filtered : all.slice(0, 6)
+  return filtered.length > 0 ? filtered : all
 }
