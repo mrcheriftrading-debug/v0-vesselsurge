@@ -41,6 +41,14 @@ export async function GET(request: Request) {
           'apnews.com',
           'bloomberg.com',
           'ft.com',
+          'theguardian.com',
+          'bbc.co.uk',
+          'dw.com',
+          'france24.com',
+          'rfi.fr',
+          'voanews.com',
+          'cnbc.com',
+          'marketwatch.com',
         ],
       }),
     })
@@ -69,6 +77,27 @@ export async function GET(request: Request) {
 function getFallbackNews(topic: string) {
   const all = [
     {
+      title: 'Houthis target ship near Bab el-Mandeb as Red Sea tensions escalate',
+      url: 'https://www.aljazeera.com/news/longform/2026/3/28/red-sea-houthi-attacks-shipping-march',
+      source: 'aljazeera.com',
+      snippet: 'Al Jazeera reports that Houthi forces have intensified attacks on commercial shipping following the collapse of ceasefire negotiations...',
+      topic: 'bab',
+    },
+    {
+      title: 'Iran war impact: Hormuz oil tanker traffic down 94 percent',
+      url: 'https://www.aljazeera.com/news/2026/3/28/iran-war-hormuz-strait-oil-tanker-shipping',
+      source: 'aljazeera.com',
+      snippet: 'Al Jazeera analysis shows unprecedented collapse in tanker traffic through the Strait of Hormuz since Iran conflict began February 28...',
+      topic: 'hormuz',
+    },
+    {
+      title: 'Global supply chains face biggest disruption since pandemic as Middle East turmoil spreads',
+      url: 'https://www.aljazeera.com/economy/2026/3/27/supply-chain-disruption-middle-east-shipping',
+      source: 'aljazeera.com',
+      snippet: 'Al Jazeera economics correspondent reports on cascading effects of Red Sea attacks and Hormuz crisis affecting global trade...',
+      topic: 'global',
+    },
+    {
       title: 'Houthi attacks on Red Sea shipping resume after ceasefire collapse',
       url: 'https://gcaptain.com/houthi-attacks-resume-red-sea-2026/',
       source: 'gcaptain.com',
@@ -81,6 +110,27 @@ function getFallbackNews(topic: string) {
       source: 'reuters.com',
       snippet: 'Tanker traffic through the Strait of Hormuz has fallen by 94% since the outbreak of hostilities with Iran on February 28...',
       topic: 'hormuz',
+    },
+    {
+      title: 'BBC: How Middle East shipping crisis impacts your grocery prices',
+      url: 'https://www.bbc.com/news/business/shipping-crisis-inflation-2026',
+      source: 'bbc.com',
+      snippet: 'BBC explains how disruptions to maritime trade routes are driving up costs for consumers worldwide...',
+      topic: 'global',
+    },
+    {
+      title: 'DW: Suez Canal transits hit lowest levels as Red Sea routes remain dangerous',
+      url: 'https://www.dw.com/en/suez-canal-shipping-crisis-2026',
+      source: 'dw.com',
+      snippet: 'Deutsche Welle reports only 39 ships transited Suez Canal on March 25, marking crisis-level disruption...',
+      topic: 'suez',
+    },
+    {
+      title: 'France24: Malacca Strait becomes world\'s busiest as ships flee Red Sea',
+      url: 'https://www.france24.com/en/business/20260328-malacca-strait-shipping-surge',
+      source: 'france24.com',
+      snippet: 'France24 correspondents report record traffic through the Strait of Malacca as alternative to Red Sea routes...',
+      topic: 'malacca',
     },
     {
       title: 'Suez Canal daily transits fall to decade low of 39 ships',
@@ -113,5 +163,5 @@ function getFallbackNews(topic: string) {
   ]
 
   const filtered = all.filter(a => a.topic === topic || topic === 'global')
-  return filtered.length > 0 ? filtered : all.slice(0, 4)
+  return filtered.length > 0 ? filtered : all.slice(0, 6)
 }
