@@ -81,6 +81,11 @@ export default function MapDashboard() {
   const [news, setNews] = useState<NewsArticle[]>([])
   const [newsLoading, setNewsLoading] = useState(true)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const fetchNews = async (topic: string) => {
     setNewsLoading(true)
@@ -234,16 +239,11 @@ export default function MapDashboard() {
                 <button
                   onClick={() => fetchNews(selected.id)}
                   disabled={newsLoading}
+                  suppressHydrationWarning
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`h-3 w-3 ${newsLoading ? 'animate-spin' : ''}`} />
-                  {(() => {
-                    const h = lastRefresh.getHours();
-                    const m = lastRefresh.getMinutes().toString().padStart(2, '0');
-                    const ampm = h >= 12 ? 'PM' : 'AM';
-                    const display = (h % 12 || 12).toString();
-                    return `${display}:${m} ${ampm}`;
-                  })()}
+                  {lastRefresh.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                 </button>
               </div>
 
