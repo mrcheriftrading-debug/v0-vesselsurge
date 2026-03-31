@@ -220,12 +220,12 @@ export default function MapDashboard() {
               </p>
             </div>
 
-            {/* Live news panel */}
-            <div className="glass rounded-2xl border border-border p-4">
-              <div className="flex items-center justify-between mb-4">
+            {/* Live news panel - full scrollable */}
+            <div className="glass rounded-2xl border border-border p-4 flex flex-col" style={{ maxHeight: 600 }}>
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
                 <div className="flex items-center gap-2">
                   <Newspaper className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold">Latest News — {selected.name}</h3>
+                  <h3 className="text-sm font-semibold">Latest Maritime News</h3>
                   <span className="flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
                     <span className="text-xs text-muted-foreground">Live</span>
@@ -241,36 +241,36 @@ export default function MapDashboard() {
                 </button>
               </div>
 
-              {newsLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse space-y-2">
-                      <div className="h-4 bg-muted rounded w-3/4" />
-                      <div className="h-3 bg-muted rounded w-full" />
-                      <div className="h-3 bg-muted rounded w-1/2" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {news.slice(0, 6).map((article, i) => (
+              <div className="overflow-y-auto flex-1 pr-2 space-y-3">
+                {newsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div key={i} className="animate-pulse space-y-2">
+                        <div className="h-4 bg-muted rounded w-3/4" />
+                        <div className="h-3 bg-muted rounded w-full" />
+                        <div className="h-3 bg-muted rounded w-1/2" />
+                      </div>
+                    ))}
+                  </div>
+                ) : news.length > 0 ? (
+                  news.map((article, i) => (
                     <a
                       key={i}
                       href={article.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex flex-col gap-1.5 p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all"
+                      className="group flex flex-col gap-1.5 p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all block"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                        <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
                           {article.title}
                         </p>
                         <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                         {article.snippet}
                       </p>
-                      <div className="flex items-center justify-between mt-auto pt-1">
+                      <div className="flex items-center justify-between mt-auto pt-1 border-t border-border/50">
                         <span className="text-xs font-medium text-primary">{article.source}</span>
                         {article.publishedAt && (
                           <span className="text-xs text-muted-foreground">
@@ -279,9 +279,11 @@ export default function MapDashboard() {
                         )}
                       </div>
                     </a>
-                  ))}
-                </div>
-              )}
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center py-8">No news found for this region.</p>
+                )}
+              </div>
             </div>
 
           </div>
