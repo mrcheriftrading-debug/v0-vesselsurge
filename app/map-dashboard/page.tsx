@@ -239,11 +239,10 @@ export default function MapDashboard() {
                 <button
                   onClick={() => fetchNews(selected.id)}
                   disabled={newsLoading}
-                  suppressHydrationWarning
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`h-3 w-3 ${newsLoading ? 'animate-spin' : ''}`} />
-                  {lastRefresh.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                  {mounted && lastRefresh.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                 </button>
               </div>
 
