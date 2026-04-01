@@ -1,46 +1,75 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-)
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY
+
+const TOPIC_QUERIES: Record<string, string> = {
+  hormuz: 'Strait of Hormuz shipping tanker Iran 2026',
+  bab: 'Bab el-Mandeb Red Sea Houthi attack shipping 2026',
+  malacca: 'Strait of Malacca shipping traffic piracy 2026',
+  suez: 'Suez Canal shipping traffic Egypt 2026',
+  global: 'maritime shipping news chokepoint 2026',
+}
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const topic = searchParams.get('topic') || 'global'
+  const query = TOPIC_QUERIES[topic] || TOPIC_QUERIES.global
+
   try {
-    const { searchParams } = new URL(request.url)
-    const topic = searchParams.get('topic') || null
-    const limit = parseInt(searchParams.get('limit') || '30', 10)
+    if (!TAVILY_API_KEY) throw new Error('No Tavily key')
 
-    // Fetch articles from Supabase
-    let query = supabase
-      .from('news_articles')
-      .select('*')
-      .eq('is_active', true)
-      .order('published_at', { ascending: false })
-      .limit(limit)
-
-    if (topic) {
-      query = query.eq('topic', topic)
-    }
-
-    const { data: articles, error } = await query
-
-    if (error) throw error
-
-    return NextResponse.json({
-      success: true,
-      topic: topic || 'all',
-      articles: articles || [],
-      count: articles?.length || 0,
-      timestamp: new Date().toISOString(),
+    const res = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: TAVILY_API_KEY,
+        query,
+        search_depth: 'basic',
+        include_answer: false,
+        max_results: 6,
+        include_domains: [
+          'reuters.com',
+          'bbc.com',
+          'gcaptain.com',
+          'maritime-executive.com',
+          'splash247.com',
+          'tradewindsnews.com',
+          'hellenicshippingnews.com',
+          'lloydslist.com',
+          'seatrade-maritime.com',
+          'aljazeera.com',
+          'apnews.com',
+          'bloomberg.com',
+          'ft.com',
+          'theguardian.com',
+          'bbc.co.uk',
+          'dw.com',
+          'france24.com',
+          'rfi.fr',
+          'voanews.com',
+          'cnbc.com',
+          'marketwatch.com',
+        ],
+      }),
     })
-  } catch (error) {
-    console.error('[live-news] Error:', error)
+
+    if (!res.ok) throw new Error('Tavily error')
+
+    const data = await res.json()
+    const articles = (data.results || []).map((r: any) => ({
+      title: r.title,
+      url: r.url,
+      source: new URL(r.url).hostname.replace('www.', ''),
+      snippet: r.content?.slice(0, 140) + '...',
+      publishedAt: r.published_date || null,
+    }))
+
+    return NextResponse.json({ success: true, articles })
+  } catch {
     // Fallback to curated real news with verified links
     return NextResponse.json({
       success: true,
-      articles: getFallbackNews(searchParams.get('topic') || 'global'),
+      articles: getFallbackNews(topic),
     })
   }
 }
