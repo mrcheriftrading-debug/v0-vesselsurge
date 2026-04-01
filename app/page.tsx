@@ -57,30 +57,38 @@ export default function VesselSurgePage() {
 
             {/* Main Headline */}
             <h1 className="max-w-5xl text-5xl font-extrabold tracking-tight text-foreground md:text-6xl lg:text-7xl">
-              Accelerate Your{" "}
-              <span className="text-primary text-glow-blue">Maritime Edge</span>
+              Match Cargo or{" "}
+              <span className="text-primary text-glow-blue">Find Ships</span>
+              {" "}with a Trusted Partner.
             </h1>
 
             {/* Sub-headline */}
             <p className="mt-8 max-w-3xl text-lg text-muted-foreground md:text-xl">
-              Stop searching, start scaling. VesselSurge is the premier B2B ecosystem where vessel owners, technical innovators, and global logistics leaders unite. We drive the next wave of maritime excellence.
+              Direct connections between vessel owners and cargo shippers. Get live insights into global maritime hotspots, reduce risks, and unlock strategic shipping advantages with real-time market intelligence.
             </p>
 
-            {/* CTAs */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+            {/* CTAs - Three Button Hierarchy */}
+            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap items-center justify-center gap-4">
               <a 
                 href="#surge-form"
                 className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
               >
-                JOIN THE NETWORK
+                FIND CARGO
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               <a 
-                href="#partners"
+                href="#surge-form"
+                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+              >
+                FIND A SHIP
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </a>
+              <Link 
+                href="/map-dashboard"
                 className="flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-8 py-4 text-base font-semibold text-accent transition-all hover:bg-accent/20"
               >
-                WHY JOIN US
-              </a>
+                VIEW LIVE MAP & TRAFFIC
+              </Link>
             </div>
 
             {/* Scroll indicator */}
@@ -93,7 +101,111 @@ export default function VesselSurgePage() {
           </div>
         </section>
 
-        {/* About Section */}
+        {/* Intelligence Hub Section */}
+        <section className="border-t border-border bg-background py-24">
+          <div className="mx-auto max-w-7xl px-4 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="mb-4 font-mono text-xs tracking-[0.3em] text-accent">
+                // INTELLIGENCE HUB
+              </div>
+              <h2 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl max-w-3xl mx-auto">
+                Navigate Global Maritime Risks with{" "}
+                <span className="text-primary">Real-Time Intelligence</span>
+              </h2>
+              <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+                Monitor critical shipping chokepoints live. Track Hormuz, Red Sea, Malacca, and Suez Canal risks in real-time to make data-driven routing decisions and mitigate exposure.
+              </p>
+            </div>
+
+            <div className="grid gap-8 lg:grid-cols-3">
+              {/* Risk Mitigation Card */}
+              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-8">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary mb-6">
+                  <Shield className="h-7 w-7" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Safety & Risk Mitigation</h3>
+                <p className="text-muted-foreground mb-4">
+                  Avoid pirate hotspots, conflict zones, and geopolitical tensions. Our live alerts help you reroute cargo before disruptions hit your bottom line.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Real-time threat alerts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Alternative route recommendations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    Insurance cost optimization
+                  </li>
+                </ul>
+              </div>
+
+              {/* Strategic Advantage Card */}
+              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-8">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent/20 text-accent mb-6">
+                  <Zap className="h-7 w-7" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Strategic Advantage</h3>
+                <p className="text-muted-foreground mb-4">
+                  Stay ahead of market moves. Access proprietary intelligence on vessel availability, capacity, and pricing across all major routes.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
+                    Market capacity forecasts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
+                    Rate intelligence reports
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
+                    Demand trend analysis
+                  </li>
+                </ul>
+              </div>
+
+              {/* Global News Feed Card */}
+              <div className="rounded-2xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-8">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676] mb-6">
+                  <Globe className="h-7 w-7" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Live Maritime News</h3>
+                <p className="text-muted-foreground mb-4">
+                  Stay informed with curated news from global maritime sources. Filter by region, vessel type, and risk category.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-[#00E676] flex-shrink-0" />
+                    20+ news sources aggregated
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-[#00E676] flex-shrink-0" />
+                    Region-specific alerts
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-[#00E676] flex-shrink-0" />
+                    Real-time incident tracking
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* CTA for Live Map */}
+            <div className="mt-16 text-center">
+              <Link 
+                href="/map-dashboard"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+              >
+                EXPLORE LIVE MAP
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
         <section id="about" className="border-t border-border bg-card py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
