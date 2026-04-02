@@ -58,13 +58,13 @@ export default function VesselSurgePage() {
             {/* Main Headline */}
             <h1 className="max-w-5xl text-5xl font-extrabold tracking-tight text-foreground md:text-6xl lg:text-7xl">
               Match Cargo or{" "}
-              <span className="text-primary text-glow-blue">Find Ships</span>
+              <span className="text-primary text-glow-blue">Find Vessels</span>
               {" "}with a Trusted Partner.
             </h1>
 
             {/* Sub-headline */}
             <p className="mt-8 max-w-3xl text-lg text-muted-foreground md:text-xl">
-              Direct connections between vessel owners and cargo shippers. Get live insights into global maritime hotspots, reduce risks, and unlock strategic shipping advantages with real-time market intelligence.
+              Direct connections between vessel owners and cargo charterers. Get live insights into global maritime hotspots, reduce risks, and unlock strategic advantages with real-time market intelligence.
             </p>
 
             {/* CTAs - Three Button Hierarchy */}
@@ -80,7 +80,7 @@ export default function VesselSurgePage() {
                 href="#surge-form"
                 className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
               >
-                FIND A SHIP
+                FIND A VESSEL
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               <Link 
@@ -113,7 +113,7 @@ export default function VesselSurgePage() {
                 <span className="text-primary">Real-Time Intelligence</span>
               </h2>
               <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Monitor critical shipping chokepoints live. Track Hormuz, Red Sea, Malacca, and Suez Canal risks in real-time to make data-driven routing decisions and mitigate exposure.
+                Monitor critical maritime chokepoints live. Track Hormuz, Red Sea, Malacca, and Suez Canal risks in real-time to make data-driven routing decisions and mitigate exposure.
               </p>
             </div>
 
@@ -255,7 +255,7 @@ export default function VesselSurgePage() {
                     <div>
                       <h3 className="text-lg font-semibold text-foreground">Innovation First</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Access the latest in maritime technology, from digital transformation to green shipping solutions and autonomous systems.
+                        Access the latest in maritime technology, from digital transformation to green vessel solutions and autonomous systems.
                       </p>
                     </div>
                   </div>

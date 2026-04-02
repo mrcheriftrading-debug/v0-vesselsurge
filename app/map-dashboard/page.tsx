@@ -62,7 +62,7 @@ const hotspots: Hotspot[] = [
     risk: 'HIGH',
     riskColor: '#f97316',
     dailyTransits: 471,
-    note: "World's busiest strait. +89% traffic from diversions. 3,298 ships/week.",
+    note: "World's busiest strait. +89% traffic from diversions. 3,298 vessels/week.",
   },
   {
     id: 'suez',
@@ -158,7 +158,7 @@ export default function MapDashboard() {
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Activity className="h-3 w-3" />
-                      {hotspot.dailyTransits} ships/day
+                      {hotspot.dailyTransits} vessels/day
                     </div>
                   </button>
                 ))}
@@ -197,7 +197,7 @@ export default function MapDashboard() {
                 Data Sources
               </h3>
               <ul className="text-xs text-muted-foreground space-y-1.5">
-                {['BBC Verify', 'Reuters', 'Suez Canal Authority', 'ShipTracker', 'Breakwave Advisors', 'gCaptain', 'Tavily Search'].map((src) => (
+                {['BBC Verify', 'Reuters', 'Suez Canal Authority', 'VesselTracker', 'Breakwave Advisors', 'gCaptain', 'Tavily Search'].map((src) => (
                   <li key={src} className="flex items-center gap-2">
                     <Zap className="h-3 w-3 text-primary flex-shrink-0" />
                     {src}

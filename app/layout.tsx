@@ -8,11 +8,11 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'VesselSurge | Maritime B2B Partnership Network & Ship Brokerage',
+    default: 'VesselSurge | Maritime B2B Partnership Network & Vessel Brokerage',
     template: '%s | VesselSurge',
   },
-  description: 'Connect with 500+ verified vessel owners, cargo companies, and maritime partners. Real-time ship tracking, AI-powered matching, and expert brokerage services across 45+ countries.',
-  keywords: ['maritime B2B', 'ship brokerage', 'vessel owners', 'cargo shipping', 'maritime intelligence', 'ship tracking', 'freight matching', 'tanker charter', 'bulk shipping', 'container logistics'],
+  description: 'Connect with 500+ verified vessel owners, cargo companies, and maritime partners. Real-time vessel tracking, AI-powered matching, and expert brokerage services across 45+ countries.',
+  keywords: ['maritime B2B', 'vessel brokerage', 'vessel owners', 'cargo charter', 'maritime intelligence', 'vessel tracking', 'freight matching', 'tanker charter', 'bulk carriers', 'container logistics'],
   authors: [{ name: 'VesselSurge', url: 'https://vesselsurge.com' }],
   creator: 'VesselSurge',
   publisher: 'VesselSurge',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'VesselSurge | Maritime B2B Partnership Network',
-    description: 'Connect with 500+ verified maritime partners. Real-time ship tracking and AI-powered matching.',
+    description: 'Connect with 500+ verified maritime partners. Real-time vessel tracking and AI-powered matching.',
     images: ['/og-image.png'],
     creator: '@vesselsurge',
   },
