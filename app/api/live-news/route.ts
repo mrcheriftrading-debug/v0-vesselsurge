@@ -97,5 +97,3 @@ export async function GET(request: Request) {
       message: 'No articles found. Add some via the Admin panel.',
     })
   }
-}
- 
