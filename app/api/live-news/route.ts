@@ -7,24 +7,12 @@ export async function GET(request: Request) {
 
   try {
     const supabase = await createClient()
-    let query = supabase
+    const { data, error } = await supabase
       .from('news_articles')
       .select('*')
       .eq('is_active', true)
       .order('updated_at', { ascending: false })
       .limit(10)
-
-    if (topic !== 'global') {
-      query = supabase
-        .from('news_articles')
-        .select('*')
-        .eq('is_active', true)
-        .eq('topic', topic)
-        .order('updated_at', { ascending: false })
-        .limit(10)
-    }
-
-    const { data, error } = await query
 
     if (!error && data && data.length > 0) {
       return NextResponse.json({ success: true, articles: data, source: 'admin' })
