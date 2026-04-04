@@ -34,6 +34,7 @@ export function Logo({
       priority={priority}
       loading={priority ? 'eager' : 'lazy'}
       className={`object-contain ${className}`}
+      style={{ width: 'auto', height: 'auto' }}
     />
   )
 
@@ -65,6 +66,7 @@ export function LogoLarge({ className = '' }: { className?: string }) {
       priority={true}
       loading="eager"
       className={`object-contain ${className}`}
+      style={{ width: 'auto', height: 'auto' }}
     />
   )
 }
@@ -87,6 +89,7 @@ export function LogoIcon({
       height={size}
       loading="lazy"
       className={`object-contain ${className}`}
+      style={{ width: 'auto', height: 'auto' }}
     />
   )
 }
