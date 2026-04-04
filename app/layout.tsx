@@ -1,98 +1,50 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'VesselSurge | Maritime B2B Partnership Network & Vessel Brokerage',
+    default: 'VesselSurge | Live Maritime Intelligence & Chokepoint Tracking',
     template: '%s | VesselSurge',
   },
-  description: 'Connect with 500+ verified vessel owners, cargo companies, and maritime partners. Real-time vessel tracking, AI-powered matching, and expert brokerage services across 45+ countries.',
-  keywords: ['maritime B2B', 'vessel brokerage', 'vessel owners', 'cargo charter', 'maritime intelligence', 'vessel tracking', 'freight matching', 'tanker charter', 'bulk carriers', 'container logistics'],
+  description: 'Real-time maritime intelligence for the 2026 Hormuz crisis. Track vessel traffic, security alerts, and chokepoint risk at Hormuz, Bab el-Mandeb, Malacca and Suez. Free live data.',
+  keywords: ['maritime intelligence','strait of hormuz','hormuz crisis 2026','bab el-mandeb','suez canal','malacca','vessel tracking','shipping news','maritime security','chokepoint','iran war shipping','houthi red sea','tanker traffic','oil shipping','maritime risk','vessel map'],
   authors: [{ name: 'VesselSurge', url: 'https://vesselsurge.com' }],
   creator: 'VesselSurge',
   publisher: 'VesselSurge',
-  generator: 'v0.app',
   metadataBase: new URL('https://vesselsurge.com'),
-  alternates: {
-    canonical: '/',
-  },
+  alternates: { canonical: '/' },
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://vesselsurge.com',
-    siteName: 'VesselSurge',
-    title: 'VesselSurge | Maritime B2B Partnership Network',
-    description: 'The premier B2B ecosystem connecting vessel owners with cargo companies. Real-time maritime intelligence, AI-powered partner matching, and expert brokerage services.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'VesselSurge - Maritime B2B Partnership Network',
-      },
-    ],
+    type: 'website', locale: 'en_US', url: 'https://vesselsurge.com', siteName: 'VesselSurge',
+    title: 'VesselSurge | Live Maritime Intelligence - Hormuz Crisis 2026',
+    description: 'Real-time vessel tracking and security alerts for critical shipping chokepoints. Hormuz CRITICAL. Bab el-Mandeb CRITICAL. Track it live, free.',
+    images: [{ url: '/og-image.svg', width: 1200, height: 630, alt: 'VesselSurge Maritime Intelligence' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'VesselSurge | Maritime B2B Partnership Network',
-    description: 'Connect with 500+ verified maritime partners. Real-time vessel tracking and AI-powered matching.',
-    images: ['/og-image.png'],
-    creator: '@vesselsurge',
+    title: 'VesselSurge | Live Maritime Intelligence - Hormuz Crisis 2026',
+    description: 'Hormuz CRITICAL. Bab el-Mandeb CRITICAL. Real-time chokepoint tracking.',
+    images: ['/og-image.svg'], creator: '@Vesselsurge',
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  verification: {
-    google: 'your-google-verification-code',
-  },
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
+  icons: { icon: [{ url: '/icon.svg', type: 'image/svg+xml' }, { url: '/icon-dark-32x32.png' }], apple: '/apple-icon.png' },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+const schema = JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebSite', name: 'VesselSurge', url: 'https://vesselsurge.com', description: 'Real-time maritime intelligence platform' })
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning>
       <head>
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
+        <link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=' crossOrigin='' />
+        <link rel='sitemap' type='application/xml' href='/sitemap.xml' />
+        <meta name='theme-color' content='#0f172a' />
+        <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: schema }} />
       </head>
-      <body className="font-sans antialiased min-h-screen bg-background">
+      <body className={geist.className + ' antialiased min-h-screen'}>
         {children}
         <Analytics />
       </body>
