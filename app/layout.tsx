@@ -94,13 +94,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Performance: Preconnect to external resources */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* DNS prefetch for analytics */}
-        <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
-      </head>
+      {/* Performance hints are handled by Next.js automatically with next/font */}
       <body className="font-sans antialiased min-h-screen bg-background">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg">
           Skip to main content
