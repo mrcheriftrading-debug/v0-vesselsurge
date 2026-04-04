@@ -1,0 +1,15 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'>
+  <rect width='1200' height='630' fill='#0f172a'/>
+  <defs>
+    <linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#0ea5e9'/>
+      <stop offset='100%' stop-color='#2563eb'/>
+    </linearGradient>
+  </defs>
+  <path d='M100 400 L200 200 L300 400 Z' fill='url(#g)' opacity='0.8'/>
+  <path d='M80 420 Q200 450 320 420' stroke='url(#g)' stroke-width='8' fill='none' stroke-linecap='round'/>
+  <text x='380' y='300' font-family='system-ui,sans-serif' font-size='72' font-weight='700' fill='url(#g)'>VesselSurge</text>
+  <text x='380' y='370' font-family='system-ui,sans-serif' font-size='32' fill='#94a3b8'>Live Maritime Intelligence Platform</text>
+  <text x='380' y='430' font-family='system-ui,sans-serif' font-size='24' fill='#64748b'>Real-time chokepoint tracking • Strait of Hormuz Crisis 2026</text>
+  <rect x='380' y='460' width='200' height='4' fill='url(#g)' rx='2'/>
+</svg>
