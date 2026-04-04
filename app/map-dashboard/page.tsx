@@ -1,296 +1,165 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, AlertTriangle, Activity, Zap, ExternalLink, RefreshCw, Newspaper } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Activity, ExternalLink, RefreshCw } from 'lucide-react'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-muted/20">
-      <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-    </div>
-  ),
+  loading: () => (<div className="w-full h-full flex items-center justify-center bg-muted/20"><div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>),
 })
 
-interface Hotspot {
-  id: string
-  name: string
-  lat: number
-  lng: number
-  risk: string
-  riskColor: string
-  dailyTransits: number
-  note: string
+const HOTSPOT_META: Record<string, { lat: number; lng: number; name: string }> = {
+  hormuz:  { lat: 26.34, lng: 56.47, name: 'Strait of Hormuz' },
+  bab:     { lat: 12.65, lng: 43.32, name: 'Bab el-Mandeb' },
+  malacca: { lat: 2.45,  lng: 102.15, name: 'Strait of Malacca' },
+  suez:    { lat: 29.95, lng: 32.58,  name: 'Suez Canal' },
 }
+const RISK_COLOR: Record<string, string> = { critical: '#ef4444', high: '#f97316', medium: '#eab308', low: '#22c55e' }
 
-interface NewsArticle {
-  title: string
-  url: string
-  source: string
-  snippet: string
-  publishedAt?: string | null
-}
-
-const hotspots: Hotspot[] = [
-  {
-    id: 'hormuz',
-    name: 'Strait of Hormuz',
-    lat: 26.34,
-    lng: 56.47,
-    risk: 'CRITICAL',
-    riskColor: '#ef4444',
-    dailyTransits: 7,
-    note: 'Iran War (Feb 28) — 94% traffic drop. 21M bbl/day at risk. Avg wait: 48h+.',
-  },
-  {
-    id: 'bab',
-    name: 'Bab el-Mandeb',
-    lat: 12.65,
-    lng: 43.32,
-    risk: 'CRITICAL',
-    riskColor: '#ef4444',
-    dailyTransits: 24,
-    note: 'Houthi attacks resumed (Mar 28). $280M daily volume. Avg wait: 6.5h.',
-  },
-  {
-    id: 'malacca',
-    name: 'Strait of Malacca',
-    lat: 2.45,
-    lng: 102.15,
-    risk: 'HIGH',
-    riskColor: '#f97316',
-    dailyTransits: 471,
-    note: "World's busiest strait. +89% traffic from diversions. 3,298 vessels/week.",
-  },
-  {
-    id: 'suez',
-    name: 'Suez Canal',
-    lat: 29.95,
-    lng: 32.58,
-    risk: 'HIGH',
-    riskColor: '#f97316',
-    dailyTransits: 39,
-    note: 'Mar 25 SCA data. Decade-low transits. Red Sea diversions ongoing.',
-  },
-]
+interface HotspotStat { activeVessels: number; dailyTransits: number; avgWaitTime: string; marketVolume: number; riskLevel: string }
+interface Alert { id: string; hotspot: string; severity: string; message: string; source: string; timestamp: string }
+interface NewsArticle { title: string; url: string; source: string; snippet: string; publishedAt?: string | null }
 
 export default function MapDashboard() {
-  const [selected, setSelected] = useState<Hotspot>(hotspots[0])
+  const [selectedId, setSelectedId] = useState('hormuz')
+  const [stats, setStats] = useState<Record<string, HotspotStat>>({})
+  const [alerts, setAlerts] = useState<Alert[]>([])
   const [news, setNews] = useState<NewsArticle[]>([])
+  const [loading, setLoading] = useState(true)
   const [newsLoading, setNewsLoading] = useState(true)
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
+  const [lastRefresh, setLastRefresh] = useState('')
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
+
+  const fetchIntelligence = async () => {
+    try {
+      const res = await fetch('/api/maritime-intelligence', { cache: 'no-store' })
+      const data = await res.json()
+      if (data.success && data.data) {
+        setStats(data.data.hotspotStats || {})
+        setAlerts(data.data.latestAlerts || [])
+      }
+    } catch (e) {}
+    setLoading(false)
+    setLastRefresh(new Date().toLocaleTimeString())
+  }
 
   const fetchNews = async (topic: string) => {
     setNewsLoading(true)
     try {
-      const res = await fetch(`/api/live-news?topic=${topic}`)
+      const res = await fetch('/api/live-news?topic=' + topic, { cache: 'no-store' })
       const data = await res.json()
-      if (data.success && data.articles?.length > 0) {
-        setNews(data.articles)
-      }
-    } catch {
-      // silent
-    } finally {
-      setNewsLoading(false)
-      setLastRefresh(new Date())
-    }
+      if (data.success && data.articles?.length > 0) setNews(data.articles)
+      else setNews([])
+    } catch (e) { setNews([]) }
+    setNewsLoading(false)
   }
 
   useEffect(() => {
-    fetchNews(selected.id)
-  }, [selected.id])
+    fetchIntelligence()
+    const interval = setInterval(fetchIntelligence, 3600000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => { fetchNews(selectedId) }, [selectedId])
+
+  const selected = stats[selectedId]
+  const meta = HOTSPOT_META[selectedId]
+  const riskColor = RISK_COLOR[selected?.riskLevel || 'medium']
+  const hotspots = Object.entries(HOTSPOT_META).map(([id, m]) => ({
+    id, name: m.name, lat: m.lat, lng: m.lng,
+    risk: (stats[id]?.riskLevel || 'medium').toUpperCase(),
+    riskColor: RISK_COLOR[stats[id]?.riskLevel || 'medium'],
+    dailyTransits: stats[id]?.dailyTransits || 0,
+    note: alerts.find(a => a.hotspot === id)?.message || 'No active alerts.',
+  }))
+  const selectedAlerts = alerts.filter(a => a.hotspot === selectedId)
 
   return (
     <div className="min-h-screen bg-background py-6 px-4">
       <div className="max-w-7xl mx-auto space-y-6">
-
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground text-balance">Live Maritime Intelligence</h1>
-            <p className="text-muted-foreground mt-1 text-sm">Real-time vessel tracking and chokepoint analysis — March 30, 2026</p>
+            <h1 className="text-3xl font-bold text-foreground">Live Maritime Intelligence</h1>
+            <p className="text-muted-foreground mt-1 text-sm">Real-time chokepoint analysis — {mounted ? lastRefresh || 'Loading...' : ''}</p>
           </div>
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <button onClick={() => { fetchIntelligence(); fetchNews(selectedId) }} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-2">
+              <RefreshCw className="h-3 w-3" /> Refresh
+            </button>
+            <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Back</Link>
+          </div>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-          {/* Left sidebar */}
           <div className="lg:col-span-1 space-y-4">
-
-            {/* Hotspot selector */}
             <div className="glass rounded-2xl border border-border p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                Global Hotspots
-              </h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Global Hotspots</h3>
               <div className="space-y-2">
-                {hotspots.map((hotspot) => (
-                  <button
-                    key={hotspot.id}
-                    onClick={() => setSelected(hotspot)}
-                    className={`w-full text-left p-3 rounded-xl border transition-all ${
-                      selected.id === hotspot.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border bg-card/50 hover:bg-card'
-                    }`}
-                  >
+                {loading ? [1,2,3,4].map(i => <div key={i} className="h-14 rounded-xl bg-muted/30 animate-pulse" />) : hotspots.map(h => (
+                  <button key={h.id} onClick={() => setSelectedId(h.id)} className={'w-full text-left p-3 rounded-xl border transition-all ' + (selectedId === h.id ? 'border-primary bg-primary/10' : 'border-border bg-card/50 hover:bg-card')}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm">{hotspot.name}</span>
-                      <span
-                        className="text-xs font-bold px-1.5 py-0.5 rounded"
-                        style={{ backgroundColor: hotspot.riskColor + '22', color: hotspot.riskColor }}
-                      >
-                        {hotspot.risk}
-                      </span>
+                      <span className="font-semibold text-sm">{h.name}</span>
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: h.riskColor + '22', color: h.riskColor }}>{h.risk}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Activity className="h-3 w-3" />
-                      {hotspot.dailyTransits} vessels/day
-                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Activity className="h-3 w-3" />{h.dailyTransits} transits/day</div>
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Selected hotspot details */}
-            <div className="glass rounded-2xl border border-border p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                {selected.name}
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
-                  <p
-                    className="text-3xl font-bold"
-                    style={{ color: selected.riskColor }}
-                  >
-                    {selected.dailyTransits}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Intelligence</p>
-                  <p className="text-xs leading-relaxed">{selected.note}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Coordinates</p>
-                  <p className="text-xs font-mono">{selected.lat}°N, {selected.lng}°E</p>
+            {selected && (
+              <div className="glass rounded-2xl border border-border p-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{meta?.name}</h3>
+                <div className="space-y-3">
+                  <div><p className="text-xs text-muted-foreground mb-1">Daily Transits</p><p className="text-3xl font-bold" style={{ color: riskColor }}>{selected.dailyTransits}</p></div>
+                  <div><p className="text-xs text-muted-foreground mb-1">Active Vessels</p><p className="text-xl font-bold">{selected.activeVessels}</p></div>
+                  <div><p className="text-xs text-muted-foreground mb-1">Avg Wait Time</p><p className="text-sm font-semibold">{selected.avgWaitTime}</p></div>
+                  <div><p className="text-xs text-muted-foreground mb-1">Market Volume</p><p className="text-sm font-semibold">{selected.marketVolume.toLocaleString()} MT</p></div>
+                  <div><p className="text-xs text-muted-foreground mb-1">Risk Level</p><span className="text-xs font-bold px-2 py-1 rounded" style={{ backgroundColor: riskColor + '22', color: riskColor }}>{selected.riskLevel.toUpperCase()}</span></div>
                 </div>
               </div>
-            </div>
-
-            {/* Sources */}
-            <div className="glass rounded-2xl border border-border p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                Data Sources
-              </h3>
-              <ul className="text-xs text-muted-foreground space-y-1.5">
-                {['BBC Verify', 'Reuters', 'Suez Canal Authority', 'VesselTracker', 'Breakwave Advisors', 'gCaptain', 'Tavily Search'].map((src) => (
-                  <li key={src} className="flex items-center gap-2">
-                    <Zap className="h-3 w-3 text-primary flex-shrink-0" />
-                    {src}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            )}
           </div>
-
-          {/* Center + Right: Map + News */}
           <div className="lg:col-span-3 space-y-4">
-
-            {/* Satellite map */}
             <div className="glass rounded-2xl border border-border overflow-hidden" style={{ height: 420 }}>
-              <SatelliteMap hotspots={hotspots} selected={selected} onSelect={setSelected} />
+              {hotspots.length > 0 ? (
+                <SatelliteMap hotspots={hotspots} selected={hotspots.find(h => h.id === selectedId) || hotspots[0]} onSelect={(h: any) => setSelectedId(h.id)} />
+              ) : <div className="w-full h-full flex items-center justify-center"><div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}
             </div>
-
-            {/* Alert banner */}
-            <div className="glass rounded-2xl border border-destructive/30 bg-destructive/5 p-4 flex gap-3">
-              <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-foreground leading-relaxed">
-                <span className="font-semibold text-destructive">CRITICAL — March 30, 2026: </span>
-                Iran War (Feb 28) cut Hormuz traffic 94%. Houthi attacks resumed Mar 28.
-                60%+ of global container capacity now rerouting via Cape of Good Hope (+10-14 days).
-              </p>
-            </div>
-
-            {/* Live news panel - full scrollable */}
-            <div className="glass rounded-2xl border border-border p-4 flex flex-col" style={{ maxHeight: 600 }}>
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <Newspaper className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold">Latest Maritime News</h3>
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs text-muted-foreground">Live</span>
-                  </span>
-                </div>
-                <button
-                  onClick={() => fetchNews(selected.id)}
-                  disabled={newsLoading}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw className={`h-3 w-3 ${newsLoading ? 'animate-spin' : ''}`} />
-                  {mounted && lastRefresh.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                </button>
-              </div>
-
-              <div className="overflow-y-auto flex-1 pr-2 space-y-3">
-                {newsLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div key={i} className="animate-pulse space-y-2">
-                        <div className="h-4 bg-muted rounded w-3/4" />
-                        <div className="h-3 bg-muted rounded w-full" />
-                        <div className="h-3 bg-muted rounded w-1/2" />
-                      </div>
-                    ))}
+            {selectedAlerts.length > 0 && (
+              <div className="space-y-2">
+                {selectedAlerts.map(alert => (
+                  <div key={alert.id} className="glass rounded-2xl border border-destructive/30 bg-destructive/5 p-4 flex gap-3">
+                    <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                    <div><p className="text-xs font-semibold text-destructive mb-1">{alert.severity.toUpperCase()} — {alert.source}</p><p className="text-xs text-foreground leading-relaxed">{alert.message}</p></div>
                   </div>
-                ) : news.length > 0 ? (
-                  news.map((article, i) => (
-                    <a
-                      key={i}
-                      href={article.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex flex-col gap-1.5 p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all block"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
-                          {article.title}
-                        </p>
-                        <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                        {article.snippet}
-                      </p>
-                      <div className="flex items-center justify-between mt-auto pt-1 border-t border-border/50">
-                        <span className="text-xs font-medium text-primary">{article.source}</span>
-                        {article.publishedAt && (
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(article.publishedAt).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </a>
-                  ))
-                ) : (
-                  <p className="text-xs text-muted-foreground text-center py-8">No news found for this region.</p>
-                )}
+                ))}
               </div>
+            )}
+            <div className="glass rounded-2xl border border-border p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold">Live Intelligence Feed — {meta?.name}</h3>
+                <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /><span className="text-xs text-muted-foreground">Live</span></div>
+              </div>
+              {newsLoading ? <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 rounded-lg bg-muted/30 animate-pulse" />)}</div>
+              : news.length === 0 ? <p className="text-xs text-muted-foreground">No articles. Add via admin panel at /admin.</p>
+              : <div className="space-y-3">{news.map((article, i) => (
+                <a key={i} href={article.url} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-xl border border-border bg-card/50 hover:bg-card transition-colors group">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors line-clamp-2">{article.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{article.snippet}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs font-medium text-primary">{article.source}</span>
+                        {article.publishedAt && <span className="text-xs text-muted-foreground">{new Date(article.publishedAt).toLocaleDateString()}</span>}
+                      </div>
+                    </div>
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  </div>
+                </a>
+              ))}</div>}
             </div>
-
           </div>
         </div>
       </div>
