@@ -26,3 +26,4 @@ const nextConfig = {
 
 export default nextConfig
 // deploy:2026-04-04
+// deployed: 2026-04-04-logo-seo
