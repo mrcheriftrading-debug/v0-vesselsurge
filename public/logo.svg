@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'>
+  <defs>
+    <linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#0ea5e9'/>
+      <stop offset='100%' stop-color='#2563eb'/>
+    </linearGradient>
+  </defs>
+  <path d='M10 35 L25 15 L40 35 Z' fill='url(#g)' opacity='0.9'/>
+  <path d='M5 38 Q25 42 45 38' stroke='url(#g)' stroke-width='2.5' fill='none' stroke-linecap='round'/>
+  <text x='52' y='33' font-family='system-ui,sans-serif' font-size='18' font-weight='700' fill='url(#g)'>Vessel</text>
+  <text x='110' y='33' font-family='system-ui,sans-serif' font-size='18' font-weight='300' fill='#94a3b8'>Surge</text>
+</svg>
