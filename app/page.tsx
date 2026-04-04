@@ -4,31 +4,27 @@ import Link from "next/link"
 import { useState } from "react"
 import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
 import { PartnershipForm } from "@/components/partnership-form"
+import { Logo } from "@/components/logo"
 
 export default function VesselSurgePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl" role="navigation" aria-label="Main navigation">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary neon-blue">
-              <Zap className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">VesselSurge</span>
-          </div>
+          <Logo width={140} height={45} priority={true} />
           
-          <div className="hidden items-center gap-8 md:flex">
-            <a href="#about" className="text-sm text-muted-foreground transition-colors hover:text-foreground">About</a>
-            <a href="#partners" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Benefits</a>
-            <Link href="/map-dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Live Map</Link>
+          <div className="hidden items-center gap-8 md:flex" role="menubar">
+            <a href="#about" className="text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" role="menuitem">About</a>
+            <a href="#partners" className="text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" role="menuitem">Benefits</a>
+            <Link href="/map-dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" role="menuitem">Live Map</Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/auth/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Log In</Link>
+            <Link href="/auth/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">Log In</Link>
             <a 
               href="#surge-form" 
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 neon-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               Join Network
             </a>
@@ -36,7 +32,7 @@ export default function VesselSurgePage() {
         </div>
       </nav>
 
-      <main>
+      <main id="main-content" role="main" aria-label="Main content">
         {/* Hero Section */}
         <section className="relative min-h-screen overflow-hidden pt-16">
           {/* Background with gradient overlay */}
@@ -364,21 +360,33 @@ export default function VesselSurgePage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-border bg-card py-12">
+        <footer className="border-t border-border bg-card py-12" role="contentinfo" aria-label="Site footer">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <Zap className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <span className="text-lg font-bold text-foreground">VesselSurge</span>
-              </div>
+              <Logo width={120} height={40} priority={false} />
               
               <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-                <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                  <Linkedin className="h-5 w-5" />
+                <a href="#" className="hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">Privacy</a>
+                <a href="#" className="hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">Terms</a>
+                <a 
+                  href="https://x.com/vesselsurge" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                  aria-label="Follow VesselSurge on X (Twitter)"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+                <a 
+                  href="https://linkedin.com/company/vesselsurge" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                  aria-label="Connect with VesselSurge on LinkedIn"
+                >
+                  <Linkedin className="h-5 w-5" aria-hidden="true" />
                 </a>
               </div>
 
