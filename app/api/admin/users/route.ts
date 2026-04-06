@@ -13,10 +13,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  // Check for required environment variables
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "Server configuration error: Missing Supabase credentials" }, { status: 500 })
+  }
+
   // Use service role to get all users
   const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
   )
 
   const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers()
