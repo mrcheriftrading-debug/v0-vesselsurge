@@ -2,10 +2,16 @@ import { NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
+  // Vercel cron jobs send CRON_SECRET in the Authorization header
+  // Only check if CRON_SECRET is configured
   const authHeader = request.headers.get('authorization')
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronSecret = process.env.CRON_SECRET
+  
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    console.log('[CRON] Unauthorized request - invalid or missing CRON_SECRET')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
