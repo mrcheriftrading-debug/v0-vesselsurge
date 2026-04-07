@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ArrowLeft, AlertTriangle, Activity, ExternalLink, RefreshCw } from 'lucide-react'
+import { useMaritimeData } from '@/lib/use-maritime-data'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
   ssr: false,
@@ -17,65 +18,24 @@ const HOTSPOT_META: Record<string, { lat: number; lng: number; name: string }> =
 }
 const RISK_COLOR: Record<string, string> = { critical: '#ef4444', high: '#f97316', medium: '#eab308', low: '#22c55e' }
 
-interface HotspotStat { activeVessels: number; dailyTransits: number; avgWaitTime: string; marketVolume: number; riskLevel: string }
-interface Alert { id: string; hotspot: string; severity: string; message: string; source: string; timestamp: string }
-interface NewsArticle { title: string; url: string; source: string; snippet: string; publishedAt?: string | null }
-
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
-  const [stats, setStats] = useState<Record<string, HotspotStat>>({})
-  const [alerts, setAlerts] = useState<Alert[]>([])
-  const [news, setNews] = useState<NewsArticle[]>([])
-  const [loading, setLoading] = useState(true)
-  const [newsLoading, setNewsLoading] = useState(true)
-  const [lastRefresh, setLastRefresh] = useState('')
-  const [mounted, setMounted] = useState(false)
+  const { articles, hotspots, loading, refresh, lastUpdated } = useMaritimeData()
 
-  useEffect(() => { setMounted(true) }, [])
+  // Build hotspots array from hook data
+  const hotspotList = Object.entries(HOTSPOT_META).map(([id, m]) => ({
+    id, name: m.name, lat: m.lat, lng: m.lng,
+    risk: (hotspots[id]?.riskLevel || 'medium').toUpperCase(),
+    riskColor: RISK_COLOR[hotspots[id]?.riskLevel || 'medium'],
+    dailyTransits: hotspots[id]?.dailyTransits || 0,
+    note: hotspots[id]?.activeAlerts?.[0]?.message || 'No active alerts.',
+  }))
 
-  const fetchIntelligence = async () => {
-    try {
-      const res = await fetch('/api/maritime-intelligence', { cache: 'no-store' })
-      const data = await res.json()
-      if (data.success && data.data) {
-        setStats(data.data.hotspotStats || {})
-        setAlerts(data.data.latestAlerts || [])
-      }
-    } catch (e) {}
-    setLoading(false)
-    setLastRefresh(new Date().toLocaleTimeString())
-  }
-
-  const fetchNews = async (topic: string) => {
-    setNewsLoading(true)
-    try {
-      const res = await fetch('/api/live-news?topic=' + topic, { cache: 'no-store' })
-      const data = await res.json()
-      if (data.success && data.articles?.length > 0) setNews(data.articles)
-      else setNews([])
-    } catch (e) { setNews([]) }
-    setNewsLoading(false)
-  }
-
-  useEffect(() => {
-    fetchIntelligence()
-    const interval = setInterval(fetchIntelligence, 3600000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => { fetchNews(selectedId) }, [selectedId])
-
-  const selected = stats[selectedId]
+  const selected = hotspots[selectedId]
   const meta = HOTSPOT_META[selectedId]
   const riskColor = RISK_COLOR[selected?.riskLevel || 'medium']
-  const hotspots = Object.entries(HOTSPOT_META).map(([id, m]) => ({
-    id, name: m.name, lat: m.lat, lng: m.lng,
-    risk: (stats[id]?.riskLevel || 'medium').toUpperCase(),
-    riskColor: RISK_COLOR[stats[id]?.riskLevel || 'medium'],
-    dailyTransits: stats[id]?.dailyTransits || 0,
-    note: alerts.find(a => a.hotspot === id)?.message || 'No active alerts.',
-  }))
-  const selectedAlerts = alerts.filter(a => a.hotspot === selectedId)
+  const selectedAlerts = selected?.activeAlerts || []
+  const selectedNews = articles.slice(0, 5) // Get top 5 articles for selected hotspot
 
   return (
     <div className="min-h-screen bg-background py-6 px-4">
@@ -83,11 +43,11 @@ export default function MapDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Live Maritime Intelligence</h1>
-            <p className="text-muted-foreground mt-1 text-sm">Real-time chokepoint analysis — {mounted ? lastRefresh || 'Loading...' : ''}</p>
+            <p className="text-muted-foreground mt-1 text-sm">Real-time chokepoint analysis — {lastUpdated ? `Updated ${new Date(lastUpdated).toLocaleTimeString()}` : 'Loading...'}</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => { fetchIntelligence(); fetchNews(selectedId) }} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-2">
-              <RefreshCw className="h-3 w-3" /> Refresh
+            <button onClick={() => refresh()} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-2">
+              <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} /> Refresh
             </button>
             <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Back</Link>
           </div>
@@ -97,7 +57,7 @@ export default function MapDashboard() {
             <div className="glass rounded-2xl border border-border p-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Global Hotspots</h3>
               <div className="space-y-2">
-                {loading ? [1,2,3,4].map(i => <div key={i} className="h-14 rounded-xl bg-muted/30 animate-pulse" />) : hotspots.map(h => (
+                {loading ? [1,2,3,4].map(i => <div key={i} className="h-14 rounded-xl bg-muted/30 animate-pulse" />) : hotspotList.map(h => (
                   <button key={h.id} onClick={() => setSelectedId(h.id)} className={'w-full text-left p-3 rounded-xl border transition-all ' + (selectedId === h.id ? 'border-primary bg-primary/10' : 'border-border bg-card/50 hover:bg-card')}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-sm">{h.name}</span>
@@ -123,8 +83,8 @@ export default function MapDashboard() {
           </div>
           <div className="lg:col-span-3 space-y-4">
             <div className="glass rounded-2xl border border-border overflow-hidden" style={{ height: 420 }}>
-              {hotspots.length > 0 ? (
-                <SatelliteMap hotspots={hotspots} selected={hotspots.find(h => h.id === selectedId) || hotspots[0]} onSelect={(h: any) => setSelectedId(h.id)} />
+              {hotspotList.length > 0 ? (
+                <SatelliteMap hotspots={hotspotList} selected={hotspotList.find(h => h.id === selectedId) || hotspotList[0]} onSelect={(h: any) => setSelectedId(h.id)} />
               ) : <div className="w-full h-full flex items-center justify-center"><div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}
             </div>
             {selectedAlerts.length > 0 && (
@@ -142,17 +102,17 @@ export default function MapDashboard() {
                 <h3 className="text-sm font-semibold">Live Intelligence Feed — {meta?.name}</h3>
                 <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /><span className="text-xs text-muted-foreground">Live</span></div>
               </div>
-              {newsLoading ? <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 rounded-lg bg-muted/30 animate-pulse" />)}</div>
-              : news.length === 0 ? <p className="text-xs text-muted-foreground">No articles. Add via admin panel at /admin.</p>
-              : <div className="space-y-3">{news.map((article, i) => (
-                <a key={i} href={article.url} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-xl border border-border bg-card/50 hover:bg-card transition-colors group">
+              {loading ? <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 rounded-lg bg-muted/30 animate-pulse" />)}</div>
+              : selectedNews.length === 0 ? <p className="text-xs text-muted-foreground">No articles. Add via admin panel at /admin.</p>
+              : <div className="space-y-3">{selectedNews.map((article, i) => (
+                <a key={i} href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-xl border border-border bg-card/50 hover:bg-card transition-colors group">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors line-clamp-2">{article.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{article.snippet}</p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{article.summary}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs font-medium text-primary">{article.source}</span>
-                        {article.publishedAt && <span className="text-xs text-muted-foreground">{new Date(article.publishedAt).toLocaleDateString()}</span>}
+                        <span className="text-xs text-muted-foreground">{new Date(article.timestamp).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <ExternalLink className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
