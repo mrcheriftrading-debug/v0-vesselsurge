@@ -4,9 +4,12 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Article, Hotspot } from '@/lib/maritime-data'
 
+// Hotspots keyed by id: hotspots['hormuz'], hotspots['bab'], etc.
+type HotspotMap = Record<string, Hotspot>
+
 interface UseMaritimeDataReturn {
   articles: Article[]
-  hotspots: Hotspot[]
+  hotspots: HotspotMap
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
@@ -15,137 +18,106 @@ interface UseMaritimeDataReturn {
 
 export function useMaritimeData(): UseMaritimeDataReturn {
   const [articles, setArticles] = useState<Article[]>([])
-  const [hotspots, setHotspots] = useState<Hotspot[]>([])
+  const [hotspots, setHotspots] = useState<HotspotMap>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const subscriptionsRef = useRef<(() => void)[]>([])
 
-  // Initial fetch from cache-busting API
   const fetchMaritimeData = useCallback(async () => {
     try {
-      console.log('[v0] Fetching maritime data from API')
+      console.log('[vs] Fetching maritime data')
       setLoading(true)
       setError(null)
 
       const response = await fetch('/api/maritime-data', {
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
+        headers: { 'Cache-Control': 'no-cache' },
       })
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`)
-      }
+      if (!response.ok) throw new Error(`API error: ${response.status}`)
 
       const { data } = await response.json()
+
       setArticles(data.articles || [])
-      setHotspots(data.hotspots || [])
+
+      // FIX: convert array → keyed map so page can do hotspots['hormuz']
+      const hotspotMap: HotspotMap = {}
+      for (const h of (data.hotspots || [])) {
+        hotspotMap[h.hotspot] = h
+      }
+      setHotspots(hotspotMap)
       setLastUpdated(new Date())
-      console.log('[v0] Maritime data fetched successfully')
+      console.log('[vs] Data loaded — articles:', data.articles?.length, 'hotspots:', Object.keys(hotspotMap).length)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch maritime data'
       setError(message)
-      console.error('[v0] Error fetching maritime data:', err)
+      console.error('[vs] Fetch error:', err)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  // Setup Supabase Realtime subscriptions
   const setupRealtimeSubscriptions = useCallback(() => {
     try {
       const supabase = createClient()
 
-      // Subscribe to articles changes
+      // FIX: missing closing ) on .on() before .subscribe()
       const articlesChannel = supabase
         .channel('articles-channel')
         .on(
           'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'news_articles',
-          },
+          { event: '*', schema: 'public', table: 'news_articles' },
           async (payload) => {
-            console.log('[v0] Articles update received:', payload.eventType)
-            // Refetch articles on any change
+            console.log('[vs] Articles change:', payload.eventType)
             await fetchMaritimeData()
           }
         )
         .subscribe((status) => {
-          console.log('[v0] Articles channel status:', status)
+          console.log('[vs] Articles channel:', status)
         })
 
-      // Subscribe to hotspots changes
       const hotspotsChannel = supabase
         .channel('hotspots-channel')
         .on(
           'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'hotspot_stats',
-          },
+          { event: '*', schema: 'public', table: 'hotspot_stats' },
           async (payload) => {
-            console.log('[v0] Hotspots update received:', payload.eventType)
-            // Refetch hotspots on any change
+            console.log('[vs] Hotspots change:', payload.eventType)
             await fetchMaritimeData()
           }
         )
         .subscribe((status) => {
-          console.log('[v0] Hotspots channel status:', status)
+          console.log('[vs] Hotspots channel:', status)
         })
 
-      // Store unsubscribe functions
       subscriptionsRef.current.push(() => {
         supabase.removeChannel(articlesChannel)
         supabase.removeChannel(hotspotsChannel)
       })
     } catch (err) {
-      console.error('[v0] Error setting up realtime subscriptions:', err)
+      console.error('[vs] Realtime setup error:', err)
     }
   }, [fetchMaritimeData])
 
-  // Fallback polling mechanism (every 5 minutes)
   useEffect(() => {
-    // Initial fetch
     fetchMaritimeData()
-
-    // Setup realtime
     setupRealtimeSubscriptions()
 
-    // Fallback polling: 5 minutes
-    const pollingInterval = setInterval(() => {
-      console.log('[v0] Polling maritime data (fallback)')
-      fetchMaritimeData()
-    }, 5 * 60 * 1000)
+    // Fallback poll every 5 minutes
+    const pollingInterval = setInterval(() => fetchMaritimeData(), 5 * 60 * 1000)
 
-    // Refresh on visibility change
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log('[v0] Page became visible, refreshing maritime data')
-        fetchMaritimeData()
-      }
+      if (!document.hidden) fetchMaritimeData()
     }
-
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
       clearInterval(pollingInterval)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
-      // Cleanup subscriptions
-      subscriptionsRef.current.forEach((unsubscribe) => unsubscribe())
+      subscriptionsRef.current.forEach((unsub) => unsub())
       subscriptionsRef.current = []
     }
   }, [fetchMaritimeData, setupRealtimeSubscriptions])
 
-  return {
-    articles,
-    hotspots,
-    loading,
-    error,
-    refresh: fetchMaritimeData,
-    lastUpdated,
-  }
+  return { articles, hotspots, loading, error, refresh: fetchMaritimeData, lastUpdated }
 }

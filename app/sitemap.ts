@@ -1,38 +1,53 @@
 import { MetadataRoute } from 'next'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://vesselsurge.com'
-  const regions = ['hormuz', 'suez', 'malacca', 'bab']
+const BASE_URL = 'https://www.vesselsurge.com'
 
-  // Main pages
-  const mainPages = [
+export default function sitemap(): MetadataRoute.Sitemap {
+  const now = new Date()
+
+  return [
     {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 1,
+      url: BASE_URL,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 1.0,
     },
     {
-      url: `${baseUrl}/map-dashboard`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly' as const,
-      priority: 0.9,
+      url: `${BASE_URL}/map-dashboard`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.95,
     },
     {
-      url: `${baseUrl}/dashboard`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
+      url: `${BASE_URL}/dashboard`,
+      lastModified: now,
+      changeFrequency: 'daily',
       priority: 0.8,
     },
+    // Chokepoint landing pages (future-proof for when those pages exist)
+    {
+      url: `${BASE_URL}/regions/hormuz`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/regions/bab`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/regions/suez`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/regions/malacca`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.75,
+    },
   ]
-
-  // Regional pages
-  const regionalPages = regions.map((region) => ({
-    url: `${baseUrl}/regions/${region}`,
-    lastModified: new Date(),
-    changeFrequency: 'hourly' as const,
-    priority: 0.7,
-  }))
-
-  return [...mainPages, ...regionalPages]
 }
