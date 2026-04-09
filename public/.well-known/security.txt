@@ -1,0 +1,4 @@
+# VesselSurge Security Contact
+Contact: mailto:security@vesselsurge.com
+Preferred-Languages: en
+Canonical: https://www.vesselsurge.com/.well-known/security.txt

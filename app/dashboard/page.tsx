@@ -3,6 +3,21 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Zap, Ship, Package, MapPin, User, LogOut } from "lucide-react"
+import type { Metadata } from 'next'
+
+const BASE_URL = 'https://www.vesselsurge.com'
+
+export const metadata: Metadata = {
+  title: 'Dashboard - Manage Your Maritime Business',
+  description: 'VesselSurge dashboard for ship owners and cargo charterers. Manage vessel listings, freight requests, and connect with verified maritime partners worldwide.',
+  alternates: {
+    canonical: `${BASE_URL}/dashboard`,
+  },
+  robots: {
+    index: false, // Dashboard is private
+    follow: false,
+  },
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
