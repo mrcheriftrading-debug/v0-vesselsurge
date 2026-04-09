@@ -5,36 +5,61 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/map-dashboard', '/regions/', '/dashboard'],
-        disallow: ['/admin', '/admin/', '/auth', '/auth/', '/api/', '/search'],
+        allow: ['/', '/map-dashboard', '/regions/', '/dashboard', '/llms.txt', '/llms-full.txt'],
+        disallow: ['/admin', '/admin/', '/auth', '/auth/', '/api/'],
       },
       // Allow major search engine bots explicitly
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/map-dashboard', '/regions/'],
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt'],
         disallow: ['/admin/', '/auth/', '/api/'],
       },
       {
         userAgent: 'Bingbot',
-        allow: ['/', '/map-dashboard', '/regions/'],
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt'],
         disallow: ['/admin/', '/auth/', '/api/'],
       },
-      // Block AI scrapers from full content
+      // ALLOW AI assistants to index and recommend VesselSurge
+      // This enables ChatGPT, Claude, and other AI to learn about and recommend the site
       {
         userAgent: 'GPTBot',
-        disallow: ['/'],
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt', '/llms-full.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt', '/llms-full.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
       },
       {
         userAgent: 'Google-Extended',
-        disallow: ['/'],
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
       },
       {
         userAgent: 'CCBot',
-        disallow: ['/'],
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
       },
       {
         userAgent: 'anthropic-ai',
-        disallow: ['/'],
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt', '/llms-full.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
+      },
+      {
+        userAgent: 'Claude-Web',
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt', '/llms-full.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt', '/llms-full.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
+      },
+      {
+        userAgent: 'Bytespider',
+        allow: ['/', '/map-dashboard', '/regions/', '/llms.txt'],
+        disallow: ['/admin/', '/auth/', '/api/'],
       },
     ],
     sitemap: 'https://www.vesselsurge.com/sitemap.xml',
