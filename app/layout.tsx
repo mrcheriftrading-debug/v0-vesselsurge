@@ -367,6 +367,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         {/* LLMs.txt for AI assistants */}
         <link rel="author" href="/llms.txt" />
+
+        {/* Ahrefs Analytics */}
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="Ef0dHsqqCuO7MgKs8DtkKg" async></script>
       </head>
       <body className={geist.className + ' antialiased min-h-screen bg-background text-foreground'}>
         {children}
