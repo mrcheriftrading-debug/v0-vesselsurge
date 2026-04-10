@@ -4,120 +4,152 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Article, Hotspot } from '@/lib/maritime-data'
 
-// Hotspots keyed by id: hotspots['hormuz'], hotspots['bab'], etc.
 type HotspotMap = Record<string, Hotspot>
+
+interface Vessel {
+  mmsi: number
+  name: string
+  lat: number
+  lng: number
+  speed: number
+  heading: number
+  ship_type: number
+  destination: string
+  hotspot: string
+}
 
 interface UseMaritimeDataReturn {
   articles: Article[]
   hotspots: HotspotMap
+  vessels: Vessel[]
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
   lastUpdated: Date | null
+  vesselCount: number
 }
 
 export function useMaritimeData(): UseMaritimeDataReturn {
   const [articles, setArticles] = useState<Article[]>([])
   const [hotspots, setHotspots] = useState<HotspotMap>({})
+  const [vessels, setVessels] = useState<Vessel[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const subscriptionsRef = useRef<(() => void)[]>([])
+  const vesselPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // Fetch hotspots + articles from our API
   const fetchMaritimeData = useCallback(async () => {
     try {
-      console.log('[vs] Fetching maritime data')
       setLoading(true)
       setError(null)
-
       const response = await fetch('/api/maritime-data', {
         headers: { 'Cache-Control': 'no-cache' },
       })
-
-      if (!response.ok) throw new Error(`API error: ${response.status}`)
-
+      if (!response.ok) throw new Error('API error: ' + response.status)
       const { data } = await response.json()
-
       setArticles(data.articles || [])
-
-      // FIX: convert array → keyed map so page can do hotspots['hormuz']
-      const hotspotMap: HotspotMap = {}
-      for (const h of (data.hotspots || [])) {
-        hotspotMap[h.hotspot] = h
-      }
-      setHotspots(hotspotMap)
+      const map: HotspotMap = {}
+      for (const h of data.hotspots || []) map[h.hotspot] = h
+      setHotspots(map)
       setLastUpdated(new Date())
-      console.log('[vs] Data loaded — articles:', data.articles?.length, 'hotspots:', Object.keys(hotspotMap).length)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch maritime data'
-      setError(message)
-      console.error('[vs] Fetch error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to fetch data')
     } finally {
       setLoading(false)
     }
   }, [])
 
-  const setupRealtimeSubscriptions = useCallback(() => {
+  // Fetch live vessel positions from AIS
+  const fetchVessels = useCallback(async () => {
+    try {
+      const res = await fetch('/api/ais-vessels', {
+        headers: { 'Cache-Control': 'no-cache' },
+      })
+      if (!res.ok) return
+      const { vessels: vesselData } = await res.json()
+      if (Array.isArray(vesselData)) {
+        setVessels(vesselData.filter((v: Vessel) => v.lat && v.lng))
+      }
+    } catch (_) { /* silent - vessels are optional enhancement */ }
+  }, [])
+
+  // Supabase realtime subscriptions
+  const setupRealtime = useCallback(() => {
     try {
       const supabase = createClient()
 
-      // FIX: missing closing ) on .on() before .subscribe()
       const articlesChannel = supabase
-        .channel('articles-channel')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'news_articles' },
-          async (payload) => {
-            console.log('[vs] Articles change:', payload.eventType)
-            await fetchMaritimeData()
-          }
+        .channel('articles-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'news_articles' },
+          async () => { await fetchMaritimeData() }
         )
-        .subscribe((status) => {
-          console.log('[vs] Articles channel:', status)
-        })
+        .subscribe()
 
-      const hotspotsChannel = supabase
-        .channel('hotspots-channel')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'hotspot_stats' },
-          async (payload) => {
-            console.log('[vs] Hotspots change:', payload.eventType)
-            await fetchMaritimeData()
-          }
+      const statsChannel = supabase
+        .channel('hotspot-stats-realtime')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'hotspot_stats' },
+          async () => { await fetchMaritimeData() }
         )
-        .subscribe((status) => {
-          console.log('[vs] Hotspots channel:', status)
-        })
+        .subscribe()
+
+      // Vessel realtime - update positions live
+      const vesselsChannel = supabase
+        .channel('vessels-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'vessels' },
+          async () => { await fetchVessels() }
+        )
+        .subscribe()
 
       subscriptionsRef.current.push(() => {
         supabase.removeChannel(articlesChannel)
-        supabase.removeChannel(hotspotsChannel)
+        supabase.removeChannel(statsChannel)
+        supabase.removeChannel(vesselsChannel)
       })
     } catch (err) {
-      console.error('[vs] Realtime setup error:', err)
+      console.error('[realtime] setup error:', err)
     }
-  }, [fetchMaritimeData])
+  }, [fetchMaritimeData, fetchVessels])
 
   useEffect(() => {
+    // Initial load
     fetchMaritimeData()
-    setupRealtimeSubscriptions()
+    fetchVessels()
+    setupRealtime()
 
-    // Fallback poll every 5 minutes
-    const pollingInterval = setInterval(() => fetchMaritimeData(), 5 * 60 * 1000)
+    // Refresh hotspot stats every 5 min
+    const statsInterval = setInterval(fetchMaritimeData, 5 * 60 * 1000)
 
-    const handleVisibilityChange = () => {
-      if (!document.hidden) fetchMaritimeData()
+    // Poll vessel positions every 60 seconds (AIS data updates frequently)
+    vesselPollRef.current = setInterval(fetchVessels, 60 * 1000)
+
+    // Refresh on tab focus
+    const onVisible = () => {
+      if (!document.hidden) {
+        fetchMaritimeData()
+        fetchVessels()
+      }
     }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener('visibilitychange', onVisible)
 
     return () => {
-      clearInterval(pollingInterval)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      subscriptionsRef.current.forEach((unsub) => unsub())
+      clearInterval(statsInterval)
+      if (vesselPollRef.current) clearInterval(vesselPollRef.current)
+      document.removeEventListener('visibilitychange', onVisible)
+      subscriptionsRef.current.forEach(u => u())
       subscriptionsRef.current = []
     }
-  }, [fetchMaritimeData, setupRealtimeSubscriptions])
+  }, [fetchMaritimeData, fetchVessels, setupRealtime])
 
-  return { articles, hotspots, loading, error, refresh: fetchMaritimeData, lastUpdated }
+  return {
+    articles,
+    hotspots,
+    vessels,
+    loading,
+    error,
+    refresh: async () => { await fetchMaritimeData(); await fetchVessels() },
+    lastUpdated,
+    vesselCount: vessels.length,
+  }
 }
