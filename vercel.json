@@ -5,5 +5,6 @@
       "path": "/api/cron/update",
       "schedule": "0 * * * *"
     }
-  ]
+  ],
+  "ignoreCommand": "[ \"$VERCEL_PROJECT_ID\" = \"prj_8Ija1uqISVgJDNFIVGdYh9W8MrFN\" ] && exit 0 || exit 1"
 }
