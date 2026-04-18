@@ -2,7 +2,7 @@ name: Maritime Intelligence Worker
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 */2 * * *'   # every 2 hours Ñ stays within newsdata.io free tier (200 credits/day)
   workflow_dispatch:
 
 jobs:
@@ -15,8 +15,8 @@ jobs:
         run: |
           EDGE_URL="https://zcfumevusbcdinbwtnev.supabase.co/functions/v1/fetch-maritime-news"
           echo "Calling: $EDGE_URL"
-          RESPONSE=$(curl -s -o /tmp/body.txt -w "%{http_code}" -X POST "$EDGE_URL" 
-            -H 'Content-Type: application/json' 
+          RESPONSE=$(curl -s -o /tmp/body.txt -w "%{http_code}" -X POST "$EDGE_URL" \
+            -H 'Content-Type: application/json' \
             --max-time 90)
           BODY=$(cat /tmp/body.txt)
           echo "HTTP $RESPONSE"
