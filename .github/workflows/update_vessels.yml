@@ -2,8 +2,8 @@ name: Maritime Intelligence Worker
 
 on:
   schedule:
-    - cron: '*/15 * * * *'   # every 15 minutes
-  workflow_dispatch:          # manual trigger
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   refresh:
@@ -13,17 +13,16 @@ jobs:
     steps:
       - name: Trigger maritime news refresh
         run: |
-          echo "Triggering fetch-maritime-news edge function..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            '${{ secrets.SUPABASE_EDGE_URL }}/functions/v1/fetch-maritime-news' \
-            -H 'Content-Type: application/json' \
-            --max-time 60)
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | head -n-1)
-          echo "HTTP $HTTP_CODE"
+          EDGE_URL="https://zcfumevusbcdinbwtnev.supabase.co/functions/v1/fetch-maritime-news"
+          echo "Calling: $EDGE_URL"
+          RESPONSE=$(curl -s -o /tmp/body.txt -w "%{http_code}" -X POST "$EDGE_URL" 
+            -H 'Content-Type: application/json' 
+            --max-time 90)
+          BODY=$(cat /tmp/body.txt)
+          echo "HTTP $RESPONSE"
           echo "Response: $BODY"
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "ERROR: edge function returned HTTP $HTTP_CODE"
+          if [ "$RESPONSE" != "200" ]; then
+            echo "ERROR: HTTP $RESPONSE"
             exit 1
           fi
-          echo "SUCCESS" && echo $BODY | python3 -m json.tool
+          echo "SUCCESS"
