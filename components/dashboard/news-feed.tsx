@@ -12,6 +12,8 @@ const categoryStyles: Record<string, { icon: typeof Newspaper; color: string; bg
   regulatory: { icon: AlertCircle, color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/30' },
 }
 
+const defaultStyle = { icon: Newspaper, color: 'text-muted-foreground', bg: 'bg-muted/50 border-muted' }
+
 function formatTimeAgo(date: string): string {
   const now = new Date()
   const diffMs = now.getTime() - new Date(date).getTime()
@@ -32,6 +34,58 @@ export function NewsFeed() {
 
   return (
     <div className="glass flex h-full flex-col rounded-lg border border-border">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Newspaper className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          {lastUpdated && (
+            <span className="text-xs text-muted-foreground">
+              {formatTimeAgo(lastUpdated.toISOString())}
+            </span>
+          )}
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+            title="Refresh feed"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        {error ? (
+          <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">
+            <AlertCircle className="h-8 w-8 text-destructive" />
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <button
+              onClick={refresh}
+              className="text-sm text-primary hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        ) : loading && latestArticles.length === 0 ? (
+          <div className="flex items-center justify-center px-4 py-8">
+            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : latestArticles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">
+            <Newspaper className="h-8 w-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">No articles available</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {latestArticles.map((article) => {
+              const style = categoryStyles[article.category] || defaultStyle
+              const Icon = style.icon
+
+              return (
                 <a
                   key={article.id}
                   href={article.sourceUrl}
