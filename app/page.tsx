@@ -1,34 +1,147 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
-import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight, Menu, X } from "lucide-react"
 import { PartnershipForm } from "@/components/partnership-form"
+import { FeatureCard } from "@/components/ui/feature-card"
+import { SectionHeader } from "@/components/ui/section-header"
+import { StatCard } from "@/components/ui/stat-card"
+import { cn } from "@/lib/utils"
+
+// Hook for scroll-triggered animations
+function useScrollAnimation() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" }
+    )
+
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return { ref, isVisible }
+}
 
 export default function VesselSurgePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const heroAnimation = useScrollAnimation()
+  const intelligenceAnimation = useScrollAnimation()
+  const aboutAnimation = useScrollAnimation()
+  const partnersAnimation = useScrollAnimation()
+
+  // Smooth scroll handler
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault()
+    const element = document.getElementById(targetId)
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" })
+      setMobileMenuOpen(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background scroll-smooth">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary neon-blue">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary neon-blue transition-transform duration-300 hover:scale-105">
               <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground">VesselSurge</span>
           </div>
           
           <div className="hidden items-center gap-8 md:flex">
-            <a href="#about" className="text-sm text-muted-foreground transition-colors hover:text-foreground">About</a>
-            <a href="#partners" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Benefits</a>
-            <Link href="/map-dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Live Map</Link>
+            <a 
+              href="#about" 
+              onClick={(e) => handleSmoothScroll(e, "about")}
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-ring rounded-md px-2 py-1"
+            >
+              About
+            </a>
+            <a 
+              href="#partners" 
+              onClick={(e) => handleSmoothScroll(e, "partners")}
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-ring rounded-md px-2 py-1"
+            >
+              Benefits
+            </a>
+            <Link 
+              href="/map-dashboard" 
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-ring rounded-md px-2 py-1"
+            >
+              Live Map
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/auth/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Log In</Link>
+            <Link 
+              href="/auth/login" 
+              className="hidden sm:block text-sm text-muted-foreground transition-colors hover:text-foreground focus-ring rounded-md px-2 py-1"
+            >
+              Log In
+            </Link>
             <a 
               href="#surge-form" 
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+              onClick={(e) => handleSmoothScroll(e, "surge-form")}
+              className="hidden sm:block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 btn-glow"
+            >
+              Join Network
+            </a>
+            {/* Mobile menu button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground focus-ring rounded-lg"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        <div className={cn(
+          "md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl overflow-hidden transition-all duration-300",
+          mobileMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
+        )}>
+          <div className="px-4 py-4 space-y-3">
+            <a 
+              href="#about" 
+              onClick={(e) => handleSmoothScroll(e, "about")}
+              className="block text-sm text-muted-foreground hover:text-foreground py-2"
+            >
+              About
+            </a>
+            <a 
+              href="#partners" 
+              onClick={(e) => handleSmoothScroll(e, "partners")}
+              className="block text-sm text-muted-foreground hover:text-foreground py-2"
+            >
+              Benefits
+            </a>
+            <Link href="/map-dashboard" className="block text-sm text-muted-foreground hover:text-foreground py-2">
+              Live Map
+            </Link>
+            <Link href="/auth/login" className="block text-sm text-muted-foreground hover:text-foreground py-2">
+              Log In
+            </Link>
+            <a 
+              href="#surge-form" 
+              onClick={(e) => handleSmoothScroll(e, "surge-form")}
+              className="block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground text-center mt-2"
             >
               Join Network
             </a>
@@ -38,62 +151,76 @@ export default function VesselSurgePage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative min-h-screen overflow-hidden pt-16">
+        <section ref={heroAnimation.ref} className="relative min-h-screen overflow-hidden pt-16">
           {/* Background with gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,119,255,0.15),transparent_70%)]" />
+          <div className="absolute inset-0 gradient-radial-blue" />
           
-          {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-20" style={{
-            backgroundImage: `linear-gradient(rgba(0,119,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,119,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
-          }} />
+          {/* Animated dot pattern */}
+          <div className="absolute inset-0 dot-pattern-animated opacity-40" />
 
           <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col items-center justify-center px-4 text-center lg:px-8">
             {/* Technical Label */}
-            <div className="mb-8 font-mono text-xs tracking-[0.3em] text-accent">
+            <div className={cn(
+              "mb-8 font-mono text-xs tracking-[0.3em] text-accent transition-all duration-700",
+              heroAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}>
               // MARITIME B2B NETWORK
             </div>
 
             {/* Main Headline */}
-            <h1 className="max-w-5xl text-5xl font-extrabold tracking-tight text-foreground md:text-6xl lg:text-7xl">
+            <h1 className={cn(
+              "max-w-5xl text-5xl font-extrabold tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance transition-all duration-700 delay-100",
+              heroAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}>
               Match Cargo or{" "}
               <span className="text-primary text-glow-blue">Find Vessels</span>
               {" "}with a Trusted Partner.
             </h1>
 
             {/* Sub-headline */}
-            <p className="mt-8 max-w-3xl text-lg text-muted-foreground md:text-xl">
+            <p className={cn(
+              "mt-8 max-w-3xl text-lg text-muted-foreground md:text-xl text-balance transition-all duration-700 delay-200",
+              heroAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}>
               Direct connections between vessel owners and cargo charterers. Get live insights into global maritime hotspots, reduce risks, and unlock strategic advantages with real-time market intelligence.
             </p>
 
             {/* CTAs - Three Button Hierarchy */}
-            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap items-center justify-center gap-4">
+            <div className={cn(
+              "mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap items-center justify-center transition-all duration-700 delay-300",
+              heroAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}>
               <a 
                 href="#surge-form"
-                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                onClick={(e) => handleSmoothScroll(e, "surge-form")}
+                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all btn-glow"
               >
                 FIND CARGO
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               <a 
                 href="#surge-form"
-                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                onClick={(e) => handleSmoothScroll(e, "surge-form")}
+                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all btn-glow"
               >
                 FIND A VESSEL
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               <Link 
                 href="/map-dashboard"
-                className="flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-8 py-4 text-base font-semibold text-accent transition-all hover:bg-accent/20"
+                className="flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-8 py-4 text-base font-semibold text-accent transition-all hover:bg-accent/20 hover:border-accent"
               >
                 VIEW LIVE MAP & TRAFFIC
               </Link>
             </div>
 
             {/* Scroll indicator */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <div className={cn(
+              "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-500",
+              heroAnimation.isVisible ? "opacity-100" : "opacity-0"
+            )}>
+              <div className="flex flex-col items-center gap-2 text-muted-foreground animate-float">
                 <span className="text-xs uppercase tracking-wider">Scroll</span>
                 <div className="h-12 w-px bg-gradient-to-b from-primary to-transparent" />
               </div>
@@ -102,187 +229,144 @@ export default function VesselSurgePage() {
         </section>
 
         {/* Intelligence Hub Section */}
-        <section className="border-t border-border bg-background py-24">
+        <section ref={intelligenceAnimation.ref} className="border-t border-border bg-background py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="text-center mb-16">
-              <div className="mb-4 font-mono text-xs tracking-[0.3em] text-accent">
-                // INTELLIGENCE HUB
-              </div>
-              <h2 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl max-w-3xl mx-auto">
-                Navigate Global Maritime Risks with{" "}
-                <span className="text-primary">Real-Time Intelligence</span>
-              </h2>
-              <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Monitor critical maritime chokepoints live. Track Hormuz, Red Sea, Malacca, and Suez Canal risks in real-time to make data-driven routing decisions and mitigate exposure.
-              </p>
+            <div className={cn(
+              "text-center mb-16 transition-all duration-700",
+              intelligenceAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            )}>
+              <SectionHeader
+                label="// INTELLIGENCE HUB"
+                title="Navigate Global Maritime Risks with"
+                highlight="Real-Time Intelligence"
+                description="Monitor critical maritime chokepoints live. Track Hormuz, Red Sea, Malacca, and Suez Canal risks in real-time to make data-driven routing decisions and mitigate exposure."
+              />
             </div>
 
             <div className="grid gap-8 lg:grid-cols-3">
-              {/* Risk Mitigation Card */}
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary mb-6">
-                  <Shield className="h-7 w-7" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Safety & Risk Mitigation</h3>
-                <p className="text-muted-foreground mb-4">
-                  Avoid pirate hotspots, conflict zones, and geopolitical tensions. Our live alerts help you reroute cargo before disruptions hit your bottom line.
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    Real-time threat alerts
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    Alternative route recommendations
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    Insurance cost optimization
-                  </li>
-                </ul>
-              </div>
+              <FeatureCard
+                icon={Shield}
+                title="Safety & Risk Mitigation"
+                description="Avoid pirate hotspots, conflict zones, and geopolitical tensions. Our live alerts help you reroute cargo before disruptions hit your bottom line."
+                features={[
+                  "Real-time threat alerts",
+                  "Alternative route recommendations",
+                  "Insurance cost optimization"
+                ]}
+                accentColor="primary"
+                className="p-8"
+                animationDelay={intelligenceAnimation.isVisible ? 100 : 0}
+              />
 
-              {/* Strategic Advantage Card */}
-              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent/20 text-accent mb-6">
-                  <Zap className="h-7 w-7" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Strategic Advantage</h3>
-                <p className="text-muted-foreground mb-4">
-                  Stay ahead of market moves. Access proprietary intelligence on vessel availability, capacity, and pricing across all major routes.
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
-                    Market capacity forecasts
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
-                    Rate intelligence reports
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
-                    Demand trend analysis
-                  </li>
-                </ul>
-              </div>
+              <FeatureCard
+                icon={Zap}
+                title="Strategic Advantage"
+                description="Stay ahead of market moves. Access proprietary intelligence on vessel availability, capacity, and pricing across all major routes."
+                features={[
+                  "Market capacity forecasts",
+                  "Rate intelligence reports",
+                  "Demand trend analysis"
+                ]}
+                accentColor="accent"
+                className="p-8"
+                animationDelay={intelligenceAnimation.isVisible ? 200 : 0}
+              />
 
-              {/* Global News Feed Card */}
-              <div className="rounded-2xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676] mb-6">
-                  <Globe className="h-7 w-7" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Live Maritime News</h3>
-                <p className="text-muted-foreground mb-4">
-                  Stay informed with curated news from global maritime sources. Filter by region, vessel type, and risk category.
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-[#00E676] flex-shrink-0" />
-                    20+ news sources aggregated
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-[#00E676] flex-shrink-0" />
-                    Region-specific alerts
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-[#00E676] flex-shrink-0" />
-                    Real-time incident tracking
-                  </li>
-                </ul>
-              </div>
+              <FeatureCard
+                icon={Globe}
+                title="Live Maritime News"
+                description="Stay informed with curated news from global maritime sources. Filter by region, vessel type, and risk category."
+                features={[
+                  "20+ news sources aggregated",
+                  "Region-specific alerts",
+                  "Real-time incident tracking"
+                ]}
+                accentColor="success"
+                className="p-8"
+                animationDelay={intelligenceAnimation.isVisible ? 300 : 0}
+              />
             </div>
 
             {/* CTA for Live Map */}
-            <div className="mt-16 text-center">
+            <div className={cn(
+              "mt-16 text-center transition-all duration-700 delay-500",
+              intelligenceAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            )}>
               <Link 
                 href="/map-dashboard"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all btn-glow"
               >
                 EXPLORE LIVE MAP
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
         </section>
-        <section id="about" className="border-t border-border bg-card py-24">
+        <section ref={aboutAnimation.ref} id="about" className="border-t border-border bg-card py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
               {/* Content */}
-              <div>
-                <div className="mb-4 font-mono text-xs tracking-[0.2em] text-accent">
-                  // STRATEGIC NARRATIVE
-                </div>
-                <h2 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
-                  The Nexus of Maritime{" "}
-                  <span className="text-primary">Collaboration</span>
-                </h2>
-                <p className="mt-6 text-lg text-muted-foreground">
-                  VesselSurge bridges the gap between ambition and execution. We connect forward-thinking vessel owners with cutting-edge technology providers, sustainable solutions, and global logistics networks.
-                </p>
+              <div className={cn(
+                "transition-all duration-700",
+                aboutAnimation.isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+              )}>
+                <SectionHeader
+                  label="// STRATEGIC NARRATIVE"
+                  title="The Nexus of Maritime"
+                  highlight="Collaboration"
+                  description="VesselSurge bridges the gap between ambition and execution. We connect forward-thinking vessel owners with cutting-edge technology providers, sustainable solutions, and global logistics networks."
+                  centered={false}
+                />
 
                 {/* Three Pillars */}
                 <div className="mt-12 space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-                      <Target className="h-6 w-6 text-primary" />
+                  {[
+                    { icon: Target, title: "Precision Matching", desc: "AI-powered algorithms connect you with partners that align perfectly with your operational needs and growth objectives.", color: "primary" as const },
+                    { icon: Shield, title: "Verified Network", desc: "Every partner undergoes rigorous vetting. Work with confidence knowing you are dealing with industry-verified professionals.", color: "accent" as const },
+                    { icon: Rocket, title: "Innovation First", desc: "Access the latest in maritime technology, from digital transformation to green vessel solutions and autonomous systems.", color: "success" as const },
+                  ].map((pillar, index) => (
+                    <div 
+                      key={pillar.title}
+                      className={cn(
+                        "flex items-start gap-4 group transition-all duration-500",
+                        aboutAnimation.isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                      )}
+                      style={{ transitionDelay: `${(index + 1) * 150}ms` }}
+                    >
+                      <div className={cn(
+                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-110",
+                        pillar.color === "primary" && "bg-primary/10 border-primary/20",
+                        pillar.color === "accent" && "bg-accent/10 border-accent/20",
+                        pillar.color === "success" && "bg-[#00E676]/10 border-[#00E676]/20"
+                      )}>
+                        <pillar.icon className={cn(
+                          "h-6 w-6",
+                          pillar.color === "primary" && "text-primary",
+                          pillar.color === "accent" && "text-accent",
+                          pillar.color === "success" && "text-[#00E676]"
+                        )} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground">{pillar.title}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">{pillar.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">Precision Matching</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        AI-powered algorithms connect you with partners that align perfectly with your operational needs and growth objectives.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 border border-accent/20">
-                      <Shield className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">Verified Network</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Every partner undergoes rigorous vetting. Work with confidence knowing you are dealing with industry-verified professionals.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#00E676]/10 border border-[#00E676]/20">
-                      <Rocket className="h-6 w-6 text-[#00E676]" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">Innovation First</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Access the latest in maritime technology, from digital transformation to green vessel solutions and autonomous systems.
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
               {/* Visual */}
-              <div className="relative">
+              <div className={cn(
+                "relative transition-all duration-700 delay-200",
+                aboutAnimation.isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+              )}>
                 <div className="aspect-square rounded-3xl bg-gradient-to-br from-primary/20 via-card to-accent/20 p-1">
-                  <div className="glass h-full w-full rounded-3xl p-8 flex flex-col justify-center">
+                  <div className="glass-premium h-full w-full rounded-3xl p-8 flex flex-col justify-center">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-primary">500+</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Active Partners</div>
-                      </div>
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-accent">45+</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Countries</div>
-                      </div>
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-[#00E676]">$2.5B</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Deals Facilitated</div>
-                      </div>
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-[#FFB800]">98%</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Satisfaction</div>
-                      </div>
+                      <StatCard value="500+" label="Active Partners" color="primary" />
+                      <StatCard value="45+" label="Countries" color="accent" />
+                      <StatCard value="2.5B" label="Deals Facilitated" color="success" animateNumber={false} />
+                      <StatCard value="98%" label="Satisfaction" color="warning" />
                     </div>
                   </div>
                 </div>
@@ -292,64 +376,63 @@ export default function VesselSurgePage() {
         </section>
 
         {/* Why Join Section */}
-        <section id="partners" className="border-t border-border bg-background py-24">
+        <section ref={partnersAnimation.ref} id="partners" className="border-t border-border bg-background py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="text-center">
-              <div className="mb-4 font-mono text-xs tracking-[0.2em] text-accent">
-                // WHY CHOOSE US
-              </div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
-                Why Join VesselSurge?
-              </h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                Be among the first to access the maritime industry&apos;s most powerful B2B network. Early members receive exclusive benefits and priority matching.
-              </p>
+            <div className={cn(
+              "text-center transition-all duration-700",
+              partnersAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            )}>
+              <SectionHeader
+                label="// WHY CHOOSE US"
+                title="Why Join VesselSurge?"
+                description="Be among the first to access the maritime industry's most powerful B2B network. Early members receive exclusive benefits and priority matching."
+              />
             </div>
 
             {/* Benefits Grid */}
             <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
-                  <Rocket className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Early Adopter Advantage</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Get priority placement and exclusive features as a founding member of the network.</p>
-              </div>
-              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 text-accent">
-                  <Target className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Smart Matching</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Our AI connects you with partners that perfectly match your business needs and goals.</p>
-              </div>
-              <div className="rounded-2xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676]">
-                  <Globe className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Global Reach</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Expand your operations internationally with our worldwide network of verified partners.</p>
-              </div>
-              <div className="rounded-2xl border border-[#FFB800]/20 bg-gradient-to-br from-[#FFB800]/5 to-transparent p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FFB800]/20 text-[#FFB800]">
-                  <Shield className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Verified Network</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Every member is vetted. Work confidently with trusted industry professionals.</p>
-              </div>
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
-                  <Zap className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Real-Time Intelligence</h3>
-                <p className="mt-2 text-sm text-muted-foreground">Access live maritime data, market insights, and operational analytics in one platform.</p>
-              </div>
-              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 text-accent">
-                  <Users className="h-6 w-6" />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Zero Platform Fees</h3>
-                <p className="mt-2 text-sm text-muted-foreground">For early adopters: no subscription fees during our launch phase. Join now and lock in benefits.</p>
-              </div>
+              <FeatureCard
+                icon={Rocket}
+                title="Early Adopter Advantage"
+                description="Get priority placement and exclusive features as a founding member of the network."
+                accentColor="primary"
+                animationDelay={partnersAnimation.isVisible ? 100 : 0}
+              />
+              <FeatureCard
+                icon={Target}
+                title="Smart Matching"
+                description="Our AI connects you with partners that perfectly match your business needs and goals."
+                accentColor="accent"
+                animationDelay={partnersAnimation.isVisible ? 150 : 0}
+              />
+              <FeatureCard
+                icon={Globe}
+                title="Global Reach"
+                description="Expand your operations internationally with our worldwide network of verified partners."
+                accentColor="success"
+                animationDelay={partnersAnimation.isVisible ? 200 : 0}
+              />
+              <FeatureCard
+                icon={Shield}
+                title="Verified Network"
+                description="Every member is vetted. Work confidently with trusted industry professionals."
+                accentColor="warning"
+                animationDelay={partnersAnimation.isVisible ? 250 : 0}
+              />
+              <FeatureCard
+                icon={Zap}
+                title="Real-Time Intelligence"
+                description="Access live maritime data, market insights, and operational analytics in one platform."
+                accentColor="primary"
+                animationDelay={partnersAnimation.isVisible ? 300 : 0}
+              />
+              <FeatureCard
+                icon={Users}
+                title="Zero Platform Fees"
+                description="For early adopters: no subscription fees during our launch phase. Join now and lock in benefits."
+                accentColor="accent"
+                animationDelay={partnersAnimation.isVisible ? 350 : 0}
+              />
             </div>
 
             {/* How It Works - Brokerage Model */}

@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react'
+import { Maximize2, Minimize2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Vessel {
   mmsi: number
@@ -70,11 +72,52 @@ function makeShipIcon(L: any, color: string, heading: number, speed: number) {
 
 export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [] }: SatelliteMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const hotspotMarkersRef = useRef<any[]>([])
   const vesselMarkersRef = useRef<Map<number, any>>(new Map())
   const vesselLayerRef = useRef<any>(null)
   const initializingRef = useRef(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isMapReady, setIsMapReady] = useState(false)
+
+  // Memoize vessel count by type for the legend
+  const vesselStats = useMemo(() => {
+    const stats = { tanker: 0, cargo: 0, passenger: 0, anchored: 0, other: 0 }
+    for (const v of vessels) {
+      if (v.speed < 0.5) stats.anchored++
+      else if (v.ship_type >= 80 && v.ship_type <= 89) stats.tanker++
+      else if (v.ship_type >= 70 && v.ship_type <= 79) stats.cargo++
+      else if (v.ship_type >= 60 && v.ship_type <= 69) stats.passenger++
+      else stats.other++
+    }
+    return stats
+  }, [vessels])
+
+  // Toggle fullscreen
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return
+    if (!isFullscreen) {
+      containerRef.current.requestFullscreen?.()
+      setIsFullscreen(true)
+    } else {
+      document.exitFullscreen?.()
+      setIsFullscreen(false)
+    }
+  }, [isFullscreen])
+
+  // Handle fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+      // Invalidate map size after fullscreen change
+      setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize()
+      }, 100)
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
 
   // Draw / update vessel dots
   const updateVesselMarkers = useCallback((L: any, vesselList: Vessel[]) => {
@@ -200,7 +243,7 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
         // Draw initial vessels
         if (vessels.length > 0) updateVesselMarkers(L, vessels)
 
-        console.log('[map] initialized with', vessels.length, 'vessels')
+        setIsMapReady(true)
       } catch (e) {
         console.error('[map] init error:', e)
         initializingRef.current = false
@@ -218,6 +261,7 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
         vesselMarkersRef.current.clear()
         vesselLayerRef.current = null
         initializingRef.current = false
+        setIsMapReady(false)
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -236,28 +280,108 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
   }, [vessels, updateVesselMarkers])
 
   return (
-    <div className="w-full h-full rounded-xl overflow-hidden relative bg-slate-900">
+    <div 
+      ref={containerRef}
+      className={cn(
+        "w-full h-full rounded-xl overflow-hidden relative bg-slate-900 transition-all duration-300",
+        isFullscreen && "rounded-none"
+      )}
+    >
+      {/* Loading overlay */}
+      <div className={cn(
+        "absolute inset-0 z-[998] flex items-center justify-center bg-slate-900 transition-opacity duration-500",
+        isMapReady ? "opacity-0 pointer-events-none" : "opacity-100"
+      )}>
+        <div className="text-center">
+          <div className="relative mx-auto mb-4">
+            <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+            <div className="absolute inset-0 h-12 w-12 rounded-full border-2 border-transparent border-b-accent/50 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+          </div>
+          <p className="text-sm text-muted-foreground font-mono">Initializing satellite view...</p>
+          <p className="text-xs text-muted-foreground/50 mt-1">Loading AIS vessel data</p>
+        </div>
+      </div>
+
       <div ref={mapRef} className="w-full h-full" style={{ minHeight: '400px' }} />
 
       {/* Live badge */}
-      <div className="absolute top-3 left-3 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10">
+      <div className={cn(
+        "absolute top-3 left-3 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 transition-all duration-500",
+        isMapReady ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+      )}>
         <div className="h-1.5 w-1.5 bg-green-400 rounded-full animate-pulse" />
         <span className="font-mono">AIS LIVE</span>
       </div>
 
       {/* Vessel count badge */}
       {vessels.length > 0 && (
-        <div className="absolute top-3 right-3 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full border border-white/10 font-mono">
+        <div className={cn(
+          "absolute top-3 right-12 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full border border-white/10 font-mono transition-all duration-500",
+          isMapReady ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+        )}>
           {vessels.length} vessels tracked
         </div>
       )}
 
+      {/* Fullscreen toggle */}
+      <button
+        onClick={toggleFullscreen}
+        className={cn(
+          "absolute top-3 right-3 z-[999] bg-black/80 backdrop-blur text-white p-1.5 rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-300",
+          isMapReady ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+        )}
+        title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      >
+        {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+      </button>
+
       {/* Legend */}
-      <div className="absolute bottom-3 left-3 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-2 rounded-xl border border-white/10 space-y-1">
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-orange-500" /> Tanker</div>
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500" /> Cargo</div>
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-500" /> Passenger</div>
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-400" /> Anchored</div>
+      <div className={cn(
+        "absolute bottom-3 left-3 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-2 rounded-xl border border-white/10 space-y-1.5 transition-all duration-500",
+        isMapReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+      )}>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-orange-500" />
+            <span>Tanker</span>
+          </div>
+          <span className="font-mono text-orange-400">{vesselStats.tanker}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-blue-500" />
+            <span>Cargo</span>
+          </div>
+          <span className="font-mono text-blue-400">{vesselStats.cargo}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <span>Passenger</span>
+          </div>
+          <span className="font-mono text-purple-400">{vesselStats.passenger}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-slate-400" />
+            <span>Anchored</span>
+          </div>
+          <span className="font-mono text-slate-400">{vesselStats.anchored}</span>
+        </div>
+      </div>
+
+      {/* Selected hotspot indicator */}
+      <div className={cn(
+        "absolute bottom-3 right-3 z-[999] bg-black/80 backdrop-blur text-white text-xs px-3 py-2 rounded-xl border border-white/10 transition-all duration-500",
+        isMapReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+      )}>
+        <div className="flex items-center gap-2">
+          <div 
+            className="w-2 h-2 rounded-full animate-pulse" 
+            style={{ backgroundColor: selected.riskColor }}
+          />
+          <span className="font-medium">{selected.name}</span>
+        </div>
       </div>
     </div>
   )

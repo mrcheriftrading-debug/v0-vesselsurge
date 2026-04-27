@@ -9,10 +9,14 @@ import { useMaritimeData } from '@/lib/use-maritime-data'
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-slate-900">
+    <div className="w-full h-full flex items-center justify-center bg-slate-900 rounded-xl">
       <div className="text-center">
-        <div className="h-8 w-8 rounded-full border-2 border-sky-500 border-t-transparent animate-spin mx-auto mb-3" />
-        <p className="text-xs text-slate-400 font-mono">Initialising satellite view...</p>
+        <div className="relative mx-auto mb-4">
+          <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+          <div className="absolute inset-0 h-12 w-12 rounded-full border-2 border-transparent border-b-accent/50 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+        </div>
+        <p className="text-sm text-muted-foreground font-mono">Loading satellite map...</p>
+        <p className="text-xs text-muted-foreground/50 mt-1">Preparing vessel tracking</p>
       </div>
     </div>
   ),
