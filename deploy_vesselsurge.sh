@@ -47,7 +47,7 @@ fi
 # 6. Deploy using Vercel CLI
 echo "--- Deployment Triggered: Calling Vercel CLI ---"
 # This command assumes VERCEL_TOKEN and VERCEL_ORG_ID are available in the environment.
-vercel deploy --prod
+vercel deploy --prod --yes
 if [ $? -ne 0 ]; then
     echo "ERROR: Vercel deployment failed. Check Vercel CLI authentication and project name."
     exit 1
