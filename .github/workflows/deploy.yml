@@ -29,15 +29,6 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      # 4. Deploy to Vercel (The production step)
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: team_91mlvKerpS9UcO9SycH4uVKg
-          vercel-project-id: prj_3tRUkePRPwmFMEpJJwtA9jt2hOU3
-          # alias-domains: vesselsurge.com
-
-      # 5. Post-Deployment Confirmation
-      - name: Deployment Success Confirmation
-        run: echo "✅ SUCCESS: Vercel deployment successful!"
+      # 4. Post-Build Confirmation
+      - name: Build Success Confirmation
+        run: echo "✅ SUCCESS: Build completed successfully! Vercel will deploy automatically."
