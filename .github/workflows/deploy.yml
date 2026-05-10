@@ -19,11 +19,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x' 
+          node-version: '20.x'
+          cache: 'pnpm'
 
       # 3. Install Dependencies and Build (The validation step)
       - name: Install Dependencies
-        run: npm install
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm install
+          else
+            npm install
+          fi
       
       - name: Build Project
         run: npm run build
@@ -32,12 +40,11 @@ jobs:
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
-          # These must be set as Secrets in the GitHub Repo Settings!
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          alias-domains: vesselsurge.com 
-          
+          vercel-org-id: team_91mlvKerpS9UcO9SycH4uVKg
+          vercel-project-id: prj_3tRUkePRPwmFMEpJJwtA9jt2hOU3
+          # alias-domains: vesselsurge.com
+
       # 5. Post-Deployment Confirmation
       - name: Deployment Success Confirmation
-        run: echo "✅ SUCCESS: Vercel deployment successful! vesselsurge.com is live with this commit."
+        run: echo "✅ SUCCESS: Vercel deployment successful!"
