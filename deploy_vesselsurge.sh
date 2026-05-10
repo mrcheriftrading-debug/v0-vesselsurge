@@ -4,8 +4,14 @@
 # NOTE: This script requires the environment to have the venv/npm/git/vercel CLIs
 # and requires the .env.local file to contain necessary secrets if running locally.
 
-REPO_PATH="/Users/cherif/.openclaw/workspace/v0-vesselsurge"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_PATH="${OPENCLAW_REPO_PATH:-$SCRIPT_DIR}"
+OPENCLAW_PATH="/Users/cherif/.openclaw/workspace/v0-vesselsurge"
 REPO_NAME="v0-vesselsurge"
+
+if [ -d "$OPENCLAW_PATH" ]; then
+    REPO_PATH="$OPENCLAW_PATH"
+fi
 
 echo "Starting automated deployment for $REPO_NAME..."
 
