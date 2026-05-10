@@ -20,18 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'pnpm'
+          cache: 'npm'
 
       # 3. Install Dependencies and Build (The validation step)
       - name: Install Dependencies
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            corepack enable
-            corepack prepare pnpm@latest --activate
-            pnpm install
-          else
-            npm install
-          fi
+        run: npm install
       
       - name: Build Project
         run: npm run build
