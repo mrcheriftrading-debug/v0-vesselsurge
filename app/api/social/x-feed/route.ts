@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { buildMarketingPost } from '@/scripts/lib/x-marketing-post.mjs'
+import { buildMarketingPost, getMarketingApproval } from '@/scripts/lib/x-marketing-post.mjs'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -41,7 +41,8 @@ function shouldReturnRss(request: Request) {
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const region = url.searchParams.get('region')
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10), 50)
+  const approval = url.searchParams.get('approval') || 'approved'
+  const outputLimit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10), 50)
 
   try {
     const supabase = await createClient()
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
       .in('source', TRUSTED_SOURCES)
       .neq('region', 'global')
       .order('published_at', { ascending: false })
-      .limit(limit)
+      .limit(50)
 
     if (region && region !== 'all') {
       query = query.eq('region', region)
@@ -78,25 +79,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: error.message, items: [] }, { status: 500 })
     }
 
-    const items = (data || []).map((article: any) => {
-      const item = {
-        id: article.id,
-        title: article.title,
-        summary: article.snippet || '',
-        source: article.source,
-        sourceUrl: article.url || null,
-        region: article.region || 'global',
-        topic: article.topic || 'global',
-        riskLevel: riskByRegion.get(article.region) || 'medium',
-        timestamp: article.published_at || article.created_at || new Date().toISOString(),
-      }
+    const reviewedItems = (data || []).map((article: any) => {
+        const item = {
+          id: article.id,
+          title: article.title,
+          summary: article.snippet || '',
+          source: article.source,
+          sourceUrl: article.url || null,
+          region: article.region || 'global',
+          topic: article.topic || 'global',
+          riskLevel: riskByRegion.get(article.region) || 'medium',
+          timestamp: article.published_at || article.created_at || new Date().toISOString(),
+        }
+        const agentApproval = getMarketingApproval(item)
 
-      return {
-        ...item,
-        postText: buildMarketingPost(item),
-        liveMapUrl: 'https://www.vesselsurge.com/map-dashboard',
-      }
-    })
+        return {
+          ...item,
+          postText: buildMarketingPost(item),
+          liveMapUrl: 'https://www.vesselsurge.com/map-dashboard',
+          approval: agentApproval,
+        }
+      })
+      .sort((a: any, b: any) => {
+        if (a.approval.approved !== b.approval.approved) return a.approval.approved ? -1 : 1
+        if (a.approval.score !== b.approval.score) return b.approval.score - a.approval.score
+        return Date.parse(b.timestamp) - Date.parse(a.timestamp)
+      })
+
+    const items = (approval === 'all' ? reviewedItems : reviewedItems.filter((item: any) => item.approval.approved)).slice(
+      0,
+      outputLimit,
+    )
 
     if (shouldReturnRss(request)) {
       const feedUrl = absoluteUrl(request, '/api/social/x-feed?format=rss')
@@ -118,9 +131,9 @@ export async function GET(request: Request) {
       const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>VesselSurge X Post Feed</title>
+    <title>VesselSurge Agent-Approved X Post Feed</title>
     <link>https://www.vesselsurge.com/map-dashboard</link>
-    <description>Verified maritime intelligence posts prepared for X automation.</description>
+    <description>Agent-approved maritime intelligence posts prepared for X automation.</description>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>${rssItems}
   </channel>
 </rss>`
@@ -138,8 +151,15 @@ export async function GET(request: Request) {
         success: true,
         items,
         count: items.length,
+        review: {
+          mode: approval,
+          approved: reviewedItems.filter((item: any) => item.approval.approved).length,
+          rejected: reviewedItems.filter((item: any) => !item.approval.approved).length,
+          approvedBy: 'VesselSurge marketing approval agent',
+        },
         usage: {
           zapierMakeN8nRss: absoluteUrl(request, '/api/social/x-feed?format=rss'),
+          reviewAllJson: absoluteUrl(request, '/api/social/x-feed?approval=all'),
           json: absoluteUrl(request, '/api/social/x-feed'),
         },
       },

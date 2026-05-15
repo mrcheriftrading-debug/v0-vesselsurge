@@ -87,6 +87,71 @@ function hasIranTrumpAngle(article) {
   )
 }
 
+export function getMarketingApproval(article) {
+  const title = compact(article.title)
+  const summary = compact(article.summary)
+  const source = compact(article.source)
+  const risk = article.riskLevel || article.risk || 'medium'
+  const text = `${title} ${summary}`.toLowerCase()
+  const reasons = []
+  let score = 30
+
+  if (!title || title.length < 24) {
+    reasons.push('title too weak')
+    score -= 35
+  } else if (title.length >= 55) {
+    reasons.push('strong headline length')
+    score += 12
+  }
+
+  if (!source) {
+    reasons.push('missing source')
+    score -= 25
+  } else {
+    reasons.push('trusted source')
+  }
+
+  if (article.sourceUrl) {
+    reasons.push('source URL present')
+    score += 8
+  }
+
+  if (hasIranTrumpAngle(article)) {
+    reasons.push('Trump/Iran/Hormuz angle')
+    score += 30
+  }
+
+  if (risk === 'critical') {
+    reasons.push('critical risk')
+    score += 20
+  } else if (risk === 'high') {
+    reasons.push('high risk')
+    score += 15
+  } else if (risk === 'medium') {
+    score += 8
+  }
+
+  if (/\b(registersod|_layouts|javascript|undefined|null)\b/.test(text)) {
+    reasons.push('scrape noise detected')
+    score -= 45
+  }
+
+  if (/[.…]{3,}$/.test(title) || title.includes('...')) {
+    reasons.push('headline appears truncated')
+    score -= 25
+  }
+
+  const approved = score >= 60
+
+  return {
+    approved,
+    approvedBy: approved ? 'VesselSurge marketing approval agent' : null,
+    status: approved ? 'approved' : 'rejected',
+    score,
+    reasons,
+  }
+}
+
 function pickHook(article) {
   if (hasIranTrumpAngle(article)) {
     const seed = seedFrom(`${article.title}${article.region}`)
