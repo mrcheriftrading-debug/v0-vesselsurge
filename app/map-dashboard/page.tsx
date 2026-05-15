@@ -90,10 +90,9 @@ export default function MapDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {/* AIS live badge */}
             <div className="flex items-center gap-1.5 text-xs font-mono bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full">
               <Radio className="h-3 w-3 animate-pulse" />
-              AIS LIVE · {vessels.length} vessels
+              {vessels.length > 0 ? `AIS VERIFIED · ${vessels.length} vessels` : 'AIS VERIFIED · waiting for data'}
             </div>
             <button
               onClick={() => refresh()}
@@ -130,7 +129,7 @@ export default function MapDashboard() {
               </div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Ship className="h-3 w-3" />
-                {loading ? '—' : h.activeVessels + ' vessels'}
+                {loading ? '—' : h.activeVessels > 0 ? h.activeVessels + ' vessels' : 'No verified AIS'}
               </div>
             </button>
           ))}
@@ -158,13 +157,13 @@ export default function MapDashboard() {
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
                     <p className="text-2xl font-black" style={{ color: riskColor }}>
-                      {loading ? '—' : selected.dailyTransits}
+                      {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'N/A'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Active Vessels</p>
                     <p className="text-2xl font-black text-foreground">
-                      {loading ? '—' : selected.activeVessels}
+                      {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : 'N/A'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
@@ -174,13 +173,13 @@ export default function MapDashboard() {
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Vol (K bbl)</p>
                     <p className="text-lg font-bold text-foreground">
-                      {loading ? '—' : (selected.marketVolume / 1000).toFixed(0) + 'K'}
+                      {loading ? '—' : selected.marketVolume > 0 ? (selected.marketVolume / 1000).toFixed(0) + 'K' : 'N/A'}
                     </p>
                   </div>
                 </div>
 
-                {/* Volume bar */}
-                {selected && (
+                {/* Traffic confidence bar */}
+                {selected.marketVolume > 0 ? (
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -200,6 +199,13 @@ export default function MapDashboard() {
                       <span>0%</span><span>Normal</span>
                     </div>
                   </div>
+                ) : (
+                  <div className="rounded-xl border border-border/50 bg-black/20 p-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      Verified traffic statistics are unavailable. Risk level is based only on trusted source review.
+                    </div>
+                  </div>
                 )}
               </div>
             ) : loading ? (
@@ -212,10 +218,10 @@ export default function MapDashboard() {
             <div className="rounded-2xl border border-border p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AIS Vessels</h3>
-                <span className="text-xs font-mono text-green-400">{selectedVessels.length} tracked</span>
+                <span className="text-xs font-mono text-green-400">{selectedVessels.length} verified</span>
               </div>
               {selectedVessels.length === 0 ? (
-                <p className="text-xs text-muted-foreground">Vessel data syncs hourly from AISstream</p>
+                <p className="text-xs text-muted-foreground">No verified AIS rows are available. Mock vessel positions are disabled.</p>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
                   {selectedVessels.slice(0, 20).map(v => (

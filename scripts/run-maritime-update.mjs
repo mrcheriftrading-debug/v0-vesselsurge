@@ -60,8 +60,8 @@ if (!response.ok || body?.success === false) {
   process.exit(1)
 }
 
-const news = body.news || {}
-const ais = body.ais || {}
+const news = body.news || body
+const ais = body.ais || body
 const summary = {
   status: response.status,
   articlesFetched: news.articles_fetched ?? null,
@@ -69,7 +69,8 @@ const summary = {
   statsUpdated: news.stats_updated ?? ais.stats_updated ?? null,
   verified: news.verified ?? null,
   vesselsFound: ais.vessels_found ?? null,
-  source: news.source ?? null,
+  source: news.source ?? body.source ?? null,
+  sources: body.sources ?? null,
   timestamp: body.timestamp ?? new Date().toISOString(),
 }
 
