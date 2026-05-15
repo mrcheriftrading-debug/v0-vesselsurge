@@ -28,8 +28,11 @@ const TRUSTED_FEEDS = [
 ]
 
 const TRUSTED_PAGES = [
-  { source: 'ReCAAP ISC', url: 'https://www.recaap.org/', credibility: 10 },
-  { source: 'Suez Canal Authority', url: 'https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx', credibility: 10 },
+  { source: 'ReCAAP ISC Alerts', url: 'https://www.recaap.org/alerts', credibility: 10, region: 'malacca' },
+  { source: 'ReCAAP ISC Reports', url: 'https://www.recaap.org/reports', credibility: 10, region: 'malacca' },
+  { source: 'Norwegian Maritime Authority', url: 'https://www.sdir.no/en/accidents-and-safety/maritim-sikring/security-level-for-norwegian-vessels/gulf-of-aden-bab-el-mandeb-red-sea/', credibility: 9, region: 'bab' },
+  { source: 'MARAD Maritime Security Advisory', url: 'https://www.maritime.dot.gov/msci/2025-001-southern-red-sea-bab-el-mandeb-strait-and-gulf-aden-houthi-attacks-commercial-vessels', credibility: 9, region: 'bab' },
+  { source: 'Suez Canal Authority', url: 'https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx', credibility: 10, region: 'suez' },
 ]
 
 const REGION_KEYWORDS: Record<string, string[]> = {
@@ -102,6 +105,9 @@ function isRelevant(text: string) {
 }
 
 function hasDirectRegionSignal(article: TrustedArticle) {
+  if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
+  if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
+  if (article.source === 'Suez Canal Authority' && article.region === 'suez') return true
   const text = `${article.title} ${article.snippet}`.toLowerCase()
   const keywords = REGION_KEYWORDS[article.region] || []
   return keywords.some((keyword) => text.includes(keyword))
@@ -145,10 +151,12 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
     .filter((article) => article.title && article.url && isRelevant(`${article.title} ${article.snippet}`))
 }
 
-function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number): TrustedArticle[] {
+function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number, regionHint?: string): TrustedArticle[] {
   const title = decodeHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || source)
   const bodyText = decodeHtml(html).slice(0, 1200)
   const isSuezNewsPage = pageUrl.includes('suezcanal.gov.eg')
+  const isRecaapPage = pageUrl.includes('recaap.org')
+  const isBabReferencePage = regionHint === 'bab'
   const rawLinks = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
     .map((match) => {
       const href = match[1].startsWith('http') ? match[1] : new URL(match[1], pageUrl).toString()
@@ -160,23 +168,22 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
     .filter(({ href, linkText }) => {
       if (linkText.length <= 18) return false
       if (linkText.includes('{{') || linkText.toLowerCase().includes('language.displayname')) return false
-      if (source === 'ReCAAP ISC' && !linkText.startsWith('LATEST:')) return false
+      if (isRecaapPage && !href.toLowerCase().endsWith('.pdf')) return false
+      if (isRecaapPage && !/(2026|2025)/i.test(linkText)) return false
+      if (isRecaapPage && !/(malacca|singapore strait|weekly report|quarter|piracy|armed robbery|sea robbery)/i.test(linkText)) return false
       if (isSuezNewsPage && !href.includes('/MediaCenter/News/Pages/')) return false
       if (isSuezNewsPage && !/(suez|canal|navigation|vessel|transit|ship|maritime|tugboat|convoy)/i.test(linkText)) return false
+      if (isBabReferencePage) return false
       return isRelevant(linkText)
     })
     .slice(0, 8)
 
-  if (source === 'ReCAAP ISC' && candidates.length === 0) return []
+  if (isRecaapPage && candidates.length === 0) return []
 
   const rows = candidates.length > 0 ? candidates : [{ href: pageUrl, linkText: title }]
   return rows.map(({ href, linkText }) => {
     const text = `${linkText} ${bodyText}`
-    const region = source === 'Suez Canal Authority'
-      ? 'suez'
-      : source === 'ReCAAP ISC'
-        ? 'malacca'
-        : classifyRegion(text)
+    const region = regionHint || classifyRegion(text)
     const risk = classifyRisk(text)
     return {
       title: linkText.slice(0, 200),
@@ -206,7 +213,7 @@ async function collectTrustedArticles() {
 
   for (const page of TRUSTED_PAGES) {
     try {
-      articles.push(...parseTrustedPage(await fetchText(page.url), page.source, page.url, page.credibility))
+      articles.push(...parseTrustedPage(await fetchText(page.url), page.source, page.url, page.credibility, page.region))
     } catch (error) {
       console.warn('[trusted-update] page failed', page.source, error)
     }
