@@ -142,13 +142,18 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
 function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number): TrustedArticle[] {
   const title = decodeHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || source)
   const bodyText = decodeHtml(html).slice(0, 1200)
+  const isSuezNewsPage = pageUrl.includes('suezcanal.gov.eg')
   const candidates = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
     .map((match) => {
       const href = match[1].startsWith('http') ? match[1] : new URL(match[1], pageUrl).toString()
       const linkText = decodeHtml(match[2])
       return { href, linkText }
     })
-    .filter(({ linkText }) => linkText.length > 18 && isRelevant(linkText))
+    .filter(({ href, linkText }) => {
+      if (linkText.length <= 18) return false
+      if (isSuezNewsPage && !href.includes('/MediaCenter/News/Pages/')) return false
+      return isRelevant(`${linkText} ${href}`)
+    })
     .slice(0, 8)
 
   const rows = candidates.length > 0 ? candidates : [{ href: pageUrl, linkText: title }]
