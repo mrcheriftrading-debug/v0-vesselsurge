@@ -15,6 +15,9 @@ function normalizeParams(params) {
 }
 
 export function buildOAuth1Header({ method, url, consumerKey, consumerSecret, token, tokenSecret }) {
+  const parsedUrl = new URL(url)
+  const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`
+  const queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
   const oauthParams = {
     oauth_consumer_key: consumerKey,
     oauth_nonce: crypto.randomBytes(16).toString('hex'),
@@ -26,8 +29,8 @@ export function buildOAuth1Header({ method, url, consumerKey, consumerSecret, to
 
   const signatureBaseString = [
     method.toUpperCase(),
-    percentEncode(url),
-    percentEncode(normalizeParams(oauthParams)),
+    percentEncode(baseUrl),
+    percentEncode(normalizeParams({ ...queryParams, ...oauthParams })),
   ].join('&')
 
   const signingKey = `${percentEncode(consumerSecret)}&${percentEncode(tokenSecret)}`
