@@ -10,7 +10,8 @@
     "maritime:update": "node scripts/run-maritime-update.mjs",
     "x:check": "node scripts/x-check-auth.mjs",
     "x:post": "node scripts/x-post.mjs",
-    "x:post-new": "node scripts/x-post-new-maritime-item.mjs"
+    "x:post-new": "node scripts/x-post-new-maritime-item.mjs",
+    "x:compose-new": "node scripts/x-open-compose-new-maritime-item.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

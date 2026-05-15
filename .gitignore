@@ -10,6 +10,7 @@ next.user-config.*
 # Environment variables
 .env*.local
 .x-post-state.json
+.x-compose-state.json
 
 # Common ignores
 node_modules
