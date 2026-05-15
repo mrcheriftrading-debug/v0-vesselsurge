@@ -13,11 +13,12 @@ type TrustedArticle = {
   source: string
   region: string
   topic: string
-  category: string
-  is_breaking: boolean
+  is_active: boolean
   verified: boolean
   credibility: number
   published_at: string
+  created_at?: string
+  updated_at?: string
 }
 
 const TRUSTED_FEEDS = [
@@ -129,8 +130,7 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
         source,
         region,
         topic: region,
-        category: classifyRisk(text) === 'low' ? 'industry' : 'security',
-        is_breaking: classifyRisk(text) === 'critical',
+        is_active: true,
         verified: true,
         credibility,
         published_at: new Date(published_at).toISOString(),
@@ -163,8 +163,7 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
       source,
       region,
       topic: region,
-      category: risk === 'low' ? 'industry' : 'security',
-      is_breaking: risk === 'critical',
+      is_active: true,
       verified: true,
       credibility,
       published_at: new Date().toISOString(),
@@ -250,7 +249,11 @@ export async function GET(request: Request) {
   }
 
   const timestamp = new Date().toISOString()
-  const articles = await collectTrustedArticles()
+  const articles = (await collectTrustedArticles()).map((article) => ({
+    ...article,
+    created_at: timestamp,
+    updated_at: timestamp,
+  }))
 
   if (articles.length === 0) {
     return NextResponse.json(
