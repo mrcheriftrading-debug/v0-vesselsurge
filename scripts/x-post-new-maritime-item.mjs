@@ -47,7 +47,7 @@ if (!nextArticle) {
   process.exit(0)
 }
 
-const postText = buildMarketingPost(nextArticle)
+const postText = buildMarketingPost(nextArticle, { variantSeed: `${Date.now()}` })
 console.log('[x-agent] Posting new maritime update:')
 console.log(postText)
 

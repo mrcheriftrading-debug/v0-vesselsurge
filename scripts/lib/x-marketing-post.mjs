@@ -55,12 +55,22 @@ const IRAN_TRUMP_HOOKS = [
   'The Trump-Iran risk premium is back on the maritime map.',
   "When Iran risk rises, Hormuz becomes everyone's problem.",
   'Oil markets watch headlines. Shipping watches Hormuz.',
+  'Hormuz is where geopolitics turns into freight risk.',
+  'Iran headlines matter most when ships have to move.',
 ]
 
 const IRAN_TRUMP_IMPACT_LINES = [
   'VesselSurge tracks the verified maritime signals behind the geopolitics.',
   'Follow the chokepoint data behind the Trump-Iran headlines.',
   'Track the route risk before it turns into a broader oil and freight story.',
+  'Verified source signals beat market noise when Hormuz is in play.',
+]
+
+const CTA_LABELS = [
+  'Live map',
+  'Track it live',
+  'Watch the map',
+  'VesselSurge map',
 ]
 
 function truncate(value, max) {
@@ -75,6 +85,11 @@ function compact(value) {
 
 function seedFrom(value) {
   return [...value].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+}
+
+function pickFrom(list, seedText, variantSeed = '', offset = 0) {
+  const seed = seedFrom(`${seedText}:${variantSeed}:${offset}`)
+  return list[seed % list.length]
 }
 
 function hasIranTrumpAngle(article) {
@@ -152,37 +167,41 @@ export function getMarketingApproval(article) {
   }
 }
 
-function pickHook(article) {
+function pickHook(article, variantSeed = '') {
   if (hasIranTrumpAngle(article)) {
-    const seed = seedFrom(`${article.title}${article.region}`)
-    return IRAN_TRUMP_HOOKS[seed % IRAN_TRUMP_HOOKS.length]
+    return pickFrom(IRAN_TRUMP_HOOKS, `${article.title}${article.region}`, variantSeed, 1)
   }
 
   const risk = article.riskLevel || article.risk || 'medium'
   const hooks = HOOKS[risk] || HOOKS.medium
-  const seed = seedFrom(`${article.title}${article.region}`)
-  return hooks[seed % hooks.length]
+  return pickFrom(hooks, `${article.title}${article.region}`, variantSeed, 2)
 }
 
-function pickImpactLine(article) {
+function pickImpactLine(article, variantSeed = '') {
   if (hasIranTrumpAngle(article)) {
-    const seed = seedFrom(`${article.source}${article.title}`)
-    return IRAN_TRUMP_IMPACT_LINES[seed % IRAN_TRUMP_IMPACT_LINES.length]
+    return pickFrom(IRAN_TRUMP_IMPACT_LINES, `${article.source}${article.title}`, variantSeed, 3)
   }
 
   const risk = article.riskLevel || article.risk || 'medium'
   const lines = IMPACT_LINES[risk] || IMPACT_LINES.medium
-  const seed = seedFrom(`${article.source}${article.title}`)
-  return lines[seed % lines.length]
+  return pickFrom(lines, `${article.source}${article.title}`, variantSeed, 4)
 }
 
-export function buildMarketingPost(article) {
+export function buildMarketingPost(article, options = {}) {
+  const variantSeed = options.variantSeed || ''
   const hotspot = HOTSPOT_NAMES[article.region] || article.region
   const source = truncate(compact(article.source || 'verified source'), 32)
-  const hook = pickHook(article)
-  const impactLine = pickImpactLine(article)
-  const footer = `\n\n${impactLine}\n\nLive map: ${MAP_URL}\nSource: ${source}`
-  const prefix = `${hook}\n\n${hotspot}: `
+  const hook = pickHook(article, variantSeed)
+  const impactLine = pickImpactLine(article, variantSeed)
+  const ctaLabel = pickFrom(CTA_LABELS, `${article.title}${article.source}`, variantSeed, 5)
+  const template = seedFrom(`${article.title}${variantSeed}`) % 3
+  const footer = `\n\n${impactLine}\n\n${ctaLabel}: ${MAP_URL}\nSource: ${source}`
+  const prefix =
+    template === 0
+      ? `${hook}\n\n${hotspot}: `
+      : template === 1
+        ? `${hook}\n\nWhy it matters: `
+        : `${hook}\n\n${hotspot} watch: `
   const titleBudget = Math.max(48, MAX_POST_LENGTH - prefix.length - footer.length)
   const title = truncate(compact(article.title || 'New maritime intelligence update'), titleBudget)
 

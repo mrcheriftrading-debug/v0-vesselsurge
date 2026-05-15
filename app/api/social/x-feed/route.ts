@@ -43,6 +43,7 @@ export async function GET(request: Request) {
   const region = url.searchParams.get('region')
   const approval = url.searchParams.get('approval') || 'approved'
   const outputLimit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10), 50)
+  const requestVariantSeed = url.searchParams.get('variant') || `${Date.now()}-${Math.random()}`
 
   try {
     const supabase = await createClient()
@@ -95,7 +96,8 @@ export async function GET(request: Request) {
 
         return {
           ...item,
-          postText: buildMarketingPost(item),
+          postText: buildMarketingPost(item, { variantSeed: `${requestVariantSeed}:${item.id}` }),
+          variantSeed: requestVariantSeed,
           liveMapUrl: 'https://www.vesselsurge.com/map-dashboard',
           approval: agentApproval,
         }

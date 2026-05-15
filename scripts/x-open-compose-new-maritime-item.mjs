@@ -22,14 +22,23 @@ function writeState(state) {
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n')
 }
 
-const response = await fetch(FEED_URL, {
-  headers: { accept: 'application/json', 'cache-control': 'no-cache' },
-  cache: 'no-store',
-})
+let response
+try {
+  response = await fetch(FEED_URL, {
+    headers: { accept: 'application/json', 'cache-control': 'no-cache' },
+    cache: 'no-store',
+  })
+} catch (error) {
+  console.error('[x-compose] Failed to fetch maritime feed (network unavailable).')
+  console.error(error)
+  console.log('[x-compose] No compose window opened.')
+  process.exit(0)
+}
 
 if (!response.ok) {
   console.error(`[x-compose] Failed to fetch maritime feed: ${response.status}`)
-  process.exit(1)
+  console.log('[x-compose] No compose window opened.')
+  process.exit(0)
 }
 
 const payload = await response.json()
@@ -47,7 +56,7 @@ if (!nextArticle) {
   process.exit(0)
 }
 
-const postText = buildMarketingPost(nextArticle)
+const postText = buildMarketingPost(nextArticle, { variantSeed: `${Date.now()}` })
 const composeUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(postText)}`
 
 console.log('[x-compose] Opening X compose with:')
