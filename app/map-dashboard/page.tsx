@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, ExternalLink, RefreshCw, Ship, Radio, FileText, Database, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
@@ -71,7 +71,22 @@ export default function MapDashboard() {
   const riskLevel = selected?.riskLevel || 'medium'
   const riskColor = RISK_COLOR[riskLevel] ?? RISK_COLOR.medium
   const riskBg = RISK_BG[riskLevel] ?? RISK_BG.medium
-  const feedArticles = articles.slice(0, 6)
+  const selectedArticles = articles.filter((article) => article.region === selectedId)
+  const feedArticles = (selectedArticles.length > 0 ? selectedArticles : articles).slice(0, 8)
+  const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
+  const totalSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
+  const criticalHotspots = Object.values(hotspots).filter((hotspot) => hotspot.riskLevel === 'critical').length
+  const sourceBreakdown = selectedArticles.reduce((acc: Record<string, number>, article) => {
+    acc[article.source] = (acc[article.source] || 0) + 1
+    return acc
+  }, {})
+  const latestArticle = selectedArticles[0]
+  const selectedUpdatedAt = selected?.updatedAt ? new Date(selected.updatedAt) : null
+  const selectedConfidence = selected
+    ? selected.verifiedReports && selected.sourceCount
+      ? 'Verified source review'
+      : 'Awaiting source update'
+    : 'Loading'
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,6 +125,37 @@ export default function MapDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
 
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="rounded-xl border border-border bg-card/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="h-3.5 w-3.5 text-green-400" />
+              OpenClaw status
+            </div>
+            <p className="mt-1 text-sm font-bold text-foreground">Trusted source mode</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              Verified reports
+            </div>
+            <p className="mt-1 text-2xl font-black tabular-nums">{loading ? '—' : totalReports}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Database className="h-3.5 w-3.5 text-sky-400" />
+              Active sources
+            </div>
+            <p className="mt-1 text-2xl font-black tabular-nums">{loading ? '—' : totalSources}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <AlertCircle className="h-3.5 w-3.5 text-red-400" />
+              Critical hotspots
+            </div>
+            <p className="mt-1 text-2xl font-black tabular-nums">{loading ? '—' : criticalHotspots}</p>
+          </div>
+        </div>
+
         {/* Global risk bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {hotspotList.map(h => (
@@ -122,16 +168,22 @@ export default function MapDashboard() {
                 background: selectedId === h.id ? h.riskColor + '18' : 'rgba(255,255,255,0.03)',
               }}
             >
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-foreground truncate">{h.flag} {h.name}</span>
                 <span className="text-xs font-black px-1.5 py-0.5 rounded ml-1 flex-shrink-0"
                   style={{ background: h.riskColor + '22', color: h.riskColor }}>
                   {h.risk}
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <FileText className="h-3 w-3" />
-                {loading ? '—' : `${h.verifiedReports} reports · ${h.sourceCount} sources`}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <div className="text-muted-foreground">Reports</div>
+                  <div className="font-bold text-foreground tabular-nums">{loading ? '—' : h.verifiedReports}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Sources</div>
+                  <div className="font-bold text-foreground tabular-nums">{loading ? '—' : h.sourceCount}</div>
+                </div>
               </div>
             </button>
           ))}
@@ -148,7 +200,10 @@ export default function MapDashboard() {
               <div className="rounded-2xl border p-4 space-y-4"
                 style={{ borderColor: riskColor + '33', background: riskBg }}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{meta?.name}</h3>
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{meta?.name}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{selectedConfidence}</p>
+                  </div>
                   <span className="text-xs font-black px-2 py-0.5 rounded-full"
                     style={{ background: riskColor + '22', color: riskColor }}>
                     {riskLevel.toUpperCase()}
@@ -170,15 +225,60 @@ export default function MapDashboard() {
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">AIS Vessels</p>
-                    <p className="text-lg font-bold text-foreground">
+                    <p className="text-sm font-bold text-foreground">
                       {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : 'Not verified'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
-                    <p className="text-lg font-bold text-foreground">
+                    <p className="text-sm font-bold text-foreground">
                       {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'Not verified'}
                     </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-border/50 bg-black/20 p-3">
+                    <div className="flex items-start gap-2">
+                      <Clock className="h-3.5 w-3.5 mt-0.5 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">Latest OpenClaw update</p>
+                        <p className="text-xs text-muted-foreground">
+                          {selectedUpdatedAt ? selectedUpdatedAt.toLocaleString() : 'Waiting for first update'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {latestArticle ? (
+                    <a
+                      href={latestArticle.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-xl border border-border/50 bg-black/20 p-3 hover:border-primary/40 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-xs font-semibold text-foreground line-clamp-2">{latestArticle.title}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{latestArticle.source}</p>
+                        </div>
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                      </div>
+                    </a>
+                  ) : null}
+
+                  <div className="rounded-xl border border-border/50 bg-black/20 p-3 space-y-2">
+                    <p className="text-xs font-semibold text-foreground">Source coverage</p>
+                    {Object.keys(sourceBreakdown).length > 0 ? (
+                      Object.entries(sourceBreakdown).map(([source, count]) => (
+                        <div key={source} className="flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate text-muted-foreground">{source}</span>
+                          <span className="font-mono text-foreground">{count}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground">No trusted source coverage for this hotspot yet.</p>
+                    )}
                   </div>
                 </div>
 
@@ -190,9 +290,9 @@ export default function MapDashboard() {
                     </span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <AlertCircle className="h-3.5 w-3.5 mt-0.5" />
+                    <WifiOff className="h-3.5 w-3.5 mt-0.5" />
                     <span>
-                      {selected.latestSource ? `Latest source: ${selected.latestSource}.` : 'No trusted source has updated this hotspot yet.'}
+                      AIS/transit/volume fields are not displayed as live numbers until a verified provider is connected.
                     </span>
                   </div>
                 </div>
@@ -207,10 +307,13 @@ export default function MapDashboard() {
             <div className="rounded-2xl border border-border p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AIS Vessels</h3>
-                <span className="text-xs font-mono text-green-400">{selectedVessels.length} verified</span>
+                <span className="text-xs font-mono text-muted-foreground">{selectedVessels.length} verified</span>
               </div>
               {selectedVessels.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No verified AIS rows are available. Mock vessel positions are disabled.</p>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">No verified AIS rows are available for this hotspot.</p>
+                  <p className="text-xs text-muted-foreground">Mock vessel positions are disabled, so this section will stay empty until real AIS data is ingested.</p>
+                </div>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
                   {selectedVessels.slice(0, 20).map(v => (
@@ -254,12 +357,12 @@ export default function MapDashboard() {
             <div className="rounded-2xl border border-border p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
-                  <span className="text-xs text-muted-foreground">— {meta?.name}</span>
+                  <h3 className="text-sm font-semibold text-foreground">Verified Source Feed</h3>
+                  <span className="text-xs text-muted-foreground">— {selectedArticles.length > 0 ? meta?.name : 'all hotspots'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground font-mono">Live</span>
+                  <span className="text-xs text-muted-foreground font-mono">OpenClaw</span>
                 </div>
               </div>
 
