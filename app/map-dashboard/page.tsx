@@ -355,14 +355,42 @@ export default function MapDashboard() {
 
             {/* News feed */}
             <div className="rounded-2xl border border-border p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
-                  <span className="text-xs text-muted-foreground">— showing only {meta?.name}</span>
+              <div className="flex flex-col gap-3 mb-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Showing verified OpenClaw reports for {meta?.name} only.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-xs font-black px-2 py-1 rounded-full"
+                      style={{ background: riskColor + '22', color: riskColor }}
+                    >
+                      {riskLevel.toUpperCase()}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-mono">{feedArticles.length} items</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground font-mono">{feedArticles.length} items</span>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {hotspotList.map((h) => (
+                    <button
+                      key={`feed-${h.id}`}
+                      onClick={() => setSelectedId(h.id)}
+                      className="rounded-lg border px-3 py-2 text-left transition-colors"
+                      style={{
+                        borderColor: selectedId === h.id ? h.riskColor : 'rgba(255,255,255,0.08)',
+                        background: selectedId === h.id ? h.riskColor + '14' : 'rgba(255,255,255,0.025)',
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold text-foreground truncate">{h.flag} {h.name}</span>
+                        <span className="text-[10px] font-mono text-muted-foreground">{h.verifiedReports}</span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -383,10 +411,10 @@ export default function MapDashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div key={selectedId} className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {feedArticles.map((article, i) => (
                     <a
-                      key={i}
+                      key={`${selectedId}-${article.id || article.sourceUrl || i}`}
                       href={article.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -400,7 +428,13 @@ export default function MapDashboard() {
                           {article.summary && (
                             <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{article.summary}</p>
                           )}
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span
+                              className="text-[10px] font-black px-1.5 py-0.5 rounded"
+                              style={{ background: riskColor + '22', color: riskColor }}
+                            >
+                              {meta?.name}
+                            </span>
                             <span className="text-xs font-semibold text-primary">{article.source}</span>
                             <span className="text-xs text-muted-foreground">
                               {new Date(article.timestamp).toLocaleDateString()}
