@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, Activity, ExternalLink, RefreshCw, Ship, Radio, TrendingDown, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ExternalLink, RefreshCw, Ship, Radio, FileText, Database, AlertCircle } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
@@ -60,6 +60,8 @@ export default function MapDashboard() {
       riskColor: RISK_COLOR[riskLevel] ?? RISK_COLOR.medium,
       dailyTransits: data?.dailyTransits ?? 0,
       activeVessels: data?.activeVessels ?? 0,
+      verifiedReports: data?.verifiedReports ?? 0,
+      sourceCount: data?.sourceCount ?? 0,
       note: '',
     }
   })
@@ -128,8 +130,8 @@ export default function MapDashboard() {
                 </span>
               </div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Ship className="h-3 w-3" />
-                {loading ? '—' : h.activeVessels > 0 ? h.activeVessels + ' vessels' : 'No verified AIS'}
+                <FileText className="h-3 w-3" />
+                {loading ? '—' : `${h.verifiedReports} reports · ${h.sourceCount} sources`}
               </div>
             </button>
           ))}
@@ -155,63 +157,45 @@ export default function MapDashboard() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
+                    <p className="text-xs text-muted-foreground mb-1">Source Reports</p>
                     <p className="text-2xl font-black" style={{ color: riskColor }}>
-                      {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'N/A'}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Active Vessels</p>
-                    <p className="text-2xl font-black text-foreground">
-                      {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : 'N/A'}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Verified Reports</p>
-                    <p className="text-2xl font-black text-foreground">
                       {loading ? '—' : selected.verifiedReports ?? 0}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Sources</p>
+                    <p className="text-xs text-muted-foreground mb-1">Trusted Sources</p>
                     <p className="text-2xl font-black text-foreground">
                       {loading ? '—' : selected.sourceCount ?? 0}
                     </p>
                   </div>
+                  <div className="rounded-xl bg-black/20 p-3">
+                    <p className="text-xs text-muted-foreground mb-1">AIS Vessels</p>
+                    <p className="text-lg font-bold text-foreground">
+                      {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : 'Not verified'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-black/20 p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
+                    <p className="text-lg font-bold text-foreground">
+                      {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'Not verified'}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Traffic confidence bar */}
-                {selected.marketVolume > 0 ? (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <TrendingDown className="h-3 w-3" /> Traffic vs normal
-                      </span>
-                    </div>
-                    <div className="h-2 bg-black/30 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{
-                          width: riskLevel === 'critical' ? '15%' : riskLevel === 'high' ? '45%' : riskLevel === 'medium' ? '70%' : '95%',
-                          background: `linear-gradient(90deg, ${riskColor}, ${riskColor}88)`,
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>0%</span><span>Normal</span>
-                    </div>
+                <div className="rounded-xl border border-border/50 bg-black/20 p-3 space-y-2">
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Database className="h-3.5 w-3.5 mt-0.5" />
+                    <span>
+                      OpenClaw updates this panel from trusted maritime sources. Traffic/AIS figures stay hidden until a verified feed is connected.
+                    </span>
                   </div>
-                ) : (
-                  <div className="rounded-xl border border-border/50 bg-black/20 p-3">
-                    <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      <span>
-                        Verified traffic statistics are unavailable. Risk is based on trusted source review.
-                        {selected.latestSource ? ` Latest source: ${selected.latestSource}.` : ''}
-                      </span>
-                    </div>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <AlertCircle className="h-3.5 w-3.5 mt-0.5" />
+                    <span>
+                      {selected.latestSource ? `Latest source: ${selected.latestSource}.` : 'No trusted source has updated this hotspot yet.'}
+                    </span>
                   </div>
-                )}
+                </div>
               </div>
             ) : loading ? (
               <div className="rounded-2xl border border-border p-4 space-y-3">

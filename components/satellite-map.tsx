@@ -22,6 +22,8 @@ interface Hotspot {
   risk: string
   riskColor: string
   dailyTransits: number
+  verifiedReports?: number
+  sourceCount?: number
   note: string
 }
 
@@ -188,7 +190,9 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
             `<div style="font-family:monospace;font-size:11px">
               <div style="font-weight:700;color:${color};font-size:12px">${h.name}</div>
               <div style="color:#94a3b8">Risk: <span style="color:${color}">${h.risk}</span></div>
-              <div>${h.dailyTransits} transits/day</div>
+              <div>${h.verifiedReports ?? 0} verified reports</div>
+              <div>${h.sourceCount ?? 0} trusted sources</div>
+              <div style="color:#94a3b8">AIS/transits: not verified</div>
             </div>`,
             { maxWidth: 180 }
           )
