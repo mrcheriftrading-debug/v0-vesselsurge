@@ -36,7 +36,7 @@ export async function GET() {
     const { data: articlesData, error: articlesError } = await supabase
       .from('news_articles')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('published_at', { ascending: false })
       .limit(60)
 
     // Fetch hotspots from Supabase
@@ -65,7 +65,7 @@ export async function GET() {
       sourceUrl: article.source_url || article.url,
       category: article.category || 'industry',
       region: article.region || 'global',
-      timestamp: article.created_at || timestamp,
+      timestamp: article.published_at || article.created_at || timestamp,
       isBreaking: article.is_breaking || false,
     }))
 

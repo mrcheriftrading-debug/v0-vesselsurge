@@ -48,6 +48,22 @@ const SEVERITY_KEYWORDS = {
   medium: ['delay', 'congestion', 'monitor', 'caution', 'security', 'risk', 'alert'],
 }
 
+const CURRENT_YEAR = new Date().getUTCFullYear()
+const MONTHS: Record<string, number> = {
+  jan: 0, january: 0,
+  feb: 1, february: 1,
+  mar: 2, march: 2,
+  apr: 3, april: 3,
+  may: 4,
+  jun: 5, june: 5,
+  jul: 6, july: 6,
+  aug: 7, august: 7,
+  sep: 8, sept: 8, september: 8,
+  oct: 9, october: 9,
+  nov: 10, november: 10,
+  dec: 11, december: 11,
+}
+
 function decodeHtml(value: string) {
   return value
     .replace(/<!\[CDATA\[|\]\]>/g, '')
@@ -59,6 +75,32 @@ function decodeHtml(value: string) {
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+function parseSourceDate(text: string, fallback = new Date().toISOString()) {
+  const numeric = text.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/)
+  if (numeric) {
+    const [, day, month, year] = numeric
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))).toISOString()
+  }
+
+  const named = text.match(/\b(\d{1,2})\s+(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t|tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{4})\b/i)
+  if (named) {
+    const [, day, monthName, year] = named
+    return new Date(Date.UTC(Number(year), MONTHS[monthName.toLowerCase()], Number(day))).toISOString()
+  }
+
+  const urlDate = text.match(/\b(\d{1,2})-(\d{1,2})-(\d{4})\b/)
+  if (urlDate) {
+    const [, day, month, year] = urlDate
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))).toISOString()
+  }
+
+  return fallback
+}
+
+function isCurrentYear(article: TrustedArticle) {
+  return new Date(article.published_at).getUTCFullYear() >= CURRENT_YEAR
 }
 
 function between(value: string, start: string, end: string) {
@@ -171,7 +213,7 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
       if (linkText.length <= 18) return false
       if (linkText.includes('{{') || linkText.toLowerCase().includes('language.displayname')) return false
       if (isRecaapPage && !href.toLowerCase().endsWith('.pdf')) return false
-      if (isRecaapPage && !/(2026|2025)/i.test(linkText)) return false
+      if (isRecaapPage && !new RegExp(String(CURRENT_YEAR), 'i').test(linkText)) return false
       if (isRecaapPage && !/(malacca|singapore strait|weekly report|quarter|piracy|armed robbery|sea robbery)/i.test(linkText)) return false
       if (isSuezNewsPage && !href.includes('/MediaCenter/News/Pages/')) return false
       if (isSuezNewsPage && !/(suez|canal|navigation|vessel|transit|ship|maritime|tugboat|convoy)/i.test(linkText)) return false
@@ -197,7 +239,7 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
       is_active: true,
       verified: true,
       credibility,
-      published_at: new Date().toISOString(),
+      published_at: parseSourceDate(`${linkText} ${href}`),
     }
   })
 }
@@ -232,6 +274,7 @@ async function collectTrustedArticles() {
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
     .filter((article) => hasDirectRegionSignal(article))
+    .filter((article) => isCurrentYear(article))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
     .slice(0, 40)
 }

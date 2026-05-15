@@ -24,10 +24,10 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('news_articles')
-      .select('id, title, snippet, url, source, topic, region, created_at')
+      .select('id, title, snippet, url, source, topic, region, published_at, created_at')
       .eq('is_active', true)
       .in('source', TRUSTED_SOURCES)
-      .order('created_at', { ascending: false })
+      .order('published_at', { ascending: false })
       .limit(Math.min(limit, 50))
 
     if (region && region !== 'all') {
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
         sourceUrl: a.url || null,
         topic: a.topic || 'global',
         region: a.region || 'global',
-        timestamp: a.created_at,
+        timestamp: a.published_at || a.created_at,
       }))
 
     return NextResponse.json(

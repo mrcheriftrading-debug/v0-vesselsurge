@@ -34,7 +34,7 @@ export async function getMaritimeArticles(limit: number = 25, region?: string) {
     let query = supabase
       .from('news_articles')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('published_at', { ascending: false })
       .limit(limit)
 
     if (region && region !== 'global') {
@@ -56,7 +56,7 @@ export async function getMaritimeArticles(limit: number = 25, region?: string) {
       sourceUrl: article.source_url,
       category: article.category || 'industry',
       region: article.region || 'global',
-      timestamp: article.created_at,
+      timestamp: article.published_at || article.created_at,
       isBreaking: article.is_breaking || false,
     }))
   } catch (error) {
