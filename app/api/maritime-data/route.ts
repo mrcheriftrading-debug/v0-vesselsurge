@@ -37,7 +37,7 @@ export async function GET() {
       .from('news_articles')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(25)
+      .limit(60)
 
     // Fetch hotspots from Supabase
     const { data: hotspotsData, error: hotspotsError } = await supabase

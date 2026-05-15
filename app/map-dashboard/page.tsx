@@ -72,7 +72,7 @@ export default function MapDashboard() {
   const riskColor = RISK_COLOR[riskLevel] ?? RISK_COLOR.medium
   const riskBg = RISK_BG[riskLevel] ?? RISK_BG.medium
   const selectedArticles = articles.filter((article) => article.region === selectedId)
-  const feedArticles = (selectedArticles.length > 0 ? selectedArticles : articles).slice(0, 8)
+  const feedArticles = selectedArticles.slice(0, 8)
   const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
   const totalSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
   const criticalHotspots = Object.values(hotspots).filter((hotspot) => hotspot.riskLevel === 'critical').length
@@ -358,7 +358,7 @@ export default function MapDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-foreground">Verified Source Feed</h3>
-                  <span className="text-xs text-muted-foreground">— {selectedArticles.length > 0 ? meta?.name : 'all hotspots'}</span>
+                  <span className="text-xs text-muted-foreground">— {meta?.name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -371,9 +371,16 @@ export default function MapDashboard() {
                   {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-muted/20 animate-pulse" />)}
                 </div>
               ) : feedArticles.length === 0 ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground p-3">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  No articles yet — data refreshes hourly.
+                <div className="rounded-xl border border-border/50 bg-card/30 p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">No verified reports for {meta?.name} yet.</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        OpenClaw keeps checking trusted sources hourly and will populate this feed as soon as this hotspot has matching reports.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
