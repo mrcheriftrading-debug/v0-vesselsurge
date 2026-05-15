@@ -71,7 +71,7 @@ export default function MapDashboard() {
   const riskLevel = selected?.riskLevel || 'medium'
   const riskColor = RISK_COLOR[riskLevel] ?? RISK_COLOR.medium
   const riskBg = RISK_BG[riskLevel] ?? RISK_BG.medium
-  const selectedArticles = articles.filter((article) => article.region === selectedId)
+  const selectedArticles = articles.filter((article) => article.region?.toLowerCase() === selectedId)
   const feedArticles = selectedArticles.slice(0, 8)
   const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
   const totalSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
@@ -357,12 +357,12 @@ export default function MapDashboard() {
             <div className="rounded-2xl border border-border p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-foreground">Verified Source Feed</h3>
-                  <span className="text-xs text-muted-foreground">— {meta?.name}</span>
+                  <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
+                  <span className="text-xs text-muted-foreground">— showing only {meta?.name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground font-mono">OpenClaw</span>
+                  <span className="text-xs text-muted-foreground font-mono">{feedArticles.length} items</span>
                 </div>
               </div>
 
