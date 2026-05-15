@@ -3,16 +3,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { buildMarketingPost } from './lib/x-marketing-post.mjs'
 
 const STATE_PATH = path.join(process.cwd(), '.x-compose-state.json')
 const FEED_URL = process.env.X_MARITIME_FEED_URL || 'https://www.vesselsurge.com/api/maritime-data'
-const MAP_URL = 'https://www.vesselsurge.com/map-dashboard'
-const HOTSPOT_NAMES = {
-  hormuz: 'Strait of Hormuz',
-  bab: 'Bab el-Mandeb',
-  malacca: 'Strait of Malacca',
-  suez: 'Suez Canal',
-}
 
 function readState() {
   if (!fs.existsSync(STATE_PATH)) return { openedUrls: [] }
@@ -26,22 +20,6 @@ function readState() {
 
 function writeState(state) {
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n')
-}
-
-function truncate(value, max) {
-  if (value.length <= max) return value
-  return `${value.slice(0, max - 1).trim()}…`
-}
-
-function buildPost(article) {
-  const hotspot = HOTSPOT_NAMES[article.region] || article.region
-  const title = truncate(article.title.replace(/\s+/g, ' ').trim(), 135)
-  const source = truncate(article.source || 'verified source', 36)
-
-  return truncate(
-    `VesselSurge update: ${hotspot}\n\n${title}\n\nSource: ${source}\nLive map: ${MAP_URL}`,
-    280,
-  )
 }
 
 const response = await fetch(FEED_URL, {
@@ -69,7 +47,7 @@ if (!nextArticle) {
   process.exit(0)
 }
 
-const postText = buildPost(nextArticle)
+const postText = buildMarketingPost(nextArticle)
 const composeUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(postText)}`
 
 console.log('[x-compose] Opening X compose with:')
