@@ -161,10 +161,16 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
     })
     .slice(0, 8)
 
+  if (source === 'ReCAAP ISC' && candidates.length === 0) return []
+
   const rows = candidates.length > 0 ? candidates : [{ href: pageUrl, linkText: title }]
   return rows.map(({ href, linkText }) => {
     const text = `${linkText} ${bodyText}`
-    const region = classifyRegion(text)
+    const region = source === 'Suez Canal Authority'
+      ? 'suez'
+      : source === 'ReCAAP ISC'
+        ? 'malacca'
+        : classifyRegion(text)
     const risk = classifyRisk(text)
     return {
       title: linkText.slice(0, 200),
@@ -203,6 +209,7 @@ async function collectTrustedArticles() {
   const seen = new Set<string>()
   return articles
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
+    .filter((article) => article.region !== 'global')
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
     .slice(0, 40)
 }
