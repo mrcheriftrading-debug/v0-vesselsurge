@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('news_articles')
-      .select('id, title, summary, source, source_url, topic, created_at')
+      .select('id, title, snippet, url, source, topic, region, created_at')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(Math.min(limit, 50))
@@ -31,10 +31,11 @@ export async function GET(request: Request) {
     const articles = (data || []).map((a: any) => ({
       id: a.id,
       title: a.title,
-      summary: a.summary || '',
+      summary: a.snippet || '',
       source: a.source,
-      sourceUrl: a.source_url || null,   // FIX: correct field name
+      sourceUrl: a.url || null,
       topic: a.topic || 'global',
+      region: a.region || 'global',
       timestamp: a.created_at,
     }))
 

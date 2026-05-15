@@ -33,7 +33,7 @@ const TRUSTED_PAGES = [
 ]
 
 const REGION_KEYWORDS: Record<string, string[]> = {
-  hormuz: ['hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae', 'strait'],
+  hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'houthi', 'yemen', 'aden'],
   suez: ['suez', 'suez canal', 'egypt'],
   malacca: ['malacca', 'singapore strait', 'singapore', 'recaap', 'piracy', 'armed robbery'],
@@ -99,6 +99,12 @@ function isRelevant(text: string) {
     'armed robbery',
     'seized',
   ].some((keyword) => lower.includes(keyword))
+}
+
+function hasDirectRegionSignal(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const keywords = REGION_KEYWORDS[article.region] || []
+  return keywords.some((keyword) => text.includes(keyword))
 }
 
 async function fetchText(url: string) {
@@ -210,6 +216,7 @@ async function collectTrustedArticles() {
   return articles
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
+    .filter((article) => hasDirectRegionSignal(article))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
     .slice(0, 40)
 }
