@@ -69,6 +69,15 @@ export async function GET() {
       isBreaking: article.is_breaking || false,
     }))
 
+    const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
+      const region = article.region || 'global'
+      if (!acc[region]) acc[region] = { reports: 0, sources: new Set(), latestSource: null }
+      acc[region].reports += 1
+      if (article.source) acc[region].sources.add(article.source)
+      if (!acc[region].latestSource && article.source) acc[region].latestSource = article.source
+      return acc
+    }, {})
+
     // Transform hotspots with correct vessel counts
     const hotspots = (hotspotsData || []).map((hotspot: any) => ({
       id: hotspot.id,
@@ -79,6 +88,9 @@ export async function GET() {
       marketVolume: hotspot.market_volume,
       riskLevel: hotspot.risk_level,
       updatedAt: hotspot.updated_at || timestamp,
+      verifiedReports: articleStats[hotspot.hotspot]?.reports || 0,
+      sourceCount: articleStats[hotspot.hotspot]?.sources.size || 0,
+      latestSource: articleStats[hotspot.hotspot]?.latestSource || null,
     }))
 
     return NextResponse.json(

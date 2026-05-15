@@ -167,13 +167,15 @@ export default function MapDashboard() {
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Avg Wait</p>
-                    <p className="text-lg font-bold text-foreground">{selected.avgWaitTime}</p>
+                    <p className="text-xs text-muted-foreground mb-1">Verified Reports</p>
+                    <p className="text-2xl font-black text-foreground">
+                      {loading ? '—' : selected.verifiedReports ?? 0}
+                    </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Vol (K bbl)</p>
-                    <p className="text-lg font-bold text-foreground">
-                      {loading ? '—' : selected.marketVolume > 0 ? (selected.marketVolume / 1000).toFixed(0) + 'K' : 'N/A'}
+                    <p className="text-xs text-muted-foreground mb-1">Sources</p>
+                    <p className="text-2xl font-black text-foreground">
+                      {loading ? '—' : selected.sourceCount ?? 0}
                     </p>
                   </div>
                 </div>
@@ -201,9 +203,12 @@ export default function MapDashboard() {
                   </div>
                 ) : (
                   <div className="rounded-xl border border-border/50 bg-black/20 p-3">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-start gap-2 text-xs text-muted-foreground">
                       <AlertCircle className="h-3.5 w-3.5" />
-                      Verified traffic statistics are unavailable. Risk level is based only on trusted source review.
+                      <span>
+                        Verified traffic statistics are unavailable. Risk is based on trusted source review.
+                        {selected.latestSource ? ` Latest source: ${selected.latestSource}.` : ''}
+                      </span>
                     </div>
                   </div>
                 )}

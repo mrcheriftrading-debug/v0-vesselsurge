@@ -22,6 +22,9 @@ export interface Hotspot {
   marketVolume: number
   riskLevel: 'low' | 'medium' | 'high' | 'critical'
   updatedAt: string
+  verifiedReports?: number
+  sourceCount?: number
+  latestSource?: string | null
 }
 
 export async function getMaritimeArticles(limit: number = 25, region?: string) {

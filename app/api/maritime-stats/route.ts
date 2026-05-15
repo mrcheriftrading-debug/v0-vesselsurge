@@ -1,123 +1,28 @@
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
-const TAVILY_API_KEY = process.env.TAVILY_API_KEY
+export const dynamic = "force-dynamic"
 
-interface HotspotStats {
-  id: string
-  name: string
-  activeVessels: number
-  dailyTransits: number
-  avgWaitTime: string
-  marketVolume: number
-  riskLevel: "low" | "medium" | "high" | "critical"
+const HOTSPOT_NAMES: Record<string, string> = {
+  hormuz: "Strait of Hormuz",
+  bab: "Bab el-Mandeb",
+  malacca: "Strait of Malacca",
+  suez: "Suez Canal",
 }
 
-// Real-world baseline data Q1 2026 (EIA/UNCTAD/SCA)
-const BASELINE_STATS: Record<string, HotspotStats> = {
-  hormuz: {
-    id: "hormuz",
-    name: "Strait of Hormuz",
-    activeVessels: 55,
-    dailyTransits: 56,
-    avgWaitTime: "2.1h",
-    marketVolume: 1380,
-    riskLevel: "high",
-  },
-  bab: {
-    id: "bab",
-    name: "Bab el-Mandeb",
-    activeVessels: 28,
-    dailyTransits: 42,
-    avgWaitTime: "0.8h",
-    marketVolume: 420,
-    riskLevel: "critical",
-  },
-  malacca: {
-    id: "malacca",
-    name: "Strait of Malacca",
-    activeVessels: 90,
-    dailyTransits: 248,
-    avgWaitTime: "3.2h",
-    marketVolume: 1920,
-    riskLevel: "medium",
-  },
-  suez: {
-    id: "suez",
-    name: "Suez Canal",
-    activeVessels: 44,
-    dailyTransits: 52,
-    avgWaitTime: "8.4h",
-    marketVolume: 780,
-    riskLevel: "high",
-  },
-}
-
-async function fetchLiveStatsFromTavily(
-  hotspotId: string,
-  hotspotName: string
-): Promise<HotspotStats> {
-  if (!TAVILY_API_KEY) {
-    return BASELINE_STATS[hotspotId] || BASELINE_STATS.hormuz
-  }
-
-  try {
-    const queries = [
-      `${hotspotName} ships transit wait time today`,
-      `${hotspotName} vessel traffic volume today`,
-      `${hotspotName} maritime incidents alerts today`,
-    ]
-
-    const responses = await Promise.all(
-      queries.map((query) =>
-        fetch("https://api.tavily.com/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            api_key: TAVILY_API_KEY,
-            query,
-            max_results: 3,
-            include_answer: true,
-          }),
-        })
-      )
-    )
-
-    const stats = { ...BASELINE_STATS[hotspotId] }
-
-    // Parse first response for wait times
-    const waitTimeResponse = await responses[0].json()
-    if (waitTimeResponse.answer) {
-      const waitMatch = waitTimeResponse.answer.match(/(\d+\.?\d*)\s*(?:hour|hr|h)/i)
-      if (waitMatch) {
-        stats.avgWaitTime = `${waitMatch[1]}h`
-      }
-    }
-
-    // Parse second response for traffic volume (slight adjustments to baseline)
-    const volumeResponse = await responses[1].json()
-    if (volumeResponse.answer?.toLowerCase().includes("high")) {
-      stats.activeVessels = Math.floor(stats.activeVessels * 1.15)
-      stats.dailyTransits = Math.floor(stats.dailyTransits * 1.1)
-    } else if (volumeResponse.answer?.toLowerCase().includes("low")) {
-      stats.activeVessels = Math.floor(stats.activeVessels * 0.85)
-      stats.dailyTransits = Math.floor(stats.dailyTransits * 0.9)
-    }
-
-    // Parse third response for risk level
-    const incidentResponse = await responses[2].json()
-    if (incidentResponse.answer) {
-      const answer = incidentResponse.answer.toLowerCase()
-      if (answer.includes("attack") || answer.includes("critical")) {
-        stats.riskLevel = "critical"
-      } else if (answer.includes("incident") || answer.includes("alert")) {
-        stats.riskLevel = "high"
-      }
-    }
-
-    return stats
-  } catch (error) {
-    // Fall back to baseline on any error
-    return BASELINE_STATS[hotspotId] || BASELINE_STATS.hormuz
+function unavailableStats(hotspotId: string) {
+  return {
+    id: hotspotId,
+    name: HOTSPOT_NAMES[hotspotId] || hotspotId,
+    activeVessels: 0,
+    dailyTransits: 0,
+    avgWaitTime: "No verified traffic feed",
+    marketVolume: 0,
+    riskLevel: "low",
+    verifiedReports: 0,
+    sourceCount: 0,
+    latestSource: null,
+    dataStatus: "unavailable",
   }
 }
 
@@ -125,28 +30,57 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const hotspotId = searchParams.get("hotspot") || "hormuz"
+    const supabase = await createClient()
 
-    const baseline = BASELINE_STATS[hotspotId] || BASELINE_STATS.hormuz
-    const stats = await fetchLiveStatsFromTavily(hotspotId, baseline.name)
+    const { data: row, error: statsError } = await supabase
+      .from("hotspot_stats")
+      .select("*")
+      .eq("hotspot", hotspotId)
+      .maybeSingle()
 
-    // Add small random variations for live feel
-    stats.activeVessels += Math.floor(Math.random() * 6) - 3
-    stats.dailyTransits += Math.floor(Math.random() * 4) - 2
-    stats.marketVolume += Math.floor(Math.random() * 80) - 40
+    if (statsError) throw statsError
+
+    const { data: articles, error: articlesError } = await supabase
+      .from("news_articles")
+      .select("source, created_at")
+      .eq("is_active", true)
+      .eq("region", hotspotId)
+      .order("created_at", { ascending: false })
+      .limit(50)
+
+    if (articlesError) throw articlesError
+
+    const sources = new Set((articles || []).map((article: any) => article.source).filter(Boolean))
+    const data = row
+      ? {
+          id: hotspotId,
+          name: HOTSPOT_NAMES[hotspotId] || hotspotId,
+          activeVessels: row.active_vessels || 0,
+          dailyTransits: row.daily_transits || 0,
+          avgWaitTime: row.avg_wait_time || "No verified traffic feed",
+          marketVolume: row.market_volume || 0,
+          riskLevel: row.risk_level || "low",
+          updatedAt: row.updated_at,
+          verifiedReports: articles?.length || 0,
+          sourceCount: sources.size,
+          latestSource: articles?.[0]?.source || null,
+          dataStatus: row.active_vessels || row.daily_transits || row.market_volume ? "traffic_verified" : "source_review_only",
+        }
+      : unavailableStats(hotspotId)
 
     return NextResponse.json({
       success: true,
-      data: stats,
-      source: "tavily+baseline",
+      data,
+      source: "openclaw-supabase-verified",
       timestamp: new Date().toISOString(),
     })
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to fetch maritime stats",
+        error: error.message || "Failed to fetch maritime stats",
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

@@ -2,11 +2,18 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const FALLBACK_STATS: Record<string, any> = {
-  hormuz:  { activeVessels: 52,  dailyTransits: 14,  avgWaitTime: '18h',  marketVolume: 9800,  riskLevel: 'critical' },
-  bab:     { activeVessels: 18,  dailyTransits: 6,   avgWaitTime: '32h',  marketVolume: 2800,  riskLevel: 'critical' },
-  malacca: { activeVessels: 250, dailyTransits: 195, avgWaitTime: '2.5h', marketVolume: 12000, riskLevel: 'medium'   },
-  suez:    { activeVessels: 38,  dailyTransits: 22,  avgWaitTime: '28h',  marketVolume: 2500,  riskLevel: 'high'     },
+const HOTSPOT_IDS = ['hormuz', 'bab', 'malacca', 'suez']
+
+function unavailableStats() {
+  return {
+    activeVessels: 0,
+    dailyTransits: 0,
+    avgWaitTime: 'No verified traffic feed',
+    marketVolume: 0,
+    riskLevel: 'low',
+    activeAlerts: [],
+    dataStatus: 'unavailable',
+  }
 }
 
 export async function GET() {
@@ -45,9 +52,8 @@ export async function GET() {
       }
     }
 
-    // Fall back for any missing hotspots
-    for (const [key, fallback] of Object.entries(FALLBACK_STATS)) {
-      if (!stats[key]) stats[key] = { ...fallback, activeAlerts: [] }
+    for (const key of HOTSPOT_IDS) {
+      if (!stats[key]) stats[key] = unavailableStats()
     }
 
     return NextResponse.json(
