@@ -151,8 +151,10 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
     })
     .filter(({ href, linkText }) => {
       if (linkText.length <= 18) return false
+      if (linkText.includes('{{') || linkText.toLowerCase().includes('language.displayname')) return false
       if (isSuezNewsPage && !href.includes('/MediaCenter/News/Pages/')) return false
-      return isRelevant(`${linkText} ${href}`)
+      if (isSuezNewsPage && !/(suez|canal|navigation|vessel|transit|ship|maritime|tugboat|convoy)/i.test(linkText)) return false
+      return isRelevant(linkText)
     })
     .slice(0, 8)
 
