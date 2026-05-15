@@ -50,6 +50,19 @@ const IMPACT_LINES = {
   ],
 }
 
+const IRAN_TRUMP_HOOKS = [
+  'Trump, Iran, oil, and shipping risk are colliding again.',
+  'The Trump-Iran risk premium is back on the maritime map.',
+  "When Iran risk rises, Hormuz becomes everyone's problem.",
+  'Oil markets watch headlines. Shipping watches Hormuz.',
+]
+
+const IRAN_TRUMP_IMPACT_LINES = [
+  'VesselSurge tracks the verified maritime signals behind the geopolitics.',
+  'Follow the chokepoint data behind the Trump-Iran headlines.',
+  'Track the route risk before it turns into a broader oil and freight story.',
+]
+
 function truncate(value, max) {
   if (max <= 1) return ''
   if (value.length <= max) return value
@@ -60,17 +73,41 @@ function compact(value) {
   return `${value || ''}`.replace(/\s+/g, ' ').trim()
 }
 
+function seedFrom(value) {
+  return [...value].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+}
+
+function hasIranTrumpAngle(article) {
+  const haystack = compact(`${article.region} ${article.title} ${article.summary} ${article.source}`).toLowerCase()
+  return (
+    article.region === 'hormuz' ||
+    /\b(trump|iran|iranian|tehran|hormuz|sanction|sanctions|oil|crude|tanker|u\.s\.|us navy|pentagon)\b/.test(
+      haystack,
+    )
+  )
+}
+
 function pickHook(article) {
+  if (hasIranTrumpAngle(article)) {
+    const seed = seedFrom(`${article.title}${article.region}`)
+    return IRAN_TRUMP_HOOKS[seed % IRAN_TRUMP_HOOKS.length]
+  }
+
   const risk = article.riskLevel || article.risk || 'medium'
   const hooks = HOOKS[risk] || HOOKS.medium
-  const seed = [...`${article.title}${article.region}`].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  const seed = seedFrom(`${article.title}${article.region}`)
   return hooks[seed % hooks.length]
 }
 
 function pickImpactLine(article) {
+  if (hasIranTrumpAngle(article)) {
+    const seed = seedFrom(`${article.source}${article.title}`)
+    return IRAN_TRUMP_IMPACT_LINES[seed % IRAN_TRUMP_IMPACT_LINES.length]
+  }
+
   const risk = article.riskLevel || article.risk || 'medium'
   const lines = IMPACT_LINES[risk] || IMPACT_LINES.medium
-  const seed = [...`${article.source}${article.title}`].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  const seed = seedFrom(`${article.source}${article.title}`)
   return lines[seed % lines.length]
 }
 
