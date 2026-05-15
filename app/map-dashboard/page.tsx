@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ArrowLeft, ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
+import type { Article } from '@/lib/maritime-data'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
   ssr: false,
@@ -41,6 +42,9 @@ const RISK_BG: Record<string, string> = {
 
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
+  const [feedItems, setFeedItems] = useState<Article[]>([])
+  const [feedLoading, setFeedLoading] = useState(false)
+  const [feedError, setFeedError] = useState<string | null>(null)
   const { articles, hotspots, vessels, loading, refresh, lastUpdated } = useMaritimeData()
 
   // Vessels for selected hotspot
@@ -72,7 +76,7 @@ export default function MapDashboard() {
   const riskColor = RISK_COLOR[riskLevel] ?? RISK_COLOR.medium
   const riskBg = RISK_BG[riskLevel] ?? RISK_BG.medium
   const selectedArticles = articles.filter((article) => article.region?.toLowerCase() === selectedId)
-  const feedArticles = selectedArticles.slice(0, 8)
+  const feedArticles = feedItems
   const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
   const totalSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
   const criticalHotspots = Object.values(hotspots).filter((hotspot) => hotspot.riskLevel === 'critical').length
@@ -87,6 +91,36 @@ export default function MapDashboard() {
       ? 'Verified source review'
       : 'Awaiting source update'
     : 'Loading'
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function fetchHotspotFeed() {
+      setFeedLoading(true)
+      setFeedError(null)
+
+      try {
+        const response = await fetch(`/api/live-news?region=${selectedId}&limit=12&t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' },
+          signal: controller.signal,
+        })
+        if (!response.ok) throw new Error(`Feed API ${response.status}`)
+        const payload = await response.json()
+        setFeedItems(Array.isArray(payload.articles) ? payload.articles : [])
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setFeedError(error instanceof Error ? error.message : 'Could not load hotspot feed')
+          setFeedItems([])
+        }
+      } finally {
+        if (!controller.signal.aborted) setFeedLoading(false)
+      }
+    }
+
+    fetchHotspotFeed()
+    return () => controller.abort()
+  }, [selectedId])
 
   return (
     <div className="min-h-screen bg-background">
@@ -394,9 +428,19 @@ export default function MapDashboard() {
                 </div>
               </div>
 
-              {loading ? (
+              {loading || feedLoading ? (
                 <div className="space-y-3">
                   {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-muted/20 animate-pulse" />)}
+                </div>
+              ) : feedError ? (
+                <div className="rounded-xl border border-border/50 bg-card/30 p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Could not load {meta?.name} feed.</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{feedError}</p>
+                    </div>
+                  </div>
                 </div>
               ) : feedArticles.length === 0 ? (
                 <div className="rounded-xl border border-border/50 bg-card/30 p-4">

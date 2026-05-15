@@ -2,9 +2,21 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+const TRUSTED_SOURCES = [
+  'USNI News',
+  'gCaptain',
+  'Hellenic Shipping News',
+  'ReCAAP ISC Alerts',
+  'ReCAAP ISC Reports',
+  'Norwegian Maritime Authority',
+  'MARAD Maritime Security Advisory',
+  'Suez Canal Authority',
+]
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const topic = searchParams.get('topic') || null
+  const region = searchParams.get('region') || null
   const limit = parseInt(searchParams.get('limit') || '20')
 
   try {
@@ -14,10 +26,13 @@ export async function GET(request: Request) {
       .from('news_articles')
       .select('id, title, snippet, url, source, topic, region, created_at')
       .eq('is_active', true)
+      .in('source', TRUSTED_SOURCES)
       .order('created_at', { ascending: false })
       .limit(Math.min(limit, 50))
 
-    if (topic && topic !== 'all') {
+    if (region && region !== 'all') {
+      query = query.eq('region', region)
+    } else if (topic && topic !== 'all') {
       query = query.eq('topic', topic)
     }
 
@@ -28,16 +43,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, articles: [], error: error.message }, { status: 500 })
     }
 
-    const articles = (data || []).map((a: any) => ({
-      id: a.id,
-      title: a.title,
-      summary: a.snippet || '',
-      source: a.source,
-      sourceUrl: a.url || null,
-      topic: a.topic || 'global',
-      region: a.region || 'global',
-      timestamp: a.created_at,
-    }))
+    const articles = (data || [])
+      .filter((a: any) => !region || region === 'all' || a.region === region)
+      .map((a: any) => ({
+        id: a.id,
+        title: a.title,
+        summary: a.snippet || '',
+        source: a.source,
+        sourceUrl: a.url || null,
+        topic: a.topic || 'global',
+        region: a.region || 'global',
+        timestamp: a.created_at,
+      }))
 
     return NextResponse.json(
       { success: true, articles, count: articles.length },

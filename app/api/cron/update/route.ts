@@ -117,8 +117,10 @@ async function fetchText(url: string) {
   const response = await fetch(url, {
     headers: {
       accept: 'text/html,application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
+      'user-agent': 'VesselSurge OpenClaw/1.0',
     },
     cache: 'no-store',
+    signal: AbortSignal.timeout(12000),
   })
   if (!response.ok) throw new Error(`${url} returned ${response.status}`)
   return response.text()
@@ -201,23 +203,29 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
 }
 
 async function collectTrustedArticles() {
-  const articles: TrustedArticle[] = []
+  const feedResults = await Promise.all(
+    TRUSTED_FEEDS.map(async (feed) => {
+      try {
+        return parseRss(await fetchText(feed.url), feed.source, feed.credibility)
+      } catch (error) {
+        console.warn('[trusted-update] feed failed', feed.source, error)
+        return []
+      }
+    }),
+  )
 
-  for (const feed of TRUSTED_FEEDS) {
-    try {
-      articles.push(...parseRss(await fetchText(feed.url), feed.source, feed.credibility))
-    } catch (error) {
-      console.warn('[trusted-update] feed failed', feed.source, error)
-    }
-  }
+  const pageResults = await Promise.all(
+    TRUSTED_PAGES.map(async (page) => {
+      try {
+        return parseTrustedPage(await fetchText(page.url), page.source, page.url, page.credibility, page.region)
+      } catch (error) {
+        console.warn('[trusted-update] page failed', page.source, error)
+        return []
+      }
+    }),
+  )
 
-  for (const page of TRUSTED_PAGES) {
-    try {
-      articles.push(...parseTrustedPage(await fetchText(page.url), page.source, page.url, page.credibility, page.region))
-    } catch (error) {
-      console.warn('[trusted-update] page failed', page.source, error)
-    }
-  }
+  const articles = [...feedResults, ...pageResults].flat()
 
   const seen = new Set<string>()
   return articles
