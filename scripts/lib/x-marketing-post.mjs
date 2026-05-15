@@ -10,24 +10,43 @@ const HOTSPOT_NAMES = {
 
 const HOOKS = {
   critical: [
-    'Maritime risk is moving fast.',
-    'Routing decisions need verified context.',
-    'A critical chokepoint just moved back into focus.',
+    'One chokepoint can shake global trade.',
+    'This is why shipping desks watch chokepoints.',
+    'A critical trade route is back in focus.',
   ],
   high: [
-    'Shipping teams are watching this route closely.',
-    'Another maritime signal worth tracking.',
-    'Global trade risk rarely gives much warning.',
+    'Supply chain risk rarely rings a bell first.',
+    'Shipping teams should have this on radar.',
+    'A route signal worth watching before it spreads.',
   ],
   medium: [
-    'A fresh maritime signal just hit our watchlist.',
-    'A route update worth keeping on the radar.',
-    'VesselSurge is tracking another chokepoint signal.',
+    'Small maritime signals can become big delays.',
+    'Another chokepoint signal just surfaced.',
+    'A quiet route update can still move decisions.',
   ],
   low: [
-    'Even quiet routes deserve verified monitoring.',
-    'A new verified update is live on VesselSurge.',
-    'The live map has a fresh source update.',
+    'The best risk signals are caught early.',
+    'Quiet routes still deserve live monitoring.',
+    'A new verified maritime update is live.',
+  ],
+}
+
+const IMPACT_LINES = {
+  critical: [
+    'Follow the source trail before the market narrative catches up.',
+    'Useful for routing, cargo exposure, and trade risk monitoring.',
+  ],
+  high: [
+    'Track the signal before it becomes a wider supply chain story.',
+    'Useful for routing, cargo exposure, and trade risk monitoring.',
+  ],
+  medium: [
+    'Verified context beats rumors when routes start moving.',
+    'Track the signal before it becomes a wider supply chain story.',
+  ],
+  low: [
+    'Early context is how maritime risk stays manageable.',
+    'Verified context beats rumors when routes start moving.',
   ],
 }
 
@@ -48,12 +67,19 @@ function pickHook(article) {
   return hooks[seed % hooks.length]
 }
 
+function pickImpactLine(article) {
+  const risk = article.riskLevel || article.risk || 'medium'
+  const lines = IMPACT_LINES[risk] || IMPACT_LINES.medium
+  const seed = [...`${article.source}${article.title}`].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  return lines[seed % lines.length]
+}
+
 export function buildMarketingPost(article) {
   const hotspot = HOTSPOT_NAMES[article.region] || article.region
   const source = truncate(compact(article.source || 'verified source'), 32)
   const hook = pickHook(article)
-  const valueLine = 'Verified chokepoint intelligence for faster routing and risk decisions.'
-  const footer = `\n\n${valueLine}\n\nSource: ${source}\n${MAP_URL}`
+  const impactLine = pickImpactLine(article)
+  const footer = `\n\n${impactLine}\n\nLive map: ${MAP_URL}\nSource: ${source}`
   const prefix = `${hook}\n\n${hotspot}: `
   const titleBudget = Math.max(48, MAX_POST_LENGTH - prefix.length - footer.length)
   const title = truncate(compact(article.title || 'New maritime intelligence update'), titleBudget)
