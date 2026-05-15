@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "maritime:update": "node scripts/run-maritime-update.mjs"
+    "maritime:update": "node scripts/run-maritime-update.mjs",
+    "x:check": "node scripts/x-check-auth.mjs",
+    "x:post": "node scripts/x-post.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
