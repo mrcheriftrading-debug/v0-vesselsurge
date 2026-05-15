@@ -143,15 +143,18 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
   const title = decodeHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || source)
   const bodyText = decodeHtml(html).slice(0, 1200)
   const isSuezNewsPage = pageUrl.includes('suezcanal.gov.eg')
-  const candidates = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
+  const rawLinks = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
     .map((match) => {
       const href = match[1].startsWith('http') ? match[1] : new URL(match[1], pageUrl).toString()
       const linkText = decodeHtml(match[2])
       return { href, linkText }
     })
+
+  const candidates = rawLinks
     .filter(({ href, linkText }) => {
       if (linkText.length <= 18) return false
       if (linkText.includes('{{') || linkText.toLowerCase().includes('language.displayname')) return false
+      if (source === 'ReCAAP ISC' && !linkText.startsWith('LATEST:')) return false
       if (isSuezNewsPage && !href.includes('/MediaCenter/News/Pages/')) return false
       if (isSuezNewsPage && !/(suez|canal|navigation|vessel|transit|ship|maritime|tugboat|convoy)/i.test(linkText)) return false
       return isRelevant(linkText)
