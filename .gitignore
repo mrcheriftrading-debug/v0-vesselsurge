@@ -11,6 +11,7 @@ next.user-config.*
 .env*.local
 .x-post-state.json
 .x-compose-state.json
+.x-approved-feed-cache.json
 
 # Common ignores
 node_modules

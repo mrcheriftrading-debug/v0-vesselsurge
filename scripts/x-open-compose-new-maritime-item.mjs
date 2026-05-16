@@ -6,7 +6,15 @@ import { spawnSync } from 'node:child_process'
 import { buildMarketingPost } from './lib/x-marketing-post.mjs'
 
 const STATE_PATH = path.join(process.cwd(), '.x-compose-state.json')
-const FEED_URL = process.env.X_MARITIME_FEED_URL || 'https://www.vesselsurge.com/api/social/x-feed?limit=20'
+const CACHE_PATH = path.join(process.cwd(), '.x-approved-feed-cache.json')
+const FEED_URLS = (
+  process.env.X_MARITIME_FEED_URLS ||
+  process.env.X_MARITIME_FEED_URL ||
+  'https://www.vesselsurge.com/api/social/x-feed?limit=20,https://vesselsurge.com/api/social/x-feed?limit=20'
+)
+  .split(',')
+  .map((url) => url.trim())
+  .filter(Boolean)
 
 function readState() {
   if (!fs.existsSync(STATE_PATH)) return { openedUrls: [] }
@@ -22,26 +30,59 @@ function writeState(state) {
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n')
 }
 
-let response
-try {
-  response = await fetch(FEED_URL, {
-    headers: { accept: 'application/json', 'cache-control': 'no-cache' },
-    cache: 'no-store',
-  })
-} catch (error) {
-  console.error('[x-compose] Failed to fetch maritime feed (network unavailable).')
-  console.error(error)
-  console.log('[x-compose] No compose window opened.')
+function readCachedPayload() {
+  if (!fs.existsSync(CACHE_PATH)) return null
+  try {
+    const cached = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'))
+    if (cached?.payload) {
+      console.log(`[x-compose] Using cached approved feed from ${cached.updatedAt || 'unknown time'}.`)
+      return cached.payload
+    }
+  } catch (error) {
+    console.error('[x-compose] Failed to read cached approved feed.')
+    console.error(error)
+  }
+  return null
+}
+
+function writeCachedPayload(payload, feedUrl) {
+  fs.writeFileSync(
+    CACHE_PATH,
+    JSON.stringify({ updatedAt: new Date().toISOString(), feedUrl, payload }, null, 2) + '\n',
+  )
+}
+
+async function fetchApprovedFeed() {
+  for (const feedUrl of FEED_URLS) {
+    try {
+      const response = await fetch(feedUrl, {
+        headers: { accept: 'application/json', 'cache-control': 'no-cache' },
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        console.error(`[x-compose] Approved feed returned ${response.status}: ${feedUrl}`)
+        continue
+      }
+
+      const payload = await response.json()
+      writeCachedPayload(payload, feedUrl)
+      return payload
+    } catch (error) {
+      console.error(`[x-compose] Failed to fetch approved feed: ${feedUrl}`)
+      console.error(error)
+    }
+  }
+
+  return readCachedPayload()
+}
+
+const payload = await fetchApprovedFeed()
+if (!payload) {
+  console.log('[x-compose] No approved feed available online or in cache. No compose window opened.')
   process.exit(0)
 }
 
-if (!response.ok) {
-  console.error(`[x-compose] Failed to fetch maritime feed: ${response.status}`)
-  console.log('[x-compose] No compose window opened.')
-  process.exit(0)
-}
-
-const payload = await response.json()
 const articles = payload?.items || payload?.data?.articles || []
 const candidates = articles
   .filter((article) => article.sourceUrl && article.region && article.region !== 'global')
