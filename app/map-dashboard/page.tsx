@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import type { Article } from '@/lib/maritime-data'
+import { MapArrivalScan } from '@/components/maritime-motion-effects'
 import { HotspotRiskOrbital } from '@/components/three/maritime-3d-scenes'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
@@ -125,6 +126,7 @@ export default function MapDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      <MapArrivalScan />
 
       {/* Top bar */}
       <div className="border-b border-border/50 bg-background/80 backdrop-blur px-4 py-3">

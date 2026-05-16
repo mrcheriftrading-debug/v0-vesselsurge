@@ -5,6 +5,7 @@ import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
 import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
+import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { PartnershipForm } from "@/components/partnership-form"
 import { DataNetworkScene, HeroOceanScene } from "@/components/three/maritime-3d-scenes"
 
@@ -64,6 +65,8 @@ export default function VesselSurgePage() {
           <div className="absolute inset-x-0 bottom-0 top-[58%] opacity-65 md:top-[54%]">
             <HeroOceanScene />
           </div>
+          <FloatingIntelSignals />
+          <CommandStrip />
           
           {/* Grid pattern */}
           <div className="absolute inset-0 opacity-20" style={{
