@@ -31,9 +31,10 @@ export async function updateSession(request: NextRequest) {
 
   // Protect private routes and skip auth entry pages for users who already have a session.
   const pathname = request.nextUrl.pathname
+  const isAdminRoute = pathname.startsWith('/admin')
   const isProtected = 
     pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/admin')
+    isAdminRoute
   const isAuthEntryPage =
     pathname === '/auth/login' ||
     pathname === '/auth/sign-up' ||
@@ -44,6 +45,18 @@ export async function updateSession(request: NextRequest) {
     url.pathname = '/auth/login'
     url.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`)
     return NextResponse.redirect(url)
+  }
+
+  if (isAdminRoute && user) {
+    const adminEmail = (process.env.ADMIN_EMAIL || 'mrcheriftrading@gmail.com').toLowerCase()
+    const userEmail = user.email?.toLowerCase()
+
+    if (userEmail !== adminEmail) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
   }
 
   if (isAuthEntryPage && user) {

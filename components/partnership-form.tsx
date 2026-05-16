@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, ChevronLeft, CheckCircle2, User, Target, Mail, Loader2, Ship, Package, Globe, Anchor } from "lucide-react"
+import { ChevronRight, ChevronLeft, CheckCircle2, User, Target, Loader2, Ship, Package, Globe, Anchor } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 type PartnershipFormData = {
@@ -90,24 +90,8 @@ export function PartnershipForm() {
 
       if (dbError) {
         console.error("[form] Supabase insert error:", dbError)
-        // Still complete — don't block user if DB fails
+        throw new Error("Could not save lead")
       }
-
-      // Also send mailto as backup notification
-      const subject = `[VesselSurge] New Lead — ${formData.companyName}`
-      const body = [
-        `Name: ${formData.name}`,
-        `Email: ${formData.email}`,
-        `Company: ${formData.companyName}`,
-        `Type: ${USER_TYPES.find(u => u.value === formData.userType)?.label || formData.userType}`,
-        `Goals: ${formData.goals.join(", ")}`,
-        `Urgency: ${formData.urgency}`,
-      ].join("\n")
-
-      window.open(
-        `mailto:mrcheriftrading@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
-        "_blank"
-      )
 
       setIsComplete(true)
     } catch (err) {
@@ -130,7 +114,7 @@ export function PartnershipForm() {
           Our team will personally match you with verified partners within 24–48 hours.
         </p>
         <div className="mt-6 rounded-xl border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground sm:p-4">
-          📧 Confirmation sent to <strong className="text-foreground">{formData.email}</strong>
+          Request saved for <strong className="text-foreground">{formData.email}</strong>
         </div>
       </div>
     )

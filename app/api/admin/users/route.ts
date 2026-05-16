@@ -1,9 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
 
-// Admin email - only this user can access admin features
-const ADMIN_EMAIL = "mrcheriftrading@gmail.com"
-
 export async function GET(request: Request) {
   // Check for admin secret in headers
   const authHeader = request.headers.get("authorization")
