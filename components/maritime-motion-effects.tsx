@@ -6,19 +6,47 @@ import { Activity, Anchor, Radio, Satellite, Ship, Waves } from "lucide-react"
 export function FloatingIntelSignals() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="intel-chip left-[7%] top-[28%] hidden md:flex">
+      <div className="hero-hud left-4 top-[18%] w-[13rem] md:left-[5%] md:top-[22%]">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2 text-cyan-100">
+            <Satellite className="h-4 w-4 text-cyan-300" />
+            LIVE INTEL
+          </span>
+          <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.95)]" />
+        </div>
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-cyan-950">
+          <div className="h-full w-3/4 animate-[hud-load_2.6s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-cyan-300 to-blue-500" />
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[0.58rem] text-cyan-100/70">
+          <span>31 reports</span>
+          <span>18 src</span>
+          <span>4 zones</span>
+        </div>
+      </div>
+      <div className="hero-hud right-4 top-[20%] w-[12rem] md:right-[5%] md:top-[24%]">
+        <div className="flex items-center gap-2 text-red-100">
+          <Activity className="h-4 w-4 text-red-300" />
+          HORMUZ CRITICAL
+        </div>
+        <div className="mt-3 grid grid-cols-5 gap-1">
+          {[0, 1, 2, 3, 4].map((bar) => (
+            <span key={bar} className="risk-bar" style={{ animationDelay: `${bar * 0.12}s` }} />
+          ))}
+        </div>
+      </div>
+      <div className="intel-chip left-3 top-[58%] flex md:left-[7%] md:top-[28%]">
         <Radio className="h-3.5 w-3.5 text-cyan-300" />
         AIS TRACKING
       </div>
-      <div className="intel-chip right-[8%] top-[33%] hidden lg:flex">
+      <div className="intel-chip right-3 top-[58%] flex md:right-[8%] md:top-[33%]">
         <Satellite className="h-3.5 w-3.5 text-emerald-300" />
         SATELLITE LOCK
       </div>
-      <div className="intel-chip bottom-[22%] left-[12%] hidden lg:flex">
+      <div className="intel-chip bottom-[17%] left-4 flex md:bottom-[22%] md:left-[12%]">
         <Activity className="h-3.5 w-3.5 text-red-300" />
         RISK PULSE
       </div>
-      <div className="intel-chip bottom-[18%] right-[13%] hidden md:flex">
+      <div className="intel-chip bottom-[17%] right-4 flex md:bottom-[18%] md:right-[13%]">
         <Anchor className="h-3.5 w-3.5 text-blue-200" />
         ROUTE READY
       </div>
@@ -31,17 +59,71 @@ export function FloatingIntelSignals() {
           position: absolute;
           align-items: center;
           gap: 0.45rem;
-          border: 1px solid rgba(103, 232, 249, 0.22);
-          background: rgba(2, 8, 23, 0.64);
-          box-shadow: 0 0 34px rgba(14, 165, 233, 0.12);
+          border: 1px solid rgba(103, 232, 249, 0.42);
+          background: rgba(2, 8, 23, 0.84);
+          box-shadow: 0 0 44px rgba(14, 165, 233, 0.24), inset 0 0 22px rgba(14, 165, 233, 0.08);
           backdrop-filter: blur(14px);
-          color: rgba(224, 242, 254, 0.84);
+          color: rgba(224, 242, 254, 0.96);
           border-radius: 999px;
           padding: 0.48rem 0.72rem;
           font-size: 0.66rem;
           font-weight: 800;
           letter-spacing: 0.18em;
           animation: intel-float 6s ease-in-out infinite;
+        }
+
+        .hero-hud {
+          position: absolute;
+          border: 1px solid rgba(103, 232, 249, 0.36);
+          border-radius: 1rem;
+          background: linear-gradient(135deg, rgba(2, 8, 23, 0.92), rgba(8, 47, 73, 0.72));
+          box-shadow: 0 0 54px rgba(14, 165, 233, 0.22), inset 0 0 32px rgba(14, 165, 233, 0.08);
+          backdrop-filter: blur(18px);
+          padding: 0.9rem;
+          font-size: 0.68rem;
+          font-weight: 900;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          animation: hud-pop 4.8s ease-in-out infinite;
+        }
+
+        .risk-bar {
+          height: 2rem;
+          border-radius: 999px;
+          background: linear-gradient(180deg, #fecaca, #ef4444);
+          box-shadow: 0 0 18px rgba(239, 68, 68, 0.45);
+          animation: risk-eq 0.9s ease-in-out infinite alternate;
+        }
+
+        @keyframes hud-load {
+          0%,
+          100% {
+            transform: translateX(-38%);
+          }
+          50% {
+            transform: translateX(38%);
+          }
+        }
+
+        @keyframes hud-pop {
+          0%,
+          100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-0.55rem) scale(1.02);
+          }
+        }
+
+        @keyframes risk-eq {
+          from {
+            transform: scaleY(0.35);
+            opacity: 0.62;
+          }
+          to {
+            transform: scaleY(1);
+            opacity: 1;
+          }
         }
 
         .intel-chip:nth-child(2) {
@@ -146,8 +228,9 @@ export function MapArrivalScan() {
 
 export function CommandStrip() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden h-20 overflow-hidden border-t border-cyan-300/10 bg-gradient-to-t from-slate-950/70 to-transparent md:block" aria-hidden="true">
-      <div className="absolute left-0 top-7 flex animate-[command-drift_18s_linear_infinite] gap-12 whitespace-nowrap text-[0.65rem] font-black uppercase tracking-[0.24em] text-cyan-100/50">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 overflow-hidden border-t border-cyan-300/20 bg-gradient-to-t from-slate-950/85 to-transparent" aria-hidden="true">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300 to-transparent opacity-80" />
+      <div className="absolute left-0 top-7 flex animate-[command-drift_18s_linear_infinite] gap-12 whitespace-nowrap text-[0.65rem] font-black uppercase tracking-[0.24em] text-cyan-100/80">
         <span className="flex items-center gap-2"><Ship className="h-3.5 w-3.5" /> Vessel route calculated</span>
         <span className="flex items-center gap-2"><Waves className="h-3.5 w-3.5" /> Weather corridor nominal</span>
         <span className="flex items-center gap-2"><Activity className="h-3.5 w-3.5" /> Risk scan active</span>
