@@ -23,6 +23,30 @@ function createRenderer(canvas: HTMLCanvasElement) {
   return renderer
 }
 
+function createStarField(count: number, radius: number, color = 0x7dd3fc) {
+  const positions = new Float32Array(count * 3)
+  for (let i = 0; i < count; i += 1) {
+    const angle = Math.random() * Math.PI * 2
+    const distance = radius * (0.35 + Math.random() * 0.65)
+    positions[i * 3] = Math.cos(angle) * distance
+    positions[i * 3 + 1] = (Math.random() - 0.5) * radius * 0.85
+    positions[i * 3 + 2] = (Math.random() - 0.5) * radius * 0.45
+  }
+
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
+  return new THREE.Points(
+    geometry,
+    new THREE.PointsMaterial({
+      color,
+      size: 0.018,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+    }),
+  )
+}
+
 function useThreeScene(setup: (canvas: HTMLCanvasElement) => () => void) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -47,6 +71,9 @@ export function HeroOceanScene() {
     scene.add(group)
     camera.position.set(0, 1.5, 8)
 
+    const starField = createStarField(260, 7.5, 0x38bdf8)
+    group.add(starField)
+
     const globe = new THREE.Mesh(
       new THREE.SphereGeometry(2.2, 64, 32),
       new THREE.MeshBasicMaterial({
@@ -58,23 +85,62 @@ export function HeroOceanScene() {
     )
     group.add(globe)
 
+    const innerGlobe = new THREE.Mesh(
+      new THREE.SphereGeometry(2.04, 48, 24),
+      new THREE.MeshBasicMaterial({ color: 0x07335c, transparent: true, opacity: 0.12 }),
+    )
+    group.add(innerGlobe)
+
     const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.22 })
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < 7; i += 1) {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(2.7 + i * 0.45, 0.006, 8, 160), ringMaterial.clone())
       ring.rotation.x = Math.PI / 2
-      ring.rotation.z = i * 0.35
+      ring.rotation.z = i * 0.28
       group.add(ring)
     }
 
-    const laneMaterial = new THREE.LineBasicMaterial({ color: 0x22c5ff, transparent: true, opacity: 0.65 })
+    const scanSweep = new THREE.Mesh(
+      new THREE.RingGeometry(0.32, 3.4, 96, 1, 0, Math.PI * 0.32),
+      new THREE.MeshBasicMaterial({
+        color: 0x22d3ee,
+        transparent: true,
+        opacity: 0.16,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    )
+    scanSweep.rotation.x = Math.PI / 2
+    group.add(scanSweep)
+
+    const laneMaterial = new THREE.LineBasicMaterial({ color: 0x22c5ff, transparent: true, opacity: 0.72 })
     const routes = [
       [[-2.4, -0.35, 0.2], [-0.9, 0.7, 0.3], [0.7, 0.35, 0.2], [2.5, 0.9, 0.1]],
       [[-2.2, 0.95, -0.1], [-0.6, 0.15, 0.3], [1.0, -0.05, 0.2], [2.2, -0.85, 0.1]],
       [[-1.8, -1.05, 0], [-0.2, -0.55, 0.5], [1.5, -0.35, 0.2], [2.4, 0.35, 0]],
+      [[-2.6, 0.25, 0.15], [-1.2, -0.1, 0.45], [0.2, -0.85, 0.2], [1.9, -1.1, 0.05]],
+      [[-2.55, -0.85, 0.05], [-1.4, -1.2, 0.35], [0.6, -0.7, 0.3], [2.45, -0.2, 0.15]],
     ]
     routes.forEach((route) => {
       const curve = new THREE.CatmullRomCurve3(route.map(([x, y, z]) => new THREE.Vector3(x, y, z)))
       group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(90)), laneMaterial.clone()))
+    })
+
+    const hotspotMaterial = new THREE.MeshBasicMaterial({ color: 0xff365f, transparent: true, opacity: 0.86 })
+    const hotspotRingMaterial = new THREE.MeshBasicMaterial({ color: 0xff365f, transparent: true, opacity: 0.32 })
+    const hotspots = [
+      [-1.45, 0.1, 0.36],
+      [-0.35, -0.78, 0.42],
+      [0.98, -0.48, 0.3],
+      [1.72, 0.42, 0.24],
+    ].map(([x, y, z]) => {
+      const marker = new THREE.Group()
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.055, 18, 12), hotspotMaterial.clone())
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.006, 8, 48), hotspotRingMaterial.clone())
+      ring.rotation.x = Math.PI / 2
+      marker.position.set(x, y, z)
+      marker.add(dot, ring)
+      group.add(marker)
+      return marker
     })
 
     const vesselGeometry = new THREE.ConeGeometry(0.075, 0.28, 3)
@@ -100,6 +166,13 @@ export function HeroOceanScene() {
       if (animated) {
         group.rotation.y = t * 0.38
         group.rotation.x = Math.sin(t * 0.7) * 0.08
+        starField.rotation.z = -t * 0.18
+        innerGlobe.rotation.y = -t * 0.25
+        scanSweep.rotation.z = t * 1.9
+        hotspots.forEach((marker, index) => {
+          const pulse = 1 + Math.sin(t * 4.4 + index) * 0.18
+          marker.scale.setScalar(pulse)
+        })
         vessels.forEach(({ curve, mesh, offset }) => {
           const p = curve.getPoint((t * 0.18 + offset) % 1)
           mesh.position.copy(p)
@@ -115,9 +188,10 @@ export function HeroOceanScene() {
       cancelAnimationFrame(frame)
       renderer.dispose()
       globe.geometry.dispose()
+      innerGlobe.geometry.dispose()
       vesselGeometry.dispose()
       group.traverse((object) => {
-        if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+        if (object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points) {
           object.geometry.dispose()
           if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose())
           else object.material.dispose()
@@ -141,21 +215,42 @@ export function DataNetworkScene() {
     scene.add(root)
     camera.position.set(0, 0, 7)
 
+    const halo = createStarField(160, 5.3, 0x0ea5e9)
+    root.add(halo)
+
     const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
     const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x00e676 })
     const linkMaterial = new THREE.LineBasicMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.5 })
-    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 1), coreMaterial)
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 2), coreMaterial)
     root.add(core)
 
+    const coreAura = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.78, 1),
+      new THREE.MeshBasicMaterial({ color: 0x00e676, wireframe: true, transparent: true, opacity: 0.28 }),
+    )
+    root.add(coreAura)
+
     const nodes: THREE.Mesh[] = []
+    const links: THREE.Vector3[] = []
+    const packets: THREE.Mesh[] = []
     for (let i = 0; i < 14; i += 1) {
       const angle = (i / 14) * Math.PI * 2
       const radius = 1.7 + (i % 4) * 0.42
       const node = new THREE.Mesh(new THREE.SphereGeometry(0.08 + (i % 3) * 0.025, 16, 12), nodeMaterial.clone())
       node.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius * 0.62, (i % 5) * 0.18 - 0.36)
       nodes.push(node)
+      links.push(node.position.clone())
       root.add(node)
       root.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), node.position]), linkMaterial.clone()))
+
+      const packet = new THREE.Mesh(
+        new THREE.SphereGeometry(0.035, 10, 8),
+        new THREE.MeshBasicMaterial({ color: i % 3 === 0 ? 0x00e676 : 0x7dd3fc, transparent: true, opacity: 0.9 }),
+      )
+      packet.userData.offset = i / 14
+      packet.userData.target = node.position.clone()
+      packets.push(packet)
+      root.add(packet)
     }
 
     const resize = () => {
@@ -170,10 +265,18 @@ export function DataNetworkScene() {
       const t = frame * 0.006
       if (animated) {
         root.rotation.y = t * 0.45
+        halo.rotation.z = -t * 0.22
         core.rotation.x = t
         core.rotation.y = t * 0.7
+        coreAura.rotation.x = -t * 0.5
+        coreAura.rotation.y = t * 0.95
         nodes.forEach((node, index) => {
           node.scale.setScalar(1 + Math.sin(t * 3 + index) * 0.18)
+        })
+        packets.forEach((packet, index) => {
+          const target = links[index]
+          const progress = (t * 0.65 + packet.userData.offset) % 1
+          packet.position.copy(target.clone().multiplyScalar(progress))
         })
         frame = requestAnimationFrame(render)
       }
@@ -186,7 +289,7 @@ export function DataNetworkScene() {
       cancelAnimationFrame(frame)
       renderer.dispose()
       root.traverse((object) => {
-        if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+        if (object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points) {
           object.geometry.dispose()
           if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose())
           else object.material.dispose()
@@ -215,11 +318,26 @@ export function HotspotRiskOrbital({ riskLevel = "medium", reports = 0, sources 
     scene.add(root)
     camera.position.set(0, 0, 5.6)
 
+    const field = createStarField(70, 3.4, color)
+    root.add(field)
+
     const core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(0.72, 2),
       new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.72, wireframe: true }),
     )
     root.add(core)
+
+    const solidCore = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.42, 1),
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.24 }),
+    )
+    root.add(solidCore)
+
+    const sweep = new THREE.Mesh(
+      new THREE.RingGeometry(0.25, 1.85, 80, 1, 0, Math.PI * 0.42),
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }),
+    )
+    root.add(sweep)
 
     const ringCount = Math.min(5, Math.max(2, Math.ceil((sources || 1) / 3)))
     for (let i = 0; i < ringCount; i += 1) {
@@ -256,6 +374,10 @@ export function HotspotRiskOrbital({ riskLevel = "medium", reports = 0, sources 
       if (animated) {
         core.rotation.x = t * 0.9
         core.rotation.y = t * 1.2
+        solidCore.rotation.x = -t * 0.7
+        solidCore.rotation.y = t * 0.45
+        field.rotation.z = -t * 0.2
+        sweep.rotation.z = t * 1.7
         root.rotation.z = Math.sin(t * 0.6) * 0.12
         blips.forEach((blip, index) => {
           const angle = blip.userData.angle + t * (0.45 + (index % 3) * 0.12)
@@ -273,7 +395,7 @@ export function HotspotRiskOrbital({ riskLevel = "medium", reports = 0, sources 
       cancelAnimationFrame(frame)
       renderer.dispose()
       root.traverse((object) => {
-        if (object instanceof THREE.Mesh) {
+        if (object instanceof THREE.Mesh || object instanceof THREE.Points) {
           object.geometry.dispose()
           if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose())
           else object.material.dispose()
