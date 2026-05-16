@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Loader2, Mail, Zap } from "lucide-react"
 
+const PASSWORD_RESET_REDIRECT_URL = "https://vesselsurge-mrcheriftrading-debugs-projects.vercel.app/auth/update-password"
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -19,10 +21,9 @@ export default function ForgotPasswordPage() {
     setError(null)
 
     const supabase = createClient()
-    const redirectTo = `${window.location.origin}/auth/update-password`
 
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
+      redirectTo: PASSWORD_RESET_REDIRECT_URL,
     })
 
     if (resetError) {
