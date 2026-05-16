@@ -30,12 +30,12 @@ export default function VesselSurgePage() {
       <LiveMapVoyageTransition active={voyageActive} />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary neon-blue">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 lg:px-8">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary neon-blue">
               <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">VesselSurge</span>
+            <span className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">VesselSurge</span>
           </div>
           
           <div className="hidden items-center gap-8 md:flex">
@@ -44,14 +44,15 @@ export default function VesselSurgePage() {
             <Link href="/map-dashboard" onClick={launchLiveMapVoyage} className="text-sm text-muted-foreground transition-colors hover:text-foreground">Live Map</Link>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link href="/auth/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Log In</Link>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <Link href="/auth/login" className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline">Log In</Link>
             <a 
               href="#surge-form" 
-              className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90 neon-blue"
+              className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90 neon-blue sm:px-4 sm:text-sm"
             >
-              <span className="relative z-10">Join Network</span>
-              <Button3DEffect variant="cargo" />
+              <span className="relative z-10 whitespace-nowrap">Join</span>
+              <span className="relative z-10 hidden whitespace-nowrap sm:inline">Network</span>
+              <Button3DEffect variant="cargo" compact />
             </a>
           </div>
         </div>
@@ -59,11 +60,11 @@ export default function VesselSurgePage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative min-h-screen overflow-hidden pt-16">
+        <section className="relative min-h-[100svh] overflow-hidden pt-16">
           {/* Background with gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,119,255,0.15),transparent_70%)]" />
-          <div className="absolute inset-x-0 bottom-0 top-[58%] opacity-65 md:top-[54%]">
+          <div className="absolute inset-x-[-20%] bottom-0 top-[62%] opacity-55 sm:inset-x-0 sm:opacity-65 md:top-[54%]">
             <HeroOceanScene />
           </div>
           <FloatingIntelSignals />
@@ -75,54 +76,55 @@ export default function VesselSurgePage() {
             backgroundSize: '60px 60px'
           }} />
 
-          <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col items-center justify-center px-4 text-center lg:px-8">
+          <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 py-14 text-center sm:py-12 lg:px-8">
             {/* Technical Label */}
-            <div className="mb-8 font-mono text-xs tracking-[0.3em] text-accent">
+            <div className="mb-5 font-mono text-[0.62rem] tracking-[0.22em] text-accent sm:mb-8 sm:text-xs sm:tracking-[0.3em]">
               // MARITIME B2B NETWORK
             </div>
 
             {/* Main Headline */}
-            <h1 className="max-w-5xl text-5xl font-extrabold tracking-tight text-foreground md:text-6xl lg:text-7xl">
+            <h1 className="max-w-5xl text-[2.55rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               Match Cargo or{" "}
               <span className="text-primary text-glow-blue">Find Vessels</span>
               {" "}with a Trusted Partner.
             </h1>
 
             {/* Sub-headline */}
-            <p className="mt-8 max-w-3xl text-lg text-muted-foreground md:text-xl">
+            <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-lg md:text-xl">
               Direct connections between vessel owners and cargo charterers. Get live insights into global maritime hotspots, reduce risks, and unlock strategic advantages with real-time market intelligence.
             </p>
 
             {/* CTAs - Three Button Hierarchy */}
-            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap items-center justify-center gap-4">
+            <div className="mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <a 
                 href="#surge-form"
-                className="group relative flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
+                className="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">FIND CARGO</span>
                 <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                <Button3DEffect variant="cargo" />
+                <Button3DEffect variant="cargo" compact />
               </a>
               <a 
                 href="#surge-form"
-                className="group relative flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
+                className="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">FIND A VESSEL</span>
                 <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                <Button3DEffect variant="vessel" />
+                <Button3DEffect variant="vessel" compact />
               </a>
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="relative flex items-center gap-2 overflow-hidden rounded-lg border border-accent/50 bg-accent/10 px-8 py-4 text-base font-semibold text-accent transition-all hover:-translate-y-1 hover:bg-accent/20"
+                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-accent/50 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
-                <span className="relative z-10">VIEW LIVE MAP & TRAFFIC</span>
-                <Button3DEffect variant="map" />
+                <span className="relative z-10">VIEW LIVE MAP</span>
+                <span className="relative z-10 hidden sm:inline">& TRAFFIC</span>
+                <Button3DEffect variant="map" compact />
               </Link>
             </div>
 
             {/* Scroll indicator */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+            <div className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 sm:block">
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <span className="text-xs uppercase tracking-wider">Scroll</span>
                 <div className="h-12 w-px bg-gradient-to-b from-primary to-transparent" />
@@ -132,26 +134,26 @@ export default function VesselSurgePage() {
         </section>
 
         {/* Intelligence Hub Section */}
-        <section className="border-t border-border bg-background py-24">
+        <section className="border-t border-border bg-background py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="text-center mb-16">
-              <div className="mb-4 font-mono text-xs tracking-[0.3em] text-accent">
+            <div className="mb-10 text-center sm:mb-16">
+              <div className="mb-4 font-mono text-[0.65rem] tracking-[0.24em] text-accent sm:text-xs sm:tracking-[0.3em]">
                 // INTELLIGENCE HUB
               </div>
-              <h2 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl max-w-3xl mx-auto">
+              <h2 className="mx-auto max-w-3xl text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                 Navigate Global Maritime Risks with{" "}
                 <span className="text-primary">Real-Time Intelligence</span>
               </h2>
-              <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg">
                 Monitor critical maritime chokepoints live. Track Hormuz, Red Sea, Malacca, and Suez Canal risks in real-time to make data-driven routing decisions and mitigate exposure.
               </p>
             </div>
 
-            <div className="grid gap-8 lg:grid-cols-3">
+            <div className="grid gap-5 sm:gap-8 lg:grid-cols-3">
               {/* Risk Mitigation Card */}
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary mb-6">
-                  <Shield className="h-7 w-7" />
+              <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-5 sm:rounded-2xl sm:p-8">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary sm:mb-6 sm:h-14 sm:w-14">
+                  <Shield className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-3">Safety & Risk Mitigation</h3>
                 <p className="text-muted-foreground mb-4">
@@ -174,9 +176,9 @@ export default function VesselSurgePage() {
               </div>
 
               {/* Strategic Advantage Card */}
-              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent/20 text-accent mb-6">
-                  <Zap className="h-7 w-7" />
+              <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-5 sm:rounded-2xl sm:p-8">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 text-accent sm:mb-6 sm:h-14 sm:w-14">
+                  <Zap className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-3">Strategic Advantage</h3>
                 <p className="text-muted-foreground mb-4">
@@ -199,9 +201,9 @@ export default function VesselSurgePage() {
               </div>
 
               {/* Global News Feed Card */}
-              <div className="rounded-2xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676] mb-6">
-                  <Globe className="h-7 w-7" />
+              <div className="rounded-xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-5 sm:rounded-2xl sm:p-8">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676] sm:mb-6 sm:h-14 sm:w-14">
+                  <Globe className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-3">Live Maritime News</h3>
                 <p className="text-muted-foreground mb-4">
@@ -225,37 +227,37 @@ export default function VesselSurgePage() {
             </div>
 
             {/* CTA for Live Map */}
-            <div className="mt-16 text-center">
+            <div className="mt-10 text-center sm:mt-16">
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
+                className="relative inline-flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">EXPLORE LIVE MAP</span>
                 <ArrowRight className="relative z-10 h-5 w-5" />
-                <Button3DEffect variant="map" />
+                <Button3DEffect variant="map" compact />
               </Link>
             </div>
           </div>
         </section>
-        <section id="about" className="border-t border-border bg-card py-24">
+        <section id="about" className="border-t border-border bg-card py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+            <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
               {/* Content */}
               <div>
-                <div className="mb-4 font-mono text-xs tracking-[0.2em] text-accent">
+                <div className="mb-4 font-mono text-[0.65rem] tracking-[0.18em] text-accent sm:text-xs sm:tracking-[0.2em]">
                   // STRATEGIC NARRATIVE
                 </div>
-                <h2 className="text-4xl font-bold tracking-tight text-foreground lg:text-5xl">
+                <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                   The Nexus of Maritime{" "}
                   <span className="text-primary">Collaboration</span>
                 </h2>
-                <p className="mt-6 text-lg text-muted-foreground">
+                <p className="mt-5 text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg">
                   VesselSurge bridges the gap between ambition and execution. We connect forward-thinking vessel owners with cutting-edge technology providers, sustainable solutions, and global logistics networks.
                 </p>
 
                 {/* Three Pillars */}
-                <div className="mt-12 space-y-6">
+                <div className="mt-8 space-y-6 sm:mt-12">
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
                       <Target className="h-6 w-6 text-primary" />
@@ -296,15 +298,15 @@ export default function VesselSurgePage() {
 
               {/* Visual */}
               <div className="relative">
-                <div className="aspect-square overflow-hidden rounded-2xl border border-primary/20 bg-[#06101f]">
+                <div className="aspect-[4/3] overflow-hidden rounded-xl border border-primary/20 bg-[#06101f] sm:aspect-square sm:rounded-2xl">
                   <DataNetworkScene />
-                  <div className="pointer-events-none absolute inset-x-6 bottom-6 grid grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-primary/20 bg-background/70 p-4 text-center backdrop-blur">
-                      <div className="text-2xl font-bold text-primary md:text-3xl">500+</div>
+                  <div className="pointer-events-none absolute inset-x-3 bottom-3 grid grid-cols-2 gap-2 sm:inset-x-6 sm:bottom-6 sm:gap-3">
+                    <div className="rounded-lg border border-primary/20 bg-background/70 p-3 text-center backdrop-blur sm:p-4">
+                      <div className="text-xl font-bold text-primary sm:text-2xl md:text-3xl">500+</div>
                       <div className="mt-1 text-xs text-muted-foreground">Active Partners</div>
                     </div>
-                    <div className="rounded-lg border border-accent/20 bg-background/70 p-4 text-center backdrop-blur">
-                      <div className="text-2xl font-bold text-accent md:text-3xl">45+</div>
+                    <div className="rounded-lg border border-accent/20 bg-background/70 p-3 text-center backdrop-blur sm:p-4">
+                      <div className="text-xl font-bold text-accent sm:text-2xl md:text-3xl">45+</div>
                       <div className="mt-1 text-xs text-muted-foreground">Countries</div>
                     </div>
                   </div>
@@ -315,10 +317,10 @@ export default function VesselSurgePage() {
         </section>
 
         {/* Why Join Section */}
-        <section id="partners" className="border-t border-border bg-background py-24">
+        <section id="partners" className="border-t border-border bg-background py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="text-center">
-              <div className="mb-4 font-mono text-xs tracking-[0.2em] text-accent">
+              <div className="mb-4 font-mono text-[0.65rem] tracking-[0.18em] text-accent sm:text-xs sm:tracking-[0.2em]">
                 // WHY CHOOSE US
               </div>
               <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
@@ -330,7 +332,7 @@ export default function VesselSurgePage() {
             </div>
 
             {/* Benefits Grid */}
-            <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-5 sm:mt-16 md:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
                   <Rocket className="h-6 w-6" />
@@ -376,9 +378,9 @@ export default function VesselSurgePage() {
             </div>
 
             {/* How It Works - Brokerage Model */}
-            <div className="mt-20">
-              <div className="text-center mb-12">
-                <div className="mb-4 font-mono text-xs tracking-[0.2em] text-primary">
+            <div className="mt-14 sm:mt-20">
+              <div className="mb-8 text-center sm:mb-12">
+                <div className="mb-4 font-mono text-[0.65rem] tracking-[0.18em] text-primary sm:text-xs sm:tracking-[0.2em]">
                   // HOW IT WORKS
                 </div>
                 <h3 className="text-2xl font-bold text-foreground lg:text-3xl">
@@ -389,9 +391,9 @@ export default function VesselSurgePage() {
                 </p>
               </div>
 
-              <div className="grid gap-8 lg:grid-cols-2">
+              <div className="grid gap-5 sm:gap-8 lg:grid-cols-2">
                 {/* For Vessel Companies */}
-                <div className="group relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-transparent p-8 transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10">
+                <div className="group relative overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-transparent p-5 transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 sm:rounded-2xl sm:p-8">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
                   <div className="relative">
                     <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 border border-primary/30 px-4 py-1.5 text-xs font-medium text-primary mb-6">
@@ -416,16 +418,16 @@ export default function VesselSurgePage() {
                         <span className="text-sm text-muted-foreground">Get direct introductions to qualified clients</span>
                       </li>
                     </ul>
-                    <a href="#surge-form" className="relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90">
+                    <a href="#surge-form" className="relative mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 sm:w-auto sm:px-6">
                       <span className="relative z-10">List My Vessel</span>
                       <ChevronRight className="relative z-10 h-4 w-4" />
-                      <Button3DEffect variant="vessel" />
+                      <Button3DEffect variant="vessel" compact />
                     </a>
                   </div>
                 </div>
 
                 {/* For Cargo/Logistics Companies */}
-                <div className="group relative overflow-hidden rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/10 via-card to-transparent p-8 transition-all hover:border-accent/50 hover:shadow-xl hover:shadow-cyan-500/10">
+                <div className="group relative overflow-hidden rounded-xl border border-accent/30 bg-gradient-to-br from-accent/10 via-card to-transparent p-5 transition-all hover:border-accent/50 hover:shadow-xl hover:shadow-cyan-500/10 sm:rounded-2xl sm:p-8">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
                   <div className="relative">
                     <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/30 px-4 py-1.5 text-xs font-medium text-accent mb-6">
@@ -450,10 +452,10 @@ export default function VesselSurgePage() {
                         <span className="text-sm text-muted-foreground">Receive curated vessel options with direct contact</span>
                       </li>
                     </ul>
-                    <a href="#surge-form" className="relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition-all hover:-translate-y-1 hover:bg-accent/90">
+                    <a href="#surge-form" className="relative mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition-all hover:-translate-y-1 hover:bg-accent/90 sm:w-auto sm:px-6">
                       <span className="relative z-10">Find Vessels</span>
                       <ChevronRight className="relative z-10 h-4 w-4" />
-                      <Button3DEffect variant="cargo" />
+                      <Button3DEffect variant="cargo" compact />
                     </a>
                   </div>
                 </div>
@@ -463,10 +465,10 @@ export default function VesselSurgePage() {
         </section>
 
         {/* Multi-Step Form Section */}
-        <section id="surge-form" className="border-t border-border bg-card py-24">
+        <section id="surge-form" className="border-t border-border bg-card py-16 sm:py-24">
           <div className="mx-auto max-w-3xl px-4 lg:px-8">
-            <div className="text-center mb-12">
-              <div className="mb-4 font-mono text-xs tracking-[0.2em] text-accent">
+            <div className="mb-8 text-center sm:mb-12">
+              <div className="mb-4 font-mono text-[0.65rem] tracking-[0.18em] text-accent sm:text-xs sm:tracking-[0.2em]">
                 // JOIN THE SURGE
               </div>
               <h2 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
@@ -482,9 +484,9 @@ export default function VesselSurgePage() {
         </section>
 
         {/* CTA to Live Map */}
-        <section className="border-t border-border bg-background py-16">
+        <section className="border-t border-border bg-background py-12 sm:py-16">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="glass rounded-2xl p-8 md:p-12 text-center">
+            <div className="glass rounded-xl p-5 text-center sm:rounded-2xl sm:p-8 md:p-12">
               <h3 className="text-2xl font-bold text-foreground">Real-Time Maritime Intelligence</h3>
               <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
                 Access our live surveillance dashboard to monitor vessel traffic, track movements, and stay informed on regional developments.
@@ -492,11 +494,11 @@ export default function VesselSurgePage() {
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
+                className="relative mt-8 inline-flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">Open Live Dashboard</span>
                 <ChevronRight className="relative z-10 h-5 w-5" />
-                <Button3DEffect variant="dashboard" />
+                <Button3DEffect variant="dashboard" compact />
               </Link>
             </div>
           </div>

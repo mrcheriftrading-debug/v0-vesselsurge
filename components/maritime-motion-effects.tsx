@@ -5,9 +5,9 @@ import { Activity, Anchor, Radio, Satellite, Ship, Waves } from "lucide-react"
 
 type Button3DEffectVariant = "cargo" | "vessel" | "map" | "dashboard"
 
-export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) {
+export function Button3DEffect({ variant, compact = false }: { variant: Button3DEffectVariant; compact?: boolean }) {
   return (
-    <span className={`button-3d-fx button-3d-${variant}`} aria-hidden="true">
+    <span className={`button-3d-fx button-3d-${variant} ${compact ? "button-3d-compact" : ""}`} aria-hidden="true">
       <span className="button-3d-shine" />
       <span className="button-3d-depth" />
       {variant === "cargo" && (
@@ -60,6 +60,53 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
             linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(8, 47, 73, 0.66));
           background-size: 0.58rem 0.58rem, 0.58rem 0.58rem, 100% 100%;
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -12px 20px rgba(2, 6, 23, 0.28);
+        }
+
+        .button-3d-compact {
+          height: 1.45rem;
+          width: 2.7rem;
+          margin-left: 0.1rem;
+        }
+
+        .button-3d-compact .cargo-stack {
+          right: 0.38rem;
+          grid-template-columns: repeat(2, 0.58rem);
+          gap: 0.08rem;
+        }
+
+        .button-3d-compact .cargo-stack span {
+          height: 0.36rem;
+        }
+
+        .button-3d-compact .cargo-stack span:nth-child(3) {
+          width: 0.78rem;
+        }
+
+        .button-3d-compact .vessel-scene {
+          right: 0.24rem;
+          width: 2.2rem;
+        }
+
+        .button-3d-compact .vessel-hull {
+          width: 1.74rem;
+        }
+
+        .button-3d-compact .vessel-bridge {
+          left: 0.56rem;
+        }
+
+        .button-3d-compact .radar-scene {
+          right: 0.38rem;
+          height: 1.42rem;
+          width: 1.42rem;
+        }
+
+        .button-3d-compact .radar-sweep {
+          height: 0.58rem;
+        }
+
+        .button-3d-compact .dashboard-scene {
+          right: 0.36rem;
         }
 
         .button-3d-cargo {
@@ -322,7 +369,7 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
 export function FloatingIntelSignals() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="hero-hud left-4 top-[12%] w-[13rem] md:left-[5%] md:top-[12%]">
+      <div className="hero-hud left-3 top-[9%] w-[10.5rem] scale-90 opacity-65 sm:left-4 sm:top-[12%] sm:w-[13rem] sm:scale-100 sm:opacity-100 md:left-[5%] md:top-[12%]">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-cyan-100">
             <Satellite className="h-4 w-4 text-cyan-300" />
@@ -339,7 +386,7 @@ export function FloatingIntelSignals() {
           <span>4 zones</span>
         </div>
       </div>
-      <div className="hero-hud right-4 top-[13%] w-[12rem] md:right-[5%] md:top-[13%]">
+      <div className="hero-hud right-3 top-[16%] hidden w-[12rem] sm:block md:right-[5%] md:top-[13%]">
         <div className="flex items-center gap-2 text-red-100">
           <Activity className="h-4 w-4 text-red-300" />
           HORMUZ CRITICAL
@@ -350,19 +397,19 @@ export function FloatingIntelSignals() {
           ))}
         </div>
       </div>
-      <div className="intel-chip left-3 top-[58%] flex md:left-[7%] md:top-[31%]">
+      <div className="intel-chip left-3 top-[44%] hidden sm:flex md:left-[7%] md:top-[31%]">
         <Radio className="h-3.5 w-3.5 text-cyan-300" />
         AIS TRACKING
       </div>
-      <div className="intel-chip right-3 top-[58%] flex md:right-[8%] md:top-[32%]">
+      <div className="intel-chip right-3 top-[44%] hidden sm:flex md:right-[8%] md:top-[32%]">
         <Satellite className="h-3.5 w-3.5 text-emerald-300" />
         SATELLITE LOCK
       </div>
-      <div className="intel-chip bottom-[17%] left-4 flex md:bottom-[11%] md:left-[7%]">
+      <div className="intel-chip bottom-[9%] left-4 hidden sm:flex md:bottom-[11%] md:left-[7%]">
         <Activity className="h-3.5 w-3.5 text-red-300" />
         RISK PULSE
       </div>
-      <div className="intel-chip bottom-[17%] right-4 flex md:bottom-[11%] md:right-[7%]">
+      <div className="intel-chip bottom-[9%] right-4 hidden sm:flex md:bottom-[11%] md:right-[7%]">
         <Anchor className="h-3.5 w-3.5 text-blue-200" />
         ROUTE READY
       </div>
@@ -401,6 +448,18 @@ export function FloatingIntelSignals() {
           letter-spacing: 0.16em;
           text-transform: uppercase;
           animation: hud-pop 4.8s ease-in-out infinite;
+        }
+
+        @media (max-width: 639px) {
+          .hero-hud {
+            padding: 0.7rem;
+            font-size: 0.56rem;
+            letter-spacing: 0.12em;
+          }
+
+          .risk-bar {
+            height: 1.35rem;
+          }
         }
 
         .risk-bar {

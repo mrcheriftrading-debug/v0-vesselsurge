@@ -120,16 +120,16 @@ export function PartnershipForm() {
 
   if (isComplete) {
     return (
-      <div className="glass rounded-2xl p-8 md:p-12 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/20 border border-green-500/30">
-          <CheckCircle2 className="h-10 w-10 text-green-400" />
+      <div className="glass rounded-xl p-5 text-center sm:rounded-2xl sm:p-8 md:p-12">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-green-500/30 bg-green-500/20 sm:mb-6 sm:h-20 sm:w-20">
+          <CheckCircle2 className="h-8 w-8 text-green-400 sm:h-10 sm:w-10" />
         </div>
-        <h3 className="text-2xl font-bold text-foreground">You&apos;re in the network!</h3>
-        <p className="mt-3 text-muted-foreground max-w-md mx-auto">
+        <h3 className="text-xl font-bold text-foreground sm:text-2xl">You&apos;re in the network!</h3>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
           Welcome to VesselSurge, <strong className="text-foreground">{formData.name}</strong>.
           Our team will personally match you with verified partners within 24–48 hours.
         </p>
-        <div className="mt-6 p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-muted-foreground">
+        <div className="mt-6 rounded-xl border border-primary/20 bg-primary/10 p-3 text-sm text-muted-foreground sm:p-4">
           📧 Confirmation sent to <strong className="text-foreground">{formData.email}</strong>
         </div>
       </div>
@@ -137,14 +137,14 @@ export function PartnershipForm() {
   }
 
   return (
-    <div className="glass rounded-2xl p-6 md:p-10">
+    <div className="glass rounded-xl p-4 sm:rounded-2xl sm:p-6 md:p-10">
       {/* Progress */}
-      <div className="mb-8">
+      <div className="mb-7 sm:mb-8">
         <div className="flex items-center justify-between mb-2">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all sm:h-8 sm:w-8 sm:text-sm ${
                   s < step ? "bg-primary text-primary-foreground" :
                   s === step ? "bg-primary text-primary-foreground ring-4 ring-primary/30" :
                   "bg-muted text-muted-foreground"
@@ -158,7 +158,7 @@ export function PartnershipForm() {
             </div>
           ))}
         </div>
-        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+        <div className="mt-1 flex justify-between text-[0.65rem] text-muted-foreground sm:text-xs">
           <span>Your Role</span>
           <span>Your Goals</span>
           <span>Contact</span>
@@ -172,19 +172,19 @@ export function PartnershipForm() {
             <h3 className="text-lg font-semibold text-foreground mb-1">What best describes you?</h3>
             <p className="text-sm text-muted-foreground">We&apos;ll match you with the right partners.</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
             {USER_TYPES.map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
                 onClick={() => setFormData(prev => ({ ...prev, userType: value }))}
-                className={`p-3 rounded-xl border text-left transition-all hover:scale-[1.02] ${
+                className={`rounded-xl border p-3 text-left transition-all hover:scale-[1.02] ${
                   formData.userType === value
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card/30 text-muted-foreground hover:border-primary/50"
                 }`}
               >
-                <Icon className={`h-5 w-5 mb-2 ${formData.userType === value ? "text-primary" : ""}`} />
-                <span className="text-xs font-medium">{label}</span>
+                <Icon className={`mb-2 h-5 w-5 ${formData.userType === value ? "text-primary" : ""}`} />
+                <span className="block text-xs font-medium leading-5">{label}</span>
               </button>
             ))}
           </div>
@@ -208,12 +208,12 @@ export function PartnershipForm() {
             <h3 className="text-lg font-semibold text-foreground mb-1">What are you looking for?</h3>
             <p className="text-sm text-muted-foreground">Select all that apply.</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
             {GOALS.map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => toggleGoal(value)}
-                className={`p-3 rounded-xl border text-left text-sm transition-all hover:scale-[1.01] ${
+                className={`rounded-xl border p-3 text-left text-sm leading-5 transition-all hover:scale-[1.01] ${
                   formData.goals.includes(value)
                     ? "border-primary bg-primary/10 text-foreground font-medium"
                     : "border-border bg-card/30 text-muted-foreground hover:border-primary/50"
@@ -257,12 +257,12 @@ export function PartnershipForm() {
             </div>
             <div>
               <label className="text-sm font-medium text-foreground block mb-1.5">Timeline</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 {URGENCY_OPTIONS.map(({ value, label, sub }) => (
                   <button
                     key={value}
                     onClick={() => setFormData(prev => ({ ...prev, urgency: value }))}
-                    className={`p-3 rounded-xl border text-left transition-all ${
+                    className={`rounded-xl border p-3 text-left transition-all ${
                       formData.urgency === value
                         ? "border-primary bg-primary/10 text-foreground"
                         : "border-border bg-card/30 text-muted-foreground hover:border-primary/50"
@@ -280,11 +280,11 @@ export function PartnershipForm() {
       )}
 
       {/* Navigation */}
-      <div className="flex items-center justify-between mt-8">
+      <div className="mt-8 flex items-center justify-between gap-3">
         <button
           onClick={() => setStep(s => s - 1)}
           disabled={step === 1}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
         >
           <ChevronLeft className="h-4 w-4" /> Back
         </button>
@@ -293,7 +293,7 @@ export function PartnershipForm() {
           <button
             onClick={() => setStep(s => s + 1)}
             disabled={!canProceed()}
-            className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40 sm:px-6"
           >
             Continue <ChevronRight className="h-4 w-4" />
           </button>
@@ -301,7 +301,7 @@ export function PartnershipForm() {
           <button
             onClick={handleSubmit}
             disabled={!canProceed() || isSubmitting}
-            className="flex items-center gap-2 rounded-xl bg-green-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex min-h-11 items-center gap-2 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-6"
           >
             {isSubmitting ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</>
