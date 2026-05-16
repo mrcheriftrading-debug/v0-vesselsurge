@@ -29,6 +29,11 @@ const TRUSTED_FEEDS = [
   { source: 'Offshore Energy', url: 'https://www.offshore-energy.biz/feed/', credibility: 8 },
   { source: 'Seatrade Maritime News', url: 'https://www.seatrade-maritime.com/rss.xml', credibility: 8 },
   { source: 'MarineLink', url: 'https://www.marinelink.com/news/rss', credibility: 8 },
+  { source: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', credibility: 8 },
+  { source: 'Bloomberg Markets', url: 'https://feeds.bloomberg.com/markets/news.rss', credibility: 8 },
+  { source: 'Bloomberg Politics', url: 'https://feeds.bloomberg.com/politics/news.rss', credibility: 8 },
+  { source: 'Bloomberg Economics', url: 'https://feeds.bloomberg.com/economics/news.rss', credibility: 8 },
+  { source: 'Bloomberg Business', url: 'https://feeds.bloomberg.com/business/news.rss', credibility: 8 },
 ]
 
 const TRUSTED_PAGES = [
@@ -112,15 +117,15 @@ function isCurrentYear(article: TrustedArticle) {
   return new Date(article.published_at).getUTCFullYear() >= CURRENT_YEAR
 }
 
-function isWithinLatestHour(article: TrustedArticle, now: Date) {
+function isWithinLatest24Hours(article: TrustedArticle, now: Date) {
   const publishedAt = Date.parse(article.published_at)
   if (Number.isNaN(publishedAt)) return false
 
   const nowMs = now.getTime()
-  const oneHourAgo = nowMs - 60 * 60 * 1000
+  const oneDayAgo = nowMs - 24 * 60 * 60 * 1000
   const clockSkewAllowance = nowMs + 5 * 60 * 1000
 
-  return publishedAt >= oneHourAgo && publishedAt <= clockSkewAllowance
+  return publishedAt >= oneDayAgo && publishedAt <= clockSkewAllowance
 }
 
 function between(value: string, start: string, end: string) {
@@ -163,6 +168,16 @@ function isRelevant(text: string) {
     'piracy',
     'armed robbery',
     'seized',
+    'oil',
+    'crude',
+    'sanction',
+    'sanctions',
+    'supply chain',
+    'trade',
+    'freight',
+    'naval',
+    'navy',
+    'geopolitics',
   ].some((keyword) => lower.includes(keyword))
 }
 
@@ -295,7 +310,7 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => article.region !== 'global')
     .filter((article) => hasDirectRegionSignal(article))
     .filter((article) => isCurrentYear(article))
-    .filter((article) => isWithinLatestHour(article, now))
+    .filter((article) => isWithinLatest24Hours(article, now))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
     .slice(0, 40)
 }
@@ -388,11 +403,11 @@ export async function GET(request: Request) {
     stats_updated: stats.length,
     verified: articles.length,
     window: {
-      from: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
+      from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
       to: timestamp,
-      policy: 'Only source-published articles from the latest 60 minutes are written.',
+      policy: 'Only source-published articles from the latest 24 hours are written.',
     },
     sources: [...new Set(articles.map((article) => article.source))],
-    note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted maritime sources from the latest hour are written.',
+    note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted sources from the latest 24 hours are written.',
   })
 }
