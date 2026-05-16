@@ -13,8 +13,8 @@ export async function GET() {
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: "DATALASTIC_API_KEY not configured", demo: true },
-      { status: 200 }
+      { success: false, error: "DATALASTIC_API_KEY not configured", vessels: [], demo: true },
+      { status: 503 }
     )
   }
 
@@ -33,8 +33,8 @@ export async function GET() {
       const errorText = await response.text()
       console.error("Datalastic API error:", response.status, errorText)
       return NextResponse.json(
-        { error: "Failed to fetch from Datalastic API", details: errorText, demo: true },
-        { status: 200 }
+        { success: false, error: "Failed to fetch from Datalastic API", details: errorText, vessels: [], demo: true },
+        { status: 502 }
       )
     }
 
@@ -46,8 +46,8 @@ export async function GET() {
     if (!Array.isArray(data)) {
       console.error("Invalid data format from Datalastic:", result)
       return NextResponse.json(
-        { error: "Invalid data format received", demo: true },
-        { status: 200 }
+        { success: false, error: "Invalid data format received", vessels: [], demo: true },
+        { status: 502 }
       )
     }
 
@@ -82,6 +82,7 @@ export async function GET() {
     const stoppedCount = vessels.filter((v: { sog: number }) => v.sog < 0.5).length
 
     return NextResponse.json({
+      success: true,
       vessels,
       stats: {
         totalVessels,
@@ -95,8 +96,8 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching vessel data:", error)
     return NextResponse.json(
-      { error: "Failed to fetch vessel data", demo: true },
-      { status: 200 }
+      { success: false, error: "Failed to fetch vessel data", vessels: [], demo: true },
+      { status: 500 }
     )
   }
 }

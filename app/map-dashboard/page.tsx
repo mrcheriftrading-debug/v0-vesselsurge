@@ -135,6 +135,7 @@ export default function MapDashboard() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
+              <h1 className="sr-only">Live Maritime Intelligence Map</h1>
               <span className="text-sm font-bold text-foreground">Live Maritime Intelligence</span>
               <span className="ml-2 text-xs text-muted-foreground font-mono">
                 {lastUpdated ? 'Updated ' + new Date(lastUpdated).toLocaleTimeString() : 'Loading...'}

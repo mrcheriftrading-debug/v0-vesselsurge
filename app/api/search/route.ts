@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 interface SearchRequest {
   query: string
@@ -36,14 +37,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const tavilyKey = process.env.TAVILY_API_KEY
     if (!tavilyKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "TAVILY_API_KEY is not configured",
-          timestamp: new Date().toISOString(),
-        },
-        { status: 500 }
-      )
+      return searchStoredMaritimeIntel(query, maxResults)
     }
 
     // Call Tavily API for real-time web search
@@ -107,4 +101,86 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 500 }
     )
   }
+}
+
+async function searchStoredMaritimeIntel(query: string, maxResults: number) {
+  const supabase = await createClient()
+  const normalizedQuery = query.trim()
+  const terms = normalizedQuery
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((term) => term.length > 2)
+
+  const { data, error } = await supabase
+    .from("news_articles")
+    .select("title, snippet, source, url, published_at, created_at, region")
+    .order("published_at", { ascending: false })
+    .limit(80)
+
+  if (error) {
+    console.error("[v0] Stored search fallback error:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        query: normalizedQuery,
+        results: [],
+        count: 0,
+        error: "Search is temporarily unavailable",
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 },
+    )
+  }
+
+  const scored = (data || [])
+    .map((article: any) => {
+      const title = String(article.title || "")
+      const snippet = cleanSearchText(String(article.snippet || ""))
+      const haystack = `${title} ${snippet} ${article.source || ""} ${article.region || ""}`.toLowerCase()
+      const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 1 : 0), 0)
+
+      return { article, title, snippet, score }
+    })
+    .filter(({ score }) => score > 0 || terms.length === 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.min(maxResults, 10))
+
+  const results: SearchResult[] = scored.map(({ article, title, snippet }) => {
+    const link = String(article.url || "https://www.vesselsurge.com/intelligence")
+    let source = String(article.source || "")
+    try {
+      source ||= new URL(link).hostname.replace("www.", "")
+    } catch {
+      source ||= "VesselSurge"
+    }
+
+    return {
+      title,
+      link,
+      snippet,
+      source,
+      date: article.published_at || article.created_at || undefined,
+    }
+  })
+
+  return NextResponse.json({
+    success: true,
+    query: normalizedQuery,
+    results,
+    count: results.length,
+    timestamp: new Date().toISOString(),
+    source: "stored-maritime-intelligence",
+  })
+}
+
+function cleanSearchText(value: string) {
+  return value
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;|&apos;/g, "'")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
