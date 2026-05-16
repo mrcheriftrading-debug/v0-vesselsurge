@@ -17,7 +17,7 @@ const mobilePrimaryItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Map", icon: Map },
   { href: "/intelligence", label: "News", icon: BarChart3 },
-  { href: "/network", label: "Join", icon: UserPlus },
+  { href: "/auth/sign-up", label: "Account", icon: UserPlus },
 ]
 
 function isActive(pathname: string, href: string) {
@@ -65,9 +65,9 @@ export function SiteNavigation() {
               <LogIn className="h-4 w-4" />
               Log In
             </Link>
-            <Link href="/network#surge-form" className="inline-flex min-h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_24px_rgba(0,119,255,0.24)] transition-all hover:-translate-y-0.5 hover:bg-primary/90">
+            <Link href="/auth/sign-up" className="inline-flex min-h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_24px_rgba(0,119,255,0.24)] transition-all hover:-translate-y-0.5 hover:bg-primary/90">
               <UserPlus className="h-4 w-4" />
-              Join
+              Create Account
             </Link>
           </div>
 
@@ -111,8 +111,8 @@ export function SiteNavigation() {
               <Link href="/auth/login" onClick={() => setMobileOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-md border border-border text-sm font-semibold text-foreground">
                 Log In
               </Link>
-              <Link href="/network#surge-form" onClick={() => setMobileOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
-                Join
+              <Link href="/auth/sign-up" onClick={() => setMobileOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+                Create Account
               </Link>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
-import { ArrowRight, BarChart3, Map, Network, Newspaper, Search, ShieldCheck, Ship, Zap } from "lucide-react"
+import { ArrowRight, BarChart3, LogIn, Map, Network, Newspaper, Search, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
 import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { SiteFooter } from "@/components/site-footer"
@@ -113,6 +113,20 @@ export default function VesselSurgePage() {
                 className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 News & Risk
+              </Link>
+              <Link
+                href="/auth/sign-up"
+                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+              >
+                <UserPlus className="h-5 w-5 text-primary" />
+                Create Account
+              </Link>
+              <Link
+                href="/auth/login"
+                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md px-5 py-3 text-sm font-semibold text-muted-foreground transition-all hover:text-foreground sm:w-auto sm:px-4 sm:py-4 sm:text-base"
+              >
+                <LogIn className="h-5 w-5" />
+                Log In
               </Link>
             </div>
 
