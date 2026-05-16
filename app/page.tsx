@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
 import { PartnershipForm } from "@/components/partnership-form"
+import { DataNetworkScene, HeroOceanScene } from "@/components/three/maritime-3d-scenes"
 
 export default function VesselSurgePage() {
   return (
@@ -42,6 +43,9 @@ export default function VesselSurgePage() {
           {/* Background with gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,119,255,0.15),transparent_70%)]" />
+          <div className="absolute inset-x-0 bottom-0 top-[58%] opacity-65 md:top-[54%]">
+            <HeroOceanScene />
+          </div>
           
           {/* Grid pattern */}
           <div className="absolute inset-0 opacity-20" style={{
@@ -264,25 +268,16 @@ export default function VesselSurgePage() {
 
               {/* Visual */}
               <div className="relative">
-                <div className="aspect-square rounded-3xl bg-gradient-to-br from-primary/20 via-card to-accent/20 p-1">
-                  <div className="glass h-full w-full rounded-3xl p-8 flex flex-col justify-center">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-primary">500+</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Active Partners</div>
-                      </div>
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-accent">45+</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Countries</div>
-                      </div>
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-[#00E676]">$2.5B</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Deals Facilitated</div>
-                      </div>
-                      <div className="rounded-2xl bg-background/50 p-6 text-center">
-                        <div className="text-4xl font-bold text-[#FFB800]">98%</div>
-                        <div className="mt-2 text-sm text-muted-foreground">Satisfaction</div>
-                      </div>
+                <div className="aspect-square overflow-hidden rounded-2xl border border-primary/20 bg-[#06101f]">
+                  <DataNetworkScene />
+                  <div className="pointer-events-none absolute inset-x-6 bottom-6 grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-primary/20 bg-background/70 p-4 text-center backdrop-blur">
+                      <div className="text-2xl font-bold text-primary md:text-3xl">500+</div>
+                      <div className="mt-1 text-xs text-muted-foreground">Active Partners</div>
+                    </div>
+                    <div className="rounded-lg border border-accent/20 bg-background/70 p-4 text-center backdrop-blur">
+                      <div className="text-2xl font-bold text-accent md:text-3xl">45+</div>
+                      <div className="mt-1 text-xs text-muted-foreground">Countries</div>
                     </div>
                   </div>
                 </div>

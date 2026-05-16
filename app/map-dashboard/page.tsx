@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import type { Article } from '@/lib/maritime-data'
+import { HotspotRiskOrbital } from '@/components/three/maritime-3d-scenes'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
   ssr: false,
@@ -242,6 +243,24 @@ export default function MapDashboard() {
                     style={{ background: riskColor + '22', color: riskColor }}>
                     {riskLevel.toUpperCase()}
                   </span>
+                </div>
+
+                <div className="relative h-36 overflow-hidden rounded-xl border border-border/50 bg-black/25">
+                  <HotspotRiskOrbital
+                    riskLevel={riskLevel}
+                    reports={selected.verifiedReports ?? 0}
+                    sources={selected.sourceCount ?? 0}
+                  />
+                  <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] uppercase text-muted-foreground">Risk orbital</p>
+                      <p className="text-xs font-semibold text-foreground">Signals scale with reports and sources</p>
+                    </div>
+                    <div className="rounded-lg border border-border/60 bg-background/70 px-2 py-1 text-right backdrop-blur">
+                      <p className="text-[10px] text-muted-foreground">Live pulse</p>
+                      <p className="text-xs font-mono font-bold" style={{ color: riskColor }}>{selected.verifiedReports ?? 0}</p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
