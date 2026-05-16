@@ -3,7 +3,7 @@ import { Linkedin, Zap } from "lucide-react"
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-card py-10">
+    <footer className="border-t border-border bg-card pb-24 pt-10 md:pb-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 lg:px-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <Link href="/" className="flex items-center gap-3">

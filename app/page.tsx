@@ -3,7 +3,7 @@
 import Link from "next/link"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
-import { ArrowRight, BarChart3, Map, Network, Newspaper, Search, ShieldCheck } from "lucide-react"
+import { ArrowRight, BarChart3, Map, Network, Newspaper, Search, ShieldCheck, Ship, Zap } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
 import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { SiteFooter } from "@/components/site-footer"
@@ -138,8 +138,8 @@ export default function VesselSurgePage() {
             <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div className="max-w-2xl">
                 <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Start here</div>
-                <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">What do you need right now?</h2>
-                <p className="mt-3 text-muted-foreground">The homepage is built around the three actions most maritime teams care about first.</p>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">What do you need right now?</h2>
+              <p className="mt-3 text-muted-foreground">Jump straight into the map, the latest risk signals, or the cargo and vessel network.</p>
               </div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:w-[30rem]">
                 {quickActions.map(({ href, label, icon: Icon }) => (
@@ -170,9 +170,9 @@ export default function VesselSurgePage() {
         <section className="border-t border-border bg-card py-14 sm:py-20">
           <div className="mx-auto grid max-w-7xl gap-5 px-4 md:grid-cols-3 lg:px-8">
             {[
-              { label: "Fast navigation", text: "One clear menu across desktop and mobile.", icon: ShieldCheck },
-              { label: "Focused workflows", text: "Map, intelligence, and onboarding do not compete for attention.", icon: BarChart3 },
-              { label: "Mobile ready", text: "Pages are lighter, shorter, and easier to tap through.", icon: Network },
+              { label: "See risk clearly", text: "Critical routes, source signals, and live map context stay easy to scan.", icon: ShieldCheck },
+              { label: "Act faster", text: "Move from news to map to decision without digging through a long page.", icon: Zap },
+              { label: "Find capacity", text: "Connect cargo needs with vessel operators through a focused network flow.", icon: Ship },
             ].map(({ label, text, icon: Icon }) => (
               <div key={label} className="rounded-xl border border-border bg-background/50 p-5">
                 <Icon className="h-5 w-5 text-primary" />

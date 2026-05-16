@@ -13,10 +13,10 @@ export default function NetworkPage() {
             <div>
               <div className="mb-4 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">B2B Network</div>
               <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Vessel and cargo matching on its own focused page.
+                Find cargo or vessel capacity without cold outreach.
               </h1>
               <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
-                Companies should not hunt through the homepage to join. This page explains the network and leads directly into onboarding.
+                VesselSurge helps cargo teams and vessel operators create clearer introductions around route, cargo type, timing, and available capacity.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">

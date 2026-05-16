@@ -37,10 +37,10 @@ export default function IntelligencePage() {
                 Intelligence Hub
               </div>
               <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Maritime intelligence that is easier to read and act on.
+                Understand maritime risk before it becomes a delay.
               </h1>
               <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
-                This page is for reports, source confidence, news signals, and operational risk context. The live map stays focused on movement and hotspot status.
+                Track fresh reports, source confidence, and chokepoint signals in one calm view, then jump into the live map when you need operational context.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/map-dashboard" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
@@ -72,9 +72,9 @@ export default function IntelligencePage() {
           <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
               <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Workflow</div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground">A cleaner split between signal and map.</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">From signal to action in fewer clicks.</h2>
               <p className="mt-3 text-muted-foreground">
-                Operators can first read what changed, then jump into the map only when they need location and traffic context.
+                Start with what changed, understand why it matters, then open the map only when you need route and traffic context.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
