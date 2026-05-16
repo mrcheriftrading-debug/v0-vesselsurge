@@ -3,14 +3,21 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { BarChart3, Home, Info, LogIn, Map, Menu, Network, UserPlus, X, Zap } from "lucide-react"
+import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, UserPlus, X, Zap } from "lucide-react"
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/intelligence", label: "Intelligence", icon: BarChart3 },
   { href: "/map-dashboard", label: "Live Map", icon: Map },
-  { href: "/network", label: "Network", icon: Network },
+  { href: "/intelligence", label: "News & Risk", icon: Newspaper },
+  { href: "/network", label: "Join Network", icon: Network },
   { href: "/about", label: "About", icon: Info },
+]
+
+const mobilePrimaryItems = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/map-dashboard", label: "Map", icon: Map },
+  { href: "/intelligence", label: "News", icon: BarChart3 },
+  { href: "/network", label: "Join", icon: UserPlus },
 ]
 
 function isActive(pathname: string, href: string) {
@@ -33,14 +40,14 @@ export function SiteNavigation() {
             <span className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">VesselSurge</span>
           </Link>
 
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center gap-1 md:flex">
             {navItems.map(({ href, label, icon: Icon }) => {
               const active = isActive(pathname, href)
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
                     active
                       ? "bg-primary/12 text-primary"
                       : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
@@ -53,7 +60,7 @@ export function SiteNavigation() {
             })}
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <Link href="/auth/login" className="inline-flex min-h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground">
               <LogIn className="h-4 w-4" />
               Log In
@@ -67,7 +74,7 @@ export function SiteNavigation() {
           <button
             type="button"
             onClick={() => setMobileOpen((open) => !open)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:text-foreground sm:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:text-foreground md:hidden"
             aria-label="Open navigation menu"
             aria-expanded={mobileOpen}
           >
@@ -77,8 +84,9 @@ export function SiteNavigation() {
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 pt-16 backdrop-blur-md sm:hidden" onClick={() => setMobileOpen(false)}>
+        <div className="fixed inset-0 z-40 bg-background/80 pt-16 backdrop-blur-md md:hidden" onClick={() => setMobileOpen(false)}>
           <div className="border-b border-border bg-card px-4 py-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Where do you want to go?</p>
             <div className="grid gap-2">
               {navItems.map(({ href, label, icon: Icon }) => {
                 const active = isActive(pathname, href)
@@ -110,6 +118,26 @@ export function SiteNavigation() {
           </div>
         </div>
       )}
+
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/92 px-2 pb-[max(env(safe-area-inset-bottom),0.35rem)] pt-2 backdrop-blur-xl md:hidden">
+        <div className="grid grid-cols-4 gap-1">
+          {mobilePrimaryItems.map(({ href, label, icon: Icon }) => {
+            const active = isActive(pathname, href)
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[0.68rem] font-bold ${
+                  active ? "bg-primary/15 text-primary" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </Link>
+            )
+          })}
+        </div>
+      </div>
     </>
   )
 }

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
-import { ArrowRight, BarChart3, Map, Network, Radio, ShieldCheck, Ship } from "lucide-react"
+import { ArrowRight, BarChart3, Map, Network, Newspaper, Radio, Search, ShieldCheck, Ship } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
 import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { SiteFooter } from "@/components/site-footer"
@@ -12,26 +12,36 @@ import { HeroOceanScene } from "@/components/three/maritime-3d-scenes"
 
 const productCards = [
   {
-    href: "/intelligence",
-    title: "Maritime Intelligence",
-    text: "Follow risk, reports, sources, and hotspot updates without digging through the whole site.",
-    icon: BarChart3,
+    href: "/map-dashboard",
+    title: "I want the live map",
+    text: "See hotspots, vessel traffic, risk level, and selected maritime feed.",
+    icon: Map,
     accent: "text-primary",
+    action: "Open map",
   },
   {
-    href: "/map-dashboard",
-    title: "Live Map",
-    text: "Open the operational map for Hormuz, Bab el-Mandeb, Malacca and Suez.",
-    icon: Map,
+    href: "/intelligence",
+    title: "I want news and risk",
+    text: "Read maritime reports, latest sources, and what changed in the last 24 hours.",
+    icon: Newspaper,
     accent: "text-accent",
+    action: "Read news",
   },
   {
     href: "/network",
-    title: "B2B Network",
-    text: "Join the vessel and cargo matching network from a focused onboarding page.",
+    title: "I want cargo or vessels",
+    text: "Join the network, list vessel capacity, or request shipping partners.",
     icon: Network,
     accent: "text-emerald-300",
+    action: "Join network",
   },
+]
+
+const quickActions = [
+  { href: "/map-dashboard", label: "Live Map", text: "Track hotspots", icon: Map },
+  { href: "/intelligence", label: "News & Risk", text: "Latest reports", icon: Newspaper },
+  { href: "/network#surge-form", label: "Join", text: "Cargo or vessels", icon: Network },
+  { href: "/search", label: "Search", text: "Find anything", icon: Search },
 ]
 
 export default function VesselSurgePage() {
@@ -85,8 +95,18 @@ export default function VesselSurgePage() {
             </h1>
 
             <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-8 sm:text-lg md:text-xl">
-              VesselSurge separates live map monitoring, maritime intelligence, and B2B vessel matching into simple focused pages, so teams can move faster on mobile and desktop.
+              Choose what you need first: open the live map, read maritime news and risk, or join the vessel and cargo network.
             </p>
+
+            <div className="mt-6 grid w-full max-w-4xl grid-cols-2 gap-2 sm:grid-cols-4">
+              {quickActions.map(({ href, label, text, icon: Icon }) => (
+                <Link key={href} href={href} className="group rounded-xl border border-white/10 bg-white/[0.045] p-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.07] sm:p-4">
+                  <Icon className="h-5 w-5 text-primary" />
+                  <div className="mt-3 text-sm font-black text-foreground sm:text-base">{label}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{text}</div>
+                </Link>
+              ))}
+            </div>
 
             <div className="mt-6 grid w-full max-w-3xl grid-cols-3 gap-2 rounded-xl border border-cyan-300/10 bg-slate-950/30 p-2 backdrop-blur sm:mt-8 sm:gap-3 sm:p-3">
               {[
@@ -116,7 +136,7 @@ export default function VesselSurgePage() {
                 href="/intelligence"
                 className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
-                Intelligence
+                News & Risk
               </Link>
             </div>
           </div>
@@ -125,12 +145,12 @@ export default function VesselSurgePage() {
         <section className="border-t border-border bg-background py-14 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <div className="mb-8 max-w-2xl">
-              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Product Areas</div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Everything has its own place.</h2>
-              <p className="mt-3 text-muted-foreground">Use the menu to move between the main areas. The homepage stays clean, while deeper workflows live on dedicated pages.</p>
+              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Choose your task</div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Start with what you came for.</h2>
+              <p className="mt-3 text-muted-foreground">No guessing. The main choices are repeated here, in the top menu, and in the mobile bottom bar.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
-              {productCards.map(({ href, title, text, icon: Icon, accent }) => (
+              {productCards.map(({ href, title, text, icon: Icon, accent, action }) => (
                 <Link key={href} href={href} className="group rounded-xl border border-border bg-card/50 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
                   <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] ${accent}`}>
                     <Icon className="h-6 w-6" />
@@ -138,7 +158,7 @@ export default function VesselSurgePage() {
                   <h3 className="text-lg font-bold text-foreground">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
                   <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                    Open page <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    {action} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </div>
                 </Link>
               ))}

@@ -13,9 +13,9 @@ export function SiteFooter() {
             <span className="text-lg font-bold text-foreground">VesselSurge</span>
           </Link>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-muted-foreground">
-            <Link href="/intelligence" className="transition-colors hover:text-foreground">Intelligence</Link>
+            <Link href="/intelligence" className="transition-colors hover:text-foreground">News & Risk</Link>
             <Link href="/map-dashboard" className="transition-colors hover:text-foreground">Live Map</Link>
-            <Link href="/network" className="transition-colors hover:text-foreground">Network</Link>
+            <Link href="/network" className="transition-colors hover:text-foreground">Join Network</Link>
             <Link href="/about" className="transition-colors hover:text-foreground">About</Link>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground" aria-label="LinkedIn">
               <Linkedin className="h-5 w-5" />
