@@ -3,7 +3,7 @@
 import Link from "next/link"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
-import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
+import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight, Activity, Radio, Ship } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
 import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { PartnershipForm } from "@/components/partnership-form"
@@ -29,10 +29,10 @@ export default function VesselSurgePage() {
     <div className="min-h-screen bg-background" onClickCapture={captureLiveMapVoyage}>
       <LiveMapVoyageTransition active={voyageActive} />
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-cyan-300/10 bg-background/88 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 lg:px-8">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary neon-blue">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary shadow-[0_0_24px_rgba(0,119,255,0.35)]">
               <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">VesselSurge</span>
@@ -48,7 +48,7 @@ export default function VesselSurgePage() {
             <Link href="/auth/login" className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline">Log In</Link>
             <a 
               href="#surge-form" 
-              className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90 neon-blue sm:px-4 sm:text-sm"
+              className="relative inline-flex items-center gap-2 overflow-hidden rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_24px_rgba(0,119,255,0.28)] transition-all hover:-translate-y-0.5 hover:bg-primary/90 sm:px-4 sm:text-sm"
             >
               <span className="relative z-10 whitespace-nowrap">Join</span>
               <span className="relative z-10 hidden whitespace-nowrap sm:inline">Network</span>
@@ -62,8 +62,9 @@ export default function VesselSurgePage() {
         {/* Hero Section */}
         <section className="relative min-h-[100svh] overflow-hidden pt-16">
           {/* Background with gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,119,255,0.15),transparent_70%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#071020] via-background to-card" />
+          <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(0,119,255,0.13),transparent_36%,rgba(0,255,255,0.08)_72%,transparent)]" />
+          <div className="absolute inset-x-0 top-16 h-px bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent" />
           <div className="absolute inset-x-[-20%] bottom-0 top-[62%] opacity-55 sm:inset-x-0 sm:opacity-65 md:top-[54%]">
             <HeroOceanScene />
           </div>
@@ -71,15 +72,16 @@ export default function VesselSurgePage() {
           <CommandStrip />
           
           {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-20" style={{
+          <div className="absolute inset-0 opacity-[0.14]" style={{
             backgroundImage: `linear-gradient(rgba(0,119,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,119,255,0.1) 1px, transparent 1px)`,
             backgroundSize: '60px 60px'
           }} />
 
-          <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 py-14 text-center sm:py-12 lg:px-8">
+          <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 py-12 text-center sm:py-12 lg:px-8">
             {/* Technical Label */}
-            <div className="mb-5 font-mono text-[0.62rem] tracking-[0.22em] text-accent sm:mb-8 sm:text-xs sm:tracking-[0.3em]">
-              // MARITIME B2B NETWORK
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.22em] text-accent sm:mb-8 sm:text-xs sm:tracking-[0.3em]">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.8)]" />
+              Maritime B2B Network
             </div>
 
             {/* Main Headline */}
@@ -94,11 +96,25 @@ export default function VesselSurgePage() {
               Direct connections between vessel owners and cargo charterers. Get live insights into global maritime hotspots, reduce risks, and unlock strategic advantages with real-time market intelligence.
             </p>
 
+            <div className="mt-6 grid w-full max-w-3xl grid-cols-3 gap-2 rounded-xl border border-cyan-300/12 bg-slate-950/30 p-2 backdrop-blur sm:mt-8 sm:gap-3 sm:p-3">
+              {[
+                { label: "Hotspots", value: "4", icon: Activity },
+                { label: "Intel Feed", value: "24h", icon: Radio },
+                { label: "Routing", value: "Live", icon: Ship },
+              ].map(({ label, value, icon: Icon }) => (
+                <div key={label} className="rounded-lg border border-white/8 bg-white/[0.03] px-2 py-3 text-center sm:px-4">
+                  <Icon className="mx-auto mb-1.5 h-4 w-4 text-cyan-200" />
+                  <div className="text-lg font-black text-foreground sm:text-2xl">{value}</div>
+                  <div className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">{label}</div>
+                </div>
+              ))}
+            </div>
+
             {/* CTAs - Three Button Hierarchy */}
-            <div className="mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <a 
                 href="#surge-form"
-                className="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                className="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_28px_rgba(0,119,255,0.26)] transition-all hover:-translate-y-1 hover:bg-primary/90 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">FIND CARGO</span>
                 <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -106,7 +122,7 @@ export default function VesselSurgePage() {
               </a>
               <a 
                 href="#surge-form"
-                className="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                className="group relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_28px_rgba(0,119,255,0.26)] transition-all hover:-translate-y-1 hover:bg-primary/90 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">FIND A VESSEL</span>
                 <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -115,7 +131,7 @@ export default function VesselSurgePage() {
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-accent/50 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/8 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/16 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 <span className="relative z-10">VIEW LIVE MAP</span>
                 <span className="relative z-10 hidden sm:inline">& TRAFFIC</span>
@@ -151,7 +167,7 @@ export default function VesselSurgePage() {
 
             <div className="grid gap-5 sm:gap-8 lg:grid-cols-3">
               {/* Risk Mitigation Card */}
-              <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-5 sm:rounded-2xl sm:p-8">
+              <div className="group rounded-xl border border-primary/15 bg-gradient-to-br from-white/[0.045] via-primary/[0.035] to-transparent p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.06] sm:p-8">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary sm:mb-6 sm:h-14 sm:w-14">
                   <Shield className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
@@ -176,7 +192,7 @@ export default function VesselSurgePage() {
               </div>
 
               {/* Strategic Advantage Card */}
-              <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-5 sm:rounded-2xl sm:p-8">
+              <div className="group rounded-xl border border-accent/15 bg-gradient-to-br from-white/[0.045] via-accent/[0.035] to-transparent p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all hover:-translate-y-1 hover:border-accent/30 hover:bg-white/[0.06] sm:p-8">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 text-accent sm:mb-6 sm:h-14 sm:w-14">
                   <Zap className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
@@ -201,7 +217,7 @@ export default function VesselSurgePage() {
               </div>
 
               {/* Global News Feed Card */}
-              <div className="rounded-xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-5 sm:rounded-2xl sm:p-8">
+              <div className="group rounded-xl border border-emerald-300/15 bg-gradient-to-br from-white/[0.045] via-emerald-300/[0.035] to-transparent p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all hover:-translate-y-1 hover:border-emerald-300/30 hover:bg-white/[0.06] sm:p-8">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676] sm:mb-6 sm:h-14 sm:w-14">
                   <Globe className="h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
@@ -333,42 +349,42 @@ export default function VesselSurgePage() {
 
             {/* Benefits Grid */}
             <div className="mt-10 grid gap-5 sm:mt-16 md:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
+              <div className="rounded-xl border border-primary/15 bg-white/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045] sm:p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
                   <Rocket className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">Early Adopter Advantage</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Get priority placement and exclusive features as a founding member of the network.</p>
               </div>
-              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-6">
+              <div className="rounded-xl border border-accent/15 bg-white/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-accent/30 hover:bg-white/[0.045] sm:p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 text-accent">
                   <Target className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">Smart Matching</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Our AI connects you with partners that perfectly match your business needs and goals.</p>
               </div>
-              <div className="rounded-2xl border border-[#00E676]/20 bg-gradient-to-br from-[#00E676]/5 to-transparent p-6">
+              <div className="rounded-xl border border-emerald-300/15 bg-white/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-emerald-300/30 hover:bg-white/[0.045] sm:p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#00E676]/20 text-[#00E676]">
                   <Globe className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">Global Reach</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Expand your operations internationally with our worldwide network of verified partners.</p>
               </div>
-              <div className="rounded-2xl border border-[#FFB800]/20 bg-gradient-to-br from-[#FFB800]/5 to-transparent p-6">
+              <div className="rounded-xl border border-amber-300/15 bg-white/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-amber-300/30 hover:bg-white/[0.045] sm:p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FFB800]/20 text-[#FFB800]">
                   <Shield className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">Verified Network</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Every member is vetted. Work confidently with trusted industry professionals.</p>
               </div>
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
+              <div className="rounded-xl border border-primary/15 bg-white/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045] sm:p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
                   <Zap className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">Real-Time Intelligence</h3>
                 <p className="mt-2 text-sm text-muted-foreground">Access live maritime data, market insights, and operational analytics in one platform.</p>
               </div>
-              <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-6">
+              <div className="rounded-xl border border-accent/15 bg-white/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-accent/30 hover:bg-white/[0.045] sm:p-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 text-accent">
                   <Users className="h-6 w-6" />
                 </div>

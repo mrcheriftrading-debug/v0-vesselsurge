@@ -369,7 +369,7 @@ export function Button3DEffect({ variant, compact = false }: { variant: Button3D
 export function FloatingIntelSignals() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="hero-hud left-3 top-[9%] w-[10.5rem] scale-90 opacity-65 sm:left-4 sm:top-[12%] sm:w-[13rem] sm:scale-100 sm:opacity-100 md:left-[5%] md:top-[12%]">
+      <div className="hero-hud left-3 top-[9%] hidden w-[10.5rem] scale-90 opacity-65 sm:block sm:left-4 sm:top-[12%] sm:w-[13rem] sm:scale-100 sm:opacity-100 md:left-[5%] md:top-[12%]">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-cyan-100">
             <Satellite className="h-4 w-4 text-cyan-300" />
@@ -603,7 +603,7 @@ export function MapArrivalScan() {
 
 export function CommandStrip() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 overflow-hidden border-t border-cyan-300/20 bg-gradient-to-t from-slate-950/85 to-transparent" aria-hidden="true">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden h-20 overflow-hidden border-t border-cyan-300/20 bg-gradient-to-t from-slate-950/85 to-transparent sm:block" aria-hidden="true">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300 to-transparent opacity-80" />
       <div className="absolute left-0 top-7 flex animate-[command-drift_18s_linear_infinite] gap-12 whitespace-nowrap text-[0.65rem] font-black uppercase tracking-[0.24em] text-cyan-100/80">
         <span className="flex items-center gap-2"><Ship className="h-3.5 w-3.5" /> Vessel route calculated</span>
