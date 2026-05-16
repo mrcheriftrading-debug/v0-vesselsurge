@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "maritime:update": "node scripts/run-maritime-update.mjs",
     "x:check": "node scripts/x-check-auth.mjs",
+    "x:oauth2": "node scripts/x-oauth2-authorize.mjs",
     "x:post": "node scripts/x-post.mjs",
     "x:post-image": "node scripts/x-post-with-image.mjs",
     "x:post-new": "node scripts/x-post-new-maritime-item.mjs",

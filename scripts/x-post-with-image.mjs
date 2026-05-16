@@ -2,6 +2,7 @@
 
 import { readLocalEnv, getEnv } from './lib/read-env.mjs'
 import { buildOAuth1Header } from './lib/x-oauth1.mjs'
+import { getOAuth2AccessToken } from './lib/x-oauth2-token.mjs'
 
 async function readStdin() {
   if (process.stdin.isTTY) return ''
@@ -17,7 +18,7 @@ function getCredentials() {
     consumerSecret: getEnv('X_API_SECRET', localEnv),
     token: getEnv('X_ACCESS_TOKEN', localEnv),
     tokenSecret: getEnv('X_ACCESS_TOKEN_SECRET', localEnv),
-    oauth2UserToken: getEnv('X_OAUTH2_ACCESS_TOKEN', localEnv),
+    oauth2UserToken: getOAuth2AccessToken(localEnv),
   }
 
   for (const [key, value] of Object.entries(credentials).filter(([key]) => key !== 'oauth2UserToken')) {
