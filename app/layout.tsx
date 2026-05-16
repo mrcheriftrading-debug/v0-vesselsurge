@@ -8,6 +8,26 @@ const geist = Geist({ subsets: ['latin'] })
 
 const BASE_URL = 'https://www.vesselsurge.com'
 
+const authRecoveryRedirectScript = `
+(() => {
+  try {
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+    const queryParams = new URLSearchParams(search.replace(/^\\?/, ''));
+    const isRecovery =
+      hashParams.get('type') === 'recovery' ||
+      queryParams.get('type') === 'recovery';
+    const hasHashSession = hashParams.get('access_token') && hashParams.get('refresh_token');
+    const hasCode = queryParams.get('code');
+
+    if (isRecovery && (hasHashSession || hasCode) && window.location.pathname !== '/auth/update-password') {
+      window.location.replace('/auth/update-password' + search + hash);
+    }
+  } catch {}
+})();
+`
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
@@ -368,6 +388,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         {/* LLMs.txt for AI assistants */}
         <link rel="author" href="/llms.txt" />
+        <script dangerouslySetInnerHTML={{ __html: authRecoveryRedirectScript }} />
       </head>
       <body className={geist.className + ' antialiased min-h-screen bg-background text-foreground'}>
         <AuthRecoveryRedirect />
