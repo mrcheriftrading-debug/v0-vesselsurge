@@ -25,6 +25,10 @@ const TRUSTED_FEEDS = [
   { source: 'USNI News', url: 'https://news.usni.org/feed', credibility: 9 },
   { source: 'gCaptain', url: 'https://gcaptain.com/feed/', credibility: 8 },
   { source: 'Hellenic Shipping News', url: 'https://www.hellenicshippingnews.com/feed/', credibility: 8 },
+  { source: 'Splash247', url: 'https://splash247.com/feed/', credibility: 8 },
+  { source: 'Offshore Energy', url: 'https://www.offshore-energy.biz/feed/', credibility: 8 },
+  { source: 'Seatrade Maritime News', url: 'https://www.seatrade-maritime.com/rss.xml', credibility: 8 },
+  { source: 'MarineLink', url: 'https://www.marinelink.com/news/rss', credibility: 8 },
 ]
 
 const TRUSTED_PAGES = [
@@ -77,7 +81,12 @@ function decodeHtml(value: string) {
     .trim()
 }
 
-function parseSourceDate(text: string, fallback = new Date().toISOString()) {
+function safeIsoDate(value: string, fallback = '1970-01-01T00:00:00.000Z') {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? fallback : date.toISOString()
+}
+
+function parseSourceDate(text: string, fallback = '1970-01-01T00:00:00.000Z') {
   const numeric = text.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/)
   if (numeric) {
     const [, day, month, year] = numeric
@@ -101,6 +110,17 @@ function parseSourceDate(text: string, fallback = new Date().toISOString()) {
 
 function isCurrentYear(article: TrustedArticle) {
   return new Date(article.published_at).getUTCFullYear() >= CURRENT_YEAR
+}
+
+function isWithinLatestHour(article: TrustedArticle, now: Date) {
+  const publishedAt = Date.parse(article.published_at)
+  if (Number.isNaN(publishedAt)) return false
+
+  const nowMs = now.getTime()
+  const oneHourAgo = nowMs - 60 * 60 * 1000
+  const clockSkewAllowance = nowMs + 5 * 60 * 1000
+
+  return publishedAt >= oneHourAgo && publishedAt <= clockSkewAllowance
 }
 
 function between(value: string, start: string, end: string) {
@@ -175,7 +195,7 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
       const title = decodeHtml(between(item, '<title>', '</title>'))
       const snippet = decodeHtml(between(item, '<description>', '</description>') || title)
       const url = decodeHtml(between(item, '<link>', '</link>'))
-      const published_at = decodeHtml(between(item, '<pubDate>', '</pubDate>')) || new Date().toISOString()
+      const published_at = decodeHtml(between(item, '<pubDate>', '</pubDate>'))
       const text = `${title} ${snippet}`
       const region = classifyRegion(text)
 
@@ -189,7 +209,7 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
         is_active: true,
         verified: true,
         credibility,
-        published_at: new Date(published_at).toISOString(),
+        published_at: safeIsoDate(published_at),
       }
     })
     .filter((article) => article.title && article.url && isRelevant(`${article.title} ${article.snippet}`))
@@ -244,7 +264,7 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
   })
 }
 
-async function collectTrustedArticles() {
+async function collectTrustedArticles(now = new Date()) {
   const feedResults = await Promise.all(
     TRUSTED_FEEDS.map(async (feed) => {
       try {
@@ -275,6 +295,7 @@ async function collectTrustedArticles() {
     .filter((article) => article.region !== 'global')
     .filter((article) => hasDirectRegionSignal(article))
     .filter((article) => isCurrentYear(article))
+    .filter((article) => isWithinLatestHour(article, now))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
     .slice(0, 40)
 }
@@ -330,29 +351,25 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const timestamp = new Date().toISOString()
-  const articles = (await collectTrustedArticles()).map((article) => ({
+  const now = new Date()
+  const timestamp = now.toISOString()
+  const articles = (await collectTrustedArticles(now)).map((article) => ({
     ...article,
     created_at: timestamp,
     updated_at: timestamp,
   }))
 
-  if (articles.length === 0) {
-    return NextResponse.json(
-      { success: false, error: 'No trusted maritime source articles collected', timestamp },
-      { status: 502 },
-    )
-  }
-
   const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
   if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
 
-  const insertNews = await supabaseRequest('news_articles', {
-    method: 'POST',
-    headers: { prefer: 'return=minimal' },
-    body: JSON.stringify(articles),
-  })
-  if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
+  if (articles.length > 0) {
+    const insertNews = await supabaseRequest('news_articles', {
+      method: 'POST',
+      headers: { prefer: 'return=minimal' },
+      body: JSON.stringify(articles),
+    })
+    if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
+  }
 
   const stats = buildStats(articles)
   const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
@@ -370,7 +387,12 @@ export async function GET(request: Request) {
     articles_inserted: articles.length,
     stats_updated: stats.length,
     verified: articles.length,
+    window: {
+      from: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
+      to: timestamp,
+      policy: 'Only source-published articles from the latest 60 minutes are written.',
+    },
     sources: [...new Set(articles.map((article) => article.source))],
-    note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted maritime sources are written.',
+    note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted maritime sources from the latest hour are written.',
   })
 }
