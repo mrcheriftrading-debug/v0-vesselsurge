@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 // Strait of Hormuz bounding box (from the provided coordinates)
 const HORMUZ_BOUNDS = {
@@ -12,10 +13,7 @@ export async function GET() {
   const apiKey = process.env.DATALASTIC_API_KEY
 
   if (!apiKey) {
-    return NextResponse.json(
-      { success: false, error: "DATALASTIC_API_KEY not configured", vessels: [], demo: true },
-      { status: 503 }
-    )
+    return getStoredAisVessels()
   }
 
   try {
@@ -102,6 +100,52 @@ export async function GET() {
   }
 }
 
+async function getStoredAisVessels() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("vessels")
+    .select("mmsi, name, lat, lng, speed, heading, ship_type, destination, hotspot, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(500)
+
+  if (error) {
+    return NextResponse.json(
+      { success: false, error: "Stored AIS vessel query failed", vessels: [], demo: false },
+      { status: 500 }
+    )
+  }
+
+  const vessels = (data || []).map((vessel) => ({
+    mmsi: String(vessel.mmsi),
+    name: vessel.name || "Unknown",
+    type: mapShipTypeCode(Number(vessel.ship_type || 0)),
+    lat: vessel.lat,
+    lon: vessel.lng,
+    sog: vessel.speed || 0,
+    cog: vessel.heading || 0,
+    heading: vessel.heading || 0,
+    destination: vessel.destination || "Unknown",
+    hotspot: vessel.hotspot,
+    timestamp: vessel.updated_at,
+  }))
+
+  return NextResponse.json({
+    success: true,
+    vessels,
+    stats: {
+      totalVessels: vessels.length,
+      tankers: vessels.filter((vessel) => vessel.type === "Tanker").length,
+      avgSpeed: vessels.length
+        ? Math.round((vessels.reduce((sum, vessel) => sum + vessel.sog, 0) / vessels.length) * 10) / 10
+        : 0,
+      stoppedCount: vessels.filter((vessel) => vessel.sog < 0.5).length,
+    },
+    source: "aisstream-supabase",
+    note: "Datalastic key is not configured; serving stored AISStream vessel rows.",
+    demo: false,
+  })
+}
+
 // Map Datalastic ship type to our types
 function mapShipType(shipType: string): string {
   if (!shipType) return "Other"
@@ -117,4 +161,11 @@ function mapShipType(shipType: string): string {
 function determineStatus(speed: number): string {
   if (speed < 0.5) return "Stopped"
   return "In Transit"
+}
+
+function mapShipTypeCode(shipType: number): string {
+  if (shipType >= 80 && shipType <= 89) return "Tanker"
+  if (shipType >= 70 && shipType <= 79) return "Cargo"
+  if (shipType >= 60 && shipType <= 69) return "Passenger"
+  return "Other"
 }

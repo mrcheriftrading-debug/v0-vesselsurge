@@ -104,8 +104,21 @@ console.log('[x-compose] Opening X compose with:')
 console.log(postText)
 
 const result = spawnSync('open', [composeUrl], { stdio: 'inherit' })
-if (result.status !== 0) process.exit(result.status || 1)
 
 state.openedUrls = [nextArticle.sourceUrl, ...state.openedUrls].slice(0, 200)
 writeState(state)
+
+if (result.status !== 0) {
+  const pendingPath = path.join(process.cwd(), '.x-compose-pending.json')
+  fs.writeFileSync(
+    pendingPath,
+    JSON.stringify({ createdAt: new Date().toISOString(), sourceUrl: nextArticle.sourceUrl, composeUrl }, null, 2) +
+      '\n',
+  )
+  console.error(`[x-compose] Failed to open browser via \`open\` (exit ${result.status}).`)
+  console.log(`[x-compose] Compose URL (open manually): ${composeUrl}`)
+  console.log(`[x-compose] Marked source as opened and wrote pending compose to ${pendingPath}.`)
+  process.exit(0)
+}
+
 console.log('[x-compose] Compose window opened. Review it, then click Post in X.')

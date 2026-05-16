@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { collectAisStreamVessels } from '@/lib/aisstream'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -316,7 +317,6 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
   return rows.map(({ href, linkText }) => {
     const text = `${linkText} ${bodyText}`
     const region = regionHint || classifyRegion(text)
-    const risk = classifyRisk(text)
     return {
       title: linkText.slice(0, 200),
       snippet: bodyText.slice(0, 600),
@@ -448,6 +448,34 @@ export async function GET(request: Request) {
   })
   if (!upsertStats.ok) throw new Error(`Failed to update hotspot stats: ${upsertStats.status} ${await upsertStats.text()}`)
 
+  const ais = await collectAisStreamVessels({ timeoutMs: 18000, maxVessels: 120 })
+  let vesselsUpdated = 0
+  if (ais.vessels.length > 0) {
+    const upsertVessels = await supabaseRequest('vessels?on_conflict=mmsi', {
+      method: 'POST',
+      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(ais.vessels),
+    })
+    if (!upsertVessels.ok) throw new Error(`Failed to update AIS vessels: ${upsertVessels.status} ${await upsertVessels.text()}`)
+    vesselsUpdated = ais.vessels.length
+
+    const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
+      acc[vessel.hotspot] = (acc[vessel.hotspot] || 0) + 1
+      return acc
+    }, {})
+
+    const statsWithAis = stats.map((row) => ({
+      ...row,
+      active_vessels: vesselCounts[row.hotspot] || 0,
+    }))
+    const upsertAisStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
+      method: 'POST',
+      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(statsWithAis),
+    })
+    if (!upsertAisStats.ok) throw new Error(`Failed to update AIS stats: ${upsertAisStats.status} ${await upsertAisStats.text()}`)
+  }
+
   return NextResponse.json({
     success: true,
     timestamp,
@@ -455,6 +483,9 @@ export async function GET(request: Request) {
     articles_fetched: articles.length,
     articles_inserted: articles.length,
     stats_updated: stats.length,
+    vessels_found: ais.vessels.length,
+    vessels_updated: vesselsUpdated,
+    ais_status: ais.reason,
     verified: articles.length,
     window: {
       from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
