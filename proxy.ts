@@ -11,6 +11,7 @@ export const config = {
     // This prevents vs_work Vercel auth wall from blocking the whole site
     '/dashboard/:path*',
     '/admin/:path*',
+    '/auth/login',
     '/auth/callback',
     '/auth/sign-out',
   ],

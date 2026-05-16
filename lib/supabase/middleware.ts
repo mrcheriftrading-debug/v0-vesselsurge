@@ -29,16 +29,34 @@ export async function updateSession(request: NextRequest) {
   // Refresh session — required to keep user logged in
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect dashboard & admin from unauthenticated access
+  // Protect private routes and skip the login form for users who already have a session.
   const isProtected = 
     request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname.startsWith('/admin')
+  const isLoginPage = request.nextUrl.pathname === '/auth/login'
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
+    url.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`)
+    return NextResponse.redirect(url)
+  }
+
+  if (isLoginPage && user) {
+    const url = request.nextUrl.clone()
+    const nextPath = getSafeNextPath(request.nextUrl.searchParams.get('next'))
+    url.pathname = nextPath
+    url.search = ''
     return NextResponse.redirect(url)
   }
 
   return supabaseResponse
+}
+
+function getSafeNextPath(nextPath: string | null) {
+  if (!nextPath || !nextPath.startsWith('/') || nextPath.startsWith('//')) {
+    return '/dashboard'
+  }
+
+  return nextPath
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
@@ -16,6 +16,23 @@ export default function LoginPage() {
     email: "",
     password: "",
   })
+
+  useEffect(() => {
+    const supabase = createClient()
+    let active = true
+    const nextPath = getNextPath()
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (active && user) {
+        router.replace(nextPath)
+        router.refresh()
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,7 +52,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/dashboard")
+    router.push(getNextPath())
     router.refresh()
   }
 
@@ -129,4 +146,14 @@ export default function LoginPage() {
       </main>
     </div>
   )
+}
+
+function getNextPath() {
+  if (typeof window === "undefined") return "/dashboard"
+  const nextPath = new URLSearchParams(window.location.search).get("next")
+  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) {
+    return "/dashboard"
+  }
+
+  return nextPath
 }
