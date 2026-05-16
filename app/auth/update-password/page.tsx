@@ -19,21 +19,80 @@ export default function UpdatePasswordPage() {
   useEffect(() => {
     const supabase = createClient()
     let active = true
+    const markInvalid = () => {
+      if (!active) return
+      setIsCheckingSession(false)
+      setError("This reset link is invalid or expired. Request a new password reset link.")
+    }
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (active) setIsCheckingSession(false)
-      if (active && !user) {
-        setError("This reset link is invalid or expired. Request a new password reset link.")
-      }
-    }).catch(() => {
-      if (active) {
+    const cleanRecoveryUrl = () => {
+      window.history.replaceState({}, document.title, "/auth/update-password")
+    }
+
+    const prepareResetSession = async () => {
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get("code")
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""))
+      const accessToken = hash.get("access_token")
+      const refreshToken = hash.get("refresh_token")
+      const recoveryType = hash.get("type") || params.get("type")
+
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        if (!active) return
+
+        if (exchangeError) {
+          markInvalid()
+          return
+        }
+
+        cleanRecoveryUrl()
         setIsCheckingSession(false)
-        setError("Could not verify your reset session. Request a new password reset link.")
+        return
       }
+
+      if (accessToken && refreshToken) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        if (!active) return
+
+        if (sessionError || recoveryType !== "recovery") {
+          markInvalid()
+          return
+        }
+
+        cleanRecoveryUrl()
+        setIsCheckingSession(false)
+        return
+      }
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!active) return
+
+      if (!user) {
+        markInvalid()
+        return
+      }
+
+      setIsCheckingSession(false)
+    }
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY" && active) {
+        setError(null)
+        setIsCheckingSession(false)
+      }
+    })
+
+    prepareResetSession().catch(() => {
+      markInvalid()
     })
 
     return () => {
       active = false
+      listener.subscription.unsubscribe()
     }
   }, [])
 

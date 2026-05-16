@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AuthRecoveryRedirect } from '@/components/auth-recovery-redirect'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
@@ -369,6 +370,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="author" href="/llms.txt" />
       </head>
       <body className={geist.className + ' antialiased min-h-screen bg-background text-foreground'}>
+        <AuthRecoveryRedirect />
         {children}
         <Analytics />
       </body>
