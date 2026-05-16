@@ -228,6 +228,12 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
       }
     })
     .filter((article) => article.title && article.url && isRelevant(`${article.title} ${article.snippet}`))
+    .filter((article) => {
+      if (!article.source.startsWith('Bloomberg')) return true
+      if (/\/news\/(audio|videos)\//i.test(article.url)) return false
+      if (/^Source:\s*Bloomberg,\s*\d+/i.test(article.snippet)) return false
+      return true
+    })
 }
 
 function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number, regionHint?: string): TrustedArticle[] {
