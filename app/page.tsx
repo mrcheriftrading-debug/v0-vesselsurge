@@ -5,7 +5,7 @@ import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
 import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
-import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
+import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { PartnershipForm } from "@/components/partnership-form"
 import { DataNetworkScene, HeroOceanScene } from "@/components/three/maritime-3d-scenes"
 
@@ -48,9 +48,10 @@ export default function VesselSurgePage() {
             <Link href="/auth/login" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Log In</Link>
             <a 
               href="#surge-form" 
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+              className="relative overflow-hidden rounded-lg bg-primary py-2 pl-4 pr-12 text-sm font-medium text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90 neon-blue"
             >
-              Join Network
+              <span className="relative z-10">Join Network</span>
+              <Button3DEffect variant="cargo" />
             </a>
           </div>
         </div>
@@ -96,24 +97,27 @@ export default function VesselSurgePage() {
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap items-center justify-center gap-4">
               <a 
                 href="#surge-form"
-                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                className="group relative flex items-center gap-2 overflow-hidden rounded-lg bg-primary py-4 pl-8 pr-16 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
               >
-                FIND CARGO
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <span className="relative z-10">FIND CARGO</span>
+                <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Button3DEffect variant="cargo" />
               </a>
               <a 
                 href="#surge-form"
-                className="group flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                className="group relative flex items-center gap-2 overflow-hidden rounded-lg bg-primary py-4 pl-8 pr-16 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
               >
-                FIND A VESSEL
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <span className="relative z-10">FIND A VESSEL</span>
+                <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Button3DEffect variant="vessel" />
               </a>
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-8 py-4 text-base font-semibold text-accent transition-all hover:bg-accent/20"
+                className="relative flex items-center gap-2 overflow-hidden rounded-lg border border-accent/50 bg-accent/10 py-4 pl-8 pr-16 text-base font-semibold text-accent transition-all hover:-translate-y-1 hover:bg-accent/20"
               >
-                VIEW LIVE MAP & TRAFFIC
+                <span className="relative z-10">VIEW LIVE MAP & TRAFFIC</span>
+                <Button3DEffect variant="map" />
               </Link>
             </div>
 
@@ -225,10 +229,11 @@ export default function VesselSurgePage() {
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                className="relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary py-4 pl-8 pr-16 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
               >
-                EXPLORE LIVE MAP
-                <ArrowRight className="h-5 w-5" />
+                <span className="relative z-10">EXPLORE LIVE MAP</span>
+                <ArrowRight className="relative z-10 h-5 w-5" />
+                <Button3DEffect variant="map" />
               </Link>
             </div>
           </div>
@@ -411,9 +416,10 @@ export default function VesselSurgePage() {
                         <span className="text-sm text-muted-foreground">Get direct introductions to qualified clients</span>
                       </li>
                     </ul>
-                    <a href="#surge-form" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90">
-                      List My Vessel
-                      <ChevronRight className="h-4 w-4" />
+                    <a href="#surge-form" className="relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary py-3 pl-6 pr-14 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90">
+                      <span className="relative z-10">List My Vessel</span>
+                      <ChevronRight className="relative z-10 h-4 w-4" />
+                      <Button3DEffect variant="vessel" />
                     </a>
                   </div>
                 </div>
@@ -444,9 +450,10 @@ export default function VesselSurgePage() {
                         <span className="text-sm text-muted-foreground">Receive curated vessel options with direct contact</span>
                       </li>
                     </ul>
-                    <a href="#surge-form" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition-all hover:bg-accent/90">
-                      Find Vessels
-                      <ChevronRight className="h-4 w-4" />
+                    <a href="#surge-form" className="relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-lg bg-accent py-3 pl-6 pr-14 text-sm font-semibold text-accent-foreground transition-all hover:-translate-y-1 hover:bg-accent/90">
+                      <span className="relative z-10">Find Vessels</span>
+                      <ChevronRight className="relative z-10 h-4 w-4" />
+                      <Button3DEffect variant="cargo" />
                     </a>
                   </div>
                 </div>
@@ -485,10 +492,11 @@ export default function VesselSurgePage() {
               <Link 
                 href="/map-dashboard"
                 onClick={launchLiveMapVoyage}
-                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
+                className="relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-lg bg-primary py-4 pl-8 pr-16 text-base font-semibold text-primary-foreground transition-all hover:-translate-y-1 hover:bg-primary/90 neon-blue"
               >
-                Open Live Dashboard
-                <ChevronRight className="h-5 w-5" />
+                <span className="relative z-10">Open Live Dashboard</span>
+                <ChevronRight className="relative z-10 h-5 w-5" />
+                <Button3DEffect variant="dashboard" />
               </Link>
             </div>
           </div>
