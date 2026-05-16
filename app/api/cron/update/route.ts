@@ -21,6 +21,13 @@ type TrustedArticle = {
   updated_at?: string
 }
 
+type TrustedFeed = {
+  source: string
+  url: string
+  credibility: number
+  regionHint?: string
+}
+
 const TRUSTED_FEEDS = [
   { source: 'USNI News', url: 'https://news.usni.org/feed', credibility: 9 },
   { source: 'gCaptain', url: 'https://gcaptain.com/feed/', credibility: 8 },
@@ -34,7 +41,29 @@ const TRUSTED_FEEDS = [
   { source: 'Bloomberg Politics', url: 'https://feeds.bloomberg.com/politics/news.rss', credibility: 8 },
   { source: 'Bloomberg Economics', url: 'https://feeds.bloomberg.com/economics/news.rss', credibility: 8 },
   { source: 'Bloomberg Business', url: 'https://feeds.bloomberg.com/business/news.rss', credibility: 8 },
-]
+  { source: 'Safety4Sea', url: 'https://safety4sea.com/feed/', credibility: 8 },
+  { source: 'MarineLog', url: 'https://www.marinelog.com/feed/', credibility: 8 },
+  { source: 'World Oil', url: 'https://www.worldoil.com/rss', credibility: 7 },
+  { source: 'Arab News', url: 'https://www.arabnews.com/rss.xml', credibility: 7 },
+  {
+    source: 'Google News Bab el-Mandeb',
+    url: 'https://news.google.com/rss/search?q=(%22Bab%20el-Mandeb%22%20OR%20%22Bab%20el%20Mandeb%22%20OR%20%22Red%20Sea%22%20OR%20%22Gulf%20of%20Aden%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20Houthi)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
+    credibility: 7,
+    regionHint: 'bab',
+  },
+  {
+    source: 'Google News Suez Canal',
+    url: 'https://news.google.com/rss/search?q=(%22Suez%20Canal%22%20OR%20%22Port%20Said%22%20OR%20%22Suez%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20transit)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
+    credibility: 7,
+    regionHint: 'suez',
+  },
+  {
+    source: 'Google News Malacca Strait',
+    url: 'https://news.google.com/rss/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Straits%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20piracy)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
+    credibility: 7,
+    regionHint: 'malacca',
+  },
+] satisfies TrustedFeed[]
 
 const TRUSTED_PAGES = [
   { source: 'ReCAAP ISC Alerts', url: 'https://www.recaap.org/alerts', credibility: 10, region: 'malacca' },
@@ -46,9 +75,9 @@ const TRUSTED_PAGES = [
 
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae'],
-  bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'houthi', 'yemen', 'aden'],
-  suez: ['suez', 'suez canal', 'egypt'],
-  malacca: ['malacca', 'singapore strait', 'singapore', 'recaap', 'piracy', 'armed robbery'],
+  bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'houthi', 'yemen', 'aden', 'gulf of aden', 'djibouti', 'eritrea'],
+  suez: ['suez', 'suez canal', 'egypt', 'port said', 'ismailia', 'sinai'],
+  malacca: ['malacca', 'strait of malacca', 'straits of malacca', 'singapore strait', 'singapore', 'recaap', 'piracy', 'armed robbery', 'sea robbery', 'malaysia', 'indonesia'],
 }
 
 const SEVERITY_KEYWORDS = {
@@ -203,7 +232,7 @@ async function fetchText(url: string) {
   return response.text()
 }
 
-function parseRss(xml: string, source: string, credibility: number): TrustedArticle[] {
+function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
   const items = [...xml.matchAll(/<item[\s\S]*?<\/item>/gi)].map((match) => match[0])
   return items
     .map((item) => {
@@ -212,18 +241,18 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
       const url = decodeHtml(between(item, '<link>', '</link>'))
       const published_at = decodeHtml(between(item, '<pubDate>', '</pubDate>'))
       const text = `${title} ${snippet}`
-      const region = classifyRegion(text)
+      const region = feed.regionHint || classifyRegion(text)
 
       return {
         title,
         snippet: snippet.slice(0, 600),
         url,
-        source,
+        source: feed.source,
         region,
         topic: region,
         is_active: true,
         verified: true,
-        credibility,
+        credibility: feed.credibility,
         published_at: safeIsoDate(published_at),
       }
     })
@@ -234,6 +263,21 @@ function parseRss(xml: string, source: string, credibility: number): TrustedArti
       if (/^Source:\s*Bloomberg,\s*\d+/i.test(article.snippet)) return false
       return true
     })
+}
+
+function balanceByHotspot(articles: TrustedArticle[]) {
+  const preferred: TrustedArticle[] = []
+  const overflow: TrustedArticle[] = []
+
+  for (const hotspot of ['hormuz', 'bab', 'suez', 'malacca']) {
+    const hotspotArticles = articles.filter((article) => article.region === hotspot)
+    preferred.push(...hotspotArticles.slice(0, 12))
+    overflow.push(...hotspotArticles.slice(12))
+  }
+
+  return [...preferred, ...overflow]
+    .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
+    .slice(0, 60)
 }
 
 function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number, regionHint?: string): TrustedArticle[] {
@@ -289,7 +333,7 @@ async function collectTrustedArticles(now = new Date()) {
   const feedResults = await Promise.all(
     TRUSTED_FEEDS.map(async (feed) => {
       try {
-        return parseRss(await fetchText(feed.url), feed.source, feed.credibility)
+        return parseRss(await fetchText(feed.url), feed)
       } catch (error) {
         console.warn('[trusted-update] feed failed', feed.source, error)
         return []
@@ -311,14 +355,15 @@ async function collectTrustedArticles(now = new Date()) {
   const articles = [...feedResults, ...pageResults].flat()
 
   const seen = new Set<string>()
-  return articles
+  const filtered = articles
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
     .filter((article) => hasDirectRegionSignal(article))
     .filter((article) => isCurrentYear(article))
     .filter((article) => isWithinLatest24Hours(article, now))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
-    .slice(0, 40)
+
+  return balanceByHotspot(filtered)
 }
 
 function buildStats(articles: TrustedArticle[]) {
