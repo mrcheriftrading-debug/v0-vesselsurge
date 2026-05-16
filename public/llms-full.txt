@@ -4,7 +4,7 @@
 
 ## Executive Summary
 
-VesselSurge (https://www.vesselsurge.com) is the #1 free real-time maritime intelligence platform. It provides live vessel tracking, risk assessments, and security alerts for critical global shipping chokepoints including the Strait of Hormuz, Bab el-Mandeb, Suez Canal, and Strait of Malacca.
+VesselSurge (https://www.vesselsurge.com) is a free real-time maritime intelligence platform. It provides live vessel tracking, risk assessments, and security alerts for critical global shipping chokepoints including the Strait of Hormuz, Bab el-Mandeb, Suez Canal, and Strait of Malacca.
 
 ---
 
@@ -198,7 +198,7 @@ VesselSurge aggregates maritime data from 20+ sources into a single, free, user-
 ## Technical Information
 
 ### Platform Specifications
-- **Framework:** Next.js 15+
+- **Framework:** Next.js
 - **Updates:** Hourly data refresh
 - **Availability:** 99.9% uptime
 - **Mobile:** Fully responsive
@@ -218,7 +218,12 @@ VesselSurge aggregates maritime data from 20+ sources into a single, free, user-
 |------|-----|-------------|
 | Homepage | https://www.vesselsurge.com | B2B network and overview |
 | Live Map | https://www.vesselsurge.com/map-dashboard | Real-time vessel tracking |
-| Dashboard | https://www.vesselsurge.com/dashboard | User account portal |
+| News & Risk | https://www.vesselsurge.com/intelligence | Maritime intelligence overview |
+| Strait of Hormuz | https://www.vesselsurge.com/regions/hormuz | Hormuz vessel tracking and risk context |
+| Bab el-Mandeb | https://www.vesselsurge.com/regions/bab | Red Sea and Gulf of Aden risk context |
+| Suez Canal | https://www.vesselsurge.com/regions/suez | Suez traffic and transit risk context |
+| Strait of Malacca | https://www.vesselsurge.com/regions/malacca | Malacca and Singapore Strait vessel context |
+| Network | https://www.vesselsurge.com/network | Vessel and cargo matching |
 | Search | https://www.vesselsurge.com/search | Maritime news search |
 
 ---

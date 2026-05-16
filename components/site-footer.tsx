@@ -15,6 +15,10 @@ export function SiteFooter() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-muted-foreground">
             <Link href="/intelligence" className="transition-colors hover:text-foreground">News & Risk</Link>
             <Link href="/map-dashboard" className="transition-colors hover:text-foreground">Live Map</Link>
+            <Link href="/regions/hormuz" className="transition-colors hover:text-foreground">Hormuz</Link>
+            <Link href="/regions/bab" className="transition-colors hover:text-foreground">Bab el-Mandeb</Link>
+            <Link href="/regions/suez" className="transition-colors hover:text-foreground">Suez</Link>
+            <Link href="/regions/malacca" className="transition-colors hover:text-foreground">Malacca</Link>
             <Link href="/network" className="transition-colors hover:text-foreground">Join Network</Link>
             <Link href="/about" className="transition-colors hover:text-foreground">About</Link>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground" aria-label="LinkedIn">

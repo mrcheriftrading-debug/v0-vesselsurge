@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     template: '%s | VesselSurge',
   },
   description:
-    'VesselSurge is the #1 free live maritime intelligence platform. Track real-time vessel traffic, security alerts, and risk levels at Strait of Hormuz, Bab el-Mandeb, Suez Canal & Malacca Strait. Updated hourly.',
+    'VesselSurge is a free live maritime intelligence platform for vessel traffic, security alerts, and risk levels at Strait of Hormuz, Bab el-Mandeb, Suez Canal & Malacca Strait.',
   keywords: [
     // Primary chokepoint keywords
     'strait of hormuz',

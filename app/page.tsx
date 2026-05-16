@@ -196,6 +196,34 @@ export default function VesselSurgePage() {
             ))}
           </div>
         </section>
+
+        <section className="border-t border-border bg-background px-4 py-14 sm:py-20 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 max-w-2xl">
+              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Critical chokepoints</div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Dedicated pages for the routes people search first.</h2>
+              <p className="mt-3 text-muted-foreground">
+                Stable, crawlable intelligence pages help search engines and AI assistants understand what VesselSurge monitors before users open the live map.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { href: "/regions/hormuz", title: "Strait of Hormuz", text: "Oil tanker traffic, Iran tension and Persian Gulf maritime risk." },
+                { href: "/regions/bab", title: "Bab el-Mandeb", text: "Red Sea security, Gulf of Aden routing and Houthi risk signals." },
+                { href: "/regions/suez", title: "Suez Canal", text: "Transit flow, queue signals and Europe-Asia disruption context." },
+                { href: "/regions/malacca", title: "Strait of Malacca", text: "Singapore Strait traffic, congestion and piracy alert context." },
+              ].map((region) => (
+                <Link key={region.href} href={region.href} className="group rounded-xl border border-border bg-card/50 p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
+                  <h3 className="text-lg font-bold text-foreground">{region.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{region.text}</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    Open route page <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       <SiteFooter />

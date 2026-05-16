@@ -1,6 +1,6 @@
 # VesselSurge - Real-Time Maritime Intelligence Platform
 
-> VesselSurge is the leading free maritime intelligence platform providing real-time vessel tracking, security alerts, and risk assessments for the world's most critical shipping chokepoints.
+> VesselSurge is a free maritime intelligence platform providing vessel tracking, security alerts, and risk assessments for critical shipping chokepoints.
 
 ## What is VesselSurge?
 

@@ -38,12 +38,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${BASE_URL}/dashboard`,
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
       url: `${BASE_URL}/search`,
       lastModified: now,
       changeFrequency: 'daily',
@@ -53,25 +47,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${BASE_URL}/regions/hormuz`,
       lastModified: now,
-      changeFrequency: 'hourly',
+      changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/regions/bab`,
       lastModified: now,
-      changeFrequency: 'hourly',
+      changeFrequency: 'daily',
       priority: 0.85,
     },
     {
       url: `${BASE_URL}/regions/suez`,
       lastModified: now,
-      changeFrequency: 'hourly',
+      changeFrequency: 'daily',
       priority: 0.85,
     },
     {
       url: `${BASE_URL}/regions/malacca`,
       lastModified: now,
-      changeFrequency: 'hourly',
+      changeFrequency: 'daily',
       priority: 0.8,
     },
     // LLMs.txt for AI assistants
