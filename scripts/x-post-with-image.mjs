@@ -3,6 +3,7 @@
 import { readLocalEnv, getEnv } from './lib/read-env.mjs'
 import { buildOAuth1Header } from './lib/x-oauth1.mjs'
 import { getOAuth2AccessToken } from './lib/x-oauth2-token.mjs'
+import fs from 'node:fs'
 
 async function readStdin() {
   if (process.stdin.isTTY) return ''
@@ -30,7 +31,14 @@ function getCredentials() {
   return credentials
 }
 
-async function uploadImage(credentials, imageUrl) {
+async function readImage({ imageUrl, imageFile }) {
+  if (imageFile) {
+    return {
+      imageBuffer: fs.readFileSync(imageFile),
+      mimeType: imageFile.endsWith('.jpg') || imageFile.endsWith('.jpeg') ? 'image/jpeg' : 'image/png',
+    }
+  }
+
   const imageResponse = await fetch(imageUrl, { cache: 'no-store' })
 
   if (!imageResponse.ok) {
@@ -38,14 +46,23 @@ async function uploadImage(credentials, imageUrl) {
   }
 
   const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
-  const form = new FormData()
-  form.append('media', new Blob([imageBuffer], { type: imageResponse.headers.get('content-type') || 'image/png' }), 'vesselsurge.png')
+  const mimeType = imageResponse.headers.get('content-type') || 'image/png'
 
-  const v2Upload = await uploadImageV2(credentials, imageBuffer, imageResponse.headers.get('content-type') || 'image/png')
+  if (imageBuffer.length === 0) {
+    throw new Error(`Fetched image is empty: ${imageUrl}`)
+  }
+
+  return { imageBuffer, mimeType }
+}
+
+async function uploadImage(credentials, { imageUrl, imageFile }) {
+  const { imageBuffer, mimeType } = await readImage({ imageUrl, imageFile })
+
+  const v2Upload = await uploadImageV2(credentials, imageBuffer, mimeType)
 
   if (v2Upload.ok) return v2Upload.mediaId
 
-  const legacyUpload = await uploadImageV1(credentials, imageBuffer, imageResponse.headers.get('content-type') || 'image/png')
+  const legacyUpload = await uploadImageV1(credentials, imageBuffer, mimeType)
   if (legacyUpload.ok) return legacyUpload.mediaId
 
   throw new Error(
@@ -84,7 +101,7 @@ async function uploadImageV2(credentials, imageBuffer, mimeType) {
 
 async function uploadImageV1(credentials, imageBuffer, mimeType) {
   const form = new FormData()
-  form.append('media', new Blob([imageBuffer], { type: mimeType }), 'vesselsurge.png')
+  form.append('media_data', imageBuffer.toString('base64'))
 
   const uploadUrl = 'https://upload.twitter.com/1.1/media/upload.json'
   const uploadResponse = await fetch(uploadUrl, {
@@ -128,6 +145,16 @@ async function setAltText(credentials, mediaId, altText) {
 }
 
 async function createTweet(credentials, text, mediaId) {
+  const v2Tweet = await createTweetV2(credentials, text, mediaId)
+  if (v2Tweet.ok) return v2Tweet.body
+
+  const v1Tweet = await createTweetV1(credentials, text, mediaId)
+  if (v1Tweet.ok) return v1Tweet.body
+
+  throw new Error(`X post failed. v2: ${v2Tweet.error} v1.1: ${v1Tweet.error}`)
+}
+
+async function createTweetV2(credentials, text, mediaId) {
   const tweetUrl = 'https://api.x.com/2/tweets'
   const response = await fetch(tweetUrl, {
     method: 'POST',
@@ -144,19 +171,47 @@ async function createTweet(credentials, text, mediaId) {
   })
   const body = await response.json().catch(() => ({}))
 
-  if (!response.ok) {
-    throw new Error(`X post failed: ${JSON.stringify({ status: response.status, body })}`)
+  if (response.ok) {
+    return { ok: true, body }
   }
 
-  return body
+  return { ok: false, error: JSON.stringify({ status: response.status, body }) }
+}
+
+async function createTweetV1(credentials, text, mediaId) {
+  const tweetUrl = 'https://api.twitter.com/1.1/statuses/update.json'
+  const bodyParams = {
+    status: text,
+    media_ids: mediaId,
+  }
+  const body = new URLSearchParams(bodyParams)
+  const response = await fetch(tweetUrl, {
+    method: 'POST',
+    headers: {
+      authorization: buildOAuth1Header({ method: 'POST', url: tweetUrl, ...credentials, bodyParams }),
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+    body,
+  })
+  const responseBody = await response.json().catch(() => ({}))
+
+  if (response.ok) {
+    return { ok: true, body: responseBody }
+  }
+
+  return { ok: false, error: JSON.stringify({ status: response.status, body: responseBody }) }
 }
 
 const args = process.argv.slice(2)
 const imageUrlIndex = args.findIndex((arg) => arg === '--image-url')
+const imageFileIndex = args.findIndex((arg) => arg === '--image-file')
 const altTextIndex = args.findIndex((arg) => arg === '--alt-text')
 const imageUrl = imageUrlIndex >= 0 ? args[imageUrlIndex + 1] : ''
+const imageFile = imageFileIndex >= 0 ? args[imageFileIndex + 1] : ''
 const altText = altTextIndex >= 0 ? args[altTextIndex + 1] : ''
-const textArgs = args.filter((_, index) => ![imageUrlIndex, imageUrlIndex + 1, altTextIndex, altTextIndex + 1].includes(index))
+const textArgs = args.filter((_, index) =>
+  ![imageUrlIndex, imageUrlIndex + 1, imageFileIndex, imageFileIndex + 1, altTextIndex, altTextIndex + 1].includes(index),
+)
 const text = (textArgs.join(' ') || await readStdin()).trim()
 
 if (!text) {
@@ -164,8 +219,8 @@ if (!text) {
   process.exit(1)
 }
 
-if (!imageUrl) {
-  console.error('[x-post-image] Missing --image-url.')
+if (!imageUrl && !imageFile) {
+  console.error('[x-post-image] Missing --image-url or --image-file.')
   process.exit(1)
 }
 
@@ -176,7 +231,7 @@ if (text.length > 280) {
 
 try {
   const credentials = getCredentials()
-  const mediaId = await uploadImage(credentials, imageUrl)
+  const mediaId = await uploadImage(credentials, { imageUrl, imageFile })
   await setAltText(credentials, mediaId, altText)
   const tweet = await createTweet(credentials, text, mediaId)
 

@@ -14,7 +14,7 @@ function normalizeParams(params) {
     .join('&')
 }
 
-export function buildOAuth1Header({ method, url, consumerKey, consumerSecret, token, tokenSecret }) {
+export function buildOAuth1Header({ method, url, consumerKey, consumerSecret, token, tokenSecret, bodyParams = {} }) {
   const parsedUrl = new URL(url)
   const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`
   const queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
@@ -30,7 +30,7 @@ export function buildOAuth1Header({ method, url, consumerKey, consumerSecret, to
   const signatureBaseString = [
     method.toUpperCase(),
     percentEncode(baseUrl),
-    percentEncode(normalizeParams({ ...queryParams, ...oauthParams })),
+    percentEncode(normalizeParams({ ...queryParams, ...bodyParams, ...oauthParams })),
   ].join('&')
 
   const signingKey = `${percentEncode(consumerSecret)}&${percentEncode(tokenSecret)}`
