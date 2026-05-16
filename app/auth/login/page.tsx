@@ -6,11 +6,12 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Zap, Loader2 } from "lucide-react"
+import { Zap, Loader2, ShieldCheck } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: "",
@@ -23,10 +24,17 @@ export default function LoginPage() {
     const nextPath = getNextPath()
 
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (active && user) {
+      if (!active) return
+
+      if (user) {
         router.replace(nextPath)
         router.refresh()
+        return
       }
+
+      setIsCheckingSession(false)
+    }).catch(() => {
+      if (active) setIsCheckingSession(false)
     })
 
     return () => {
@@ -47,12 +55,12 @@ export default function LoginPage() {
     })
 
     if (signInError) {
-      setError(signInError.message)
+      setError(getFriendlyAuthError(signInError.message))
       setIsLoading(false)
       return
     }
 
-    router.push(getNextPath())
+    router.replace(getNextPath())
     router.refresh()
   }
 
@@ -80,7 +88,7 @@ export default function LoginPage() {
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Log in to your VesselSurge account
+                Log in once and continue from this device without signing in every visit.
               </p>
             </div>
 
@@ -97,6 +105,8 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
+                  autoComplete="email"
+                  disabled={isLoading || isCheckingSession}
                   className="bg-secondary"
                 />
               </div>
@@ -113,8 +123,15 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
+                  autoComplete="current-password"
+                  disabled={isLoading || isCheckingSession}
                   className="bg-secondary"
                 />
+              </div>
+
+              <div className="flex items-start gap-3 rounded-md border border-border bg-secondary/70 p-3 text-sm text-muted-foreground">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>Your secure session is refreshed automatically while your browser keeps cookies enabled.</span>
               </div>
 
               {error && (
@@ -123,8 +140,13 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full" disabled={isLoading || isCheckingSession}>
+                {isCheckingSession ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking session...
+                  </>
+                ) : isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Logging in...
@@ -156,4 +178,12 @@ function getNextPath() {
   }
 
   return nextPath
+}
+
+function getFriendlyAuthError(message: string) {
+  if (message.toLowerCase().includes("invalid login credentials")) {
+    return "Email or password is incorrect. Please check your details and try again."
+  }
+
+  return message
 }

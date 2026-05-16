@@ -29,11 +29,15 @@ export async function updateSession(request: NextRequest) {
   // Refresh session — required to keep user logged in
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect private routes and skip the login form for users who already have a session.
+  // Protect private routes and skip auth entry pages for users who already have a session.
+  const pathname = request.nextUrl.pathname
   const isProtected = 
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/admin')
-  const isLoginPage = request.nextUrl.pathname === '/auth/login'
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/admin')
+  const isAuthEntryPage =
+    pathname === '/auth/login' ||
+    pathname === '/auth/sign-up' ||
+    pathname === '/auth/sign-up-success'
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
@@ -42,7 +46,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (isLoginPage && user) {
+  if (isAuthEntryPage && user) {
     const url = request.nextUrl.clone()
     const nextPath = getSafeNextPath(request.nextUrl.searchParams.get('next'))
     url.pathname = nextPath

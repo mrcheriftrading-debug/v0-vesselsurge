@@ -24,14 +24,54 @@ function formatTimeAgo(date: string): string {
   return `${Math.floor(diffHours / 24)}d ago`
 }
 
+function formatLastUpdated(date: Date | null) {
+  if (!date) return 'Not updated yet'
+  return `Updated ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+}
+
 export function NewsFeed() {
   const { articles, loading, error, refresh, lastUpdated } = useMaritimeData()
-
-  // Get 25 latest articles
   const latestArticles = articles.slice(0, 25)
 
   return (
     <div className="glass flex h-full flex-col rounded-lg border border-border">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Newspaper className="h-4 w-4 text-primary" />
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
+            <p className="text-xs text-muted-foreground">{formatLastUpdated(lastUpdated)}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => void refresh()}
+          disabled={loading}
+          className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+          aria-label="Refresh maritime news"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {loading && latestArticles.length === 0 ? (
+          <div className="flex h-full items-center justify-center p-6 text-sm text-muted-foreground">
+            Loading maritime intelligence...
+          </div>
+        ) : error ? (
+          <div className="p-4 text-sm text-destructive">{error}</div>
+        ) : latestArticles.length === 0 ? (
+          <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+            No maritime intelligence reports are available yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {latestArticles.map((article) => {
+              const style = categoryStyles[article.category] ?? categoryStyles.industry
+              const Icon = style.icon
+
+              return (
                 <a
                   key={article.id}
                   href={article.sourceUrl}
@@ -43,11 +83,11 @@ export function NewsFeed() {
                     <div className={`mt-0.5 rounded-md border p-1.5 ${style.bg}`}>
                       <Icon className={`h-3.5 w-3.5 ${style.color}`} />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium leading-snug text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="line-clamp-2 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
                         {article.title}
                       </h4>
-                      <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                         {article.summary}
                       </p>
                       <div className="mt-2 flex items-center gap-3">
@@ -78,7 +118,6 @@ export function NewsFeed() {
         )}
       </div>
 
-      {/* Footer */}
       <div className="border-t border-border px-4 py-2">
         <p className="text-center text-xs text-muted-foreground">
           Real-time maritime news from Supabase

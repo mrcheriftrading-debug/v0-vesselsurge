@@ -2,9 +2,17 @@
 import { useState } from "react";
 import { Search, Globe, ExternalLink, Loader2, Ship } from "lucide-react";
 
+type SearchResult = {
+  title: string;
+  snippet: string;
+  link: string;
+  source: string;
+  date?: string;
+};
+
 export default function SearchInterface() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

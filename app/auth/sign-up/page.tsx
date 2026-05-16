@@ -1,16 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Zap, Ship, Package, Loader2 } from "lucide-react"
+import { Zap, Ship, Package, Loader2, ShieldCheck } from "lucide-react"
 
 export default function SignUpPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: "",
@@ -19,6 +20,29 @@ export default function SignUpPage() {
     serviceType: "ship-owner",
   })
 
+  useEffect(() => {
+    const supabase = createClient()
+    let active = true
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!active) return
+
+      if (user) {
+        router.replace("/dashboard")
+        router.refresh()
+        return
+      }
+
+      setIsCheckingSession(false)
+    }).catch(() => {
+      if (active) setIsCheckingSession(false)
+    })
+
+    return () => {
+      active = false
+    }
+  }, [router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -26,7 +50,7 @@ export default function SignUpPage() {
 
     const supabase = createClient()
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -46,7 +70,13 @@ export default function SignUpPage() {
       return
     }
 
-    router.push("/auth/sign-up-success")
+    if (data.session) {
+      router.replace("/dashboard")
+      router.refresh()
+      return
+    }
+
+    router.replace("/auth/sign-up-success")
   }
 
   return (
@@ -73,7 +103,7 @@ export default function SignUpPage() {
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-bold text-foreground">Create Your Account</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Join VesselSurge to list vessels or find freight
+                Create access to VesselSurge in under a minute.
               </p>
             </div>
 
@@ -85,6 +115,7 @@ export default function SignUpPage() {
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, serviceType: "ship-owner" })}
+                    disabled={isLoading || isCheckingSession}
                     className={`flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors ${
                       formData.serviceType === "ship-owner"
                         ? "border-primary bg-primary/10 text-primary"
@@ -92,11 +123,12 @@ export default function SignUpPage() {
                     }`}
                   >
                     <Ship className="h-6 w-6" />
-                    <span className="text-sm font-medium">Ship Owner</span>
+                    <span className="text-sm font-medium">Vessel Operator</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, serviceType: "cargo-owner" })}
+                    disabled={isLoading || isCheckingSession}
                     className={`flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors ${
                       formData.serviceType === "cargo-owner"
                         ? "border-primary bg-primary/10 text-primary"
@@ -104,7 +136,7 @@ export default function SignUpPage() {
                     }`}
                   >
                     <Package className="h-6 w-6" />
-                    <span className="text-sm font-medium">Cargo Owner</span>
+                    <span className="text-sm font-medium">Cargo Team</span>
                   </button>
                 </div>
               </div>
@@ -121,6 +153,8 @@ export default function SignUpPage() {
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                   required
+                  autoComplete="organization"
+                  disabled={isLoading || isCheckingSession}
                   className="bg-secondary"
                 />
               </div>
@@ -137,6 +171,8 @@ export default function SignUpPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
+                  autoComplete="email"
+                  disabled={isLoading || isCheckingSession}
                   className="bg-secondary"
                 />
               </div>
@@ -154,8 +190,15 @@ export default function SignUpPage() {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                   minLength={6}
+                  autoComplete="new-password"
+                  disabled={isLoading || isCheckingSession}
                   className="bg-secondary"
                 />
+              </div>
+
+              <div className="flex items-start gap-3 rounded-md border border-border bg-secondary/70 p-3 text-sm text-muted-foreground">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>After confirmation, this browser keeps you signed in automatically.</span>
               </div>
 
               {error && (
@@ -164,8 +207,13 @@ export default function SignUpPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full" disabled={isLoading || isCheckingSession}>
+                {isCheckingSession ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking session...
+                  </>
+                ) : isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...
