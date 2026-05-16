@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process'
 import { buildMarketingPost } from './lib/x-marketing-post.mjs'
 
 const STATE_PATH = path.join(process.cwd(), '.x-compose-state.json')
-const FEED_URL = process.env.X_MARITIME_FEED_URL || 'https://www.vesselsurge.com/api/maritime-data'
+const FEED_URL = process.env.X_MARITIME_FEED_URL || 'https://www.vesselsurge.com/api/social/x-feed?limit=20'
 
 function readState() {
   if (!fs.existsSync(STATE_PATH)) return { openedUrls: [] }
@@ -42,7 +42,7 @@ if (!response.ok) {
 }
 
 const payload = await response.json()
-const articles = payload?.data?.articles || []
+const articles = payload?.items || payload?.data?.articles || []
 const candidates = articles
   .filter((article) => article.sourceUrl && article.region && article.region !== 'global')
   .sort((a, b) => Date.parse(b.timestamp || 0) - Date.parse(a.timestamp || 0))
@@ -56,7 +56,7 @@ if (!nextArticle) {
   process.exit(0)
 }
 
-const postText = buildMarketingPost(nextArticle, { variantSeed: `${Date.now()}` })
+const postText = nextArticle.postText || buildMarketingPost(nextArticle, { variantSeed: `${Date.now()}` })
 const composeUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(postText)}`
 
 console.log('[x-compose] Opening X compose with:')
