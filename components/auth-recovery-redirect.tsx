@@ -12,8 +12,8 @@ export function AuthRecoveryRedirect() {
       return
     }
 
-    if (window.location.pathname === "/auth/update-password") return
-    window.location.replace(`/auth/update-password${hash}`)
+    if (window.location.pathname === "/auth/reset-password") return
+    window.location.replace(`/auth/reset-password${hash}`)
   }, [])
 
   return null

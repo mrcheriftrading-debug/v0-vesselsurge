@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Loader2, Mail, Zap } from "lucide-react"
 
-const PASSWORD_RESET_REDIRECT_URL = "https://vesselsurge-mrcheriftrading-debugs-projects.vercel.app/auth/update-password"
+const PASSWORD_RESET_REDIRECT_URL = "https://vesselsurge-mrcheriftrading-debugs-projects.vercel.app/auth/reset-password"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
