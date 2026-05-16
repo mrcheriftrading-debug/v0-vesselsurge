@@ -17,7 +17,7 @@ export function LiveMapVoyageTransition({ active }: LiveMapVoyageTransitionProps
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const timeout = window.setTimeout(() => {
       router.push("/map-dashboard")
-    }, prefersReducedMotion ? 150 : 1850)
+    }, prefersReducedMotion ? 1600 : 2600)
 
     return () => window.clearTimeout(timeout)
   }, [active, router])
@@ -42,6 +42,7 @@ export function LiveMapVoyageTransition({ active }: LiveMapVoyageTransitionProps
           Live Map Transfer
         </div>
         <h2 className="text-3xl font-black tracking-tight md:text-5xl">Entering VesselSurge Live Map</h2>
+        <p className="text-sm font-medium text-cyan-100/75">Stand by. Plotting route to the live intelligence dashboard.</p>
       </div>
 
       <div className="absolute inset-x-0 bottom-0 h-[48%] overflow-hidden">

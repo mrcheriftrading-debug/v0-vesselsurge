@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import type { MouseEvent } from "react"
+import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
 import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
@@ -11,13 +11,21 @@ import { DataNetworkScene, HeroOceanScene } from "@/components/three/maritime-3d
 export default function VesselSurgePage() {
   const [voyageActive, setVoyageActive] = useState(false)
 
-  const launchLiveMapVoyage = (event: MouseEvent<HTMLAnchorElement>) => {
+  const launchLiveMapVoyage = (event: ReactMouseEvent<HTMLElement>) => {
     event.preventDefault()
+    event.stopPropagation()
     if (!voyageActive) setVoyageActive(true)
   }
 
+  const captureLiveMapVoyage = (event: ReactMouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement
+    const liveMapLink = target.closest('a[href="/map-dashboard"]')
+    if (!liveMapLink) return
+    launchLiveMapVoyage(event)
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" onClickCapture={captureLiveMapVoyage}>
       <LiveMapVoyageTransition active={voyageActive} />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
