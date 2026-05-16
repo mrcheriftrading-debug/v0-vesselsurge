@@ -1,7 +1,6 @@
 "use client"
  
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useCallback, useEffect, useState } from "react"
  
 type Article = {
   id?: string
@@ -58,8 +57,6 @@ const EMPTY_ALERT: Alert = {
 }
  
 export default function AdminPage() {
-  const supabase = createClient()
- 
   const [tab, setTab] = useState<"news" | "alerts" | "stats">("news")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -79,95 +76,139 @@ export default function AdminPage() {
     setTimeout(() => setToast(null), 3000)
   }
  
+  const adminRequest = useCallback(async (body: unknown) => {
+    const response = await fetch("/api/admin/content", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    })
+
+    const payload = await response.json().catch(() => ({}))
+    if (!response.ok) {
+      throw new Error(payload.error || "Admin request failed")
+    }
+    return payload
+  }, [])
+
+  const fetchAll = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch("/api/admin/content", { cache: "no-store" })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.error || "Could not load admin data")
+
+      setArticles(payload.articles || [])
+      setAlerts(payload.alerts || [])
+      setStats(
+        HOTSPOTS.map((h) => {
+          const found = (payload.stats || []).find((r: HotspotStat) => r.hotspot === h)
+          return found || { hotspot: h, active_vessels: 0, daily_transits: 0, avg_wait_time: "0h", market_volume: 0, risk_level: "medium" }
+        })
+      )
+    } catch (error) {
+      console.error("[admin] fetch error:", error)
+      showToast(error instanceof Error ? error.message : "Could not load admin data", "error")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     fetchAll()
-  }, [])
- 
-  async function fetchAll() {
-    setLoading(true)
-    const [{ data: a }, { data: al }, { data: s }] = await Promise.all([
-      supabase.from("news_articles").select("*").order("updated_at", { ascending: false }),
-      supabase.from("hotspot_alerts").select("*").order("created_at", { ascending: false }),
-      supabase.from("hotspot_stats").select("*"),
-    ])
-    setArticles(a || [])
-    setAlerts(al || [])
-    setStats(
-      HOTSPOTS.map((h) => {
-        const found = (s || []).find((r: HotspotStat) => r.hotspot === h)
-        return found || { hotspot: h, active_vessels: 0, daily_transits: 0, avg_wait_time: "0h", market_volume: 0, risk_level: "medium" }
-      })
-    )
-    setLoading(false)
-  }
+  }, [fetchAll])
  
   // ── Articles ──────────────────────────────────────────────
   async function saveArticle(article: Article) {
     setSaving(true)
-    if (article.id) {
-      const { error } = await supabase.from("news_articles").update({ ...article, updated_at: new Date().toISOString() }).eq("id", article.id)
-      if (error) { showToast("Error saving article", "error"); setSaving(false); return }
-      setArticles((prev) => prev.map((a) => (a.id === article.id ? article : a)))
-    } else {
-      const { data, error } = await supabase.from("news_articles").insert([article]).select().single()
-      if (error) { showToast("Error adding article", "error"); setSaving(false); return }
-      setArticles((prev) => [data, ...prev])
+    try {
+      const { item } = await adminRequest({
+        resource: "article",
+        action: article.id ? "update" : "create",
+        payload: article,
+      })
+      setArticles((prev) => article.id ? prev.map((a) => (a.id === article.id ? item : a)) : [item, ...prev])
+      setShowArticleForm(false)
+      setEditArticle(null)
+      showToast("Article saved ✓")
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error saving article", "error")
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
-    setShowArticleForm(false)
-    setEditArticle(null)
-    showToast("Article saved ✓")
   }
  
   async function deleteArticle(id: string) {
     if (!confirm("Delete this article?")) return
-    await supabase.from("news_articles").delete().eq("id", id)
-    setArticles((prev) => prev.filter((a) => a.id !== id))
-    showToast("Article deleted")
+    try {
+      await adminRequest({ resource: "article", action: "delete", payload: { id } })
+      setArticles((prev) => prev.filter((a) => a.id !== id))
+      showToast("Article deleted")
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error deleting article", "error")
+    }
   }
  
   async function toggleArticle(id: string, current: boolean) {
-    await supabase.from("news_articles").update({ is_active: !current }).eq("id", id)
-    setArticles((prev) => prev.map((a) => (a.id === id ? { ...a, is_active: !current } : a)))
+    try {
+      const { item } = await adminRequest({ resource: "article", action: "toggle", payload: { id, is_active: current } })
+      setArticles((prev) => prev.map((a) => (a.id === id ? item : a)))
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error updating article", "error")
+    }
   }
  
   // ── Alerts ──────────────────────────────────────────────
   async function saveAlert(alert: Alert) {
     setSaving(true)
-    if (alert.id) {
-      const { error } = await supabase.from("hotspot_alerts").update({ ...alert, updated_at: new Date().toISOString() }).eq("id", alert.id)
-      if (error) { showToast("Error saving alert", "error"); setSaving(false); return }
-      setAlerts((prev) => prev.map((a) => (a.id === alert.id ? alert : a)))
-    } else {
-      const { data, error } = await supabase.from("hotspot_alerts").insert([alert]).select().single()
-      if (error) { showToast("Error adding alert", "error"); setSaving(false); return }
-      setAlerts((prev) => [data, ...prev])
+    try {
+      const { item } = await adminRequest({
+        resource: "alert",
+        action: alert.id ? "update" : "create",
+        payload: alert,
+      })
+      setAlerts((prev) => alert.id ? prev.map((a) => (a.id === alert.id ? item : a)) : [item, ...prev])
+      setShowAlertForm(false)
+      setEditAlert(null)
+      showToast("Alert saved ✓")
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error saving alert", "error")
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
-    setShowAlertForm(false)
-    setEditAlert(null)
-    showToast("Alert saved ✓")
   }
  
   async function deleteAlert(id: string) {
     if (!confirm("Delete this alert?")) return
-    await supabase.from("hotspot_alerts").delete().eq("id", id)
-    setAlerts((prev) => prev.filter((a) => a.id !== id))
-    showToast("Alert deleted")
+    try {
+      await adminRequest({ resource: "alert", action: "delete", payload: { id } })
+      setAlerts((prev) => prev.filter((a) => a.id !== id))
+      showToast("Alert deleted")
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error deleting alert", "error")
+    }
   }
  
   async function toggleAlert(id: string, current: boolean) {
-    await supabase.from("hotspot_alerts").update({ is_active: !current }).eq("id", id)
-    setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, is_active: !current } : a)))
+    try {
+      const { item } = await adminRequest({ resource: "alert", action: "toggle", payload: { id, is_active: current } })
+      setAlerts((prev) => prev.map((a) => (a.id === id ? item : a)))
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error updating alert", "error")
+    }
   }
  
   // ── Stats ──────────────────────────────────────────────
   async function saveStat(stat: HotspotStat) {
     setSaving(true)
-    const { error } = await supabase.from("hotspot_stats").upsert({ ...stat, updated_at: new Date().toISOString() }, { onConflict: "hotspot" })
-    if (error) { showToast("Error saving stats", "error"); setSaving(false); return }
-    setSaving(false)
-    showToast(`${HOTSPOT_LABELS[stat.hotspot]} stats saved ✓`)
+    try {
+      const { item } = await adminRequest({ resource: "stat", action: "update", payload: stat })
+      setStats((prev) => prev.map((s) => (s.hotspot === stat.hotspot ? item : s)))
+      showToast(`${HOTSPOT_LABELS[stat.hotspot]} stats saved ✓`)
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Error saving stats", "error")
+    } finally {
+      setSaving(false)
+    }
   }
  
   const severityColor: Record<string, string> = {
