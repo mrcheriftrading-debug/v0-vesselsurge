@@ -1,14 +1,24 @@
 "use client"
 
 import Link from "next/link"
+import type { MouseEvent } from "react"
 import { useState } from "react"
 import { Zap, Target, Shield, Rocket, ArrowRight, Users, Globe, CheckCircle2, Linkedin, ChevronRight } from "lucide-react"
+import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
 import { PartnershipForm } from "@/components/partnership-form"
 import { DataNetworkScene, HeroOceanScene } from "@/components/three/maritime-3d-scenes"
 
 export default function VesselSurgePage() {
+  const [voyageActive, setVoyageActive] = useState(false)
+
+  const launchLiveMapVoyage = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    if (!voyageActive) setVoyageActive(true)
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      <LiveMapVoyageTransition active={voyageActive} />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
@@ -22,7 +32,7 @@ export default function VesselSurgePage() {
           <div className="hidden items-center gap-8 md:flex">
             <a href="#about" className="text-sm text-muted-foreground transition-colors hover:text-foreground">About</a>
             <a href="#partners" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Benefits</a>
-            <Link href="/map-dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Live Map</Link>
+            <Link href="/map-dashboard" onClick={launchLiveMapVoyage} className="text-sm text-muted-foreground transition-colors hover:text-foreground">Live Map</Link>
           </div>
 
           <div className="flex items-center gap-3">
@@ -89,6 +99,7 @@ export default function VesselSurgePage() {
               </a>
               <Link 
                 href="/map-dashboard"
+                onClick={launchLiveMapVoyage}
                 className="flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-8 py-4 text-base font-semibold text-accent transition-all hover:bg-accent/20"
               >
                 VIEW LIVE MAP & TRAFFIC
@@ -202,6 +213,7 @@ export default function VesselSurgePage() {
             <div className="mt-16 text-center">
               <Link 
                 href="/map-dashboard"
+                onClick={launchLiveMapVoyage}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
               >
                 EXPLORE LIVE MAP
@@ -461,6 +473,7 @@ export default function VesselSurgePage() {
               </p>
               <Link 
                 href="/map-dashboard"
+                onClick={launchLiveMapVoyage}
                 className="mt-8 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 neon-blue"
               >
                 Open Live Dashboard
