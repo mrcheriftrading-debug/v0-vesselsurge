@@ -32,6 +32,12 @@ const TRUSTED_SOURCES = [
   'Suez Canal Authority',
 ]
 
+const TRUSTED_SOURCE_PREFIXES = ['Google News:']
+
+function isTrustedSource(source: string) {
+  return TRUSTED_SOURCES.includes(source) || TRUSTED_SOURCE_PREFIXES.some((prefix) => source.startsWith(prefix))
+}
+
 function escapeXml(value: string) {
   return value
     .replace(/&/g, '&amp;')
@@ -80,10 +86,9 @@ export async function GET(request: Request) {
       .from('news_articles')
       .select('id, title, snippet, url, source, topic, region, published_at, created_at')
       .eq('is_active', true)
-      .in('source', TRUSTED_SOURCES)
       .neq('region', 'global')
       .order('published_at', { ascending: false })
-      .limit(50)
+      .limit(100)
 
     if (region && region !== 'all') {
       query = query.eq('region', region)
@@ -96,7 +101,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: error.message, items: [] }, { status: 500 })
     }
 
-    const reviewedItems = (data || []).map((article: any) => {
+    const reviewedItems = (data || []).filter((article: any) => isTrustedSource(article.source || '')).map((article: any) => {
         const item = {
           id: article.id,
           title: article.title,

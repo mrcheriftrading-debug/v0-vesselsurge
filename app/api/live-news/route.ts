@@ -29,6 +29,12 @@ const TRUSTED_SOURCES = [
   'Suez Canal Authority',
 ]
 
+const TRUSTED_SOURCE_PREFIXES = ['Google News:']
+
+function isTrustedSource(source: string) {
+  return TRUSTED_SOURCES.includes(source) || TRUSTED_SOURCE_PREFIXES.some((prefix) => source.startsWith(prefix))
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const topic = searchParams.get('topic') || null
@@ -42,9 +48,8 @@ export async function GET(request: Request) {
       .from('news_articles')
       .select('id, title, snippet, url, source, topic, region, published_at, created_at')
       .eq('is_active', true)
-      .in('source', TRUSTED_SOURCES)
       .order('published_at', { ascending: false })
-      .limit(Math.min(limit, 50))
+      .limit(Math.min(limit * 4, 100))
 
     if (region && region !== 'all') {
       query = query.eq('region', region)
@@ -60,7 +65,9 @@ export async function GET(request: Request) {
     }
 
     const articles = (data || [])
+      .filter((a: any) => isTrustedSource(a.source || ''))
       .filter((a: any) => !region || region === 'all' || a.region === region)
+      .slice(0, Math.min(limit, 50))
       .map((a: any) => ({
         id: a.id,
         title: a.title,

@@ -240,6 +240,9 @@ function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
       const snippet = decodeHtml(between(item, '<description>', '</description>') || title)
       const url = decodeHtml(between(item, '<link>', '</link>'))
       const published_at = decodeHtml(between(item, '<pubDate>', '</pubDate>'))
+      const googlePublisher = feed.source.startsWith('Google News')
+        ? decodeHtml(item.match(/<source[^>]*>([\s\S]*?)<\/source>/i)?.[1] || '')
+        : ''
       const text = `${title} ${snippet}`
       const region = feed.regionHint || classifyRegion(text)
 
@@ -247,7 +250,7 @@ function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
         title,
         snippet: snippet.slice(0, 600),
         url,
-        source: feed.source,
+        source: googlePublisher ? `Google News: ${googlePublisher}` : feed.source,
         region,
         topic: region,
         is_active: true,
