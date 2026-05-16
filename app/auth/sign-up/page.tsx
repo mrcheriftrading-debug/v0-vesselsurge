@@ -50,33 +50,32 @@ export default function SignUpPage() {
 
     const supabase = createClient()
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${window.location.origin}/auth/callback`,
-        data: {
-          company_name: formData.companyName,
-          service_type: formData.serviceType,
-        },
-      },
+    const signUpResponse = await fetch("/api/auth/sign-up", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     })
 
-    if (signUpError) {
-      setError(signUpError.message)
+    if (!signUpResponse.ok) {
+      const result = await signUpResponse.json().catch(() => null)
+      setError(result?.error || "Could not create your account right now.")
       setIsLoading(false)
       return
     }
 
-    if (data.session) {
-      router.replace("/dashboard")
-      router.refresh()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    if (signInError) {
+      setError("Your account was created, but automatic login failed. Please log in with your email and password.")
+      setIsLoading(false)
       return
     }
 
-    router.replace("/auth/sign-up-success")
+    router.replace("/dashboard")
+    router.refresh()
   }
 
   return (
@@ -198,7 +197,7 @@ export default function SignUpPage() {
 
               <div className="flex items-start gap-3 rounded-md border border-border bg-secondary/70 p-3 text-sm text-muted-foreground">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>After confirmation, this browser keeps you signed in automatically.</span>
+                <span>Your account opens immediately and this browser keeps you signed in automatically.</span>
               </div>
 
               {error && (

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Zap, Mail, CheckCircle } from "lucide-react"
+import { Zap, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function SignUpSuccessPage() {
@@ -20,18 +20,18 @@ export default function SignUpSuccessPage() {
         <div className="w-full max-w-md text-center">
           <div className="rounded-lg border border-border bg-card p-8">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Mail className="h-8 w-8 text-primary" />
+              <CheckCircle className="h-8 w-8 text-primary" />
             </div>
             
-            <h1 className="text-2xl font-bold text-foreground">Check Your Email</h1>
+            <h1 className="text-2xl font-bold text-foreground">Account Created</h1>
             
             <p className="mt-4 text-muted-foreground">
-              We've sent you a confirmation email. Open the link to activate your account and return to VesselSurge.
+              Your account is ready. Log in with the email and password you just created.
             </p>
 
             <div className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-border bg-secondary p-4 text-sm text-muted-foreground">
               <CheckCircle className="h-4 w-4 text-green-500" />
-              <span>After confirmation, this device stays signed in</span>
+              <span>This device stays signed in after login</span>
             </div>
 
             <div className="mt-8 space-y-3">
