@@ -412,34 +412,6 @@ async function supabaseRequest(path: string, init: RequestInit = {}) {
   })
 }
 
-async function triggerClickUpPublishing(request: Request, cronSecret: string) {
-  const publishUrl = new URL('/api/social/clickup-publish', request.url)
-
-  try {
-    const response = await fetch(publishUrl, {
-      headers: {
-        authorization: `Bearer ${cronSecret}`,
-        accept: 'application/json',
-      },
-      cache: 'no-store',
-    })
-    const payload = await response.json().catch(() => null)
-
-    return {
-      ok: response.ok,
-      status: response.status,
-      payload,
-    }
-  } catch (error: any) {
-    console.error('[cron-update] ClickUp publishing failed:', error)
-    return {
-      ok: false,
-      status: 0,
-      payload: { error: error.message },
-    }
-  }
-}
-
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -508,8 +480,6 @@ export async function GET(request: Request) {
     if (!upsertAisStats.ok) throw new Error(`Failed to update AIS stats: ${upsertAisStats.status} ${await upsertAisStats.text()}`)
   }
 
-  const clickupPublishing = await triggerClickUpPublishing(request, cronSecret)
-
   return NextResponse.json({
     success: true,
     timestamp,
@@ -521,7 +491,6 @@ export async function GET(request: Request) {
     vessels_updated: vesselsUpdated,
     ais_status: ais.reason,
     verified: articles.length,
-    clickup_publishing: clickupPublishing,
     window: {
       from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
       to: timestamp,
