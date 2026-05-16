@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ArrowLeft, ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
+import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import type { Article } from '@/lib/maritime-data'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
 import { HotspotRiskOrbital } from '@/components/three/maritime-3d-scenes'
+import { SiteNavigation } from '@/components/site-navigation'
 
 const SatelliteMap = dynamic(() => import('@/components/satellite-map'), {
   ssr: false,
@@ -127,15 +128,12 @@ export default function MapDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <MapArrivalScan />
+      <SiteNavigation />
 
       {/* Top bar */}
-      <div className="border-b border-border/50 bg-background/80 backdrop-blur px-4 py-3">
+      <div className="border-b border-border/50 bg-background/80 px-4 py-3 pt-20 backdrop-blur">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="h-4 w-4" /> Home
-            </Link>
-            <div className="h-4 w-px bg-border" />
             <div>
               <span className="text-sm font-bold text-foreground">Live Maritime Intelligence</span>
               <span className="ml-2 text-xs text-muted-foreground font-mono">
