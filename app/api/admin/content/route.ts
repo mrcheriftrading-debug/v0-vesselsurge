@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
+import { assertSameOrigin } from "@/lib/security"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -56,6 +57,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const originError = assertSameOrigin(request)
+  if (originError) return originError
+
   const admin = await assertAdmin()
   if (admin.error) return admin.error
 

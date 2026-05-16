@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { assertSameOrigin } from "@/lib/security"
 
 export const runtime = "nodejs"
 
@@ -11,6 +12,9 @@ type SignUpPayload = {
 }
 
 export async function POST(request: Request) {
+  const originError = assertSameOrigin(request)
+  if (originError) return originError
+
   let payload: SignUpPayload
 
   try {
@@ -34,6 +38,10 @@ export async function POST(request: Request) {
 
   if (companyName.length < 2) {
     return NextResponse.json({ error: "Enter your company name." }, { status: 400 })
+  }
+
+  if (companyName.length > 120 || email.length > 254 || password.length > 128) {
+    return NextResponse.json({ error: "Account details are too long." }, { status: 400 })
   }
 
   try {

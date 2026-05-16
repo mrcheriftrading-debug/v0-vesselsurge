@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { assertSameOrigin } from "@/lib/security"
 
 interface SearchRequest {
   query: string
@@ -25,19 +26,31 @@ interface SearchResponse {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const originError = assertSameOrigin(request)
+    if (originError) return originError as NextResponse
+
     const body: SearchRequest = await request.json()
     const { query, maxResults = 5 } = body
+    const normalizedQuery = typeof query === "string" ? query.trim() : ""
+    const safeMaxResults = Math.min(Math.max(Number(maxResults) || 5, 1), 10)
 
-    if (!query || query.trim().length === 0) {
+    if (!normalizedQuery) {
       return NextResponse.json(
         { success: false, error: "Query parameter is required" },
         { status: 400 }
       )
     }
 
+    if (normalizedQuery.length > 160) {
+      return NextResponse.json(
+        { success: false, error: "Query is too long" },
+        { status: 400 }
+      )
+    }
+
     const tavilyKey = process.env.TAVILY_API_KEY
     if (!tavilyKey) {
-      return searchStoredMaritimeIntel(query, maxResults)
+      return searchStoredMaritimeIntel(normalizedQuery, safeMaxResults)
     }
 
     // Call Tavily API for real-time web search
@@ -46,8 +59,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         api_key: tavilyKey,
-        query: query,
-        max_results: Math.min(maxResults, 10),
+        query: normalizedQuery,
+        max_results: safeMaxResults,
         include_answer: true,
         include_raw_content: false,
       }),
@@ -80,7 +93,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const response: SearchResponse = {
       success: true,
-      query,
+      query: normalizedQuery,
       results,
       count: results.length,
       timestamp: new Date().toISOString(),
