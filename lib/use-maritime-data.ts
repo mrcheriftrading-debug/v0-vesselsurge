@@ -61,7 +61,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
     }
   }, [])
 
-  // Fetch live vessel positions from AIS
+  // Fetch vessel rows from the AIS-backed API.
   const fetchVessels = useCallback(async () => {
     try {
       const res = await fetch('/api/ais-vessels', {
@@ -72,7 +72,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
       if (Array.isArray(vesselData)) {
         setVessels(vesselData.filter((v: Vessel) => v.lat && v.lng))
       }
-    } catch (_) { /* silent - vessels are optional enhancement */ }
+    } catch { /* silent - vessels are optional enhancement */ }
   }, [])
 
   // Supabase realtime subscriptions

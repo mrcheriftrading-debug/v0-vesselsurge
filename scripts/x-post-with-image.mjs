@@ -99,7 +99,7 @@ async function uploadImageV2(credentials, imageBuffer, mimeType) {
   return { ok: false, error: JSON.stringify({ status: uploadResponse.status, body: uploadBody }) }
 }
 
-async function uploadImageV1(credentials, imageBuffer, mimeType) {
+async function uploadImageV1(credentials, imageBuffer) {
   const form = new FormData()
   form.append('media_data', imageBuffer.toString('base64'))
 

@@ -47,6 +47,12 @@ const TRUSTED_FEEDS = [
   { source: 'World Oil', url: 'https://www.worldoil.com/rss', credibility: 7 },
   { source: 'Arab News', url: 'https://www.arabnews.com/rss.xml', credibility: 7 },
   {
+    source: 'Google News Strait of Hormuz',
+    url: 'https://news.google.com/rss/search?q=(%22Strait%20of%20Hormuz%22%20OR%20%22Hormuz%22%20OR%20%22Persian%20Gulf%22%20OR%20%22Gulf%20of%20Oman%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20oil%20OR%20crude%20OR%20Iran)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
+    credibility: 7,
+    regionHint: 'hormuz',
+  },
+  {
     source: 'Google News Bab el-Mandeb',
     url: 'https://news.google.com/rss/search?q=(%22Bab%20el-Mandeb%22%20OR%20%22Bab%20el%20Mandeb%22%20OR%20%22Red%20Sea%22%20OR%20%22Gulf%20of%20Aden%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20Houthi)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
     credibility: 7,
@@ -86,6 +92,59 @@ const SEVERITY_KEYWORDS = {
   high: ['warning', 'advisory', 'threat', 'incident', 'disrupt', 'divert', 'reroute', 'avoid', 'piracy', 'armed robbery', 'tension'],
   medium: ['delay', 'congestion', 'monitor', 'caution', 'security', 'risk', 'alert'],
 }
+
+const HARD_MARITIME_SIGNAL_KEYWORDS = [
+  'shipping',
+  'ship',
+  'vessel',
+  'tanker',
+  'maritime',
+  'ais',
+  'cargo',
+  'freight',
+  'insurance',
+  'war risk',
+  'transit',
+  'route',
+  'reroute',
+  'divert',
+  'chokepoint',
+  'canal',
+  'port',
+  'piracy',
+  'armed robbery',
+  'houthi',
+  'naval',
+  'navy',
+]
+
+const GOOGLE_NEWS_NOISE_KEYWORDS = [
+  'railway',
+  'rail line',
+  'high-speed rail',
+  'tourism',
+  'football',
+  'cricket',
+  'movie',
+  'celebrity',
+  'weather forecast',
+  'bitcoin',
+  'cryptocurrency',
+  'crypto',
+  'equities',
+  'stock market',
+  'shares',
+]
+
+const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
+  'crypto',
+  'travel',
+  'tourism',
+  'sports',
+  'football',
+  'cricket',
+  'entertainment',
+]
 
 const CURRENT_YEAR = new Date().getUTCFullYear()
 const MONTHS: Record<string, number> = {
@@ -211,6 +270,34 @@ function isRelevant(text: string) {
   ].some((keyword) => lower.includes(keyword))
 }
 
+function hasHardMaritimeSignal(text: string) {
+  const lower = text.toLowerCase()
+  return HARD_MARITIME_SIGNAL_KEYWORDS.some((keyword) => lower.includes(keyword))
+}
+
+function hasRegionEnergySignal(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const regionKeywords = REGION_KEYWORDS[article.region] || []
+  const hasRegion = regionKeywords.some((keyword) => text.includes(keyword))
+  const hasEnergy = /\b(oil|crude|lng|energy|iran|sanction|sanctions)\b/i.test(text)
+  return hasRegion && hasEnergy
+}
+
+function isNoisyGoogleNewsArticle(article: TrustedArticle) {
+  if (!article.source.startsWith('Google News:')) return false
+
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const sourceName = article.source.replace(/^Google News:\s*/i, '').toLowerCase()
+  if (GOOGLE_NEWS_SOURCE_BLOCKLIST.some((keyword) => sourceName.includes(keyword))) return true
+  if (!hasHardMaritimeSignal(text) && !hasRegionEnergySignal(article)) return true
+
+  const hasNoise = GOOGLE_NEWS_NOISE_KEYWORDS.some((keyword) => text.includes(keyword))
+  if (!hasNoise) return false
+
+  // Keep infrastructure items only when they also mention a maritime operating signal.
+  return !/(ship|shipping|vessel|tanker|maritime|port|canal|freight|cargo|transit|route|reroute|insurance)/i.test(text)
+}
+
 function hasDirectRegionSignal(article: TrustedArticle) {
   if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
   if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
@@ -261,6 +348,7 @@ function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
       }
     })
     .filter((article) => article.title && article.url && isRelevant(`${article.title} ${article.snippet}`))
+    .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => {
       if (!article.source.startsWith('Bloomberg')) return true
       if (/\/news\/(audio|videos)\//i.test(article.url)) return false
@@ -275,13 +363,13 @@ function balanceByHotspot(articles: TrustedArticle[]) {
 
   for (const hotspot of ['hormuz', 'bab', 'suez', 'malacca']) {
     const hotspotArticles = articles.filter((article) => article.region === hotspot)
-    preferred.push(...hotspotArticles.slice(0, 12))
-    overflow.push(...hotspotArticles.slice(12))
+    preferred.push(...hotspotArticles.slice(0, 8))
+    overflow.push(...hotspotArticles.slice(8))
   }
 
   return [...preferred, ...overflow]
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
-    .slice(0, 60)
+    .slice(0, 36)
 }
 
 function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number, regionHint?: string): TrustedArticle[] {
@@ -362,6 +450,8 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
     .filter((article) => hasDirectRegionSignal(article))
+    .filter((article) => !article.source.startsWith('Google News:') || hasHardMaritimeSignal(`${article.title} ${article.snippet}`) || hasRegionEnergySignal(article))
+    .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
     .filter((article) => isWithinLatest24Hours(article, now))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
@@ -455,6 +545,10 @@ export async function GET(request: Request) {
   const ais = await collectAisStreamVessels({ timeoutMs: 18000, maxVessels: 120 })
   let vesselsUpdated = 0
   if (ais.vessels.length > 0) {
+    const staleCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    const deleteStaleVessels = await supabaseRequest(`vessels?updated_at=lt.${encodeURIComponent(staleCutoff)}`, { method: 'DELETE' })
+    if (!deleteStaleVessels.ok) throw new Error(`Failed to delete stale AIS vessels: ${deleteStaleVessels.status} ${await deleteStaleVessels.text()}`)
+
     const upsertVessels = await supabaseRequest('vessels?on_conflict=mmsi', {
       method: 'POST',
       headers: { prefer: 'resolution=merge-duplicates,return=minimal' },

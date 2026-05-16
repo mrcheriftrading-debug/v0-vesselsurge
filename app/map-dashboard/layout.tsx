@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
-
-const BASE_URL = 'https://www.vesselsurge.com'
+import { BASE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: 'Live Maritime Map — Real-Time Vessel Tracking at Strait of Hormuz, Red Sea & Suez',
   description:
-    'Free live vessel tracking at critical shipping chokepoints. Monitor Strait of Hormuz, Bab el-Mandeb (Red Sea), Suez Canal & Malacca Strait in real-time. Hourly updates on vessel counts, risk levels, and security alerts.',
+    'Free live maritime map for critical shipping chokepoints. Monitor Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca Strait with vessel context, risk labels and source-reviewed security reports.',
   keywords: [
     'strait of hormuz live map',
     'hormuz strait vessel tracking',
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
     url: `${BASE_URL}/map-dashboard`,
     title: 'VesselSurge Live Map — Track Vessels at Hormuz, Red Sea & Suez in Real-Time',
     description:
-      'Free live satellite map of global shipping chokepoints. Track vessel traffic at Strait of Hormuz, Bab el-Mandeb, Suez Canal & Malacca. Real-time risk alerts updated hourly.',
+      'Free live satellite map of global shipping chokepoints. Track vessel context at Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca with risk labels and source-reviewed reports.',
     images: [
       {
         url: `${BASE_URL}/og-image.jpg`,
@@ -40,7 +39,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Live Vessel Tracking: Hormuz, Red Sea, Suez | VesselSurge',
     description:
-      'Free real-time vessel tracking. Monitor Strait of Hormuz, Red Sea, Suez Canal & Malacca. Live risk levels, vessel counts, security alerts.',
+      'Free live maritime map for Hormuz, Red Sea, Suez Canal and Malacca. Risk labels, vessel context and source-reviewed reports.',
     images: [`${BASE_URL}/og-image.jpg`],
   },
   other: {
@@ -53,9 +52,9 @@ export const metadata: Metadata = {
 const schemaMapPage = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  '@id': `${BASE_URL}/map-dashboard`,
+  '@id': `${BASE_URL}/map-dashboard#webpage`,
   name: 'VesselSurge Live Maritime Map',
-  description: 'Real-time vessel tracking at Strait of Hormuz, Bab el-Mandeb, Suez Canal, and Malacca Strait with live risk assessments.',
+  description: 'Live maritime map context for Strait of Hormuz, Bab el-Mandeb, Suez Canal, and Malacca Strait with risk assessments and source-reviewed reports.',
   url: `${BASE_URL}/map-dashboard`,
   isPartOf: {
     '@type': 'WebSite',
@@ -66,7 +65,7 @@ const schemaMapPage = {
     {
       '@type': 'Place',
       name: 'Strait of Hormuz',
-      description: 'Critical maritime chokepoint between Persian Gulf and Gulf of Oman. 20-25% of global oil transits daily.',
+      description: 'Critical maritime chokepoint between the Persian Gulf and Gulf of Oman.',
       geo: { '@type': 'GeoCoordinates', latitude: 26.5, longitude: 56.3 },
     },
     {
@@ -78,7 +77,7 @@ const schemaMapPage = {
     {
       '@type': 'Place',
       name: 'Suez Canal',
-      description: 'Egyptian canal connecting Mediterranean Sea to Red Sea. 12-15% of global trade.',
+      description: 'Egyptian canal connecting the Mediterranean Sea to the Red Sea.',
       geo: { '@type': 'GeoCoordinates', latitude: 30.5, longitude: 32.3 },
     },
     {
@@ -91,7 +90,14 @@ const schemaMapPage = {
   mainEntity: {
     '@type': 'Map',
     name: 'Live Maritime Chokepoint Map',
-    description: 'Interactive satellite map showing real-time vessel positions and risk levels',
+    description: 'Interactive maritime map showing chokepoint vessel context, risk labels and source-reviewed route reports',
+  },
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Live Maritime Map', item: `${BASE_URL}/map-dashboard` },
+    ],
   },
 }
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
 import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import type { Article } from '@/lib/maritime-data'
@@ -52,7 +51,6 @@ export default function MapDashboard() {
 
   // Vessels for selected hotspot
   const selectedVessels = vessels.filter(v => v.hotspot === selectedId)
-  const movingVessels = selectedVessels.filter(v => v.speed > 0.5)
 
   const hotspotList = Object.entries(HOTSPOT_META).map(([id, m]) => {
     const data = hotspots[id]

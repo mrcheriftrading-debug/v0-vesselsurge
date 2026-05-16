@@ -2,11 +2,10 @@ import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthRecoveryRedirect } from '@/components/auth-recovery-redirect'
+import { BASE_URL, publicFeaturePages } from '@/lib/seo'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
-
-const BASE_URL = 'https://www.vesselsurge.com'
 
 const authRecoveryRedirectScript = `
 (() => {
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
     template: '%s | VesselSurge',
   },
   description:
-    'VesselSurge is a free live maritime intelligence platform for vessel traffic, security alerts, and risk levels at Strait of Hormuz, Bab el-Mandeb, Suez Canal & Malacca Strait.',
+    'VesselSurge is a free live maritime intelligence platform for vessel context, source-reviewed reports, and risk labels at Strait of Hormuz, Bab el-Mandeb, Suez Canal & Malacca Strait.',
   keywords: [
     // Primary chokepoint keywords
     'strait of hormuz',
@@ -95,6 +94,11 @@ export const metadata: Metadata = {
   publisher: 'VesselSurge',
   alternates: {
     canonical: `${BASE_URL}/`,
+    types: {
+      'application/rss+xml': `${BASE_URL}/feed.xml`,
+      'application/json': `${BASE_URL}/entity-map.json`,
+      'text/plain': `${BASE_URL}/llms.txt`,
+    },
   },
   openGraph: {
     type: 'website',
@@ -103,7 +107,7 @@ export const metadata: Metadata = {
     siteName: 'VesselSurge',
     title: 'VesselSurge | Live Maritime Intelligence — Hormuz, Red Sea & Suez Tracker',
     description:
-      'Free live maritime tracker. Monitor vessel traffic at the world\'s most critical shipping chokepoints — Hormuz, Bab el-Mandeb, Suez Canal, Malacca Strait. Real-time alerts & security intelligence.',
+      'Free live maritime intelligence for critical shipping chokepoints — Hormuz, Bab el-Mandeb, Suez Canal, and Malacca Strait. Source-reviewed reports, risk labels, and vessel context.',
     images: [
       {
         url: `${BASE_URL}/og-image.jpg`,
@@ -119,7 +123,7 @@ export const metadata: Metadata = {
     creator: '@Vesselsurge',
     title: 'VesselSurge | Live Maritime Intelligence — Hormuz, Red Sea & Suez',
     description:
-      'Real-time chokepoint tracking. Hormuz CRITICAL. Bab el-Mandeb HIGH. Suez Canal CRITICAL. Free live data, updated hourly.',
+      'Live maritime intelligence for critical chokepoints, vessel traffic, shipping risk and source-reviewed route signals.',
     images: [`${BASE_URL}/og-image.jpg`],
   },
   robots: {
@@ -223,7 +227,7 @@ const schemaSoftwareApp = {
   name: 'VesselSurge Live Maritime Map',
   url: `${BASE_URL}/map-dashboard`,
   description:
-    'Live maritime tracking application monitoring vessel traffic at Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca Strait with real-time alerts.',
+    'Live maritime intelligence application monitoring vessel context at Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca Strait with source-reviewed alerts.',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web Browser',
   offers: {
@@ -232,13 +236,61 @@ const schemaSoftwareApp = {
     priceCurrency: 'USD',
   },
   featureList: [
-    'Real-time vessel tracking',
+    'Live maritime map',
     'Chokepoint risk assessment',
     'Maritime security alerts',
-    'Live shipping news feed',
-    'Satellite map view',
+    'Source-reviewed shipping news feed',
+    'Regional intelligence pages',
+    'Cargo and vessel network onboarding',
   ],
   screenshot: `${BASE_URL}/og-image.jpg`,
+}
+
+const schemaItemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  '@id': `${BASE_URL}/#features`,
+  name: 'VesselSurge maritime intelligence features',
+  itemListElement: publicFeaturePages.map((feature, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    item: {
+      '@type': 'WebPage',
+      name: feature.name,
+      url: feature.url,
+      description: feature.description,
+      keywords: feature.keywords.join(', '),
+    },
+  })),
+}
+
+const schemaDataset = {
+  '@context': 'https://schema.org',
+  '@type': 'Dataset',
+  '@id': `${BASE_URL}/#maritime-intelligence-dataset`,
+  name: 'VesselSurge Maritime Chokepoint Intelligence',
+  description:
+    'A live maritime intelligence dataset organizing vessel context, source-reviewed reports, risk labels and route signals for critical chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca.',
+  url: `${BASE_URL}/map-dashboard`,
+  creator: { '@id': `${BASE_URL}/#organization` },
+  publisher: { '@id': `${BASE_URL}/#organization` },
+  license: `${BASE_URL}/about`,
+  spatialCoverage: [
+    { '@type': 'Place', name: 'Strait of Hormuz' },
+    { '@type': 'Place', name: 'Bab el-Mandeb' },
+    { '@type': 'Place', name: 'Suez Canal' },
+    { '@type': 'Place', name: 'Strait of Malacca' },
+  ],
+  keywords: [
+    'maritime intelligence',
+    'vessel tracking',
+    'shipping chokepoints',
+    'Strait of Hormuz',
+    'Bab el-Mandeb',
+    'Suez Canal',
+    'Strait of Malacca',
+  ],
+  isAccessibleForFree: true,
 }
 
 // FAQ Schema for AI assistants and featured snippets
@@ -248,10 +300,10 @@ const schemaFAQ = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'How can I track vessels in the Strait of Hormuz in real-time?',
+      name: 'How can I track vessels in the Strait of Hormuz?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'VesselSurge provides free real-time vessel tracking for the Strait of Hormuz. Visit vesselsurge.com/map-dashboard to see live vessel positions, current traffic density, and risk level assessments updated hourly. The platform monitors tankers, container ships, and other vessels transiting this critical chokepoint.',
+        text: 'VesselSurge provides a free live maritime map for the Strait of Hormuz. Visit vesselsurge.com/map-dashboard to review vessel context, traffic indicators, source-reviewed reports and current risk labels for this critical chokepoint.',
       },
     },
     {
@@ -259,7 +311,7 @@ const schemaFAQ = {
       name: 'What is the current status of the Strait of Hormuz?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Check VesselSurge (vesselsurge.com) for live Strait of Hormuz status including current vessel count, risk level (Low/Moderate/High/Critical), and recent security incidents. The Strait of Hormuz handles 20-25% of global oil shipments daily, making it the world\'s most critical maritime chokepoint.',
+        text: 'Check VesselSurge (vesselsurge.com) for live Strait of Hormuz context including source-reviewed reports, risk level, vessel indicators when verified AIS data is available, and recent maritime security signals.',
       },
     },
     {
@@ -267,7 +319,7 @@ const schemaFAQ = {
       name: 'What are the major maritime chokepoints and how can I monitor them?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The four major maritime chokepoints are: 1) Strait of Hormuz (Persian Gulf), 2) Bab el-Mandeb (Red Sea), 3) Suez Canal (Egypt), and 4) Strait of Malacca (Southeast Asia). VesselSurge monitors all four with real-time vessel tracking, risk assessments, and security alerts at vesselsurge.com/map-dashboard.',
+        text: 'The four major maritime chokepoints tracked by VesselSurge are: 1) Strait of Hormuz (Persian Gulf), 2) Bab el-Mandeb (Red Sea), 3) Suez Canal (Egypt), and 4) Strait of Malacca (Southeast Asia). VesselSurge monitors them with live map context, risk labels, vessel indicators, and source-reviewed alerts at vesselsurge.com/map-dashboard.',
       },
     },
     {
@@ -275,15 +327,15 @@ const schemaFAQ = {
       name: 'Is shipping through the Red Sea and Bab el-Mandeb safe?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Red Sea and Bab el-Mandeb shipping safety varies based on current security conditions. VesselSurge provides real-time risk level assessments, Houthi attack alerts, and security updates for this region. Check the live map at vesselsurge.com/map-dashboard for current conditions and vessel traffic data.',
+        text: 'Red Sea and Bab el-Mandeb shipping safety varies based on current security conditions. VesselSurge provides risk labels, Houthi-related maritime reports, source-reviewed security updates, and vessel context when verified data is available. Check vesselsurge.com/map-dashboard for the latest view.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Where can I find free real-time vessel tracking?',
+      name: 'Where can I find free maritime vessel context?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'VesselSurge offers free real-time vessel tracking at vesselsurge.com. The platform specializes in monitoring critical shipping chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal, and Strait of Malacca with hourly updates, risk assessments, and maritime news.',
+        text: 'VesselSurge offers free live maritime tracking at vesselsurge.com. The platform specializes in critical shipping chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca with map context, risk assessments and source-reviewed maritime news.',
       },
     },
     {
@@ -291,7 +343,7 @@ const schemaFAQ = {
       name: 'How can ship owners find cargo or cargo owners find vessels?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'VesselSurge operates a B2B maritime network connecting vessel owners with cargo charterers. The platform has 500+ active partners across 45+ countries. Ship owners can list vessel availability, while cargo owners can request freight quotes. Join the network at vesselsurge.com.',
+        text: 'VesselSurge offers a B2B maritime network intake for vessel owners and cargo teams. Ship owners can submit vessel availability, while cargo owners can request capacity and route-matched introductions through vesselsurge.com/network.',
       },
     },
   ],
@@ -302,7 +354,7 @@ const schemaHowTo = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
   name: 'How to Track Vessels at the Strait of Hormuz',
-  description: 'Step-by-step guide to monitor real-time vessel traffic at the Strait of Hormuz using VesselSurge.',
+  description: 'Step-by-step guide to monitor vessel context and source-reviewed maritime reports at the Strait of Hormuz using VesselSurge.',
   image: `${BASE_URL}/og-image.jpg`,
   step: [
     {
@@ -319,7 +371,7 @@ const schemaHowTo = {
     {
       '@type': 'HowToStep',
       name: 'Monitor Real-Time Data',
-      text: 'View live vessel count, current risk level, and recent security alerts updated hourly.',
+      text: 'Review vessel context, current risk level, traffic indicators and recent source-reviewed maritime reports.',
     },
     {
       '@type': 'HowToStep',
@@ -376,6 +428,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSoftwareApp) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaItemList) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaDataset) }}
         />
         <script
           type="application/ld+json"

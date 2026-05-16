@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Linkedin, Zap } from "lucide-react"
+import { trafficTopicPages } from "@/lib/seo"
 
 export function SiteFooter() {
   return (
@@ -25,6 +26,13 @@ export function SiteFooter() {
               <Linkedin className="h-5 w-5" />
             </a>
           </div>
+        </div>
+        <div className="grid gap-3 border-t border-border pt-5 sm:grid-cols-2 lg:grid-cols-3">
+          {trafficTopicPages.slice(0, 12).map((topic) => (
+            <Link key={topic.slug} href={`/topics/${topic.slug}`} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+              {topic.name}
+            </Link>
+          ))}
         </div>
         <div className="text-sm text-muted-foreground">
           &copy; 2026 VesselSurge. Maritime intelligence and B2B shipping network.

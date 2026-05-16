@@ -1,9 +1,62 @@
+import type { Metadata } from "next"
 import { CheckCircle2, Globe, Target, Users } from "lucide-react"
 import { PartnershipForm } from "@/components/partnership-form"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
 
+const BASE_URL = "https://www.vesselsurge.com"
+
+export const metadata: Metadata = {
+  title: "Maritime B2B Network for Cargo, Vessel Capacity and Shipping Partners",
+  description:
+    "Join VesselSurge's maritime B2B network to submit cargo requirements, vessel capacity, routes and timing for cleaner cargo-vessel matching and partner introductions.",
+  alternates: { canonical: `${BASE_URL}/network` },
+  keywords: [
+    "maritime B2B network",
+    "find cargo for vessel",
+    "find vessel for cargo",
+    "cargo vessel matching",
+    "shipping partners",
+    "vessel capacity",
+    "cargo charter matching",
+    "maritime marketplace",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${BASE_URL}/network`,
+    siteName: "VesselSurge",
+    title: "VesselSurge Network | Cargo and Vessel Capacity Matching",
+    description:
+      "Submit cargo requirements or vessel capacity and build cleaner maritime partner introductions.",
+    images: [{ url: `${BASE_URL}/og-image.jpg`, width: 1200, height: 630, alt: "VesselSurge maritime network" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Maritime B2B Network | VesselSurge",
+    description: "Cargo-vessel matching, route intake and partner introductions for maritime teams.",
+    images: [`${BASE_URL}/og-image.jpg`],
+  },
+}
+
 export default function NetworkPage() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${BASE_URL}/network#service`,
+    name: "VesselSurge Maritime B2B Network",
+    url: `${BASE_URL}/network`,
+    provider: { "@id": `${BASE_URL}/#organization` },
+    serviceType: "Cargo and vessel capacity matching intake",
+    areaServed: "Worldwide",
+    description:
+      "A maritime B2B intake service for cargo teams and vessel operators to submit route, cargo, timing and capacity requirements for cleaner partner introductions.",
+    audience: [
+      { "@type": "BusinessAudience", audienceType: "Vessel owners" },
+      { "@type": "BusinessAudience", audienceType: "Cargo teams" },
+      { "@type": "BusinessAudience", audienceType: "Charterers" },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <SiteNavigation />
@@ -72,6 +125,7 @@ export default function NetworkPage() {
           </div>
         </section>
       </main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <SiteFooter />
     </div>
   )

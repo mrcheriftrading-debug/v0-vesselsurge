@@ -1,0 +1,301 @@
+export const BASE_URL = "https://www.vesselsurge.com"
+
+export const publicFeaturePages = [
+  {
+    name: "Live Maritime Map",
+    url: `${BASE_URL}/map-dashboard`,
+    description:
+      "Live map context, vessel indicators, risk labels and selected reports for critical shipping chokepoints.",
+    keywords: ["live maritime map", "vessel tracking", "shipping chokepoint map"],
+  },
+  {
+    name: "Maritime Intelligence",
+    url: `${BASE_URL}/intelligence`,
+    description:
+      "Source-reviewed shipping risk reports and route signals for Hormuz, Red Sea, Suez and Malacca.",
+    keywords: ["maritime intelligence", "shipping risk reports", "chokepoint news"],
+  },
+  {
+    name: "Maritime B2B Network",
+    url: `${BASE_URL}/network`,
+    description:
+      "Cargo and vessel capacity intake for route, timing and partner matching.",
+    keywords: ["cargo vessel matching", "maritime B2B network", "vessel capacity"],
+  },
+  {
+    name: "Maritime Search",
+    url: `${BASE_URL}/search`,
+    description:
+      "Search maritime news, security alerts, route context and shipping market updates.",
+    keywords: ["maritime news search", "shipping alerts search", "vessel news"],
+  },
+  {
+    name: "Strait of Hormuz Intelligence",
+    url: `${BASE_URL}/regions/hormuz`,
+    description:
+      "Hormuz vessel context, Iran-related maritime risk and oil route signals.",
+    keywords: ["Strait of Hormuz live tracking", "Iran shipping risk", "oil tanker tracking"],
+  },
+  {
+    name: "Bab el-Mandeb Intelligence",
+    url: `${BASE_URL}/regions/bab`,
+    description:
+      "Red Sea, Gulf of Aden and Bab el-Mandeb shipping security context.",
+    keywords: ["Bab el-Mandeb shipping risk", "Red Sea security", "Houthi maritime alerts"],
+  },
+  {
+    name: "Suez Canal Intelligence",
+    url: `${BASE_URL}/regions/suez`,
+    description:
+      "Suez Canal traffic, transit risk, queue signals and route disruption context.",
+    keywords: ["Suez Canal live traffic", "Suez vessel queue", "Suez transit risk"],
+  },
+  {
+    name: "Strait of Malacca Intelligence",
+    url: `${BASE_URL}/regions/malacca`,
+    description:
+      "Malacca and Singapore Strait vessel density, congestion and piracy alert context.",
+    keywords: ["Strait of Malacca vessel traffic", "Singapore Strait risk", "Malacca piracy alerts"],
+  },
+] as const
+
+export const trafficTopicPages = [
+  {
+    slug: "strait-of-hormuz-oil-risk",
+    name: "Strait of Hormuz Oil Risk Tracker",
+    title: "Strait of Hormuz Oil Risk Tracker, Iran Tension and Tanker Route Signals",
+    description:
+      "Monitor Strait of Hormuz oil route risk, Iran-related maritime tension, tanker traffic context, insurance pressure and live chokepoint intelligence.",
+    keywords: ["Strait of Hormuz oil risk", "Iran tanker route risk", "Hormuz oil shipping tracker"],
+    regionHref: "/regions/hormuz",
+    primaryHref: "/map-dashboard?hotspot=hormuz",
+    intent: "oil traders, shipping teams and analysts watching Hormuz risk",
+    questions: [
+      "How can I monitor Strait of Hormuz oil route risk?",
+      "Where can I track Iran-related tanker shipping signals?",
+      "What maritime data matters when Hormuz tensions rise?",
+    ],
+  },
+  {
+    slug: "red-sea-shipping-risk",
+    name: "Red Sea Shipping Risk Tracker",
+    title: "Red Sea Shipping Risk, Bab el-Mandeb Security and Houthi Maritime Signals",
+    description:
+      "Track Red Sea shipping risk, Bab el-Mandeb security context, Gulf of Aden route exposure, Houthi-related maritime reports and rerouting signals.",
+    keywords: ["Red Sea shipping risk", "Bab el-Mandeb security", "Houthi maritime alerts"],
+    regionHref: "/regions/bab",
+    primaryHref: "/map-dashboard?hotspot=bab",
+    intent: "teams monitoring Red Sea security and route disruption",
+    questions: [
+      "Where can I monitor Red Sea shipping risk?",
+      "How do I track Bab el-Mandeb maritime security signals?",
+      "What should operators watch when Red Sea routes tighten?",
+    ],
+  },
+  {
+    slug: "suez-canal-traffic-delays",
+    name: "Suez Canal Traffic and Delay Tracker",
+    title: "Suez Canal Traffic, Vessel Queue Signals and Transit Delay Intelligence",
+    description:
+      "Follow Suez Canal traffic context, vessel queue signals, transit delay reports, Red Sea spillover risk and Europe-Asia shipping disruption intelligence.",
+    keywords: ["Suez Canal traffic", "Suez vessel queue", "Suez transit delays"],
+    regionHref: "/regions/suez",
+    primaryHref: "/map-dashboard?hotspot=suez",
+    intent: "logistics teams tracking Suez delays and route disruption",
+    questions: [
+      "How can I monitor Suez Canal traffic?",
+      "Where can I check Suez vessel queue signals?",
+      "What maritime risks affect Suez Canal transits?",
+    ],
+  },
+  {
+    slug: "malacca-strait-vessel-traffic",
+    name: "Malacca Strait Vessel Traffic Tracker",
+    title: "Strait of Malacca Vessel Traffic, Singapore Strait Risk and Piracy Alert Context",
+    description:
+      "Monitor Strait of Malacca vessel traffic, Singapore Strait congestion context, piracy alert signals and Southeast Asia maritime risk intelligence.",
+    keywords: ["Strait of Malacca vessel traffic", "Singapore Strait risk", "Malacca piracy alerts"],
+    regionHref: "/regions/malacca",
+    primaryHref: "/map-dashboard?hotspot=malacca",
+    intent: "operators watching Southeast Asia traffic, congestion and piracy context",
+    questions: [
+      "Where can I track Strait of Malacca vessel traffic?",
+      "How do I monitor Singapore Strait maritime risk?",
+      "What signals matter for Malacca congestion and piracy alerts?",
+    ],
+  },
+  {
+    slug: "maritime-risk-intelligence",
+    name: "Maritime Risk Intelligence",
+    title: "Maritime Risk Intelligence for Chokepoints, Vessel Tracking and Shipping Disruption",
+    description:
+      "Use VesselSurge for maritime risk intelligence across Hormuz, Bab el-Mandeb, Suez and Malacca with live map context and source-reviewed reports.",
+    keywords: ["maritime risk intelligence", "shipping disruption tracker", "chokepoint monitoring"],
+    regionHref: "/intelligence",
+    primaryHref: "/intelligence",
+    intent: "researchers and operators comparing shipping risk across chokepoints",
+    questions: [
+      "What is maritime risk intelligence?",
+      "How can I monitor multiple shipping chokepoints?",
+      "Where can I compare Hormuz, Red Sea, Suez and Malacca risk?",
+    ],
+  },
+  {
+    slug: "cargo-vessel-matching",
+    name: "Cargo Vessel Matching",
+    title: "Cargo Vessel Matching, Vessel Capacity Intake and Maritime B2B Network",
+    description:
+      "Submit cargo requirements or vessel capacity to VesselSurge for cleaner maritime B2B intake, route matching and partner introductions.",
+    keywords: ["cargo vessel matching", "find cargo for vessel", "find vessel for cargo"],
+    regionHref: "/network",
+    primaryHref: "/network#surge-form",
+    intent: "cargo teams and vessel operators looking for shipping partners",
+    questions: [
+      "How can cargo owners find vessel capacity?",
+      "Where can vessel operators find cargo opportunities?",
+      "How does VesselSurge support maritime B2B introductions?",
+    ],
+  },
+  {
+    slug: "war-risk-insurance-shipping",
+    name: "War Risk Insurance for Shipping",
+    title: "War Risk Insurance for Shipping, Maritime Premium Pressure and Chokepoint Risk",
+    description:
+      "Track war risk insurance pressure, maritime premium signals, shipping security exposure and chokepoint disruption context across Hormuz, Red Sea, Suez and Malacca.",
+    keywords: ["war risk insurance shipping", "maritime insurance risk", "shipping premium pressure"],
+    regionHref: "/intelligence",
+    primaryHref: "/intelligence",
+    intent: "operators, cargo teams and analysts watching insurance costs around risky routes",
+    questions: [
+      "How does war risk insurance affect shipping routes?",
+      "Where can I monitor maritime insurance pressure?",
+      "What chokepoints can increase shipping premiums?",
+    ],
+  },
+  {
+    slug: "oil-tanker-tracking",
+    name: "Oil Tanker Tracking",
+    title: "Oil Tanker Tracking, Energy Shipping Routes and Chokepoint Risk Intelligence",
+    description:
+      "Monitor oil tanker route context, energy shipping chokepoints, Hormuz exposure, Red Sea risk and source-reviewed maritime intelligence with VesselSurge.",
+    keywords: ["oil tanker tracking", "energy shipping routes", "tanker chokepoint risk"],
+    regionHref: "/regions/hormuz",
+    primaryHref: "/map-dashboard?hotspot=hormuz",
+    intent: "energy watchers and shipping teams tracking tanker routes and risk",
+    questions: [
+      "Where can I track oil tanker route risk?",
+      "Why does Hormuz matter for tanker traffic?",
+      "How can I monitor tanker disruption signals?",
+    ],
+  },
+  {
+    slug: "shipping-disruption-tracker",
+    name: "Shipping Disruption Tracker",
+    title: "Shipping Disruption Tracker for Chokepoints, Route Delays and Maritime Risk",
+    description:
+      "Track shipping disruption signals across major chokepoints, including route delays, rerouting pressure, source-reviewed reports and live maritime map context.",
+    keywords: ["shipping disruption tracker", "route delay tracker", "maritime disruption intelligence"],
+    regionHref: "/intelligence",
+    primaryHref: "/map-dashboard",
+    intent: "teams watching disruption, rerouting, congestion and security signals",
+    questions: [
+      "Where can I track global shipping disruption?",
+      "How do chokepoint disruptions affect routes?",
+      "What signals show shipping delays are getting worse?",
+    ],
+  },
+  {
+    slug: "ais-vessel-tracking-map",
+    name: "AIS Vessel Tracking Map",
+    title: "AIS Vessel Tracking Map, Live Maritime Context and Chokepoint Intelligence",
+    description:
+      "Use VesselSurge for AIS vessel tracking context, live maritime maps, chokepoint risk labels and source-reviewed shipping reports when data is available.",
+    keywords: ["AIS vessel tracking map", "live AIS ship tracker", "vessel tracking map"],
+    regionHref: "/map-dashboard",
+    primaryHref: "/map-dashboard",
+    intent: "users searching for live vessel tracking and AIS map context",
+    questions: [
+      "Where can I find a live AIS vessel tracking map?",
+      "How can I monitor vessels near maritime chokepoints?",
+      "What should I know when AIS data is limited?",
+    ],
+  },
+  {
+    slug: "gulf-of-aden-shipping-risk",
+    name: "Gulf of Aden Shipping Risk",
+    title: "Gulf of Aden Shipping Risk, Bab el-Mandeb Route Security and Red Sea Signals",
+    description:
+      "Monitor Gulf of Aden shipping risk, Bab el-Mandeb route security, Red Sea disruption signals and source-reviewed maritime reports.",
+    keywords: ["Gulf of Aden shipping risk", "Gulf of Aden vessel tracking", "Bab el-Mandeb route security"],
+    regionHref: "/regions/bab",
+    primaryHref: "/map-dashboard?hotspot=bab",
+    intent: "operators watching Gulf of Aden and Red Sea route exposure",
+    questions: [
+      "How can I monitor Gulf of Aden shipping risk?",
+      "What is the connection between Bab el-Mandeb and Gulf of Aden risk?",
+      "Where can I track Red Sea route security context?",
+    ],
+  },
+  {
+    slug: "persian-gulf-shipping-risk",
+    name: "Persian Gulf Shipping Risk",
+    title: "Persian Gulf Shipping Risk, Hormuz Vessel Context and Iran Maritime Signals",
+    description:
+      "Track Persian Gulf shipping risk, Strait of Hormuz vessel context, Iran-related maritime reports and tanker route exposure with VesselSurge.",
+    keywords: ["Persian Gulf shipping risk", "Iran maritime signals", "Hormuz vessel context"],
+    regionHref: "/regions/hormuz",
+    primaryHref: "/map-dashboard?hotspot=hormuz",
+    intent: "users monitoring Persian Gulf shipping exposure and Iran-related maritime risk",
+    questions: [
+      "How can I monitor Persian Gulf shipping risk?",
+      "Where can I track Iran-related maritime signals?",
+      "What makes the Persian Gulf important for vessel routing?",
+    ],
+  },
+  {
+    slug: "cape-of-good-hope-rerouting",
+    name: "Cape of Good Hope Rerouting",
+    title: "Cape of Good Hope Rerouting, Red Sea Bypass Pressure and Shipping Cost Signals",
+    description:
+      "Track rerouting pressure around the Cape of Good Hope, Red Sea bypass decisions, voyage time impact, fuel cost pressure and maritime disruption signals.",
+    keywords: ["Cape of Good Hope rerouting", "Red Sea rerouting", "shipping route bypass"],
+    regionHref: "/intelligence",
+    primaryHref: "/intelligence",
+    intent: "logistics and cargo teams evaluating rerouting pressure and longer voyages",
+    questions: [
+      "When do ships reroute around the Cape of Good Hope?",
+      "How does Red Sea risk affect voyage time?",
+      "Where can I monitor rerouting pressure?",
+    ],
+  },
+  {
+    slug: "freight-rate-risk-signals",
+    name: "Freight Rate Risk Signals",
+    title: "Freight Rate Risk Signals, Insurance Pressure and Maritime Disruption Context",
+    description:
+      "Monitor freight rate risk signals tied to chokepoint disruption, war risk premiums, fuel pressure, route delays and source-reviewed maritime intelligence.",
+    keywords: ["freight rate risk", "shipping cost signals", "maritime rate pressure"],
+    regionHref: "/intelligence",
+    primaryHref: "/intelligence",
+    intent: "market watchers and logistics teams tracking shipping cost pressure",
+    questions: [
+      "What maritime signals can affect freight rates?",
+      "How do chokepoint risks affect shipping costs?",
+      "Where can I monitor freight and insurance pressure?",
+    ],
+  },
+] as const
+
+export function noIndexMetadata(title: string) {
+  return {
+    title,
+    robots: {
+      index: false,
+      follow: false,
+      googleBot: {
+        index: false,
+        follow: false,
+      },
+    },
+  }
+}

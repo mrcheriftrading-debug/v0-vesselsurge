@@ -1,7 +1,40 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Globe2, ShieldCheck, Target, Zap } from "lucide-react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
+
+const BASE_URL = "https://www.vesselsurge.com"
+
+export const metadata: Metadata = {
+  title: "About VesselSurge | Live Maritime Intelligence and Chokepoint Monitoring",
+  description:
+    "Learn how VesselSurge combines live maritime intelligence, critical chokepoint monitoring, source-reviewed shipping risk and B2B vessel-cargo matching.",
+  alternates: { canonical: `${BASE_URL}/about` },
+  keywords: [
+    "about VesselSurge",
+    "maritime intelligence platform",
+    "shipping chokepoint monitoring",
+    "vessel tracking platform",
+    "maritime risk intelligence",
+    "cargo vessel network",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${BASE_URL}/about`,
+    siteName: "VesselSurge",
+    title: "About VesselSurge | Maritime Intelligence for Critical Routes",
+    description:
+      "VesselSurge organizes maritime risk, live map context and cargo-vessel network flows for faster shipping decisions.",
+    images: [{ url: `${BASE_URL}/og-image.jpg`, width: 1200, height: 630, alt: "About VesselSurge maritime intelligence" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About VesselSurge",
+    description: "Live maritime intelligence, chokepoint monitoring and cargo-vessel network flows.",
+    images: [`${BASE_URL}/og-image.jpg`],
+  },
+}
 
 export default function AboutPage() {
   return (

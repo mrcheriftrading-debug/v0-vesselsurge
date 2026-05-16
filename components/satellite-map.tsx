@@ -214,12 +214,14 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
       initializingRef.current = false
     })
 
+    const vesselMarkers = vesselMarkersRef.current
+
     return () => {
       if (mapInstanceRef.current) {
-        try { mapInstanceRef.current.remove() } catch (_) {}
+        try { mapInstanceRef.current.remove() } catch {}
         mapInstanceRef.current = null
         hotspotMarkersRef.current = []
-        vesselMarkersRef.current.clear()
+        vesselMarkers.clear()
         vesselLayerRef.current = null
         initializingRef.current = false
       }

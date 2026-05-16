@@ -5,12 +5,7 @@ import Link from "next/link"
 import { Zap, Menu, X, MapPin, LogIn, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface NavigationProps {
-  isConnected?: boolean
-  isDemo?: boolean
-}
-
-export function Navigation({ isConnected = false, isDemo = true }: NavigationProps) {
+export function Navigation() {
   const [time, setTime] = useState("")
   const [mobileOpen, setMobileOpen] = useState(false)
 

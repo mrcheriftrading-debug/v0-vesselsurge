@@ -25,6 +25,8 @@ const regions = {
     summary:
       "The Strait of Hormuz is the most watched oil chokepoint in the world. VesselSurge organizes live map context, recent reports, source counts and risk labels so operators can separate verified maritime signals from noise.",
     coordinates: "26.5667 N, 56.2500 E",
+    latitude: 26.5667,
+    longitude: 56.25,
     mapHref: "/map-dashboard?hotspot=hormuz",
     priorityKeyword: "Strait of Hormuz live vessel tracking",
   },
@@ -45,6 +47,8 @@ const regions = {
     summary:
       "Bab el-Mandeb links the Red Sea with the Gulf of Aden and is central to Europe-Asia shipping exposure. VesselSurge keeps the latest risk reports tied to map context and traffic indicators.",
     coordinates: "12.5833 N, 43.3333 E",
+    latitude: 12.5833,
+    longitude: 43.3333,
     mapHref: "/map-dashboard?hotspot=bab",
     priorityKeyword: "Bab el-Mandeb shipping risk tracker",
   },
@@ -65,6 +69,8 @@ const regions = {
     summary:
       "The Suez Canal is a key shortcut between Europe and Asia. VesselSurge combines transit-related news, risk notes and live map context to help users understand disruptions before they become delays.",
     coordinates: "30.5852 N, 32.2654 E",
+    latitude: 30.5852,
+    longitude: 32.2654,
     mapHref: "/map-dashboard?hotspot=suez",
     priorityKeyword: "Suez Canal live traffic tracker",
   },
@@ -85,6 +91,8 @@ const regions = {
     summary:
       "The Strait of Malacca is one of the busiest commercial shipping lanes. VesselSurge tracks active vessel context, piracy-related reports and congestion signals for clearer maritime monitoring.",
     coordinates: "2.5000 N, 101.0000 E",
+    latitude: 2.5,
+    longitude: 101,
     mapHref: "/map-dashboard?hotspot=malacca",
     priorityKeyword: "Strait of Malacca vessel traffic tracker",
   },
@@ -153,7 +161,15 @@ export default async function RegionPage({ params }: RegionPageProps) {
         description: region.description,
         isPartOf: { "@id": `${BASE_URL}/#website` },
         about: [
-          { "@type": "Place", name: region.name, geo: { "@type": "GeoCoordinates", name: region.coordinates } },
+          {
+            "@type": "Place",
+            name: region.name,
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: region.latitude,
+              longitude: region.longitude,
+            },
+          },
           { "@type": "Thing", name: "Maritime intelligence" },
           { "@type": "Thing", name: "Vessel tracking" },
         ],
@@ -177,7 +193,16 @@ export default async function RegionPage({ params }: RegionPageProps) {
         description: `Source-reviewed maritime reports and live vessel context for ${region.name}.`,
         creator: { "@type": "Organization", name: "VesselSurge", url: BASE_URL },
         license: `${BASE_URL}/about`,
-        spatialCoverage: { "@type": "Place", name: region.name },
+        spatialCoverage: {
+          "@type": "Place",
+          name: region.name,
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: region.latitude,
+            longitude: region.longitude,
+          },
+        },
+        isAccessibleForFree: true,
       },
     ],
   }

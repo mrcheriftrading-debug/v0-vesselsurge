@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Ship, Anchor, Navigation2, Zap, X, Gauge, Compass, ChevronRight, Waves, MapPin } from "lucide-react"
+import { Anchor, Navigation2, Zap, X, Gauge, Compass, ChevronRight, Waves, MapPin } from "lucide-react"
 import { type MaritimeHotspot, type VesselData } from "@/lib/maritime-intelligence"
 
 interface InteractiveMapProps {

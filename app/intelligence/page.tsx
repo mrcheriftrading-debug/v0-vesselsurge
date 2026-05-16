@@ -1,7 +1,42 @@
 import Link from "next/link"
-import { ArrowRight, Database, FileText, Globe, Radio, Shield, Zap } from "lucide-react"
+import type { Metadata } from "next"
+import { ArrowRight, Database, FileText, Globe, Radio, Shield } from "lucide-react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
+
+const BASE_URL = "https://www.vesselsurge.com"
+
+export const metadata: Metadata = {
+  title: "Maritime Intelligence, Shipping Risk Reports and Chokepoint News",
+  description:
+    "Read source-reviewed maritime intelligence for Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca. Track shipping risk, route disruption signals and live map context.",
+  alternates: { canonical: `${BASE_URL}/intelligence` },
+  keywords: [
+    "maritime intelligence",
+    "shipping risk reports",
+    "chokepoint news",
+    "Strait of Hormuz news",
+    "Red Sea shipping risk",
+    "Suez Canal disruption",
+    "Bab el-Mandeb security",
+    "Malacca Strait piracy alerts",
+  ],
+  openGraph: {
+    type: "website",
+    url: `${BASE_URL}/intelligence`,
+    siteName: "VesselSurge",
+    title: "VesselSurge Maritime Intelligence | Shipping Risk and Chokepoint News",
+    description:
+      "Source-reviewed maritime reports and route risk context for Hormuz, Red Sea, Suez and Malacca.",
+    images: [{ url: `${BASE_URL}/og-image.jpg`, width: 1200, height: 630, alt: "VesselSurge maritime intelligence dashboard" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Maritime Intelligence and Shipping Risk | VesselSurge",
+    description: "Track source-reviewed reports and route risk signals for the world's critical chokepoints.",
+    images: [`${BASE_URL}/og-image.jpg`],
+  },
+}
 
 const intelligenceCards = [
   {
@@ -25,6 +60,22 @@ const intelligenceCards = [
 ]
 
 export default function IntelligencePage() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${BASE_URL}/intelligence#webpage`,
+    url: `${BASE_URL}/intelligence`,
+    name: "VesselSurge Maritime Intelligence",
+    description:
+      "Source-reviewed maritime intelligence, shipping risk reports and chokepoint signals for Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca.",
+    isPartOf: { "@id": `${BASE_URL}/#website` },
+    about: [
+      { "@type": "Thing", name: "Maritime intelligence" },
+      { "@type": "Thing", name: "Shipping risk" },
+      { "@type": "Thing", name: "Chokepoint monitoring" },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <SiteNavigation />
@@ -102,6 +153,7 @@ export default function IntelligencePage() {
           </div>
         </section>
       </main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <SiteFooter />
     </div>
   )

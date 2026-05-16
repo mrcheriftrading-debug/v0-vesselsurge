@@ -3,12 +3,13 @@
 import Link from "next/link"
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
-import { ArrowRight, BarChart3, LogIn, Map, Network, Newspaper, Search, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
+import { ArrowRight, LogIn, Map, Network, Newspaper, Search, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
 import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
 import { HeroOceanScene } from "@/components/three/maritime-3d-scenes"
+import { trafficTopicPages } from "@/lib/seo"
 
 const productCards = [
   {
@@ -218,6 +219,66 @@ export default function VesselSurgePage() {
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{region.text}</p>
                   <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
                     Open route page <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-border bg-card px-4 py-14 sm:py-20 lg:px-8">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Maritime search answers</div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Built for the chokepoint questions people ask first.</h2>
+              <p className="mt-3 text-muted-foreground">
+                VesselSurge gives researchers, operators and market watchers a faster way to move from shipping headlines to live route context.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                {
+                  question: "How can I monitor Strait of Hormuz vessel traffic?",
+                  answer: "Open the live map or Hormuz region page for vessel context, oil route risk and Iran-related maritime signals.",
+                },
+                {
+                  question: "Where can I track Red Sea and Bab el-Mandeb shipping risk?",
+                  answer: "Use the intelligence hub and Bab el-Mandeb page for source-reviewed Red Sea security and Gulf of Aden route context.",
+                },
+                {
+                  question: "How do I check Suez Canal and Malacca Strait disruptions?",
+                  answer: "Dedicated region pages organize traffic, congestion, piracy and transit risk signals before you open the operational map.",
+                },
+                {
+                  question: "Can VesselSurge help with cargo and vessel matching?",
+                  answer: "The network page lets cargo teams and vessel operators submit route, cargo, timing and capacity requirements.",
+                },
+              ].map(({ question, answer }) => (
+                <div key={question} className="rounded-xl border border-border bg-background/55 p-5">
+                  <h3 className="text-base font-bold text-foreground">{question}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-border bg-background px-4 py-14 sm:py-20 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 max-w-3xl">
+              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Traffic topics</div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">High-intent pages for the maritime searches that matter.</h2>
+              <p className="mt-3 text-muted-foreground">
+                These topic guides connect search demand directly to VesselSurge tools, from Hormuz oil risk to cargo-vessel matching.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {trafficTopicPages.map((topic) => (
+                <Link key={topic.slug} href={`/topics/${topic.slug}`} className="group rounded-xl border border-border bg-card/50 p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
+                  <h3 className="text-lg font-bold text-foreground">{topic.name}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{topic.description}</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    Open topic <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </div>
                 </Link>
               ))}

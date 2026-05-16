@@ -19,10 +19,11 @@ type HotspotBounds = {
 }
 
 const HOTSPOT_BOUNDS: HotspotBounds[] = [
-  { id: 'hormuz', bounds: [[25.8, 54.8], [27.6, 57.4]] },
-  { id: 'bab', bounds: [[11.8, 42.4], [13.4, 44.2]] },
-  { id: 'malacca', bounds: [[1.0, 100.0], [3.8, 104.5]] },
-  { id: 'suez', bounds: [[29.0, 31.8], [31.4, 33.1]] },
+  // Slightly wider boxes catch approaches/anchorages without pretending to cover an ocean basin.
+  { id: 'hormuz', bounds: [[24.8, 54.0], [27.9, 58.4]] },
+  { id: 'bab', bounds: [[11.2, 41.8], [13.8, 45.0]] },
+  { id: 'malacca', bounds: [[0.8, 99.5], [4.2, 104.8]] },
+  { id: 'suez', bounds: [[28.8, 31.5], [31.6, 33.4]] },
 ]
 
 export function getAisStreamKey() {

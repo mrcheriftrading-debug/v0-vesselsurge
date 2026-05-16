@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#061216"/>
+      <stop offset="0.48" stop-color="#0b2630"/>
+      <stop offset="1" stop-color="#181a24"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="20%" r="55%">
+      <stop offset="0" stop-color="#2dd4bf" stop-opacity="0.55"/>
+      <stop offset="0.54" stop-color="#2dd4bf" stop-opacity="0.09"/>
+      <stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0f766e" stop-opacity="0.2"/>
+      <stop offset="0.5" stop-color="#38bdf8" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#0f766e" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+
+  <g opacity="0.28" stroke="#7dd3fc" stroke-width="2" fill="none">
+    <circle cx="1260" cy="165" r="90"/>
+    <circle cx="1260" cy="165" r="165"/>
+    <circle cx="1260" cy="165" r="255"/>
+    <path d="M1260 165 L1500 88"/>
+    <path d="M1260 165 L1398 392"/>
+    <path d="M1260 165 L1056 315"/>
+  </g>
+
+  <g opacity="0.22" stroke="#94a3b8" stroke-width="1.4" fill="none">
+    <path d="M70 210 C240 155, 390 220, 548 174 S842 166, 970 230"/>
+    <path d="M1160 538 C1278 482, 1390 510, 1518 458"/>
+    <path d="M1038 622 C1150 590, 1310 630, 1470 580"/>
+  </g>
+
+  <g transform="translate(1035 545)">
+    <ellipse cx="205" cy="190" rx="320" ry="44" fill="#020617" opacity="0.38" filter="url(#soft)"/>
+    <path d="M20 162 L340 112 L508 160 L470 210 L96 222 Z" fill="#e5eef4"/>
+    <path d="M80 128 L336 90 L430 124 L340 150 L70 170 Z" fill="#f8fafc"/>
+    <path d="M184 80 L320 64 L378 100 L208 124 Z" fill="#cbd5e1"/>
+    <rect x="230" y="42" width="122" height="42" rx="5" fill="#f8fafc"/>
+    <rect x="246" y="18" width="90" height="32" rx="4" fill="#dbeafe"/>
+    <path d="M20 162 L96 222 L470 210 L508 160 C400 190 210 196 20 162 Z" fill="#0f172a" opacity="0.18"/>
+    <g fill="#0f172a" opacity="0.65">
+      <circle cx="156" cy="164" r="9"/><circle cx="204" cy="158" r="9"/><circle cx="252" cy="152" r="9"/><circle cx="300" cy="146" r="9"/>
+    </g>
+    <path d="M-40 250 C90 216, 180 264, 310 235 S510 226, 650 266" fill="none" stroke="#67e8f9" stroke-width="10" stroke-opacity="0.4"/>
+    <path d="M-25 282 C108 250, 220 294, 355 266 S530 260, 635 290" fill="none" stroke="#38bdf8" stroke-width="5" stroke-opacity="0.25"/>
+  </g>
+
+  <rect x="72" y="68" width="68" height="68" rx="16" fill="#f8fafc"/>
+  <text x="106" y="113" text-anchor="middle" fill="#061216" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900">VS</text>
+  <text x="162" y="96" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="900">VesselSurge</text>
+  <text x="162" y="132" fill="#99f6e4" font-family="Arial, Helvetica, sans-serif" font-size="22">Live maritime intelligence</text>
+
+  <rect x="72" y="194" width="208" height="54" rx="27" fill="#11343a" stroke="#2dd4bf" stroke-width="2"/>
+  <text x="176" y="229" text-anchor="middle" fill="#ccfbf1" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="900">HORMUZ WATCH</text>
+  <rect x="302" y="194" width="154" height="54" rx="27" fill="#3b1116" stroke="#ef4444" stroke-width="2"/>
+  <text x="379" y="229" text-anchor="middle" fill="#fee2e2" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="900">CRITICAL</text>
+
+  <text x="72" y="360" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="900" letter-spacing="0">
+    <tspan x="72" dy="0">US, Iran stall on</tspan>
+    <tspan x="72" dy="88">Hormuz reopening as</tspan>
+    <tspan x="72" dy="88">oil supplies tighten</tspan>
+  </text>
+
+  <text x="76" y="672" fill="#bae6fd" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800">Route risk before it becomes freight risk.</text>
+  <text x="76" y="724" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="28">Source: Bloomberg Politics</text>
+  <text x="76" y="782" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900">vesselsurge.com/map-dashboard</text>
+</svg>

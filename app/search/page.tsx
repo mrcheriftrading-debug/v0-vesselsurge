@@ -3,12 +3,20 @@ import Link from "next/link"
 import { Zap, ArrowLeft } from "lucide-react"
 
 import type { Metadata } from 'next'
-
-const BASE_URL = 'https://www.vesselsurge.com'
+import { BASE_URL } from "@/lib/seo"
 
 export const metadata: Metadata = {
   title: "Maritime News Search - Real-Time Shipping Intelligence",
-  description: "Search real-time maritime news, vessel tracking updates, and shipping security alerts. Find the latest on Strait of Hormuz, Red Sea, Suez Canal, and global shipping chokepoints.",
+  description: "Search maritime news, vessel tracking updates, source-reviewed shipping reports and security alerts for Strait of Hormuz, Red Sea, Suez Canal, Malacca and global chokepoints.",
+  keywords: [
+    "maritime news search",
+    "shipping intelligence search",
+    "vessel tracking news",
+    "Strait of Hormuz search",
+    "Red Sea shipping alerts",
+    "Suez Canal news",
+    "Malacca Strait alerts",
+  ],
   alternates: {
     canonical: `${BASE_URL}/search`,
   },
@@ -28,6 +36,22 @@ export const metadata: Metadata = {
 }
 
 export default function SearchPage() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "SearchResultsPage",
+    "@id": `${BASE_URL}/search#webpage`,
+    url: `${BASE_URL}/search`,
+    name: "VesselSurge Maritime Intelligence Search",
+    description:
+      "Search page for maritime news, security alerts, vessel tracking updates and shipping chokepoint intelligence.",
+    isPartOf: { "@id": `${BASE_URL}/#website` },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${BASE_URL}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -56,6 +80,7 @@ export default function SearchPage() {
           <p>Maritime Intelligence Search powered by VesselSurge &mdash; Real-time vessel tracking and shipping data</p>
         </div>
       </footer>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </div>
   )
 }

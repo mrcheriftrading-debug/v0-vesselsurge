@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next'
-
-const BASE_URL = 'https://www.vesselsurge.com'
+import { BASE_URL, trafficTopicPages } from '@/lib/seo'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
@@ -16,8 +15,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${BASE_URL}/map-dashboard`,
       lastModified: now,
-      changeFrequency: 'hourly',
+      changeFrequency: 'daily',
       priority: 0.95,
+      images: [`${BASE_URL}/og-image.jpg`],
     },
     {
       url: `${BASE_URL}/intelligence`,
@@ -68,6 +68,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       priority: 0.8,
     },
+    ...trafficTopicPages.map((topic) => ({
+      url: `${BASE_URL}/topics/${topic.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: topic.slug.includes('hormuz') || topic.slug.includes('red-sea') ? 0.82 : 0.75,
+      images: [`${BASE_URL}/og-image.jpg`],
+    })),
     // LLMs.txt for AI assistants
     {
       url: `${BASE_URL}/llms.txt`,
@@ -77,6 +84,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/llms-full.txt`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+    {
+      url: `${BASE_URL}/feed.xml`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.55,
+    },
+    {
+      url: `${BASE_URL}/entity-map.json`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.5,

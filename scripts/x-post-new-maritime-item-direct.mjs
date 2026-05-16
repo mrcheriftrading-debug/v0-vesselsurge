@@ -25,17 +25,6 @@ function writeState(state) {
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n')
 }
 
-function cardUrl(item) {
-  const params = new URLSearchParams({
-    title: item.title || 'New maritime intelligence update',
-    source: item.source || 'verified source',
-    region: item.region || 'global',
-    risk: item.riskLevel || 'medium',
-  })
-
-  return `https://www.vesselsurge.com/api/social/x-card?${params.toString()}`
-}
-
 function altText(item) {
   return [
     `VesselSurge maritime intelligence card for ${item.region || 'global'}.`,

@@ -7,10 +7,12 @@ export const revalidate = 0
 // Get verified vessel counts per hotspot. Do not synthesize live AIS counts.
 async function getVesselCounts(supabase: any) {
   try {
+    const freshCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
     // Try to get from vessels table first
     const { data: vessels, error } = await supabase
       .from('vessels')
       .select('hotspot')
+      .gte('updated_at', freshCutoff)
     
     if (!error && vessels && vessels.length > 0) {
       const counts: Record<string, number> = {}

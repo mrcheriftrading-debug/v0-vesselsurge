@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Building2, Globe, Shield, ArrowRight, Check, Loader2, TrendingUp, Lock, Database, BarChart3, Ship, Package, AlertCircle, Anchor } from "lucide-react"
+import { Globe, Shield, ArrowRight, Check, Loader2, TrendingUp, Lock, Database, BarChart3, Ship, Package, AlertCircle, Anchor } from "lucide-react"
 
 type ServiceType = "list-vessel" | "find-freight" | "data-api" | ""
 
@@ -155,7 +155,7 @@ export function PartnershipHub() {
             </h2>
             
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              In volatile geopolitical environments, real-time visibility is not optional—it&apos;s critical. Our enterprise API delivers sub-minute AIS data, predictive transit analytics, and automated risk alerts that empower your operations to stay ahead of disruptions.
+              In volatile geopolitical environments, current maritime context matters. VesselSurge can support enterprise workflows with AIS integrations, transit analytics, and risk alerts as verified data partnerships are connected.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -190,7 +190,7 @@ export function PartnershipHub() {
                 <div>
                   <h3 className="text-sm font-medium text-foreground">Enterprise API</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    RESTful endpoints with 99.99% uptime SLA
+                    API access and service terms scoped to each partner
                   </p>
                 </div>
               </div>
@@ -215,11 +215,11 @@ export function PartnershipHub() {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                <span>99.99% Uptime SLA</span>
+                <span>Partner-scoped service terms</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-500" />
-                <span>SOC 2 Type II Certified</span>
+                <span>Security review available</span>
               </div>
             </div>
 
