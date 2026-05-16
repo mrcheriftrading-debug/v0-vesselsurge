@@ -27,7 +27,28 @@ export async function GET(request: Request) {
   const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const { data: profiles, error: profilesError } = await supabaseAdmin
+      .from("profiles")
+      .select("id,email,company_name,role,created_at")
+      .order("created_at", { ascending: false })
+
+    if (profilesError) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      users: (profiles || []).map((profile) => ({
+        id: profile.id,
+        email: profile.email,
+        companyName: profile.company_name || "Not specified",
+        serviceType: profile.role || "Not specified",
+        createdAt: profile.created_at,
+        lastSignIn: null,
+        emailConfirmed: true,
+        source: "profiles",
+      })),
+      warning: "Loaded users from profiles because Supabase Auth admin listing was unavailable.",
+    })
   }
 
   // Map users to a simpler format
