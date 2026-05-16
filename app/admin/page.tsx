@@ -29,6 +29,17 @@ type HotspotStat = {
   market_volume: number
   risk_level: string
 }
+
+type AdminUser = {
+  id: string
+  email: string | null
+  companyName: string
+  serviceType: string
+  createdAt: string
+  lastSignIn: string | null
+  emailConfirmed: boolean
+  source?: string
+}
  
 const HOTSPOTS = ["hormuz", "bab", "malacca", "suez"]
 const HOTSPOT_LABELS: Record<string, string> = {
@@ -57,14 +68,16 @@ const EMPTY_ALERT: Alert = {
 }
  
 export default function AdminPage() {
-  const [tab, setTab] = useState<"news" | "alerts" | "stats">("news")
+  const [tab, setTab] = useState<"news" | "alerts" | "stats" | "users">("news")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [usersLoading, setUsersLoading] = useState(false)
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null)
  
   const [articles, setArticles] = useState<Article[]>([])
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [stats, setStats] = useState<HotspotStat[]>([])
+  const [users, setUsers] = useState<AdminUser[]>([])
  
   const [editArticle, setEditArticle] = useState<Article | null>(null)
   const [editAlert, setEditAlert] = useState<Alert | null>(null)
@@ -116,6 +129,27 @@ export default function AdminPage() {
   useEffect(() => {
     fetchAll()
   }, [fetchAll])
+
+  const fetchUsers = useCallback(async () => {
+    setUsersLoading(true)
+    try {
+      const response = await fetch("/api/admin/users", { cache: "no-store" })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.error || "Could not load users")
+      setUsers(payload.users || [])
+    } catch (error) {
+      console.error("[admin] users fetch error:", error)
+      showToast(error instanceof Error ? error.message : "Could not load users", "error")
+    } finally {
+      setUsersLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (tab === "users" && users.length === 0 && !usersLoading) {
+      fetchUsers()
+    }
+  }, [fetchUsers, tab, users.length, usersLoading])
  
   // ── Articles ──────────────────────────────────────────────
   async function saveArticle(article: Article) {
@@ -261,7 +295,7 @@ export default function AdminPage() {
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 24px" }}>
         {/* Tabs */}
         <div style={{ display: "flex", gap: 4, marginBottom: 32, background: "#0d1220", padding: 4, borderRadius: 8, border: "1px solid #1e293b", width: "fit-content" }}>
-          {(["news", "alerts", "stats"] as const).map((t) => (
+          {(["news", "alerts", "stats", "users"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -273,7 +307,7 @@ export default function AdminPage() {
                 transition: "all 0.15s",
               }}
             >
-              {t === "news" ? `📰 News (${articles.length})` : t === "alerts" ? `🚨 Alerts (${alerts.length})` : "📊 Stats"}
+              {t === "news" ? `📰 News (${articles.length})` : t === "alerts" ? `🚨 Alerts (${alerts.length})` : t === "stats" ? "📊 Stats" : `👤 Users (${users.length})`}
             </button>
           ))}
         </div>
@@ -426,6 +460,69 @@ export default function AdminPage() {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ── USERS TAB ── */}
+        {tab === "users" && (
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 16 }}>
+              <div>
+                <div style={{ fontSize: 18, color: "#f1f5f9", marginBottom: 4 }}>User Accounts</div>
+                <div style={{ fontSize: 12, color: "#475569" }}>Supabase Auth users visible only to the admin account.</div>
+              </div>
+              <button
+                onClick={fetchUsers}
+                disabled={usersLoading}
+                style={{ padding: "9px 18px", background: "#0f172a", color: "#93c5fd", border: "1px solid #1e3a5f", borderRadius: 6, cursor: "pointer", fontSize: 12, letterSpacing: 1 }}
+              >
+                {usersLoading ? "LOADING..." : "REFRESH"}
+              </button>
+            </div>
+
+            {usersLoading ? (
+              <div style={{ padding: 32, color: "#64748b", border: "1px solid #1e293b", borderRadius: 8, fontSize: 13 }}>
+                Loading users...
+              </div>
+            ) : users.length === 0 ? (
+              <div style={{ padding: 32, textAlign: "center", color: "#334155", border: "1px dashed #1e293b", borderRadius: 8, fontSize: 13 }}>
+                No users found.
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto", border: "1px solid #1e293b", borderRadius: 8, background: "#0d1220" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 920 }}>
+                  <thead>
+                    <tr style={{ background: "#0a0e1a", color: "#64748b", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
+                      <th style={thStyle}>Email</th>
+                      <th style={thStyle}>Company</th>
+                      <th style={thStyle}>Type</th>
+                      <th style={thStyle}>Confirmed</th>
+                      <th style={thStyle}>Created</th>
+                      <th style={thStyle}>Last sign in</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} style={{ borderTop: "1px solid #1e293b" }}>
+                        <td style={tdStyle}>
+                          <div style={{ color: "#e2e8f0", fontSize: 13 }}>{user.email || "No email"}</div>
+                          <div style={{ color: "#334155", fontSize: 10, marginTop: 3 }}>{user.id}</div>
+                        </td>
+                        <td style={tdStyle}>{user.companyName}</td>
+                        <td style={tdStyle}>{user.serviceType}</td>
+                        <td style={tdStyle}>
+                          <span style={{ color: user.emailConfirmed ? "#10b981" : "#f59e0b" }}>
+                            {user.emailConfirmed ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td style={tdStyle}>{formatDateTime(user.createdAt)}</td>
+                        <td style={tdStyle}>{user.lastSignIn ? formatDateTime(user.lastSignIn) : "Never"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -655,4 +752,29 @@ function smallBtn(bg: string, color: string) {
     padding: "5px 10px", background: bg, color, border: `1px solid ${color}22`,
     borderRadius: 4, cursor: "pointer", fontSize: 10, letterSpacing: 1, fontFamily: "inherit",
   } as React.CSSProperties
+}
+
+const thStyle: React.CSSProperties = {
+  padding: "12px 14px",
+  textAlign: "left",
+  fontWeight: 600,
+}
+
+const tdStyle: React.CSSProperties = {
+  padding: "13px 14px",
+  color: "#94a3b8",
+  fontSize: 12,
+  verticalAlign: "top",
+}
+
+function formatDateTime(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "Unknown"
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date)
 }

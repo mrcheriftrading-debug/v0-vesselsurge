@@ -1,25 +1,140 @@
-import { createClient } from "@supabase/supabase-js"
+import pg from "pg"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { createClient } from "@/lib/supabase/server"
 
-export async function GET(request: Request) {
-  // Check for admin secret in headers
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
+
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "mrcheriftrading@gmail.com").toLowerCase()
+
+type AuthUserRow = {
+  id: string
+  email: string | null
+  email_confirmed_at: string | null
+  last_sign_in_at: string | null
+  created_at: string
+  raw_user_meta_data: Record<string, unknown> | null
+  raw_app_meta_data: Record<string, unknown> | null
+}
+
+async function assertAdmin(request: Request) {
   const authHeader = request.headers.get("authorization")
   const adminSecret = authHeader?.replace("Bearer ", "")
 
-  if (adminSecret !== process.env.ADMIN_SECRET) {
+  if (adminSecret && adminSecret === process.env.ADMIN_SECRET) {
+    return true
+  }
+
+  if (adminSecret && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
+    )
+    const {
+      data: { user },
+    } = await supabase.auth.getUser(adminSecret)
+
+    if (user?.email?.toLowerCase() === ADMIN_EMAIL) {
+      return true
+    }
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  return user?.email?.toLowerCase() === ADMIN_EMAIL
+}
+
+function getDatabaseUrl() {
+  return process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL
+}
+
+function metadataValue(metadata: Record<string, unknown> | null, key: string) {
+  const value = metadata?.[key]
+  return typeof value === "string" && value.trim() ? value : null
+}
+
+function mapAuthUser(user: AuthUserRow) {
+  const userMetadata = user.raw_user_meta_data || {}
+  const appMetadata = user.raw_app_meta_data || {}
+
+  return {
+    id: user.id,
+    email: user.email,
+    companyName:
+      metadataValue(userMetadata, "company_name") ||
+      metadataValue(userMetadata, "company") ||
+      "Not specified",
+    serviceType:
+      metadataValue(userMetadata, "service_type") ||
+      metadataValue(userMetadata, "role") ||
+      metadataValue(appMetadata, "role") ||
+      "Not specified",
+    createdAt: user.created_at,
+    lastSignIn: user.last_sign_in_at,
+    emailConfirmed: Boolean(user.email_confirmed_at),
+    source: "auth.users",
+  }
+}
+
+async function listUsersFromDatabase() {
+  const connectionString = getDatabaseUrl()
+  if (!connectionString) {
+    throw new Error("Missing Postgres connection string")
+  }
+
+  const { Client } = pg
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  })
+
+  await client.connect()
+
+  try {
+    const { rows } = await client.query<AuthUserRow>(`
+      select
+        id,
+        email,
+        email_confirmed_at,
+        last_sign_in_at,
+        created_at,
+        raw_user_meta_data,
+        raw_app_meta_data
+      from auth.users
+      order by created_at desc
+      limit 250
+    `)
+
+    return rows.map(mapAuthUser)
+  } finally {
+    await client.end()
+  }
+}
+
+export async function GET(request: Request) {
+  if (!(await assertAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  // Check for required environment variables
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return NextResponse.json({ error: "Server configuration error: Missing Supabase credentials" }, { status: 500 })
+  try {
+    const users = await listUsersFromDatabase()
+    return NextResponse.json({ users, source: "auth.users" })
+  } catch (databaseError) {
+    console.error("[admin/users] direct database list failed:", databaseError)
   }
 
-  // Use service role to get all users
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  )
+  const supabaseAdmin = createAdminClient()
 
   const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers()
 
