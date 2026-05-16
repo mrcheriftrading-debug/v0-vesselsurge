@@ -46,42 +46,46 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
           z-index: 30;
           display: inline-block;
           flex: 0 0 auto;
-          height: 2.25rem;
-          width: 4.8rem;
-          margin-left: 0.35rem;
+          height: 1.75rem;
+          width: 3.6rem;
+          margin-left: 0.25rem;
           overflow: hidden;
-          border-radius: 0.55rem;
-          border: 1px solid rgba(255, 255, 255, 0.28);
+          border-radius: 0.45rem;
+          border: 1px solid rgba(148, 163, 184, 0.28);
           perspective: 420px;
           transform-style: preserve-3d;
-          background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(8, 47, 73, 0.78));
-          box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.16), 0 0 18px rgba(34, 211, 238, 0.28);
+          background:
+            linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(8, 47, 73, 0.66));
+          background-size: 0.58rem 0.58rem, 0.58rem 0.58rem, 100% 100%;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -12px 20px rgba(2, 6, 23, 0.28);
         }
 
         .button-3d-cargo {
-          border-color: rgba(250, 204, 21, 0.72);
-          box-shadow: inset 0 0 16px rgba(250, 204, 21, 0.22), 0 0 22px rgba(245, 158, 11, 0.5);
+          border-color: rgba(251, 191, 36, 0.38);
+          box-shadow: inset 0 0 18px rgba(251, 191, 36, 0.08), 0 0 18px rgba(251, 191, 36, 0.18);
         }
 
         .button-3d-vessel {
-          border-color: rgba(125, 211, 252, 0.78);
-          box-shadow: inset 0 0 16px rgba(125, 211, 252, 0.22), 0 0 22px rgba(56, 189, 248, 0.5);
+          border-color: rgba(125, 211, 252, 0.42);
+          box-shadow: inset 0 0 18px rgba(125, 211, 252, 0.09), 0 0 18px rgba(56, 189, 248, 0.2);
         }
 
         .button-3d-map {
-          border-color: rgba(45, 212, 191, 0.82);
-          box-shadow: inset 0 0 16px rgba(45, 212, 191, 0.22), 0 0 24px rgba(20, 184, 166, 0.52);
+          border-color: rgba(45, 212, 191, 0.42);
+          box-shadow: inset 0 0 18px rgba(45, 212, 191, 0.1), 0 0 18px rgba(20, 184, 166, 0.2);
         }
 
         .button-3d-dashboard {
-          border-color: rgba(147, 197, 253, 0.82);
-          box-shadow: inset 0 0 16px rgba(147, 197, 253, 0.24), 0 0 24px rgba(59, 130, 246, 0.55);
+          border-color: rgba(147, 197, 253, 0.42);
+          box-shadow: inset 0 0 18px rgba(147, 197, 253, 0.1), 0 0 18px rgba(59, 130, 246, 0.2);
         }
 
         .button-3d-shine {
           position: absolute;
           inset: -45% -25%;
-          background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.34), transparent 58%);
+          background: linear-gradient(110deg, transparent 34%, rgba(255, 255, 255, 0.22), transparent 58%);
           opacity: 0;
           transform: translateX(-55%) rotate(8deg);
           transition: opacity 0.25s ease;
@@ -95,104 +99,108 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
 
         .button-3d-depth {
           position: absolute;
-          inset: 0.18rem;
-          border: 1px solid rgba(255, 255, 255, 0.18);
+          inset: 0.2rem;
+          border: 1px solid rgba(148, 163, 184, 0.16);
           border-radius: inherit;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -12px 22px rgba(0, 0, 0, 0.2);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
           transform: translateZ(18px);
         }
 
         .cargo-stack {
           position: absolute;
-          right: 0.75rem;
+          right: 0.54rem;
           top: 50%;
           z-index: 2;
           display: grid;
-          grid-template-columns: repeat(2, 1.28rem);
-          gap: 0.18rem;
-          transform: translateY(-50%) rotateZ(-10deg) translateZ(28px);
+          grid-template-columns: repeat(2, 0.78rem);
+          gap: 0.11rem;
+          transform: translateY(-50%) rotateZ(-8deg) translateZ(28px);
           transform-origin: center;
-          animation: cargo-lift 2.7s ease-in-out infinite;
+          animation: cargo-lift 3.8s ease-in-out infinite;
         }
 
         .cargo-stack span {
-          height: 0.82rem;
-          border-radius: 0.12rem;
-          background: linear-gradient(135deg, #fde68a, #f59e0b);
-          box-shadow: 0 0 18px rgba(245, 158, 11, 0.62);
+          height: 0.48rem;
+          border-radius: 0.06rem;
+          border: 1px solid rgba(253, 230, 138, 0.52);
+          background: rgba(251, 191, 36, 0.16);
+          box-shadow: 0 0 10px rgba(251, 191, 36, 0.18);
         }
 
         .cargo-stack span:nth-child(3) {
           grid-column: 1 / 3;
-          width: 1.78rem;
+          width: 1rem;
           justify-self: center;
-          background: linear-gradient(135deg, #bbf7d0, #10b981);
-          box-shadow: 0 0 18px rgba(16, 185, 129, 0.62);
+          border-color: rgba(125, 211, 252, 0.5);
+          background: rgba(14, 165, 233, 0.12);
+          box-shadow: 0 0 10px rgba(14, 165, 233, 0.18);
         }
 
         .vessel-scene {
           position: absolute;
-          right: 0.58rem;
+          right: 0.34rem;
           top: 50%;
           z-index: 2;
-          height: 1.82rem;
-          width: 3.95rem;
+          height: 1.3rem;
+          width: 2.85rem;
           transform: translateY(-50%) rotateZ(-5deg) translateZ(30px);
-          animation: vessel-drive 2.4s ease-in-out infinite;
+          animation: vessel-drive 3.6s ease-in-out infinite;
         }
 
         .vessel-hull {
           position: absolute;
-          bottom: 0.2rem;
+          bottom: 0.22rem;
           left: 0.25rem;
-          height: 0.64rem;
-          width: 3.15rem;
-          border-radius: 0.18rem 0.65rem 0.65rem 0.18rem;
-          background: linear-gradient(90deg, #f8fafc, #38bdf8 52%, #0f172a);
-          box-shadow: 0 0 22px rgba(56, 189, 248, 0.72);
+          height: 0.34rem;
+          width: 2.22rem;
+          border: 1px solid rgba(186, 230, 253, 0.64);
+          border-radius: 0.12rem 0.5rem 0.5rem 0.12rem;
+          background: rgba(14, 165, 233, 0.14);
+          box-shadow: 0 0 12px rgba(56, 189, 248, 0.24);
         }
 
         .vessel-bridge {
           position: absolute;
-          bottom: 0.62rem;
-          left: 0.62rem;
-          height: 0.62rem;
-          width: 1.12rem;
-          border-radius: 0.12rem;
-          background: linear-gradient(135deg, #ffffff, #bae6fd);
-          box-shadow: 0 0 12px rgba(186, 230, 253, 0.7);
+          bottom: 0.52rem;
+          left: 0.7rem;
+          height: 0.36rem;
+          width: 0.7rem;
+          border: 1px solid rgba(186, 230, 253, 0.58);
+          border-radius: 0.08rem;
+          background: rgba(224, 242, 254, 0.16);
+          box-shadow: 0 0 10px rgba(186, 230, 253, 0.22);
         }
 
         .vessel-wake {
           position: absolute;
-          bottom: 0.05rem;
+          bottom: 0.1rem;
           left: -0.2rem;
-          height: 0.28rem;
-          width: 2.2rem;
+          height: 0.18rem;
+          width: 1.8rem;
           border-radius: 999px;
-          background: linear-gradient(90deg, transparent, rgba(224, 242, 254, 0.95), transparent);
+          background: linear-gradient(90deg, transparent, rgba(224, 242, 254, 0.62), transparent);
           filter: blur(1px);
           animation: wake-stream 1.1s linear infinite;
         }
 
         .radar-scene {
           position: absolute;
-          right: 0.9rem;
+          right: 0.52rem;
           top: 50%;
           z-index: 2;
-          height: 2.65rem;
-          width: 2.65rem;
+          height: 1.9rem;
+          width: 1.9rem;
           transform: translateY(-50%) translateZ(30px);
           transform-style: preserve-3d;
         }
 
         .radar-ring {
           position: absolute;
-          inset: 0.18rem;
-          border: 2px solid rgba(103, 232, 249, 0.9);
+          inset: 0.22rem;
+          border: 1px solid rgba(103, 232, 249, 0.64);
           border-radius: 999px;
-          box-shadow: 0 0 24px rgba(34, 211, 238, 0.55);
-          animation: radar-pulse 1.8s ease-out infinite;
+          box-shadow: 0 0 14px rgba(34, 211, 238, 0.24);
+          animation: radar-pulse 2.6s ease-out infinite;
         }
 
         .radar-ring-two {
@@ -204,56 +212,57 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
           position: absolute;
           left: 50%;
           top: 50%;
-          height: 1rem;
+          height: 0.78rem;
           width: 1px;
           transform-origin: bottom;
-          background: linear-gradient(to top, #67e8f9, transparent);
-          animation: radar-spin 1.45s linear infinite;
+          background: linear-gradient(to top, rgba(103, 232, 249, 0.82), transparent);
+          animation: radar-spin 2.4s linear infinite;
         }
 
         .radar-dot {
           position: absolute;
           right: 0.42rem;
-          top: 0.7rem;
-          height: 0.42rem;
-          width: 0.42rem;
+          top: 0.62rem;
+          height: 0.24rem;
+          width: 0.24rem;
           border-radius: 999px;
-          background: #22c55e;
-          box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+          background: #5eead4;
+          box-shadow: 0 0 10px rgba(94, 234, 212, 0.65);
         }
 
         .dashboard-scene {
           position: absolute;
-          right: 0.9rem;
+          right: 0.5rem;
           top: 50%;
           z-index: 2;
           display: grid;
-          grid-template-columns: repeat(3, 0.78rem);
+          grid-template-columns: repeat(3, 0.42rem);
           align-items: end;
-          gap: 0.2rem;
+          gap: 0.16rem;
           transform: translateY(-50%) rotateZ(-8deg) translateZ(30px);
         }
 
         .dash-panel {
           display: block;
-          width: 0.78rem;
-          border-radius: 0.12rem 0.12rem 0 0;
-          background: linear-gradient(180deg, #bae6fd, #2563eb);
-          box-shadow: 0 0 18px rgba(59, 130, 246, 0.75);
-          animation: dash-eq 0.9s ease-in-out infinite alternate;
+          width: 0.42rem;
+          border: 1px solid rgba(147, 197, 253, 0.48);
+          border-radius: 0.08rem 0.08rem 0 0;
+          background: rgba(59, 130, 246, 0.16);
+          box-shadow: 0 0 12px rgba(59, 130, 246, 0.18);
+          animation: dash-eq 1.6s ease-in-out infinite alternate;
         }
 
         .dash-panel-one {
-          height: 0.7rem;
+          height: 0.56rem;
         }
 
         .dash-panel-two {
-          height: 1.25rem;
+          height: 1rem;
           animation-delay: -0.24s;
         }
 
         .dash-panel-three {
-          height: 0.95rem;
+          height: 0.78rem;
           animation-delay: -0.48s;
         }
 
@@ -265,13 +274,13 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
 
         @keyframes cargo-lift {
           50% {
-            transform: translateY(-50%) rotateZ(-10deg) translate3d(-0.12rem, -0.16rem, 38px);
+            transform: translateY(-50%) rotateZ(-8deg) translate3d(-0.05rem, -0.08rem, 38px);
           }
         }
 
         @keyframes vessel-drive {
           50% {
-            transform: translateY(-50%) rotateZ(-5deg) translate3d(-0.22rem, -0.08rem, 38px);
+            transform: translateY(-50%) rotateZ(-5deg) translate3d(-0.12rem, -0.05rem, 38px);
           }
         }
 
@@ -313,7 +322,7 @@ export function Button3DEffect({ variant }: { variant: Button3DEffectVariant }) 
 export function FloatingIntelSignals() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="hero-hud left-4 top-[18%] w-[13rem] md:left-[5%] md:top-[22%]">
+      <div className="hero-hud left-4 top-[12%] w-[13rem] md:left-[5%] md:top-[12%]">
         <div className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-2 text-cyan-100">
             <Satellite className="h-4 w-4 text-cyan-300" />
@@ -330,7 +339,7 @@ export function FloatingIntelSignals() {
           <span>4 zones</span>
         </div>
       </div>
-      <div className="hero-hud right-4 top-[20%] w-[12rem] md:right-[5%] md:top-[24%]">
+      <div className="hero-hud right-4 top-[13%] w-[12rem] md:right-[5%] md:top-[13%]">
         <div className="flex items-center gap-2 text-red-100">
           <Activity className="h-4 w-4 text-red-300" />
           HORMUZ CRITICAL
@@ -341,19 +350,19 @@ export function FloatingIntelSignals() {
           ))}
         </div>
       </div>
-      <div className="intel-chip left-3 top-[58%] flex md:left-[7%] md:top-[28%]">
+      <div className="intel-chip left-3 top-[58%] flex md:left-[7%] md:top-[31%]">
         <Radio className="h-3.5 w-3.5 text-cyan-300" />
         AIS TRACKING
       </div>
-      <div className="intel-chip right-3 top-[58%] flex md:right-[8%] md:top-[33%]">
+      <div className="intel-chip right-3 top-[58%] flex md:right-[8%] md:top-[32%]">
         <Satellite className="h-3.5 w-3.5 text-emerald-300" />
         SATELLITE LOCK
       </div>
-      <div className="intel-chip bottom-[17%] left-4 flex md:bottom-[22%] md:left-[12%]">
+      <div className="intel-chip bottom-[17%] left-4 flex md:bottom-[11%] md:left-[7%]">
         <Activity className="h-3.5 w-3.5 text-red-300" />
         RISK PULSE
       </div>
-      <div className="intel-chip bottom-[17%] right-4 flex md:bottom-[18%] md:right-[13%]">
+      <div className="intel-chip bottom-[17%] right-4 flex md:bottom-[11%] md:right-[7%]">
         <Anchor className="h-3.5 w-3.5 text-blue-200" />
         ROUTE READY
       </div>
