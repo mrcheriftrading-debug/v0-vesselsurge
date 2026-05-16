@@ -21,13 +21,9 @@ type AuthUserRow = {
 
 async function assertAdmin(request: Request) {
   const authHeader = request.headers.get("authorization")
-  const adminSecret = authHeader?.replace("Bearer ", "")
+  const bearerToken = authHeader?.replace("Bearer ", "")
 
-  if (adminSecret && adminSecret === process.env.ADMIN_SECRET) {
-    return true
-  }
-
-  if (adminSecret && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  if (bearerToken && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     const supabase = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -40,7 +36,7 @@ async function assertAdmin(request: Request) {
     )
     const {
       data: { user },
-    } = await supabase.auth.getUser(adminSecret)
+    } = await supabase.auth.getUser(bearerToken)
 
     if (user?.email?.toLowerCase() === ADMIN_EMAIL) {
       return true
