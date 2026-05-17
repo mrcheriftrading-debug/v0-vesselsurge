@@ -122,6 +122,9 @@ const GOOGLE_NEWS_NOISE_KEYWORDS = [
 
 const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'crypto',
+  'mexc',
+  'forex',
+  'indexbox',
   'travel',
   'tourism',
   'sports',
@@ -277,6 +280,7 @@ function isNoisyGoogleNewsArticle(article: TrustedArticle) {
   const text = `${article.title} ${article.snippet}`.toLowerCase()
   const sourceName = article.source.replace(/^Google News:\s*/i, '').toLowerCase()
   if (GOOGLE_NEWS_SOURCE_BLOCKLIST.some((keyword) => sourceName.includes(keyword))) return true
+  if (/(accidentally blocked|giant ship|ever given|historic|history|what happened when)/i.test(text)) return true
   if (!hasOperationalChokepointSignal(article)) return true
 
   const hasNoise = GOOGLE_NEWS_NOISE_KEYWORDS.some((keyword) => text.includes(keyword))
