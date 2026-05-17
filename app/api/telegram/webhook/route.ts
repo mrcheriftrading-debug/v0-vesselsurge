@@ -161,11 +161,15 @@ async function generateAiReply(userText: string) {
         {
           role: 'system',
           content: [
-            'You are Codex, the user’s warm, practical coding and product collaborator for VesselSurge.',
-            'You help with the website, OpenClaw, Vercel, GitHub, SEO, X marketing posts, Telegram automation, and maritime intelligence.',
-            'Speak like a direct teammate: concise, calm, useful, and a little alive.',
+            'You are the user’s private Telegram personal assistant.',
+            'You are warm, practical, direct, and proactive. You help the user think, plan, decide, draft, and move work forward.',
+            'You also understand the user’s VesselSurge project: website, OpenClaw, Vercel, GitHub, SEO, X marketing posts, Telegram automation, and maritime intelligence.',
+            'Act like a personal operator and product teammate, not a generic chatbot.',
+            'Keep answers concise unless the user asks for detail. Prefer concrete next steps.',
             'Answer in the same language the user uses, Swedish if they write Swedish.',
-            'Be honest that Telegram chat can advise, draft, inspect live VesselSurge data, and queue work for the Codex desktop workspace, but cannot directly run the local terminal from Telegram.',
+            'Be honest that this Telegram assistant can answer, draft, reason, inspect live VesselSurge data, and queue explicit work for the Codex desktop workspace, but cannot directly run the local terminal from Telegram.',
+            'If the user asks for coding, deployment, terminal, browser-control, GitHub, Vercel, Supabase, or other workspace actions, explain briefly that it has been queued for Codex when the message was explicitly sent as a Codex task.',
+            'If the user is just chatting, do not pretend the task has been queued.',
             'Use the provided VesselSurge live context.',
             'Do not claim unverified breaking facts.',
             'If data is missing, say it is not verified yet.',
@@ -206,6 +210,28 @@ function isAllowedTelegramUser(message: TelegramMessage) {
   return String(message.from?.id || '') === allowedUserId
 }
 
+function stripCommand(text: string) {
+  return text.replace(/^\/[a-zA-Z0-9_]+(@[a-zA-Z0-9_]+)?\s*/, '').trim()
+}
+
+function getCodexTaskText(text: string) {
+  const lower = text.toLowerCase()
+  if (lower.startsWith('/codex') || lower.startsWith('/task') || lower.startsWith('/jobb')) {
+    return stripCommand(text)
+  }
+
+  if (
+    lower.startsWith('skicka till codex ') ||
+    lower.startsWith('lägg i codex ') ||
+    lower.startsWith('queue codex ') ||
+    lower.startsWith('send to codex ')
+  ) {
+    return text.replace(/^(skicka till codex|lägg i codex|queue codex|send to codex)\s+/i, '').trim()
+  }
+
+  return null
+}
+
 export async function GET() {
   return NextResponse.json({
     ok: true,
@@ -239,16 +265,18 @@ export async function POST(request: Request) {
 
     if (lower === '/start' || lower === '/help') {
       reply = [
-        `Hi${message.from?.first_name ? ` ${message.from.first_name}` : ''}. Jag är Codex för VesselSurge här i Telegram.`,
+        `Hej${message.from?.first_name ? ` ${message.from.first_name}` : ''}. Jag är din privata assistent här i Telegram.`,
+        '',
+        'Jag kan hjälpa dig med planering, idéer, texter, X-inlägg, VesselSurge, OpenClaw, SEO och snabba beslut.',
         '',
         '/status - live chokepoint status',
-        '/latest - latest source-reviewed reports',
+        '/latest - senaste source-reviewed maritime reports',
+        '/codex <uppgift> - skicka en riktig arbetsuppgift till Codex-workspacet',
+        '/task <uppgift> - samma sak som /codex',
         '',
-        'Skriv vad du vill att jag ska göra. Jag svarar här och skickar samtidigt riktiga arbetsuppgifter vidare till Codex-workspacet.',
+        'Vanliga meddelanden blir personlig assistent-chat direkt här. Jag skickar bara vidare till Codex när du uttryckligen använder /codex eller /task.',
         '',
-        'Du kan fråga om hemsidan, OpenClaw, Vercel/GitHub, SEO, X-inlägg, Hormuz, Red Sea risk, tanker routes, freight, insurance, Suez eller Malacca.',
-        '',
-        'Obs: när något kräver kod/terminal hamnar det i Codex-kön så jag kan plocka upp det i workspacet.',
+        'Exempel: /codex fixa homepage hero och deploya till Vercel',
         '',
         SITE_URL,
       ].join('\n')
@@ -257,13 +285,23 @@ export async function POST(request: Request) {
     } else if (lower.startsWith('/latest')) {
       reply = await buildLatestReply()
     } else {
-      await forwardToCodexInbox(message, text)
-      const aiReply = await generateAiReply(text)
-      reply = [
-        aiReply,
-        '',
-        'Skickat till Codex-workspacet också. Jag plockar upp det där när kön kollas.',
-      ].join('\n')
+      const codexTask = getCodexTaskText(text)
+
+      if (codexTask !== null) {
+        if (!codexTask) {
+          reply = 'Skriv uppgiften efter kommandot, t.ex. /codex fixa SEO på startsidan.'
+        } else {
+          await forwardToCodexInbox(message, codexTask)
+          const aiReply = await generateAiReply(`The user explicitly queued this Codex workspace task: ${codexTask}`)
+          reply = [
+            aiReply,
+            '',
+            'Skickat till Codex-workspacet. Jag plockar upp det där när kön kollas.',
+          ].join('\n')
+        }
+      } else {
+        reply = await generateAiReply(text)
+      }
     }
 
     await telegramSendMessage(chatId, reply)
