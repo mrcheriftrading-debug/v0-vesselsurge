@@ -317,6 +317,12 @@ function isDefenseProcurementNoise(article: TrustedArticle) {
   return /(missile deal|weapons deal|export licenses|export licence|scrapped missile|defence contract|defense contract)/i.test(text)
 }
 
+function isFinancialMarketNoise(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const financialNoise = /\b(carry trade|emerging carry|rand|real|equities|stocks|bonds|treasury yields|forex|currency traders|market rebound|favorites)\b/i.test(text)
+  return financialNoise && !hasOperationalChokepointSignal(article)
+}
+
 function hasDirectRegionSignal(article: TrustedArticle) {
   if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
   if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
@@ -469,6 +475,7 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
     .filter((article) => !isDefenseProcurementNoise(article))
+    .filter((article) => !isFinancialMarketNoise(article))
     .filter((article) => hasDirectRegionSignal(article))
     .filter((article) => !article.source.startsWith('Google News:') || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
@@ -565,8 +572,8 @@ function buildAisSignals(vessels: Awaited<ReturnType<typeof collectAisStreamVess
         summary: `${stopped.length} vessels reported speed below 0.5 kn inside the VesselSurge ${hotspot} watch box.`,
         region: hotspot,
         signal_type: 'ais_anomaly',
-        severity: stopped.length >= 10 ? 'high' : 'medium',
-        confidence: 72,
+        severity: stopped.length >= 50 ? 'high' : 'medium',
+        confidence: stopped.length >= 20 ? 68 : 62,
         observed_at: capturedAt,
         metadata: {
           stoppedCount: stopped.length,
@@ -613,7 +620,8 @@ function buildStatsFromSignals(articles: TrustedArticle[], signals: MaritimeSign
   const base = buildStats(articles)
   return base.map((row) => {
     const hotspotSignals = signals.filter((signal) => signal.region === row.hotspot)
-    const strongestSignal = hotspotSignals.reduce((max, signal) => Math.max(max, riskScore(signal.severity)), 0)
+    const operationalSignals = hotspotSignals.filter((signal) => signal.signal_type !== 'news_corroboration')
+    const strongestSignal = operationalSignals.reduce((max, signal) => Math.max(max, riskScore(signal.severity)), 0)
     const officialSignalCount = hotspotSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
     const aisSignalCount = hotspotSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
     const confidenceBoost = officialSignalCount ? 1 : aisSignalCount && row.risk_level === 'low' ? 1 : 0

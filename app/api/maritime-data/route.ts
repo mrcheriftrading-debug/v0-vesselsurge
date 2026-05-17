@@ -4,13 +4,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-function confidenceLabel(score: number) {
-  if (score >= 80) return 'Verified'
-  if (score >= 65) return 'Corroborated'
-  if (score >= 45) return 'Watchlist'
-  return 'Thin signal'
-}
-
 function confidenceForHotspot(stats: {
   reports: number
   sources: Set<string>
@@ -20,8 +13,9 @@ function confidenceForHotspot(stats: {
   const officialSignals = stats.signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning')
   const aisSignals = stats.signals.filter((signal) => signal.signal_type === 'ais_anomaly')
   const maxSignalConfidence = stats.signals.reduce((max, signal) => Math.max(max, signal.confidence || 0), 0)
+  const hasOperationalSignal = officialSignals.length > 0 || aisSignals.length > 0
   const score = Math.min(
-    100,
+    hasOperationalSignal ? 100 : 70,
     Math.round(
       Math.max(maxSignalConfidence, 0) +
         Math.min(20, officialSignals.length * 10) +
@@ -34,6 +28,13 @@ function confidenceForHotspot(stats: {
   if (score > 0) return score
   if (stats.reports > 0) return Math.min(55, 30 + stats.sources.size * 4)
   return 0
+}
+
+function confidenceLabelForHotspot(score: number, stats: { officialSignalCount: number; aisSignalCount: number }) {
+  if (score >= 80 && (stats.officialSignalCount > 0 || stats.aisSignalCount > 0)) return 'Verified'
+  if (score >= 65) return 'Corroborated'
+  if (score >= 45) return 'Watchlist'
+  return 'Thin signal'
 }
 
 // Get verified vessel counts per hotspot. Do not synthesize live AIS counts.
@@ -167,7 +168,7 @@ export async function GET() {
         officialSignalCount,
         aisSignalCount,
         confidenceScore,
-        confidenceLabel: confidenceLabel(confidenceScore),
+        confidenceLabel: confidenceLabelForHotspot(confidenceScore, { officialSignalCount, aisSignalCount }),
       }
     })
 
