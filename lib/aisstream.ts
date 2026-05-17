@@ -30,7 +30,7 @@ export function getAisStreamKey() {
   return process.env.AISSTREAM_API_KEY || process.env.NEXT_PUBLIC_AISSTREAM_API_KEY || ''
 }
 
-export async function collectAisStreamVessels(options: { timeoutMs?: number; maxVessels?: number } = {}) {
+export async function collectAisStreamVessels(options: { timeoutMs?: number; maxVessels?: number; maxVesselsPerHotspot?: number } = {}) {
   const apiKey = getAisStreamKey()
   if (!apiKey) {
     return {
@@ -42,7 +42,9 @@ export async function collectAisStreamVessels(options: { timeoutMs?: number; max
 
   const timeoutMs = options.timeoutMs ?? 18000
   const maxVessels = options.maxVessels ?? 80
+  const maxVesselsPerHotspot = options.maxVesselsPerHotspot ?? Math.max(20, Math.ceil(maxVessels / HOTSPOT_BOUNDS.length))
   const vessels = new Map<number, AisVesselRow>()
+  const hotspotCounts = new Map<string, number>()
   const startedAt = Date.now()
 
   return new Promise<{ ok: boolean; reason: string; vessels: AisVesselRow[] }>((resolve) => {
@@ -83,6 +85,9 @@ export async function collectAisStreamVessels(options: { timeoutMs?: number; max
 
         const hotspot = getHotspotForPosition(lat, lng)
         if (!hotspot) return
+        const isNewVessel = !vessels.has(mmsi)
+        const hotspotCount = hotspotCounts.get(hotspot) || 0
+        if (isNewVessel && hotspotCount >= maxVesselsPerHotspot) return
 
         vessels.set(mmsi, {
           mmsi,
@@ -96,8 +101,10 @@ export async function collectAisStreamVessels(options: { timeoutMs?: number; max
           hotspot,
           updated_at: new Date().toISOString(),
         })
+        if (isNewVessel) hotspotCounts.set(hotspot, hotspotCount + 1)
 
-        if (vessels.size >= maxVessels || Date.now() - startedAt >= timeoutMs) {
+        const allHotspotsFull = HOTSPOT_BOUNDS.every((item) => (hotspotCounts.get(item.id) || 0) >= maxVesselsPerHotspot)
+        if (vessels.size >= maxVessels || allHotspotsFull || Date.now() - startedAt >= timeoutMs) {
           finish('collected')
         }
       } catch {
