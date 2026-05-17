@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
+import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -690,15 +691,37 @@ export async function GET(request: Request) {
   }
 
   const ais = await collectAisStreamVessels({ timeoutMs: 18000, maxVessels: 120 })
+  const marineConditions = await fetchAllMarineConditions()
   const articleSignals = buildArticleSignals(articles)
   const aisSignals = buildAisSignals(ais.vessels, timestamp)
-  const signals = [...articleSignals, ...aisSignals]
+  const marineSignals = marineConditions.map((condition) => ({
+    signal_key: stableSignalKey(['marine-conditions', condition.hotspot, condition.observedAt.slice(0, 13)]),
+    source: condition.source,
+    source_url: condition.sourceUrl,
+    title: condition.title,
+    summary: condition.summary,
+    region: condition.hotspot,
+    signal_type: 'weather_constraint' as const,
+    severity: condition.severity,
+    confidence: condition.confidence,
+    observed_at: condition.observedAt,
+    metadata: {
+      waveHeightM: condition.waveHeightM,
+      wavePeriodS: condition.wavePeriodS,
+      seaLevelM: condition.seaLevelM,
+      seaSurfaceTemperatureC: condition.seaSurfaceTemperatureC,
+      oceanCurrentVelocityKmh: condition.oceanCurrentVelocityKmh,
+      oceanCurrentDirectionDeg: condition.oceanCurrentDirectionDeg,
+      note: 'Modeled marine context only. Not a navigation warning.',
+    },
+  }))
+  const signals = [...articleSignals, ...aisSignals, ...marineSignals]
   const stats = buildStatsFromSignals(articles, signals)
 
   const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, { method: 'DELETE' })
   if (!deleteOldSignals.ok) throw new Error(`Failed to delete old maritime signals: ${deleteOldSignals.status} ${await deleteOldSignals.text()}`)
 
-  const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly)', { method: 'DELETE' })
+  const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly,weather_constraint)', { method: 'DELETE' })
   if (!deleteTransientSignals.ok) throw new Error(`Failed to refresh transient maritime signals: ${deleteTransientSignals.status} ${await deleteTransientSignals.text()}`)
 
   if (signals.length > 0) {
@@ -781,6 +804,7 @@ export async function GET(request: Request) {
     signals_found: signals.length,
     official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
     ais_signals: signals.filter((signal) => signal.signal_type === 'ais_anomaly').length,
+    marine_conditions: marineConditions.length,
     vessels_found: ais.vessels.length,
     vessels_updated: vesselsUpdated,
     ais_status: ais.reason,

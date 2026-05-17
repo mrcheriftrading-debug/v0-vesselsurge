@@ -12,6 +12,7 @@ function confidenceForHotspot(stats: {
 }) {
   const officialSignals = stats.signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning')
   const aisSignals = stats.signals.filter((signal) => signal.signal_type === 'ais_anomaly')
+  const weatherSignals = stats.signals.filter((signal) => signal.signal_type === 'weather_constraint')
   const maxSignalConfidence = stats.signals.reduce((max, signal) => Math.max(max, signal.confidence || 0), 0)
   const hasOperationalSignal = officialSignals.length > 0 || aisSignals.length > 0
   const score = Math.min(
@@ -20,6 +21,7 @@ function confidenceForHotspot(stats: {
       Math.max(maxSignalConfidence, 0) +
         Math.min(20, officialSignals.length * 10) +
         Math.min(12, aisSignals.length * 6) +
+        Math.min(6, weatherSignals.length * 3) +
         Math.min(10, stats.sources.size * 2) +
         Math.min(8, stats.activeVessels > 0 ? 8 : 0),
     ),
