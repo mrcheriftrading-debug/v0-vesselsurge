@@ -235,6 +235,11 @@ function classifyRisk(text: string): RiskLevel {
   return 'low'
 }
 
+function classifyNewsRisk(text: string): RiskLevel {
+  const risk = classifyRisk(text)
+  return risk === 'critical' ? 'high' : risk
+}
+
 function isRelevant(text: string) {
   const lower = text.toLowerCase()
   return [
@@ -519,13 +524,20 @@ function buildStats(articles: TrustedArticle[]) {
   const now = new Date().toISOString()
   return ['hormuz', 'bab', 'suez', 'malacca'].map((hotspot) => {
     const relevant = articles.filter((article) => article.region === hotspot)
-    const risk = relevant.reduce<RiskLevel>((level, article) => {
-      const articleRisk = classifyRisk(`${article.title} ${article.snippet}`)
-      if (articleRisk === 'critical') return 'critical'
-      if (articleRisk === 'high' && level !== 'critical') return 'high'
-      if (articleRisk === 'medium' && level === 'low') return 'medium'
-      return level
-    }, 'low')
+    const riskCounts = relevant.reduce(
+      (counts, article) => {
+        const articleRisk = classifyNewsRisk(`${article.title} ${article.snippet}`)
+        counts[articleRisk] += 1
+        if (articleRisk === 'high' && article.source) counts.highSources.add(article.source)
+        return counts
+      },
+      { low: 0, medium: 0, high: 0, critical: 0, highSources: new Set<string>() },
+    )
+    const risk: RiskLevel = riskCounts.high >= 6 && riskCounts.highSources.size >= 3
+      ? 'high'
+      : riskCounts.high > 0 || riskCounts.medium > 0
+        ? 'medium'
+        : 'low'
 
     return {
       hotspot,
@@ -572,7 +584,8 @@ function signalTypeForArticle(article: TrustedArticle): MaritimeSignal['signal_t
 function buildArticleSignals(articles: TrustedArticle[]): MaritimeSignal[] {
   return articles.map((article) => {
     const signalType = signalTypeForArticle(article)
-    const severity = classifyRisk(`${article.title} ${article.snippet}`)
+    const rawSeverity = classifyRisk(`${article.title} ${article.snippet}`)
+    const severity = signalType === 'news_corroboration' && rawSeverity === 'critical' ? 'high' : rawSeverity
 
     return {
       signal_key: stableSignalKey([signalType, article.region, article.url || article.title]),
