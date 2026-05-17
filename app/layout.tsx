@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { AuthRecoveryRedirect } from '@/components/auth-recovery-redirect'
 import { BASE_URL, publicFeaturePages } from '@/lib/seo'
 import './globals.css'
@@ -454,6 +455,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AuthRecoveryRedirect />
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
