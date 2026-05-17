@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
+import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -62,30 +63,7 @@ const TRUSTED_FEEDS = [
   { source: 'MarineLog', url: 'https://www.marinelog.com/feed/', credibility: 8 },
   { source: 'World Oil', url: 'https://www.worldoil.com/rss', credibility: 7 },
   { source: 'Arab News', url: 'https://www.arabnews.com/rss.xml', credibility: 7 },
-  {
-    source: 'Google News Strait of Hormuz',
-    url: 'https://news.google.com/rss/search?q=(%22Strait%20of%20Hormuz%22%20OR%20%22Hormuz%22%20OR%20%22Persian%20Gulf%22%20OR%20%22Gulf%20of%20Oman%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20oil%20OR%20crude%20OR%20Iran)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
-    credibility: 7,
-    regionHint: 'hormuz',
-  },
-  {
-    source: 'Google News Bab el-Mandeb',
-    url: 'https://news.google.com/rss/search?q=(%22Bab%20el-Mandeb%22%20OR%20%22Bab%20el%20Mandeb%22%20OR%20%22Red%20Sea%22%20OR%20%22Gulf%20of%20Aden%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20Houthi)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
-    credibility: 7,
-    regionHint: 'bab',
-  },
-  {
-    source: 'Google News Suez Canal',
-    url: 'https://news.google.com/rss/search?q=(%22Suez%20Canal%22%20OR%20%22Port%20Said%22%20OR%20%22Suez%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20transit)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
-    credibility: 7,
-    regionHint: 'suez',
-  },
-  {
-    source: 'Google News Malacca Strait',
-    url: 'https://news.google.com/rss/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Straits%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20piracy)%20when%3A1d&hl=en-US&gl=US&ceid=US:en',
-    credibility: 7,
-    regionHint: 'malacca',
-  },
+  ...MARITIME_SEARCH_FEEDS,
 ] satisfies TrustedFeed[]
 
 const TRUSTED_PAGES = [
@@ -298,10 +276,10 @@ function hasOperationalChokepointSignal(article: TrustedArticle) {
 }
 
 function isNoisyGoogleNewsArticle(article: TrustedArticle) {
-  if (!article.source.startsWith('Google News:')) return false
+  if (!isWebSearchArticle(article)) return false
 
   const text = `${article.title} ${article.snippet}`.toLowerCase()
-  const sourceName = article.source.replace(/^Google News:\s*/i, '').toLowerCase()
+  const sourceName = article.source.replace(/^(Google|Bing) News(?: Search)?:\s*/i, '').toLowerCase()
   if (GOOGLE_NEWS_SOURCE_BLOCKLIST.some((keyword) => sourceName.includes(keyword))) return true
   if (/(accidentally blocked|giant ship|ever given|historic|history|what happened when)/i.test(text)) return true
   if (!hasOperationalChokepointSignal(article)) return true
@@ -334,6 +312,10 @@ function hasDirectRegionSignal(article: TrustedArticle) {
   const text = `${article.title} ${article.snippet}`.toLowerCase()
   const keywords = REGION_KEYWORDS[article.region] || []
   return keywords.some((keyword) => text.includes(keyword))
+}
+
+function isWebSearchArticle(article: TrustedArticle) {
+  return article.source.startsWith('Google News:') || article.source.startsWith('Bing News')
 }
 
 async function fetchText(url: string) {
@@ -481,7 +463,7 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
     .filter((article) => hasDirectRegionSignal(article))
-    .filter((article) => !article.source.startsWith('Google News:') || hasOperationalChokepointSignal(article))
+    .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
     .filter((article) => isWithinLatest24Hours(article, now))
@@ -521,6 +503,7 @@ function stableSignalKey(parts: string[]) {
 function signalConfidence(article: TrustedArticle, signalType: MaritimeSignal['signal_type']) {
   if (signalType === 'official_alert' || signalType === 'navigation_warning') return Math.min(100, article.credibility * 10)
   if (article.source.startsWith('Google News:')) return article.source.includes('Bloomberg') ? 65 : 52
+  if (article.source.startsWith('Bing News')) return 50
   return Math.min(85, article.credibility * 9)
 }
 
