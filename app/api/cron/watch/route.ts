@@ -28,12 +28,14 @@ function compact(value: string) {
 function decodeHtml(value: string) {
   return value
     .replace(/<!\[CDATA\[|\]\]>/g, '')
-    .replace(/<[^>]+>/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#039;|&apos;|&#8217;/g, "'")
     .replace(/&#8211;|&#8212;/g, '-')
     .replace(/&nbsp;/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }

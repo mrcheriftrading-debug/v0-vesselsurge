@@ -153,12 +153,14 @@ const MONTHS: Record<string, number> = {
 function decodeHtml(value: string) {
   return value
     .replace(/<!\[CDATA\[|\]\]>/g, '')
-    .replace(/<[^>]+>/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#039;|&apos;|&#8217;/g, "'")
     .replace(/&#8211;|&#8212;/g, '-')
     .replace(/&nbsp;/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }
@@ -195,14 +197,18 @@ function isCurrentYear(article: TrustedArticle) {
 }
 
 function isWithinLatest24Hours(article: TrustedArticle, now: Date) {
+  return isWithinLatestDays(article, now, 1)
+}
+
+function isWithinLatestDays(article: TrustedArticle, now: Date, days: number) {
   const publishedAt = Date.parse(article.published_at)
   if (Number.isNaN(publishedAt)) return false
 
   const nowMs = now.getTime()
-  const oneDayAgo = nowMs - 24 * 60 * 60 * 1000
+  const earliest = nowMs - days * 24 * 60 * 60 * 1000
   const clockSkewAllowance = nowMs + 5 * 60 * 1000
 
-  return publishedAt >= oneDayAgo && publishedAt <= clockSkewAllowance
+  return publishedAt >= earliest && publishedAt <= clockSkewAllowance
 }
 
 function between(value: string, start: string, end: string) {
@@ -282,6 +288,7 @@ function isNoisyGoogleNewsArticle(article: TrustedArticle) {
   const sourceName = article.source.replace(/^(Google|Bing) News(?: Search)?:\s*/i, '').toLowerCase()
   if (GOOGLE_NEWS_SOURCE_BLOCKLIST.some((keyword) => sourceName.includes(keyword))) return true
   if (/(accidentally blocked|giant ship|ever given|historic|history|what happened when)/i.test(text)) return true
+  if (/\b(railway|rail line|high-speed rail|on rails)\b/i.test(text) && !/\b(ship|shipping|vessel|tanker|maritime|cargo|freight|port|convoy)\b/i.test(text)) return true
   if (!hasOperationalChokepointSignal(article)) return true
 
   const hasNoise = GOOGLE_NEWS_NOISE_KEYWORDS.some((keyword) => text.includes(keyword))
@@ -369,18 +376,25 @@ function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
 }
 
 function balanceByHotspot(articles: TrustedArticle[]) {
-  const preferred: TrustedArticle[] = []
-  const overflow: TrustedArticle[] = []
+  const selected: TrustedArticle[] = []
+  const selectedUrls = new Set<string>()
 
   for (const hotspot of ['hormuz', 'bab', 'suez', 'malacca']) {
-    const hotspotArticles = articles.filter((article) => article.region === hotspot)
-    preferred.push(...hotspotArticles.slice(0, 8))
-    overflow.push(...hotspotArticles.slice(8))
+    const hotspotArticles = articles
+      .filter((article) => article.region === hotspot)
+      .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
+
+    for (const article of hotspotArticles.slice(0, 6)) {
+      selected.push(article)
+      selectedUrls.add(article.url)
+    }
   }
 
-  return [...preferred, ...overflow]
+  const overflow = articles
+    .filter((article) => !selectedUrls.has(article.url))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
-    .slice(0, 36)
+
+  return [...selected, ...overflow].slice(0, 36)
 }
 
 function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number, regionHint?: string): TrustedArticle[] {
@@ -457,8 +471,15 @@ async function collectTrustedArticles(now = new Date()) {
   const articles = [...feedResults, ...pageResults].flat()
 
   const seen = new Set<string>()
-  const filtered = articles
-    .filter((article) => !seen.has(article.url) && seen.add(article.url))
+  const dedupedArticles = articles
+    .filter((article) => {
+      const key = articleDedupeKey(article)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+
+  const coreFiltered = dedupedArticles
     .filter((article) => article.region !== 'global')
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
@@ -466,10 +487,32 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
-    .filter((article) => isWithinLatest24Hours(article, now))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
 
-  return balanceByHotspot(filtered)
+  const latest = coreFiltered.filter((article) => isWithinLatest24Hours(article, now))
+  const latestKeys = new Set(latest.map(articleDedupeKey))
+  const regionMinimum = 4
+  const relaxedFallbackCandidates = dedupedArticles
+    .filter((article) => article.region !== 'global')
+    .filter((article) => !isDefenseProcurementNoise(article))
+    .filter((article) => !isFinancialMarketNoise(article))
+    .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
+    .filter((article) => !isNoisyGoogleNewsArticle(article))
+    .filter((article) => isCurrentYear(article))
+    .filter((article) => isWithinLatestDays(article, now, 7))
+    .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
+
+  const fallback = ['hormuz', 'bab', 'suez', 'malacca'].flatMap((region) => {
+    const currentCount = latest.filter((article) => article.region === region).length
+    if (currentCount >= regionMinimum) return []
+
+    return relaxedFallbackCandidates
+      .filter((article) => article.region === region)
+      .filter((article) => !latestKeys.has(articleDedupeKey(article)))
+      .slice(0, regionMinimum - currentCount)
+  })
+
+  return balanceByHotspot([...latest, ...fallback])
 }
 
 function buildStats(articles: TrustedArticle[]) {
@@ -498,6 +541,19 @@ function buildStats(articles: TrustedArticle[]) {
 
 function stableSignalKey(parts: string[]) {
   return crypto.createHash('sha256').update(parts.filter(Boolean).join('|')).digest('hex')
+}
+
+function normalizedArticleTitle(article: TrustedArticle) {
+  return article.title
+    .toLowerCase()
+    .replace(/\s+-\s+[^-]+$/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function articleDedupeKey(article: TrustedArticle) {
+  if (isWebSearchArticle(article)) return `${article.region}:${normalizedArticleTitle(article)}`
+  return `${article.region}:${article.url || normalizedArticleTitle(article)}`
 }
 
 function signalConfidence(article: TrustedArticle, signalType: MaritimeSignal['signal_type']) {
