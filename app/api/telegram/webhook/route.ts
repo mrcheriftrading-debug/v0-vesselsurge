@@ -6,7 +6,7 @@ export const revalidate = 0
 type TelegramMessage = {
   chat?: { id?: number | string }
   text?: string
-  from?: { first_name?: string }
+  from?: { id?: number | string; first_name?: string }
 }
 
 type TelegramUpdate = {
@@ -181,6 +181,12 @@ function isWebhookAuthorized(request: Request) {
   return request.headers.get('x-telegram-bot-api-secret-token') === expected
 }
 
+function isAllowedTelegramUser(message: TelegramMessage) {
+  const allowedUserId = process.env.TELEGRAM_ALLOWED_USER_ID
+  if (!allowedUserId) return false
+  return String(message.from?.id || '') === allowedUserId
+}
+
 export async function GET() {
   return NextResponse.json({
     ok: true,
@@ -201,6 +207,11 @@ export async function POST(request: Request) {
 
   if (!chatId || !text) {
     return NextResponse.json({ ok: true, ignored: true })
+  }
+
+  if (!isAllowedTelegramUser(message)) {
+    console.warn('[telegram] blocked unauthorized user', message.from?.id || 'unknown')
+    return NextResponse.json({ ok: true, blocked: true })
   }
 
   try {
