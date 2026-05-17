@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
 
 export const runtime = 'nodejs'
@@ -20,6 +21,20 @@ type TrustedArticle = {
   published_at: string
   created_at?: string
   updated_at?: string
+}
+
+type MaritimeSignal = {
+  signal_key: string
+  source: string
+  source_url: string | null
+  title: string
+  summary: string
+  region: string
+  signal_type: 'official_alert' | 'navigation_warning' | 'ais_anomaly' | 'weather_constraint' | 'news_corroboration'
+  severity: RiskLevel
+  confidence: number
+  observed_at: string
+  metadata: Record<string, unknown>
 }
 
 type TrustedFeed = {
@@ -78,6 +93,8 @@ const TRUSTED_PAGES = [
   { source: 'Norwegian Maritime Authority', url: 'https://www.sdir.no/en/accidents-and-safety/maritim-sikring/security-level-for-norwegian-vessels/gulf-of-aden-bab-el-mandeb-red-sea/', credibility: 9, region: 'bab' },
   { source: 'MARAD Maritime Security Advisory', url: 'https://www.maritime.dot.gov/msci/2025-001-southern-red-sea-bab-el-mandeb-strait-and-gulf-aden-houthi-attacks-commercial-vessels', credibility: 9, region: 'bab' },
   { source: 'Suez Canal Authority', url: 'https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx', credibility: 10, region: 'suez' },
+  { source: 'MSCIO Alerts', url: 'https://www.mscio.eu/alerts/', credibility: 10, region: 'bab' },
+  { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', credibility: 10, region: 'bab' },
 ]
 
 const REGION_KEYWORDS: Record<string, string[]> = {
@@ -486,6 +503,130 @@ function buildStats(articles: TrustedArticle[]) {
   })
 }
 
+function stableSignalKey(parts: string[]) {
+  return crypto.createHash('sha256').update(parts.filter(Boolean).join('|')).digest('hex')
+}
+
+function signalConfidence(article: TrustedArticle, signalType: MaritimeSignal['signal_type']) {
+  if (signalType === 'official_alert' || signalType === 'navigation_warning') return Math.min(100, article.credibility * 10)
+  if (article.source.startsWith('Google News:')) return article.source.includes('Bloomberg') ? 65 : 52
+  return Math.min(85, article.credibility * 9)
+}
+
+function signalTypeForArticle(article: TrustedArticle): MaritimeSignal['signal_type'] {
+  if (/recaap|marad|mscio|ukmto|norwegian maritime authority/i.test(article.source)) return 'official_alert'
+  if (/suez canal authority/i.test(article.source)) return 'navigation_warning'
+  return 'news_corroboration'
+}
+
+function buildArticleSignals(articles: TrustedArticle[]): MaritimeSignal[] {
+  return articles.map((article) => {
+    const signalType = signalTypeForArticle(article)
+    const severity = classifyRisk(`${article.title} ${article.snippet}`)
+
+    return {
+      signal_key: stableSignalKey([signalType, article.region, article.url || article.title]),
+      source: article.source,
+      source_url: article.url || null,
+      title: article.title,
+      summary: article.snippet,
+      region: article.region,
+      signal_type: signalType,
+      severity,
+      confidence: signalConfidence(article, signalType),
+      observed_at: article.published_at,
+      metadata: {
+        credibility: article.credibility,
+        topic: article.topic,
+        derivedFrom: 'trusted-source-ingest',
+      },
+    }
+  })
+}
+
+function buildAisSignals(vessels: Awaited<ReturnType<typeof collectAisStreamVessels>>['vessels'], capturedAt: string): MaritimeSignal[] {
+  const byHotspot = vessels.reduce<Record<string, typeof vessels>>((acc, vessel) => {
+    acc[vessel.hotspot] ||= []
+    acc[vessel.hotspot].push(vessel)
+    return acc
+  }, {})
+
+  return Object.entries(byHotspot).flatMap(([hotspot, rows]) => {
+    const stopped = rows.filter((vessel) => vessel.speed < 0.5)
+    const slow = rows.filter((vessel) => vessel.speed >= 0.5 && vessel.speed < 3)
+    const signals: MaritimeSignal[] = []
+
+    if (stopped.length >= 3) {
+      signals.push({
+        signal_key: stableSignalKey(['ais-stoppage', hotspot, capturedAt.slice(0, 13)]),
+        source: 'AISStream live AIS',
+        source_url: 'https://aisstream.io/documentation',
+        title: `${stopped.length} stopped AIS vessels detected near ${hotspot}`,
+        summary: `${stopped.length} vessels reported speed below 0.5 kn inside the VesselSurge ${hotspot} watch box.`,
+        region: hotspot,
+        signal_type: 'ais_anomaly',
+        severity: stopped.length >= 10 ? 'high' : 'medium',
+        confidence: 72,
+        observed_at: capturedAt,
+        metadata: {
+          stoppedCount: stopped.length,
+          sample: stopped.slice(0, 8).map((vessel) => ({ mmsi: vessel.mmsi, name: vessel.name, speed: vessel.speed })),
+        },
+      })
+    }
+
+    if (slow.length >= 8) {
+      signals.push({
+        signal_key: stableSignalKey(['ais-slowdown', hotspot, capturedAt.slice(0, 13)]),
+        source: 'AISStream live AIS',
+        source_url: 'https://aisstream.io/documentation',
+        title: `${slow.length} slow-moving AIS vessels detected near ${hotspot}`,
+        summary: `${slow.length} vessels reported speeds between 0.5 and 3 kn inside the VesselSurge ${hotspot} watch box.`,
+        region: hotspot,
+        signal_type: 'ais_anomaly',
+        severity: slow.length >= 20 ? 'medium' : 'low',
+        confidence: 64,
+        observed_at: capturedAt,
+        metadata: {
+          slowCount: slow.length,
+          sample: slow.slice(0, 8).map((vessel) => ({ mmsi: vessel.mmsi, name: vessel.name, speed: vessel.speed })),
+        },
+      })
+    }
+
+    return signals
+  })
+}
+
+function riskScore(level: RiskLevel) {
+  return { low: 1, medium: 2, high: 3, critical: 4 }[level]
+}
+
+function riskFromScore(score: number): RiskLevel {
+  if (score >= 4) return 'critical'
+  if (score >= 3) return 'high'
+  if (score >= 2) return 'medium'
+  return 'low'
+}
+
+function buildStatsFromSignals(articles: TrustedArticle[], signals: MaritimeSignal[]) {
+  const base = buildStats(articles)
+  return base.map((row) => {
+    const hotspotSignals = signals.filter((signal) => signal.region === row.hotspot)
+    const strongestSignal = hotspotSignals.reduce((max, signal) => Math.max(max, riskScore(signal.severity)), 0)
+    const officialSignalCount = hotspotSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
+    const aisSignalCount = hotspotSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
+    const confidenceBoost = officialSignalCount ? 1 : aisSignalCount && row.risk_level === 'low' ? 1 : 0
+    const risk_level = riskFromScore(Math.max(riskScore(row.risk_level), strongestSignal, confidenceBoost))
+
+    return {
+      ...row,
+      risk_level,
+      avg_wait_time: hotspotSignals.length ? `${hotspotSignals.length} live signals` : row.avg_wait_time,
+    }
+  })
+}
+
 async function supabaseRequest(path: string, init: RequestInit = {}) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -537,7 +678,24 @@ export async function GET(request: Request) {
     if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
   }
 
-  const stats = buildStats(articles)
+  const ais = await collectAisStreamVessels({ timeoutMs: 18000, maxVessels: 120 })
+  const articleSignals = buildArticleSignals(articles)
+  const aisSignals = buildAisSignals(ais.vessels, timestamp)
+  const signals = [...articleSignals, ...aisSignals]
+  const stats = buildStatsFromSignals(articles, signals)
+
+  const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, { method: 'DELETE' })
+  if (!deleteOldSignals.ok) throw new Error(`Failed to delete old maritime signals: ${deleteOldSignals.status} ${await deleteOldSignals.text()}`)
+
+  if (signals.length > 0) {
+    const upsertSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
+      method: 'POST',
+      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(signals.map((signal) => ({ ...signal, updated_at: timestamp }))),
+    })
+    if (!upsertSignals.ok) throw new Error(`Failed to upsert maritime signals: ${upsertSignals.status} ${await upsertSignals.text()}`)
+  }
+
   const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
     method: 'POST',
     headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
@@ -545,7 +703,6 @@ export async function GET(request: Request) {
   })
   if (!upsertStats.ok) throw new Error(`Failed to update hotspot stats: ${upsertStats.status} ${await upsertStats.text()}`)
 
-  const ais = await collectAisStreamVessels({ timeoutMs: 18000, maxVessels: 120 })
   let vesselsUpdated = 0
   if (ais.vessels.length > 0) {
     const staleCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
@@ -559,6 +716,29 @@ export async function GET(request: Request) {
     })
     if (!upsertVessels.ok) throw new Error(`Failed to update AIS vessels: ${upsertVessels.status} ${await upsertVessels.text()}`)
     vesselsUpdated = ais.vessels.length
+
+    const historyRows = ais.vessels.map((vessel) => ({
+      mmsi: vessel.mmsi,
+      name: vessel.name,
+      lat: vessel.lat,
+      lng: vessel.lng,
+      speed: vessel.speed,
+      heading: vessel.heading,
+      ship_type: vessel.ship_type,
+      destination: vessel.destination,
+      hotspot: vessel.hotspot,
+      captured_at: timestamp,
+    }))
+    const insertHistory = await supabaseRequest('ais_position_history', {
+      method: 'POST',
+      headers: { prefer: 'return=minimal' },
+      body: JSON.stringify(historyRows),
+    })
+    if (!insertHistory.ok) throw new Error(`Failed to insert AIS history: ${insertHistory.status} ${await insertHistory.text()}`)
+
+    const staleHistoryCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+    const deleteOldHistory = await supabaseRequest(`ais_position_history?captured_at=lt.${encodeURIComponent(staleHistoryCutoff)}`, { method: 'DELETE' })
+    if (!deleteOldHistory.ok) throw new Error(`Failed to delete old AIS history: ${deleteOldHistory.status} ${await deleteOldHistory.text()}`)
 
     const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
       acc[vessel.hotspot] = (acc[vessel.hotspot] || 0) + 1
@@ -584,6 +764,9 @@ export async function GET(request: Request) {
     articles_fetched: articles.length,
     articles_inserted: articles.length,
     stats_updated: stats.length,
+    signals_found: signals.length,
+    official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
+    ais_signals: signals.filter((signal) => signal.signal_type === 'ais_anomaly').length,
     vessels_found: ais.vessels.length,
     vessels_updated: vesselsUpdated,
     ais_status: ais.reason,

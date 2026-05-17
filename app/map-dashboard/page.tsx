@@ -47,7 +47,7 @@ export default function MapDashboard() {
   const [feedItems, setFeedItems] = useState<Article[]>([])
   const [feedLoading, setFeedLoading] = useState(false)
   const [feedError, setFeedError] = useState<string | null>(null)
-  const { articles, hotspots, vessels, loading, refresh, lastUpdated } = useMaritimeData()
+  const { articles, hotspots, signals, vessels, loading, refresh, lastUpdated } = useMaritimeData()
 
   // Vessels for selected hotspot
   const selectedVessels = vessels.filter(v => v.hotspot === selectedId)
@@ -77,6 +77,8 @@ export default function MapDashboard() {
   const riskColor = RISK_COLOR[riskLevel] ?? RISK_COLOR.medium
   const riskBg = RISK_BG[riskLevel] ?? RISK_BG.medium
   const selectedArticles = articles.filter((article) => article.region?.toLowerCase() === selectedId)
+  const selectedSignals = signals.filter((signal) => signal.region?.toLowerCase() === selectedId)
+  const latestSignal = selectedSignals[0]
   const feedArticles = feedItems
   const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
   const totalSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
@@ -88,9 +90,11 @@ export default function MapDashboard() {
   const latestArticle = selectedArticles[0]
   const selectedUpdatedAt = selected?.updatedAt ? new Date(selected.updatedAt) : null
   const selectedConfidence = selected
-    ? selected.verifiedReports && selected.sourceCount
-      ? 'Verified source review'
-      : 'Awaiting source update'
+    ? selected.confidenceLabel
+      ? `${selected.confidenceLabel} · ${selected.confidenceScore ?? 0}/100`
+      : selected.verifiedReports && selected.sourceCount
+        ? 'Verified source review'
+        : 'Awaiting source update'
     : 'Loading'
 
   useEffect(() => {
@@ -287,6 +291,18 @@ export default function MapDashboard() {
                       {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'Not verified'}
                     </p>
                   </div>
+                  <div className="rounded-xl bg-black/20 p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Live Signals</p>
+                    <p className="text-2xl font-black text-foreground">
+                      {loading ? '—' : selected.signalCount ?? 0}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-black/20 p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Official / AIS</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {loading ? '—' : `${selected.officialSignalCount ?? 0} / ${selected.aisSignalCount ?? 0}`}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -318,6 +334,40 @@ export default function MapDashboard() {
                       </div>
                     </a>
                   ) : null}
+
+                  {latestSignal ? (
+                    <a
+                      href={latestSignal.sourceUrl || '#'}
+                      target={latestSignal.sourceUrl ? '_blank' : undefined}
+                      rel="noopener noreferrer"
+                      className="block rounded-xl border border-primary/30 bg-primary/10 p-3 hover:border-primary/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-primary">
+                            {latestSignal.signalType.replace(/_/g, ' ')} · {latestSignal.confidence}/100
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-foreground line-clamp-2">{latestSignal.title}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{latestSignal.source}</p>
+                        </div>
+                        {latestSignal.sourceUrl ? <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /> : null}
+                      </div>
+                    </a>
+                  ) : null}
+
+                  <div className="rounded-xl border border-border/50 bg-black/20 p-3 space-y-2">
+                    <p className="text-xs font-semibold text-foreground">Signal coverage</p>
+                    {selectedSignals.length > 0 ? (
+                      selectedSignals.slice(0, 5).map((signal) => (
+                        <div key={signal.signalKey} className="flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate text-muted-foreground">{signal.source}</span>
+                          <span className="font-mono text-foreground">{signal.signalType.replace(/_/g, ' ')}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground">No live signals for this hotspot yet.</p>
+                    )}
+                  </div>
 
                   <div className="rounded-xl border border-border/50 bg-black/20 p-3 space-y-2">
                     <p className="text-xs font-semibold text-foreground">Source coverage</p>

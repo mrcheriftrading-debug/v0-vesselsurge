@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { Article, Hotspot } from '@/lib/maritime-data'
+import type { Article, Hotspot, MaritimeSignal } from '@/lib/maritime-data'
 
 type HotspotMap = Record<string, Hotspot>
 
@@ -21,6 +21,7 @@ interface Vessel {
 interface UseMaritimeDataReturn {
   articles: Article[]
   hotspots: HotspotMap
+  signals: MaritimeSignal[]
   vessels: Vessel[]
   loading: boolean
   error: string | null
@@ -32,6 +33,7 @@ interface UseMaritimeDataReturn {
 export function useMaritimeData(): UseMaritimeDataReturn {
   const [articles, setArticles] = useState<Article[]>([])
   const [hotspots, setHotspots] = useState<HotspotMap>({})
+  const [signals, setSignals] = useState<MaritimeSignal[]>([])
   const [vessels, setVessels] = useState<Vessel[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -50,6 +52,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
       if (!response.ok) throw new Error('API error: ' + response.status)
       const { data } = await response.json()
       setArticles(data.articles || [])
+      setSignals(data.signals || [])
       const map: HotspotMap = {}
       for (const h of data.hotspots || []) map[h.hotspot] = h
       setHotspots(map)
@@ -94,6 +97,13 @@ export function useMaritimeData(): UseMaritimeDataReturn {
         )
         .subscribe()
 
+      const signalsChannel = supabase
+        .channel('maritime-signals-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'maritime_signals' },
+          async () => { await fetchMaritimeData() }
+        )
+        .subscribe()
+
       // Vessel realtime - update positions live
       const vesselsChannel = supabase
         .channel('vessels-realtime')
@@ -105,6 +115,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
       subscriptionsRef.current.push(() => {
         supabase.removeChannel(articlesChannel)
         supabase.removeChannel(statsChannel)
+        supabase.removeChannel(signalsChannel)
         supabase.removeChannel(vesselsChannel)
       })
     } catch (err) {
@@ -145,6 +156,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
   return {
     articles,
     hotspots,
+    signals,
     vessels,
     loading,
     error,

@@ -25,6 +25,24 @@ export interface Hotspot {
   verifiedReports?: number
   sourceCount?: number
   latestSource?: string | null
+  signalCount?: number
+  officialSignalCount?: number
+  aisSignalCount?: number
+  confidenceScore?: number
+  confidenceLabel?: string
+}
+
+export interface MaritimeSignal {
+  signalKey: string
+  source: string
+  sourceUrl: string | null
+  title: string
+  summary: string | null
+  region: string
+  signalType: 'official_alert' | 'navigation_warning' | 'ais_anomaly' | 'weather_constraint' | 'news_corroboration'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  confidence: number
+  observedAt: string
 }
 
 export async function getMaritimeArticles(limit: number = 25, region?: string) {
