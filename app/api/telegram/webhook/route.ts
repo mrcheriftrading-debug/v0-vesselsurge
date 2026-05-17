@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -99,6 +100,21 @@ async function buildLatestReply() {
   ].join('\n\n')
 }
 
+async function forwardToCodexInbox(message: TelegramMessage, text: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('telegram_codex_inbox').insert({
+    telegram_user_id: String(message.from?.id || ''),
+    telegram_first_name: message.from?.first_name || null,
+    chat_id: String(message.chat?.id || ''),
+    message: text,
+    status: 'pending',
+  })
+
+  if (error) {
+    throw new Error(`Failed to forward Telegram message to Codex inbox: ${error.message}`)
+  }
+}
+
 async function generateAiReply(userText: string) {
   const apiKey = process.env.XAI_API_KEY || process.env.OPENAI_API_KEY
   if (!apiKey) {
@@ -145,8 +161,11 @@ async function generateAiReply(userText: string) {
         {
           role: 'system',
           content: [
-            'You are VesselSurge Telegram assistant.',
-            'Answer briefly and practically.',
+            'You are Codex, the user’s warm, practical coding and product collaborator for VesselSurge.',
+            'You help with the website, OpenClaw, Vercel, GitHub, SEO, X marketing posts, Telegram automation, and maritime intelligence.',
+            'Speak like a direct teammate: concise, calm, useful, and a little alive.',
+            'Answer in the same language the user uses, Swedish if they write Swedish.',
+            'Be honest that Telegram chat can advise, draft, inspect live VesselSurge data, and queue work for the Codex desktop workspace, but cannot directly run the local terminal from Telegram.',
             'Use the provided VesselSurge live context.',
             'Do not claim unverified breaking facts.',
             'If data is missing, say it is not verified yet.',
@@ -220,11 +239,16 @@ export async function POST(request: Request) {
 
     if (lower === '/start' || lower === '/help') {
       reply = [
-        `Hi${message.from?.first_name ? ` ${message.from.first_name}` : ''}. I am the VesselSurge assistant.`,
+        `Hi${message.from?.first_name ? ` ${message.from.first_name}` : ''}. Jag är Codex för VesselSurge här i Telegram.`,
         '',
         '/status - live chokepoint status',
         '/latest - latest source-reviewed reports',
-        'Or ask me about Hormuz, Red Sea risk, tanker routes, freight, insurance, Suez, or Malacca.',
+        '',
+        'Skriv vad du vill att jag ska göra. Jag svarar här och skickar samtidigt riktiga arbetsuppgifter vidare till Codex-workspacet.',
+        '',
+        'Du kan fråga om hemsidan, OpenClaw, Vercel/GitHub, SEO, X-inlägg, Hormuz, Red Sea risk, tanker routes, freight, insurance, Suez eller Malacca.',
+        '',
+        'Obs: när något kräver kod/terminal hamnar det i Codex-kön så jag kan plocka upp det i workspacet.',
         '',
         SITE_URL,
       ].join('\n')
@@ -233,7 +257,13 @@ export async function POST(request: Request) {
     } else if (lower.startsWith('/latest')) {
       reply = await buildLatestReply()
     } else {
-      reply = await generateAiReply(text)
+      await forwardToCodexInbox(message, text)
+      const aiReply = await generateAiReply(text)
+      reply = [
+        aiReply,
+        '',
+        'Skickat till Codex-workspacet också. Jag plockar upp det där när kön kollas.',
+      ].join('\n')
     }
 
     await telegramSendMessage(chatId, reply)
