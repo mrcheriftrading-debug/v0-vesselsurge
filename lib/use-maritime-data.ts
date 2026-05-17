@@ -129,8 +129,8 @@ export function useMaritimeData(): UseMaritimeDataReturn {
     fetchVessels()
     setupRealtime()
 
-    // Refresh hotspot stats every 5 min
-    const statsInterval = setInterval(fetchMaritimeData, 5 * 60 * 1000)
+    // Refresh hotspot stats/signals often; backend ingestion runs every 5 minutes.
+    const statsInterval = setInterval(fetchMaritimeData, 60 * 1000)
 
     // Poll vessel positions every 60 seconds (AIS data updates frequently)
     vesselPollRef.current = setInterval(fetchVessels, 60 * 1000)
