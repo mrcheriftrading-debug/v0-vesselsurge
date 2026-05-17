@@ -9,6 +9,10 @@ const SITE_URL = 'https://www.vesselsurge.com'
 const STATE_PATH = path.join(process.cwd(), '.buffer-post-state.json')
 const CACHE_PATH = path.join(process.cwd(), '.buffer-approved-feed-cache.json')
 const BUFFER_API_URL = 'https://api.buffer.com'
+const DEFAULT_MIN_HOURS_BETWEEN_POSTS = 8
+const DEFAULT_MAX_POSTS_PER_DAY = 2
+const DEFAULT_MAX_SCHEDULED_QUEUE = 6
+const DEFAULT_MIN_RATE_LIMIT_REMAINING = 10
 const FEED_URLS = (
   process.env.X_MARITIME_FEED_URLS ||
   process.env.X_MARITIME_FEED_URL ||
@@ -51,9 +55,10 @@ function writeJsonFile(filePath, value) {
 }
 
 function readState() {
-  const state = readJsonFile(STATE_PATH, { postedUrls: [], imageCursor: 0 })
+  const state = readJsonFile(STATE_PATH, { postedUrls: [], postedAt: [], imageCursor: 0 })
   return {
     postedUrls: Array.isArray(state.postedUrls) ? state.postedUrls : [],
+    postedAt: Array.isArray(state.postedAt) ? state.postedAt : [],
     imageCursor: Number.isInteger(state.imageCursor) ? state.imageCursor : 0,
   }
 }
@@ -116,6 +121,27 @@ function normalizePostText(article) {
   return text.length <= 280 ? text : `${text.slice(0, 276).trim()}...`
 }
 
+function readNumberEnv(name, localEnv, fallback) {
+  const value = Number.parseInt(getEnv(name, localEnv) || '', 10)
+  return Number.isFinite(value) && value >= 0 ? value : fallback
+}
+
+function hoursSince(isoDate) {
+  const timestamp = Date.parse(isoDate || '')
+  if (!Number.isFinite(timestamp)) return Number.POSITIVE_INFINITY
+  return (Date.now() - timestamp) / (1000 * 60 * 60)
+}
+
+function sameUtcDay(a, b) {
+  const aDate = new Date(a)
+  const bDate = new Date(b)
+  return (
+    aDate.getUTCFullYear() === bDate.getUTCFullYear() &&
+    aDate.getUTCMonth() === bDate.getUTCMonth() &&
+    aDate.getUTCDate() === bDate.getUTCDate()
+  )
+}
+
 async function bufferGraphql(token, query, variables = {}) {
   const response = await fetch(BUFFER_API_URL, {
     method: 'POST',
@@ -126,16 +152,28 @@ async function bufferGraphql(token, query, variables = {}) {
     body: JSON.stringify({ query, variables }),
   })
   const json = await response.json()
+  const rateLimitRemaining = Number.parseInt(response.headers.get('ratelimit-remaining') || '', 10)
+  const rateLimitReset = response.headers.get('ratelimit-reset')
 
   if (!response.ok || json.errors) {
     const message = json.errors?.map((error) => error.message).join('; ') || JSON.stringify(json)
     throw new Error(`Buffer API error (${response.status}): ${message}`)
   }
 
+  if (Number.isFinite(rateLimitRemaining)) {
+    json.data = {
+      ...json.data,
+      _rateLimit: {
+        remaining: rateLimitRemaining,
+        reset: rateLimitReset,
+      },
+    }
+  }
+
   return json.data
 }
 
-async function findTwitterChannel(token) {
+async function resolveTwitterChannel(token, preferredChannelId) {
   const organizationsData = await bufferGraphql(
     token,
     `query GetOrganizations {
@@ -143,6 +181,9 @@ async function findTwitterChannel(token) {
         organizations {
           id
           name
+          limits {
+            scheduledPosts
+          }
         }
       }
     }`,
@@ -162,8 +203,119 @@ async function findTwitterChannel(token) {
       }`,
       { organizationId: organization.id },
     )
-    const channel = channelsData.channels?.find((item) => item.service === 'twitter')
-    if (channel) return channel
+    const channel = channelsData.channels?.find((item) =>
+      preferredChannelId ? item.id === preferredChannelId : item.service === 'twitter',
+    )
+    if (channel) {
+      return {
+        organization,
+        channel,
+        rateLimit: channelsData._rateLimit || organizationsData._rateLimit || null,
+      }
+    }
+  }
+
+  return null
+}
+
+async function getScheduledPostsSummary({ token, organizationId, channelId }) {
+  const data = await bufferGraphql(
+    token,
+    `query GetScheduledPosts($organizationId: OrganizationId!, $channelId: ChannelId!) {
+      posts(
+        first: 20
+        input: {
+          organizationId: $organizationId
+          sort: [{ field: dueAt, direction: asc }, { field: createdAt, direction: desc }]
+          filter: { status: [scheduled], channelIds: [$channelId] }
+        }
+      ) {
+        totalCount
+        edges {
+          node {
+            id
+            text
+            dueAt
+            createdAt
+            channelId
+          }
+        }
+      }
+    }`,
+    { organizationId, channelId },
+  )
+
+  return {
+    totalCount: data.posts?.totalCount || data.posts?.edges?.length || 0,
+    posts: (data.posts?.edges || []).map((edge) => edge.node),
+    rateLimit: data._rateLimit || null,
+  }
+}
+
+async function getDailyPostingLimit({ token, channelId }) {
+  const data = await bufferGraphql(
+    token,
+    `query GetDailyPostingLimits($channelId: ChannelId!) {
+      dailyPostingLimits(input: { channelIds: [$channelId] }) {
+        channelId
+        sent
+        scheduled
+        limit
+        isAtLimit
+      }
+    }`,
+    { channelId },
+  )
+
+  return {
+    status: data.dailyPostingLimits?.[0] || null,
+    rateLimit: data._rateLimit || null,
+  }
+}
+
+function shouldSkipForLocalCadence({ state, maxPostsPerDay, minHoursBetweenPosts }) {
+  const now = new Date()
+  const recentPostedAt = state.postedAt.filter((postedAt) => Number.isFinite(Date.parse(postedAt)))
+  const postedToday = recentPostedAt.filter((postedAt) => sameUtcDay(postedAt, now)).length
+  const latestPostAt = recentPostedAt.sort((a, b) => Date.parse(b) - Date.parse(a))[0]
+
+  if (postedToday >= maxPostsPerDay) {
+    return `daily local cap reached (${postedToday}/${maxPostsPerDay})`
+  }
+
+  const elapsedHours = hoursSince(latestPostAt)
+  if (elapsedHours < minHoursBetweenPosts) {
+    return `minimum spacing active (${elapsedHours.toFixed(1)}h/${minHoursBetweenPosts}h)`
+  }
+
+  return null
+}
+
+function shouldSkipForBufferLimits({ dailyLimit, scheduledSummary, maxPostsPerDay, maxScheduledQueue }) {
+  if (scheduledSummary.totalCount >= maxScheduledQueue) {
+    return `Buffer queue cap reached (${scheduledSummary.totalCount}/${maxScheduledQueue})`
+  }
+
+  if (!dailyLimit) return null
+  const networkLimit = dailyLimit.limit ?? Number.POSITIVE_INFINITY
+  const effectiveDailyLimit = Math.min(networkLimit, maxPostsPerDay)
+  const usedToday = (dailyLimit.sent || 0) + (dailyLimit.scheduled || 0)
+
+  if (dailyLimit.isAtLimit || usedToday >= effectiveDailyLimit) {
+    return `Buffer daily cap reached (${usedToday}/${effectiveDailyLimit})`
+  }
+
+  return null
+}
+
+function shouldSkipForRateLimit(rateLimits, minRateLimitRemaining) {
+  const lowestRemaining = rateLimits
+    .map((item) => item?.remaining)
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b)[0]
+
+  if (Number.isFinite(lowestRemaining) && lowestRemaining <= minRateLimitRemaining) {
+    return `Buffer API rate-limit reserve reached (${lowestRemaining} remaining)`
   }
 
   return null
@@ -214,24 +366,67 @@ const args = new Set(process.argv.slice(2))
 const dryRun = args.has('--dry-run')
 const localEnv = readLocalEnv()
 const token = getEnv('BUFFER_ACCESS_TOKEN', localEnv)
-let channelId = getEnv('BUFFER_X_CHANNEL_ID', localEnv)
+const preferredChannelId = getEnv('BUFFER_X_CHANNEL_ID', localEnv)
+const maxPostsPerDay = readNumberEnv('BUFFER_MAX_POSTS_PER_DAY', localEnv, DEFAULT_MAX_POSTS_PER_DAY)
+const minHoursBetweenPosts = readNumberEnv(
+  'BUFFER_MIN_HOURS_BETWEEN_POSTS',
+  localEnv,
+  DEFAULT_MIN_HOURS_BETWEEN_POSTS,
+)
+const maxScheduledQueue = readNumberEnv('BUFFER_MAX_SCHEDULED_QUEUE', localEnv, DEFAULT_MAX_SCHEDULED_QUEUE)
+const minRateLimitRemaining = readNumberEnv(
+  'BUFFER_MIN_RATE_LIMIT_REMAINING',
+  localEnv,
+  DEFAULT_MIN_RATE_LIMIT_REMAINING,
+)
 
 if (!token) {
   console.error('[buffer-agent] Missing BUFFER_ACCESS_TOKEN.')
   process.exit(1)
 }
 
-if (!channelId) {
-  const channel = await findTwitterChannel(token)
-  if (!channel) {
-    console.error('[buffer-agent] No Buffer X/Twitter channel found.')
-    process.exit(1)
-  }
-  if (channel.isQueuePaused) {
-    console.error('[buffer-agent] Buffer X/Twitter queue is paused.')
-    process.exit(1)
-  }
-  channelId = channel.id
+const resolved = await resolveTwitterChannel(token, preferredChannelId)
+if (!resolved) {
+  console.error('[buffer-agent] No Buffer X/Twitter channel found.')
+  process.exit(1)
+}
+
+if (resolved.channel.isQueuePaused) {
+  console.error('[buffer-agent] Buffer X/Twitter queue is paused.')
+  process.exit(1)
+}
+
+const channelId = resolved.channel.id
+const organizationId = resolved.organization.id
+const state = readState()
+const localSkipReason = shouldSkipForLocalCadence({ state, maxPostsPerDay, minHoursBetweenPosts })
+if (localSkipReason) {
+  console.log(`[buffer-agent] Skipping: ${localSkipReason}.`)
+  process.exit(0)
+}
+
+const [scheduledSummary, dailyPostingLimit] = await Promise.all([
+  getScheduledPostsSummary({ token, organizationId, channelId }),
+  getDailyPostingLimit({ token, channelId }),
+])
+const bufferSkipReason = shouldSkipForBufferLimits({
+  dailyLimit: dailyPostingLimit.status,
+  scheduledSummary,
+  maxPostsPerDay,
+  maxScheduledQueue,
+})
+if (bufferSkipReason) {
+  console.log(`[buffer-agent] Skipping: ${bufferSkipReason}.`)
+  process.exit(0)
+}
+
+const rateLimitSkipReason = shouldSkipForRateLimit(
+  [resolved.rateLimit, scheduledSummary.rateLimit, dailyPostingLimit.rateLimit],
+  minRateLimitRemaining,
+)
+if (rateLimitSkipReason) {
+  console.log(`[buffer-agent] Skipping: ${rateLimitSkipReason}.`)
+  process.exit(0)
 }
 
 const payload = await fetchApprovedFeed()
@@ -249,7 +444,6 @@ const candidates = articles
     return Date.parse(b.timestamp || 0) - Date.parse(a.timestamp || 0)
   })
 
-const state = readState()
 const posted = new Set(state.postedUrls)
 const nextArticle = candidates.find((article) => !posted.has(article.sourceUrl))
 
@@ -271,5 +465,6 @@ if (post?.dueAt) console.log(`[buffer-agent] Scheduled for: ${post.dueAt}`)
 
 if (!dryRun) {
   state.postedUrls = [nextArticle.sourceUrl, ...state.postedUrls].slice(0, 300)
+  state.postedAt = [new Date().toISOString(), ...state.postedAt].slice(0, 300)
   writeState(state)
 }
