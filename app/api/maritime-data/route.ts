@@ -8,24 +8,22 @@ export const revalidate = 0
 async function getVesselCounts(supabase: any) {
   try {
     const freshCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-    // Try to get from vessels table first
     const { data: vessels, error } = await supabase
       .from('vessels')
       .select('hotspot')
       .gte('updated_at', freshCutoff)
     
-    if (!error && vessels && vessels.length > 0) {
-      const counts: Record<string, number> = {}
-      vessels.forEach((v: any) => {
-        counts[v.hotspot] = (counts[v.hotspot] || 0) + 1
-      })
-      return counts
-    }
+    if (error) throw error
+
+    const counts: Record<string, number> = {}
+    ;(vessels || []).forEach((v: any) => {
+      counts[v.hotspot] = (counts[v.hotspot] || 0) + 1
+    })
+    return counts
   } catch (e) {
     console.log('[maritime-data] Could not fetch vessel counts:', e)
+    return null
   }
-
-  return {}
 }
 
 export async function GET() {
@@ -84,7 +82,7 @@ export async function GET() {
     const hotspots = (hotspotsData || []).map((hotspot: any) => ({
       id: hotspot.id,
       hotspot: hotspot.hotspot,
-      activeVessels: vesselCounts[hotspot.hotspot] || hotspot.active_vessels || 0,
+      activeVessels: vesselCounts ? (vesselCounts[hotspot.hotspot] || 0) : (hotspot.active_vessels || 0),
       dailyTransits: hotspot.daily_transits,
       avgWaitTime: hotspot.avg_wait_time,
       marketVolume: hotspot.market_volume,

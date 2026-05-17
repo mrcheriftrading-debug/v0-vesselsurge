@@ -93,35 +93,19 @@ const SEVERITY_KEYWORDS = {
   medium: ['delay', 'congestion', 'monitor', 'caution', 'security', 'risk', 'alert'],
 }
 
-const HARD_MARITIME_SIGNAL_KEYWORDS = [
-  'shipping',
-  'ship',
-  'vessel',
-  'tanker',
-  'maritime',
-  'ais',
-  'cargo',
-  'freight',
-  'insurance',
-  'war risk',
-  'transit',
-  'route',
-  'reroute',
-  'divert',
-  'chokepoint',
-  'canal',
-  'port',
-  'piracy',
-  'armed robbery',
-  'houthi',
-  'naval',
-  'navy',
-]
-
 const GOOGLE_NEWS_NOISE_KEYWORDS = [
   'railway',
   'rail line',
   'high-speed rail',
+  'delegation',
+  'partnership',
+  'diplomatic',
+  'diplomacy',
+  'accidentally blocked',
+  'giant ship',
+  'ever given',
+  'history',
+  'historic',
   'tourism',
   'football',
   'cricket',
@@ -270,11 +254,6 @@ function isRelevant(text: string) {
   ].some((keyword) => lower.includes(keyword))
 }
 
-function hasHardMaritimeSignal(text: string) {
-  const lower = text.toLowerCase()
-  return HARD_MARITIME_SIGNAL_KEYWORDS.some((keyword) => lower.includes(keyword))
-}
-
 function hasRegionEnergySignal(article: TrustedArticle) {
   const text = `${article.title} ${article.snippet}`.toLowerCase()
   const regionKeywords = REGION_KEYWORDS[article.region] || []
@@ -283,19 +262,28 @@ function hasRegionEnergySignal(article: TrustedArticle) {
   return hasRegion && hasEnergy
 }
 
+function hasOperationalChokepointSignal(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const hasVesselOrRoute = /\b(ship|shipping|vessel|tanker|maritime|ais|cargo|freight|transit|route|reroute|divert|port|canal|convoy|queue|delay|congestion|piracy|armed robbery)\b/i.test(text)
+  const hasSecurityIncident = /\b(attack|missile|strike|seized|hijack|warning|advisory|incident|threat|houthi|naval|navy|war risk|insurance)\b/i.test(text)
+  const hasEnergyRoute = article.region === 'hormuz' && hasRegionEnergySignal(article)
+
+  return hasEnergyRoute || hasVesselOrRoute || hasSecurityIncident
+}
+
 function isNoisyGoogleNewsArticle(article: TrustedArticle) {
   if (!article.source.startsWith('Google News:')) return false
 
   const text = `${article.title} ${article.snippet}`.toLowerCase()
   const sourceName = article.source.replace(/^Google News:\s*/i, '').toLowerCase()
   if (GOOGLE_NEWS_SOURCE_BLOCKLIST.some((keyword) => sourceName.includes(keyword))) return true
-  if (!hasHardMaritimeSignal(text) && !hasRegionEnergySignal(article)) return true
+  if (!hasOperationalChokepointSignal(article)) return true
 
   const hasNoise = GOOGLE_NEWS_NOISE_KEYWORDS.some((keyword) => text.includes(keyword))
   if (!hasNoise) return false
 
   // Keep infrastructure items only when they also mention a maritime operating signal.
-  return !/(ship|shipping|vessel|tanker|maritime|port|canal|freight|cargo|transit|route|reroute|insurance)/i.test(text)
+  return !hasOperationalChokepointSignal(article)
 }
 
 function hasDirectRegionSignal(article: TrustedArticle) {
@@ -450,7 +438,7 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
     .filter((article) => hasDirectRegionSignal(article))
-    .filter((article) => !article.source.startsWith('Google News:') || hasHardMaritimeSignal(`${article.title} ${article.snippet}`) || hasRegionEnergySignal(article))
+    .filter((article) => !article.source.startsWith('Google News:') || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
     .filter((article) => isWithinLatest24Hours(article, now))
