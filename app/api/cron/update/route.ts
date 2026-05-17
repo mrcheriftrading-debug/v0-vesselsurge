@@ -106,6 +106,11 @@ const GOOGLE_NEWS_NOISE_KEYWORDS = [
   'ever given',
   'history',
   'historic',
+  'missile deal',
+  'weapons deal',
+  'export licenses',
+  'export licence',
+  'scrapped missile',
   'tourism',
   'football',
   'cricket',
@@ -290,6 +295,11 @@ function isNoisyGoogleNewsArticle(article: TrustedArticle) {
   return !hasOperationalChokepointSignal(article)
 }
 
+function isDefenseProcurementNoise(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  return /(missile deal|weapons deal|export licenses|export licence|scrapped missile|defence contract|defense contract)/i.test(text)
+}
+
 function hasDirectRegionSignal(article: TrustedArticle) {
   if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
   if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
@@ -441,6 +451,7 @@ async function collectTrustedArticles(now = new Date()) {
   const filtered = articles
     .filter((article) => !seen.has(article.url) && seen.add(article.url))
     .filter((article) => article.region !== 'global')
+    .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => hasDirectRegionSignal(article))
     .filter((article) => !article.source.startsWith('Google News:') || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
