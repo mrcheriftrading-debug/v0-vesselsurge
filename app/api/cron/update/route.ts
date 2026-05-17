@@ -318,8 +318,11 @@ function isDefenseProcurementNoise(article: TrustedArticle) {
 }
 
 function isFinancialMarketNoise(article: TrustedArticle) {
+  const title = article.title.toLowerCase()
   const text = `${article.title} ${article.snippet}`.toLowerCase()
   const financialNoise = /\b(carry trade|emerging carry|rand|real|equities|stocks|bonds|treasury yields|forex|currency traders|market rebound|favorites)\b/i.test(text)
+  const titleHasOperationalSignal = /\b(ship|shipping|vessel|tanker|maritime|cargo|freight|transit|route|reroute|divert|port|canal|convoy|queue|delay|congestion|piracy|armed robbery|hormuz|suez|malacca|red sea|bab el)\b/i.test(title)
+  if (financialNoise && !titleHasOperationalSignal) return true
   return financialNoise && !hasOperationalChokepointSignal(article)
 }
 
@@ -694,6 +697,9 @@ export async function GET(request: Request) {
 
   const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, { method: 'DELETE' })
   if (!deleteOldSignals.ok) throw new Error(`Failed to delete old maritime signals: ${deleteOldSignals.status} ${await deleteOldSignals.text()}`)
+
+  const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly)', { method: 'DELETE' })
+  if (!deleteTransientSignals.ok) throw new Error(`Failed to refresh transient maritime signals: ${deleteTransientSignals.status} ${await deleteTransientSignals.text()}`)
 
   if (signals.length > 0) {
     const upsertSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
