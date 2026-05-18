@@ -15,17 +15,22 @@ export const VESSELSURGE_PRO_PRICE = {
 export function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY
 
-  if (!secretKey) {
+  if (!hasUsableStripeSecret()) {
     throw new Error('STRIPE_SECRET_KEY is not configured')
   }
 
-  return new Stripe(secretKey, {
+  return new Stripe(secretKey!, {
     apiVersion: '2026-04-22.dahlia',
     appInfo: {
       name: 'VesselSurge',
       version: '1.0.0',
     },
   })
+}
+
+export function hasUsableStripeSecret() {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+  return Boolean(secretKey && /^(sk|rk)_(test|live)_/.test(secretKey))
 }
 
 export function getBaseUrl() {

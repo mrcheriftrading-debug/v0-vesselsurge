@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getBaseUrl, getStripe, VESSELSURGE_PRO_PRICE } from '@/lib/stripe'
+import { getBaseUrl, getStripe, hasUsableStripeSecret, VESSELSURGE_PRO_PRICE } from '@/lib/stripe'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +13,7 @@ export async function POST() {
   }
 
   try {
-    if (!process.env.STRIPE_SECRET_KEY && VESSELSURGE_PRO_PRICE.paymentLink) {
+    if (!hasUsableStripeSecret() && VESSELSURGE_PRO_PRICE.paymentLink) {
       return NextResponse.redirect(VESSELSURGE_PRO_PRICE.paymentLink, 303)
     }
 
