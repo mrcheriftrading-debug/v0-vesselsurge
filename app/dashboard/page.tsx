@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { Zap, Ship, Package, MapPin, User, LogOut } from "lucide-react"
+import { Zap, Ship, Package, MapPin, User, LogOut, TrendingUp } from "lucide-react"
 import type { Metadata } from 'next'
 
 const BASE_URL = 'https://www.vesselsurge.com'
@@ -127,6 +127,12 @@ export default async function DashboardPage() {
                       View Live Map
                     </Button>
                   </Link>
+                  <Link href="/pro-market">
+                    <Button className="w-full justify-start" variant="outline">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Market Impact Pro
+                    </Button>
+                  </Link>
                 </>
               ) : (
                 <>
@@ -140,6 +146,12 @@ export default async function DashboardPage() {
                     <Button className="w-full justify-start" variant="outline">
                       <MapPin className="mr-2 h-4 w-4" />
                       Browse Vessels
+                    </Button>
+                  </Link>
+                  <Link href="/pro-market">
+                    <Button className="w-full justify-start" variant="outline">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Market Impact Pro
                     </Button>
                   </Link>
                 </>
