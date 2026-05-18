@@ -87,7 +87,15 @@ export async function GET() {
 
     const cacheAge = ageMs(cacheResult.data?.generated_at)
     const aisAge = ageMs(vesselResult.data?.updated_at)
-    const watchValue = (watchResult.data?.value || {}) as { lastCompletedAt?: string; lastHeavyUpdateAt?: string; lastSkipReason?: string }
+    const watchValue = (watchResult.data?.value || {}) as {
+      lastCompletedAt?: string
+      lastHeavyUpdateAt?: string
+      lastSkipReason?: string
+      lastFailedAt?: string
+      lastError?: string
+      lastDurationMs?: number
+      lastRunId?: string
+    }
     const watchAge = ageMs(watchValue.lastCompletedAt || watchResult.data?.updated_at)
 
     const hotspotRows = hotspotStatsResult.data || []
@@ -141,9 +149,13 @@ export async function GET() {
           },
           watch: {
             status: componentStatuses.watch,
+            lastRunId: watchValue.lastRunId || null,
             lastCompletedAt: watchValue.lastCompletedAt || null,
             lastHeavyUpdateAt: watchValue.lastHeavyUpdateAt || null,
+            lastFailedAt: watchValue.lastFailedAt || null,
+            lastError: watchValue.lastError || null,
             lastSkipReason: watchValue.lastSkipReason || null,
+            lastDurationMs: watchValue.lastDurationMs || null,
             ageSeconds: Number.isFinite(watchAge) ? Math.round(watchAge / 1000) : null,
           },
           coverage: {

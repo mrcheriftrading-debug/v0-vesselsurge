@@ -12,6 +12,10 @@ type WatchState = {
   lastHeavyUpdateAt?: string
   lastStartedAt?: string
   lastCompletedAt?: string
+  lastFailedAt?: string
+  lastError?: string
+  lastDurationMs?: number
+  lastRunId?: string
   lastSkipReason?: string
   lastChangeSummary?: string[]
 }
@@ -20,6 +24,7 @@ const WATCH_STATE_KEY = 'maritime-watch'
 const LOCK_TTL_MS = 55 * 1000
 const AIS_STALE_MS = 5 * 60 * 1000
 const MIN_HEAVY_INTERVAL_MS = 60 * 1000
+const HEAVY_UPDATE_TIMEOUT_MS = 42_000
 
 function compact(value: string) {
   return value.replace(/\s+/g, ' ').trim()
@@ -180,7 +185,7 @@ async function runHeavyUpdate(request: Request, cronSecret: string) {
       accept: 'application/json',
     },
     cache: 'no-store',
-    signal: AbortSignal.timeout(55_000),
+    signal: AbortSignal.timeout(HEAVY_UPDATE_TIMEOUT_MS),
   })
   const text = await response.text()
   let body: unknown
@@ -193,6 +198,8 @@ async function runHeavyUpdate(request: Request, cronSecret: string) {
 }
 
 export async function GET(request: Request) {
+  const startedMs = Date.now()
+  const runId = crypto.randomUUID()
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
@@ -200,64 +207,108 @@ export async function GET(request: Request) {
   if (authHeader !== `Bearer ${cronSecret}`) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createAdminClient()
-  const now = new Date().toISOString()
-  const state = await getWatchState(supabase)
+  let state: WatchState = {}
 
-  if (isRecent(state.lastStartedAt, LOCK_TTL_MS) && !isRecent(state.lastCompletedAt, LOCK_TTL_MS)) {
-    return NextResponse.json({ success: true, action: 'skipped', reason: 'update already running', state })
-  }
+  try {
+    const now = new Date().toISOString()
+    state = await getWatchState(supabase)
 
-  const [sourceFingerprint, ais] = await Promise.all([buildSourceFingerprint(), getAisStaleness(supabase)])
-  const sourceChanged = Boolean(state.fingerprint && state.fingerprint !== sourceFingerprint.fingerprint)
-  const firstRun = !state.fingerprint
-  const heavyUpdateRecent = isRecent(state.lastHeavyUpdateAt, MIN_HEAVY_INTERVAL_MS)
-  const shouldUpdate = !heavyUpdateRecent && (firstRun || sourceChanged || ais.stale)
-  const reasons = [
-    firstRun ? 'first-run fingerprint seed' : null,
-    sourceChanged ? 'source fingerprint changed' : null,
-    ais.stale ? 'AIS data stale' : null,
-  ].filter(Boolean) as string[]
+    if (isRecent(state.lastStartedAt, LOCK_TTL_MS) && !isRecent(state.lastCompletedAt, LOCK_TTL_MS)) {
+      return NextResponse.json({ success: true, action: 'skipped', reason: 'update already running', runId, state })
+    }
 
-  const nextState: WatchState = {
-    ...state,
-    fingerprint: sourceFingerprint.fingerprint,
-    lastSkipReason: shouldUpdate ? undefined : heavyUpdateRecent ? 'heavy update ran recently' : 'no new source fingerprint and AIS fresh',
-    lastChangeSummary: reasons,
-  }
+    const [sourceFingerprint, ais] = await Promise.all([buildSourceFingerprint(), getAisStaleness(supabase)])
+    const sourceChanged = Boolean(state.fingerprint && state.fingerprint !== sourceFingerprint.fingerprint)
+    const firstRun = !state.fingerprint
+    const heavyUpdateRecent = isRecent(state.lastHeavyUpdateAt, MIN_HEAVY_INTERVAL_MS)
+    const shouldUpdate = !heavyUpdateRecent && (firstRun || sourceChanged || ais.stale)
+    const reasons = [
+      firstRun ? 'first-run fingerprint seed' : null,
+      sourceChanged ? 'source fingerprint changed' : null,
+      ais.stale ? 'AIS data stale' : null,
+    ].filter(Boolean) as string[]
 
-  if (!shouldUpdate) {
-    await setWatchState(supabase, { ...nextState, lastCompletedAt: now })
-    return NextResponse.json({
-      success: true,
-      action: 'skipped',
-      reason: nextState.lastSkipReason,
-      sourcesChecked: sourceFingerprint.sourcesChecked,
-      sourcesFailed: sourceFingerprint.sourcesFailed,
-      ais,
+    const nextState: WatchState = {
+      ...state,
+      fingerprint: sourceFingerprint.fingerprint,
+      lastRunId: runId,
+      lastDurationMs: Date.now() - startedMs,
+      lastError: undefined,
+      lastSkipReason: shouldUpdate ? undefined : heavyUpdateRecent ? 'heavy update ran recently' : 'no new source fingerprint and AIS fresh',
+      lastChangeSummary: reasons,
+    }
+
+    if (!shouldUpdate) {
+      await setWatchState(supabase, { ...nextState, lastCompletedAt: now, lastDurationMs: Date.now() - startedMs })
+      return NextResponse.json({
+        success: true,
+        action: 'skipped',
+        reason: nextState.lastSkipReason,
+        runId,
+        durationMs: Date.now() - startedMs,
+        sourcesChecked: sourceFingerprint.sourcesChecked,
+        sourcesFailed: sourceFingerprint.sourcesFailed,
+        ais,
+      })
+    }
+
+    await setWatchState(supabase, { ...nextState, lastStartedAt: now })
+    const update = await runHeavyUpdate(request, cronSecret)
+    const completedAt = new Date().toISOString()
+    const durationMs = Date.now() - startedMs
+    await setWatchState(supabase, {
+      ...nextState,
+      lastStartedAt: now,
+      lastCompletedAt: completedAt,
+      lastFailedAt: update.ok ? state.lastFailedAt : completedAt,
+      lastError: update.ok ? undefined : `heavy update failed with ${update.status}`,
+      lastDurationMs: durationMs,
+      lastHeavyUpdateAt: update.ok ? completedAt : state.lastHeavyUpdateAt,
+      lastSkipReason: update.ok ? undefined : `heavy update failed with ${update.status}`,
     })
+
+    return NextResponse.json(
+      {
+        success: update.ok,
+        action: update.ok ? 'updated' : 'failed',
+        runId,
+        durationMs,
+        reasons,
+        sourcesChecked: sourceFingerprint.sourcesChecked,
+        sourcesFailed: sourceFingerprint.sourcesFailed,
+        ais,
+        update,
+      },
+      { status: update.ok ? 200 : 502 },
+    )
+  } catch (error) {
+    const failedAt = new Date().toISOString()
+    const message = error instanceof Error ? error.message : 'watch failed'
+    const durationMs = Date.now() - startedMs
+
+    try {
+      await setWatchState(supabase, {
+        ...state,
+        lastRunId: runId,
+        lastFailedAt: failedAt,
+        lastCompletedAt: failedAt,
+        lastError: message,
+        lastDurationMs: durationMs,
+        lastSkipReason: `watch failed: ${message}`,
+      })
+    } catch (stateError) {
+      console.error('[cron-watch] Failed to persist failure state:', stateError)
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        action: 'failed',
+        runId,
+        durationMs,
+        error: message,
+      },
+      { status: 500 },
+    )
   }
-
-  await setWatchState(supabase, { ...nextState, lastStartedAt: now })
-  const update = await runHeavyUpdate(request, cronSecret)
-  const completedAt = new Date().toISOString()
-  await setWatchState(supabase, {
-    ...nextState,
-    lastStartedAt: now,
-    lastCompletedAt: completedAt,
-    lastHeavyUpdateAt: update.ok ? completedAt : state.lastHeavyUpdateAt,
-    lastSkipReason: update.ok ? undefined : `heavy update failed with ${update.status}`,
-  })
-
-  return NextResponse.json(
-    {
-      success: update.ok,
-      action: update.ok ? 'updated' : 'failed',
-      reasons,
-      sourcesChecked: sourceFingerprint.sourcesChecked,
-      sourcesFailed: sourceFingerprint.sourcesFailed,
-      ais,
-      update,
-    },
-    { status: update.ok ? 200 : 502 },
-  )
 }
