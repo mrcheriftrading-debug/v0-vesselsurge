@@ -60,11 +60,11 @@ export default async function ProMarketPage({
               </div>
 
               <h1 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-                Maritime risk analysis for investors who need the market impact, not another news feed.
+                See how shipping risk can move oil, freight, tankers and insurance.
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                VesselSurge converts chokepoint news, tanker context, freight pressure, oil-route exposure and war-risk insurance language into a clear market-impact report.
+                Market Impact Pro turns maritime news and VesselSurge live-map signals into one plain-English investor report: what happened, which market channels may feel pressure, and what to watch next.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -97,9 +97,9 @@ export default async function ProMarketPage({
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <TrustItem icon={ShieldCheck} title="Source-backed" body="Every signal is tied to VesselSurge news or maritime signals." />
-                <TrustItem icon={BarChart3} title="Market mapped" body="Oil, freight, tankers, insurance and logistics channels." />
-                <TrustItem icon={FileText} title="Research only" body="Clear disclaimer. No buy or sell recommendations." />
+                <TrustItem icon={ShieldCheck} title="1. Evidence" body="News, AIS context and route signals are checked before they enter the report." />
+                <TrustItem icon={BarChart3} title="2. Market channel" body="The page shows whether oil, freight, tankers or insurance are most exposed." />
+                <TrustItem icon={FileText} title="3. Decision support" body="You get research context and watch triggers, not financial advice." />
               </div>
             </div>
 
@@ -154,28 +154,59 @@ export default async function ProMarketPage({
         </section>
       )}
 
+      <section className="border-b border-slate-200 bg-white px-4 py-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Read it in 30 seconds</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-950">How this page works</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-4">
+            <MetricGuide
+              label="Pressure score"
+              value="0-100"
+              body="A higher score means maritime disruption has a clearer route into markets."
+            />
+            <MetricGuide
+              label="Asset impact"
+              value="Who feels it"
+              body="Shows the market channel most exposed: oil, tankers, freight, logistics or insurance."
+            />
+            <MetricGuide
+              label="Chokepoint heat"
+              value="Where risk sits"
+              body="Ranks Hormuz, Bab el-Mandeb, Suez and Malacca by current evidence."
+            />
+            <MetricGuide
+              label="Watch triggers"
+              value="What changes next"
+              body="Clear events that would raise or lower the report score."
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="px-4 py-10">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
           <AgentPanel
             title="Pro Investor Agent"
-            subtitle="Explains how maritime disruption can transmit into market pressure."
-            points={['Energy-route risk premium', 'Freight and tanker-rate pressure', 'Insurance repricing and margin risk']}
+            subtitle="Answers the investor question: why should this shipping event matter to markets?"
+            points={['Finds the affected asset channel', 'Explains the cost or supply transmission path', 'Separates watch signals from stronger evidence']}
           />
           <AgentPanel
             title="Pro Market Analyst Agent"
-            subtitle="Scores news and signals like an analyst desk, not a generic chatbot."
-            points={['Severity, recency and corroboration', 'Chokepoint exposure by region', 'Watch triggers that raise or lower conviction']}
+            subtitle="Turns messy maritime information into a ranked, readable report."
+            points={['Scores severity, recency and source quality', 'Compares chokepoints side by side', 'Shows the exact triggers to monitor next']}
           />
         </div>
       </section>
 
       <section className="px-4 pb-12">
         <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-          <Panel title="Asset impact table" subtitle="The customer sees which market channels are under pressure." icon={TrendingUp}>
+          <Panel title="Asset impact table" subtitle="Start here to see which part of the market the maritime signal could touch first." icon={TrendingUp}>
             <AssetTable report={report} />
           </Panel>
 
-          <Panel title="Chokepoint heat" subtitle="A clean scan of where the risk is concentrated." icon={Gauge}>
+          <Panel title="Chokepoint heat" subtitle="Use this to understand whether the risk is concentrated in one route or spreading across the map." icon={Gauge}>
             <div className="grid gap-3">
               {report.regions.map((region) => (
                 <div key={region.region} className="rounded-md border border-slate-200 bg-white p-4">
@@ -197,7 +228,7 @@ export default async function ProMarketPage({
             </div>
           </Panel>
 
-          <Panel title="Source-backed events" subtitle={hasAccess ? 'Live events ranked by market transmission.' : 'Preview examples. Live source trail unlocks with Pro.'} icon={AlertTriangle} wide>
+          <Panel title="Ranked source events" subtitle={hasAccess ? 'The live report ranks events by likely market transmission.' : 'Preview examples show the format. Live source links unlock with Pro.'} icon={AlertTriangle} wide>
             <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
               {report.topStories.slice(0, 6).map((story, index) => (
                 <div key={`${story.kind}-${story.id}`} className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0 md:grid-cols-[3rem_1fr_7rem] md:items-start">
@@ -226,13 +257,13 @@ export default async function ProMarketPage({
             </div>
           </Panel>
 
-          <Panel title="Methodology" subtitle="Simple enough for customers, strict enough for a serious analysis product." icon={ShieldCheck} wide>
+          <Panel title="Methodology" subtitle="The model stays readable: gather evidence, classify the market channel, then explain the trigger." icon={ShieldCheck} wide>
             <div className="grid gap-4 md:grid-cols-4">
               {[
-                ['1', 'Collect', 'Trusted news, official warnings and VesselSurge maritime signals enter one evidence layer.'],
-                ['2', 'Classify', 'The analyst checks route, asset class, severity, recency and source quality.'],
-                ['3', 'Transmit', 'Signals map into oil, tankers, freight, insurance and fuel-sensitive equities.'],
-                ['4', 'Explain', 'The report shows pressure score, drivers, watch triggers and source trail.'],
+                ['1', 'Collect', 'Trusted maritime news, official warnings and VesselSurge live-map signals enter one evidence layer.'],
+                ['2', 'Filter', 'Old, vague or unrelated finance noise is reduced so the report stays focused.'],
+                ['3', 'Map', 'The signal is mapped to oil, tankers, freight, insurance or logistics exposure.'],
+                ['4', 'Explain', 'The customer sees the score, the reason, the source trail and the next watch trigger.'],
               ].map(([step, title, body]) => (
                 <div key={step} className="rounded-md border border-slate-200 bg-white p-4">
                   <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-md bg-sky-50 text-sm font-black text-sky-800">{step}</div>
@@ -332,6 +363,16 @@ function TrustItem({ icon: Icon, title, body }: { icon: ComponentType<{ classNam
       <Icon className="h-5 w-5 text-sky-700" />
       <p className="mt-3 font-black text-slate-950">{title}</p>
       <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
+    </div>
+  )
+}
+
+function MetricGuide({ label, value, body }: { label: string; value: string; body: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-3 text-xl font-black text-slate-950">{value}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
     </div>
   )
 }
