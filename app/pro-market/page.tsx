@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { AlertTriangle, ArrowRight, BarChart3, Lock, Radar, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3, CheckCircle2, Lock, Radar, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react'
 import { SiteNavigation } from '@/components/site-navigation'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
@@ -19,7 +19,12 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
-export default async function ProMarketPage() {
+export default async function ProMarketPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ checkout?: string }>
+}) {
+  const params = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -30,6 +35,25 @@ export default async function ProMarketPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <SiteNavigation />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: 'VesselSurge Market Impact Pro',
+            description: 'Market-impact radar for maritime news, chokepoints, tanker routes, freight, oil and insurance risk.',
+            brand: { '@type': 'Brand', name: 'VesselSurge' },
+            offers: {
+              '@type': 'Offer',
+              price: '199',
+              priceCurrency: 'SEK',
+              availability: 'https://schema.org/InStock',
+              url: 'https://www.vesselsurge.com/pro-market',
+            },
+          }),
+        }}
+      />
       <section className="border-b border-cyan-300/10 bg-[radial-gradient(circle_at_top_right,rgba(0,119,255,0.18),transparent_36%),linear-gradient(180deg,rgba(3,7,18,0.98),rgba(3,7,18,0.92))] px-4 pb-10 pt-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
@@ -74,6 +98,7 @@ export default async function ProMarketPage() {
         </div>
       </section>
 
+      <CheckoutStatus status={params?.checkout} />
       {!hasAccess && <PaywallBanner isSignedIn={Boolean(user)} />}
 
       <section className={`px-4 py-8 ${hasAccess ? '' : 'relative'}`}>
@@ -169,9 +194,58 @@ export default async function ProMarketPage() {
               <p className="text-sm leading-6 text-amber-50">{report.disclaimer}</p>
             </div>
           </div>
+
+          <div className="rounded-lg border border-border bg-card p-5 lg:col-span-2">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold">How the Pro model thinks</h2>
+                <p className="text-sm text-muted-foreground">Built for fast investor review, not generic news summaries.</p>
+              </div>
+              <Radar className="h-5 w-5 text-primary" />
+            </div>
+            <div className="grid gap-3 md:grid-cols-4">
+              {[
+                ['1', 'Source event', 'Fresh maritime news and official signals are pulled into the same evidence layer.'],
+                ['2', 'Transmission', 'The model checks whether the event touches oil, tankers, freight, insurance or chokepoints.'],
+                ['3', 'Recency weight', 'Newer verified events get higher urgency than stale background noise.'],
+                ['4', 'Market map', 'Scores are translated into asset pressure, region heat and watch triggers.'],
+              ].map(([step, title, body]) => (
+                <div key={step} className="rounded-md border border-border bg-background/60 p-4">
+                  <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-sm font-black text-primary">{step}</div>
+                  <h3 className="font-bold">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </main>
+  )
+}
+
+function CheckoutStatus({ status }: { status?: string }) {
+  if (status !== 'success' && status !== 'cancelled') return null
+
+  const success = status === 'success'
+  return (
+    <section className={`border-b px-4 py-4 ${success ? 'border-emerald-400/20 bg-emerald-500/10' : 'border-amber-400/20 bg-amber-500/10'}`}>
+      <div className="mx-auto flex max-w-7xl items-start gap-3">
+        {success ? (
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
+        ) : (
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+        )}
+        <div>
+          <p className="font-bold">{success ? 'Payment received or processing' : 'Checkout was not completed'}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {success
+              ? 'If access is not open yet, Stripe may still be confirming the subscription webhook. Refresh this page in a moment.'
+              : 'Your account is still safe. You can restart checkout whenever you are ready.'}
+          </p>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -233,6 +307,11 @@ function PaywallBanner({ isSignedIn }: { isSignedIn: boolean }) {
             <p className="text-sm text-muted-foreground">
               199 kr every 14 days. {isSignedIn ? 'Stripe handles payment securely.' : 'Create an account first, then unlock the full report.'}
             </p>
+            <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-primary">
+              <span className="rounded-md bg-primary/10 px-2 py-1">Source-backed market events</span>
+              <span className="rounded-md bg-primary/10 px-2 py-1">Asset pressure table</span>
+              <span className="rounded-md bg-primary/10 px-2 py-1">Chokepoint heat map</span>
+            </div>
           </div>
         </div>
         {isSignedIn ? (
