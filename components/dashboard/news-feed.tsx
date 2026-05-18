@@ -13,8 +13,11 @@ const categoryStyles: Record<string, { icon: typeof Newspaper; color: string; bg
 }
 
 function formatTimeAgo(date: string): string {
+  const publishedAt = new Date(date)
+  if (Number.isNaN(publishedAt.getTime())) return 'Publication time unavailable'
+
   const now = new Date()
-  const diffMs = now.getTime() - new Date(date).getTime()
+  const diffMs = now.getTime() - publishedAt.getTime()
   const diffMins = Math.floor(diffMs / 60000)
 
   if (diffMins < 1) return 'Just now'
@@ -22,6 +25,18 @@ function formatTimeAgo(date: string): string {
   const diffHours = Math.floor(diffMins / 60)
   if (diffHours < 24) return `${diffHours}h ago`
   return `${Math.floor(diffHours / 24)}d ago`
+}
+
+function formatPublishedTime(date: string): string {
+  const publishedAt = new Date(date)
+  if (Number.isNaN(publishedAt.getTime())) return 'Published time unavailable'
+
+  return publishedAt.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 function formatLastUpdated(date: Date | null) {
@@ -94,9 +109,9 @@ export function NewsFeed() {
                         <span className="text-xs font-medium text-muted-foreground">
                           {article.source}
                         </span>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground" title={`Published ${formatPublishedTime(article.timestamp)}`}>
                           <Clock className="h-3 w-3" />
-                          {formatTimeAgo(article.timestamp)}
+                          Published {formatTimeAgo(article.timestamp)} · {formatPublishedTime(article.timestamp)}
                         </span>
                         {article.isBreaking && (
                           <span className="flex items-center gap-1 text-xs font-medium text-red-500">

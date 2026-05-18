@@ -120,6 +120,33 @@ function watchCoverageFor(region: string) {
   }]
 }
 
+function formatRelativePublishedTime(value: string) {
+  const publishedAt = new Date(value)
+  if (Number.isNaN(publishedAt.getTime())) return 'time unavailable'
+
+  const diffMs = Date.now() - publishedAt.getTime()
+  const diffMinutes = Math.max(0, Math.floor(diffMs / 60000))
+  if (diffMinutes < 1) return 'just now'
+  if (diffMinutes < 60) return `${diffMinutes}m ago`
+
+  const diffHours = Math.floor(diffMinutes / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+
+  return `${Math.floor(diffHours / 24)}d ago`
+}
+
+function formatExactPublishedTime(value: string) {
+  const publishedAt = new Date(value)
+  if (Number.isNaN(publishedAt.getTime())) return 'time unavailable'
+
+  return publishedAt.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
   const { articles, hotspots, signals, vessels, loading, refresh, lastUpdated } = useMaritimeData()
@@ -449,6 +476,9 @@ export default function MapDashboard() {
                         <div>
                           <p className="text-xs font-semibold text-foreground line-clamp-2">{latestArticle.title}</p>
                           <p className="mt-1 text-xs text-muted-foreground">{latestArticle.source}</p>
+                          <p className="mt-1 text-[11px] font-mono text-muted-foreground">
+                            Published {formatRelativePublishedTime(latestArticle.timestamp)} · {formatExactPublishedTime(latestArticle.timestamp)}
+                          </p>
                         </div>
                         <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
@@ -469,6 +499,9 @@ export default function MapDashboard() {
                           </p>
                           <p className="mt-1 text-xs font-semibold text-foreground line-clamp-2">{latestSignal.title}</p>
                           <p className="mt-1 text-xs text-muted-foreground">{latestSignal.source}</p>
+                          <p className="mt-1 text-[11px] font-mono text-muted-foreground">
+                            Observed {formatRelativePublishedTime(latestSignal.observedAt)} · {formatExactPublishedTime(latestSignal.observedAt)}
+                          </p>
                         </div>
                         {latestSignal.sourceUrl ? <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /> : null}
                       </div>
@@ -689,8 +722,11 @@ export default function MapDashboard() {
                               {item.label}
                             </span>
                             <span className="text-xs font-semibold text-primary">{item.source}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(item.timestamp).toLocaleDateString()}
+                            <span className="text-xs text-muted-foreground" title={`Published ${formatExactPublishedTime(item.timestamp)}`}>
+                              Published {formatRelativePublishedTime(item.timestamp)}
+                            </span>
+                            <span className="text-xs font-mono text-muted-foreground">
+                              {formatExactPublishedTime(item.timestamp)}
                             </span>
                           </div>
                         </div>
