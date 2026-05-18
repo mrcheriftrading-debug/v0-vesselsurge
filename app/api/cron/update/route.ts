@@ -135,6 +135,11 @@ const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'facebook',
   'mexc',
   'forex',
+  'fxstreet',
+  'ad hoc news',
+  'yahoo finance',
+  'ndtv profit',
+  'thestreet',
   'indexbox',
   'travel',
   'tourism',
@@ -321,7 +326,10 @@ function isDefenseProcurementNoise(article: TrustedArticle) {
 function isFinancialMarketNoise(article: TrustedArticle) {
   const title = article.title.toLowerCase()
   const text = `${article.title} ${article.snippet}`.toLowerCase()
-  const financialNoise = /\b(carry trade|emerging carry|rand|real|equities|stocks|bonds|treasury yields|forex|currency traders|market rebound|favorites)\b/i.test(text)
+  const titleFinancialNoise = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i.test(title)
+  if (titleFinancialNoise) return true
+
+  const financialNoise = /\b(carry trade|emerging carry|rand|real|equities|stocks|shares|dividend|earnings|bonds|treasury yields|forex|currency traders|market rebound|favorites)\b/i.test(text)
   const titleHasOperationalSignal = /\b(ship|shipping|vessel|tanker|maritime|cargo|freight|transit|route|reroute|divert|port|canal|convoy|queue|delay|congestion|piracy|armed robbery|hormuz|suez|malacca|red sea|bab el)\b/i.test(title)
   if (financialNoise && !titleHasOperationalSignal) return true
   return financialNoise && !hasOperationalChokepointSignal(article)
