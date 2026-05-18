@@ -5,6 +5,9 @@ import { buildMarketingPost, getMarketingApproval } from '@/scripts/lib/x-market
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+const FEED_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300'
+const DEFAULT_VARIANT_SEED = 'vesselsurge-stable-social-feed-v1'
+
 const TRUSTED_SOURCES = [
   'USNI News',
   'gCaptain',
@@ -65,7 +68,7 @@ export async function GET(request: Request) {
   const region = url.searchParams.get('region')
   const approval = url.searchParams.get('approval') || 'approved'
   const outputLimit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10), 50)
-  const requestVariantSeed = url.searchParams.get('variant') || `${Date.now()}-${Math.random()}`
+  const requestVariantSeed = url.searchParams.get('variant') || DEFAULT_VARIANT_SEED
 
   try {
     const supabase = await createClient()
@@ -118,7 +121,7 @@ export async function GET(request: Request) {
         return {
           ...item,
           postText: buildMarketingPost(item, { variantSeed: `${requestVariantSeed}:${item.id}` }),
-          variantSeed: requestVariantSeed,
+          variantSeed: `${requestVariantSeed}:${item.id}`,
           liveMapUrl: 'https://www.vesselsurge.com/map-dashboard',
           approval: agentApproval,
         }
@@ -164,7 +167,8 @@ export async function GET(request: Request) {
       return new Response(rss, {
         headers: {
           'Content-Type': 'application/rss+xml; charset=utf-8',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Cache-Control': FEED_CACHE_CONTROL,
+          'X-Content-Type-Options': 'nosniff',
         },
       })
     }
@@ -188,7 +192,7 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Cache-Control': FEED_CACHE_CONTROL,
           'X-Content-Type-Options': 'nosniff',
         },
       },

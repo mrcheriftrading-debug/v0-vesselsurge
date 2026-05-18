@@ -183,7 +183,7 @@ const schemaWebSite = {
     'Real-time maritime intelligence platform tracking global shipping chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca',
   logo: {
     '@type': 'ImageObject',
-    url: `${BASE_URL}/logo.png`,
+    url: `${BASE_URL}/logo-full.jpg`,
     width: 512,
     height: 512,
   },
@@ -208,7 +208,7 @@ const schemaOrganization = {
   '@id': `${BASE_URL}/#organization`,
   name: 'VesselSurge',
   url: BASE_URL,
-  logo: `${BASE_URL}/logo.png`,
+  logo: `${BASE_URL}/logo-full.jpg`,
   description: 'Maritime intelligence and B2B vessel brokerage platform',
   contactPoint: {
     '@type': 'ContactPoint',

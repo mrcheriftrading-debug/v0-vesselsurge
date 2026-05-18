@@ -109,7 +109,7 @@ export function generateOrganizationJSONLD() {
     name: 'VesselSurge',
     url: siteMetadata.url,
     description: siteMetadata.description,
-    logo: `${siteMetadata.url}/logo.png`,
+    logo: `${siteMetadata.url}/logo-full.jpg`,
     sameAs: [
       'https://twitter.com/vesselsurge',
       'https://www.linkedin.com/company/vesselsurge',
