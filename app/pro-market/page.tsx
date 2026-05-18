@@ -110,6 +110,23 @@ export default async function ProMarketPage({
 
       <CheckoutStatus status={params?.checkout} />
 
+      {!hasAccess && user?.user_metadata?.service_type === 'trader' && (
+        <section className="border-b border-sky-200 bg-sky-50 px-4 py-4">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-black text-sky-950">Trader account detected</p>
+              <p className="mt-1 text-sm text-sky-900">Your account is ready. Start the subscription to unlock live market-impact analysis and source links.</p>
+            </div>
+            <form action="/api/stripe/checkout" method="post">
+              <Button type="submit" className="min-h-10 bg-sky-900 text-white hover:bg-sky-800">
+                Unlock trader report
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </form>
+          </div>
+        </section>
+      )}
+
       {!hasAccess && (
         <section className="border-b border-slate-200 bg-slate-950 px-4 py-5 text-white">
           <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">

@@ -12,6 +12,8 @@ export const config = {
     '/dashboard/:path*',
     '/admin/:path*',
     '/auth/login',
+    '/auth/sign-up',
+    '/auth/sign-up-success',
     '/auth/callback',
     '/auth/sign-out',
   ],

@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       const message = error.message.toLowerCase()
       if (message.includes("already") || message.includes("registered") || message.includes("duplicate")) {
         return NextResponse.json(
-          { error: "An account already exists for this email. Log in instead." },
+          { error: "An account already exists for this email. Log in instead.", code: "account_exists" },
           { status: 409 },
         )
       }

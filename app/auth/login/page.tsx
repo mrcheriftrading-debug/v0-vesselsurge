@@ -48,9 +48,10 @@ export default function LoginPage() {
     setError(null)
 
     const supabase = createClient()
+    const email = formData.email.trim().toLowerCase()
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: formData.email,
+      email,
       password: formData.password,
     })
 
@@ -73,7 +74,7 @@ export default function LoginPage() {
             <Zap className="h-5 w-5 text-primary" />
             <span className="text-lg font-semibold text-foreground">VesselSurge</span>
           </Link>
-          <Link href="/auth/sign-up">
+          <Link href={withCurrentNext("/auth/sign-up")}>
             <Button variant="ghost" size="sm">
               Sign Up
             </Button>
@@ -164,7 +165,7 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
-              <Link href="/auth/sign-up" className="font-medium text-primary hover:underline">
+              <Link href={withCurrentNext("/auth/sign-up")} className="font-medium text-primary hover:underline">
                 Sign up
               </Link>
             </p>
@@ -186,9 +187,23 @@ function getNextPath() {
 }
 
 function getFriendlyAuthError(message: string) {
-  if (message.toLowerCase().includes("invalid login credentials")) {
+  const lower = message.toLowerCase()
+  if (lower.includes("invalid login credentials")) {
     return "Email or password is incorrect. Please check your details and try again."
+  }
+  if (lower.includes("email not confirmed")) {
+    return "This email still needs confirmation. Check your inbox, or reset your password if you already created the account."
+  }
+  if (lower.includes("rate limit")) {
+    return "Too many login attempts. Wait a minute and try again."
   }
 
   return message
+}
+
+function withCurrentNext(path: string) {
+  if (typeof window === "undefined") return path
+  const nextPath = new URLSearchParams(window.location.search).get("next")
+  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) return path
+  return `${path}?next=${encodeURIComponent(nextPath)}`
 }

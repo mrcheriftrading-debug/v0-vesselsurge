@@ -13,6 +13,7 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [accountExists, setAccountExists] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -47,30 +48,32 @@ export default function SignUpPage() {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+    setAccountExists(false)
 
     const supabase = createClient()
+    const normalizedEmail = formData.email.trim().toLowerCase()
 
     const signUpResponse = await fetch("/api/auth/sign-up", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ ...formData, email: normalizedEmail }),
     })
 
     if (!signUpResponse.ok) {
       const result = await signUpResponse.json().catch(() => null)
       setError(result?.error || "Could not create your account right now.")
+      setAccountExists(result?.code === "account_exists")
       setIsLoading(false)
       return
     }
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: formData.email,
+      email: normalizedEmail,
       password: formData.password,
     })
 
     if (signInError) {
-      setError("Your account was created, but automatic login failed. Please log in with your email and password.")
-      setIsLoading(false)
+      router.replace(withNext("/auth/login", getNextPath(formData.serviceType)))
       return
     }
 
@@ -87,7 +90,7 @@ export default function SignUpPage() {
             <Zap className="h-5 w-5 text-primary" />
             <span className="text-lg font-semibold text-foreground">VesselSurge</span>
           </Link>
-          <Link href="/auth/login">
+          <Link href={withCurrentNext("/auth/login")}>
             <Button variant="ghost" size="sm">
               Log In
             </Button>
@@ -215,7 +218,15 @@ export default function SignUpPage() {
 
               {error && (
                 <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-                  {error}
+                  <p>{error}</p>
+                  {accountExists && (
+                    <Link
+                      href={withNext("/auth/login", getNextPath(formData.serviceType))}
+                      className="mt-2 inline-flex font-semibold text-primary hover:underline"
+                    >
+                      Log in with this email
+                    </Link>
+                  )}
                 </div>
               )}
 
@@ -238,7 +249,7 @@ export default function SignUpPage() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/auth/login" className="font-medium text-primary hover:underline">
+              <Link href={withCurrentNext("/auth/login")} className="font-medium text-primary hover:underline">
                 Log in
               </Link>
             </p>
@@ -257,4 +268,16 @@ function getNextPath(serviceType?: string) {
   }
 
   return serviceType === "trader" ? "/pro-market" : "/dashboard"
+}
+
+function withNext(path: string, nextPath: string) {
+  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) return path
+  return `${path}?next=${encodeURIComponent(nextPath)}`
+}
+
+function withCurrentNext(path: string) {
+  if (typeof window === "undefined") return path
+  const nextPath = new URLSearchParams(window.location.search).get("next")
+  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) return path
+  return withNext(path, nextPath)
 }
