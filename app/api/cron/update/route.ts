@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
+import { upsertMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -889,6 +891,8 @@ export async function GET(request: Request) {
     if (!upsertAisStats.ok) throw new Error(`Failed to update AIS stats: ${upsertAisStats.status} ${await upsertAisStats.text()}`)
   }
 
+  const dashboardCacheUpdated = await upsertMaritimeDashboardCache(createAdminClient())
+
   return NextResponse.json({
     success: true,
     timestamp,
@@ -902,6 +906,7 @@ export async function GET(request: Request) {
     marine_conditions: marineConditions.length,
     vessels_found: ais.vessels.length,
     vessels_updated: vesselsUpdated,
+    dashboard_cache_updated: dashboardCacheUpdated,
     ais_status: ais.reason,
     verified: articles.length,
     window: {
