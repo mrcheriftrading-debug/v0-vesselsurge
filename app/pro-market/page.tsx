@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
-import { AlertTriangle, ArrowRight, BarChart3, Lock, Radar, ShieldCheck, TrendingUp } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3, Lock, Radar, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react'
 import { SiteNavigation } from '@/components/site-navigation'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
@@ -14,18 +13,17 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Market Impact Pro | VesselSurge',
   description: 'Subscription market-impact radar for maritime news, chokepoints, tanker routes, freight, oil and insurance risk.',
-  robots: { index: false, follow: false },
+  alternates: {
+    canonical: 'https://www.vesselsurge.com/pro-market',
+  },
+  robots: { index: true, follow: true },
 }
 
 export default async function ProMarketPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/auth/login?next=/pro-market')
-  }
-
-  const subscription = await getUserProSubscription(user.id)
+  const subscription = user ? await getUserProSubscription(user.id) : null
   const hasAccess = isActiveProSubscription(subscription)
   const report = hasAccess ? await loadReport() : buildLockedPreview()
 
@@ -39,6 +37,10 @@ export default async function ProMarketPage() {
               <div className="mb-4 inline-flex items-center gap-2 rounded-md border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">
                 <Radar className="h-4 w-4" />
                 Pro market impact radar
+              </div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
+                <Sparkles className="h-4 w-4 text-amber-300" />
+                {hasAccess ? 'Live pro access' : user ? 'Locked preview' : 'Public preview'}
               </div>
               <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
                 See how maritime news can move markets before the headline gets priced.
@@ -72,7 +74,7 @@ export default async function ProMarketPage() {
         </div>
       </section>
 
-      {!hasAccess && <PaywallBanner />}
+      {!hasAccess && <PaywallBanner isSignedIn={Boolean(user)} />}
 
       <section className={`px-4 py-8 ${hasAccess ? '' : 'relative'}`}>
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -195,16 +197,30 @@ async function loadReport() {
 function buildLockedPreview() {
   return buildMarketImpactReport([
     {
-      title: 'Locked Hormuz market-impact preview',
-      snippet: 'Subscribe to unlock source-backed oil, tanker, freight and insurance calculations.',
+      title: 'Preview: Hormuz escalation can reprice oil, tankers and war-risk insurance',
+      snippet: 'Full Pro access unlocks source-backed calculations from current VesselSurge news and operational signals.',
       source: 'VesselSurge Pro',
       region: 'hormuz',
       published_at: new Date().toISOString(),
     },
+    {
+      title: 'Preview: Red Sea disruption can spill into Suez freight and rerouting costs',
+      snippet: 'The Pro model links maritime incident language to freight, insurance, energy and logistics pressure.',
+      source: 'VesselSurge Pro',
+      region: 'bab',
+      published_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      title: 'Preview: Canal delay and convoy pressure can move Asia-Europe logistics',
+      snippet: 'Subscribers see ranked source events, asset impact tables and chokepoint heat by region.',
+      source: 'VesselSurge Pro',
+      region: 'suez',
+      published_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    },
   ], [])
 }
 
-function PaywallBanner() {
+function PaywallBanner({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <section className="border-b border-primary/20 bg-primary/10 px-4 py-5">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -214,15 +230,33 @@ function PaywallBanner() {
           </div>
           <div>
             <h2 className="font-bold">Unlock Market Impact Pro</h2>
-            <p className="text-sm text-muted-foreground">199 kr every 14 days. Login is required and Stripe handles payment securely.</p>
+            <p className="text-sm text-muted-foreground">
+              199 kr every 14 days. {isSignedIn ? 'Stripe handles payment securely.' : 'Create an account first, then unlock the full report.'}
+            </p>
           </div>
         </div>
-        <form action="/api/stripe/checkout" method="post">
-          <Button type="submit" className="min-h-11">
-            Start Pro access
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </form>
+        {isSignedIn ? (
+          <form action="/api/stripe/checkout" method="post">
+            <Button type="submit" className="min-h-11">
+              Start Pro access
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            <Link href="/auth/sign-up?next=/pro-market">
+              <Button className="min-h-11">
+                Create account
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/auth/login?next=/pro-market">
+              <Button type="button" variant="outline" className="min-h-11">
+                Log in
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   )
