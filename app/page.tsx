@@ -1,14 +1,10 @@
-"use client"
-
 import Link from "next/link"
-import type { MouseEvent as ReactMouseEvent } from "react"
-import { useState } from "react"
 import { ArrowRight, LogIn, Map, Network, Newspaper, Search, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
-import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
-import { Button3DEffect, CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
+import { HomeLiveMapLink } from "@/components/home-live-map-link"
+import { HomeOceanScene } from "@/components/home-ocean-scene"
+import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
-import { HeroOceanScene } from "@/components/three/maritime-3d-scenes"
 import { trafficTopicPages } from "@/lib/seo"
 
 const productCards = [
@@ -46,24 +42,8 @@ const quickActions = [
 ]
 
 export default function VesselSurgePage() {
-  const [voyageActive, setVoyageActive] = useState(false)
-
-  const launchLiveMapVoyage = (event: ReactMouseEvent<HTMLElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    if (!voyageActive) setVoyageActive(true)
-  }
-
-  const captureLiveMapVoyage = (event: ReactMouseEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLElement
-    const liveMapLink = target.closest('a[href="/map-dashboard"]')
-    if (!liveMapLink) return
-    launchLiveMapVoyage(event)
-  }
-
   return (
-    <div className="min-h-screen bg-background" onClickCapture={captureLiveMapVoyage}>
-      <LiveMapVoyageTransition active={voyageActive} />
+    <div className="min-h-screen bg-background">
       <SiteNavigation />
 
       <main>
@@ -72,7 +52,7 @@ export default function VesselSurgePage() {
           <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(0,119,255,0.13),transparent_36%,rgba(0,255,255,0.08)_72%,transparent)]" />
           <div className="absolute inset-x-0 top-16 h-px bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent" />
           <div className="absolute inset-x-[-20%] bottom-0 top-[62%] opacity-55 sm:inset-x-0 sm:opacity-65 md:top-[54%]">
-            <HeroOceanScene />
+            <HomeOceanScene />
           </div>
           <FloatingIntelSignals />
           <CommandStrip />
@@ -100,15 +80,7 @@ export default function VesselSurgePage() {
             </p>
 
             <div className="mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
-              <Link
-                href="/map-dashboard"
-                onClick={launchLiveMapVoyage}
-                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_28px_rgba(0,119,255,0.26)] transition-all hover:-translate-y-1 hover:bg-primary/90 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
-              >
-                <span className="relative z-10">Open Live Map</span>
-                <ArrowRight className="relative z-10 h-5 w-5" />
-                <Button3DEffect variant="map" compact />
-              </Link>
+              <HomeLiveMapLink />
               <Link
                 href="/intelligence"
                 className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
