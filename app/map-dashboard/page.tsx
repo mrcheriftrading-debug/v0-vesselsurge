@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, Clock, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
@@ -44,6 +44,30 @@ const RISK_BG: Record<string, string> = {
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
   const { articles, hotspots, signals, vessels, loading, refresh, lastUpdated } = useMaritimeData()
+
+  const selectHotspot = useCallback((id: string) => {
+    if (!(id in HOTSPOT_META)) return
+    setSelectedId(id)
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('hotspot', id)
+      window.history.replaceState(null, '', url)
+    }
+  }, [])
+
+  useEffect(() => {
+    const initialHotspot = new URLSearchParams(window.location.search).get('hotspot')
+    if (initialHotspot && initialHotspot in HOTSPOT_META) setSelectedId(initialHotspot)
+
+    const onPopState = () => {
+      const hotspot = new URLSearchParams(window.location.search).get('hotspot')
+      if (hotspot && hotspot in HOTSPOT_META) setSelectedId(hotspot)
+    }
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   // Vessels for selected hotspot
   const selectedVessels = vessels.filter(v => v.hotspot === selectedId)
@@ -165,7 +189,7 @@ export default function MapDashboard() {
           {hotspotList.map(h => (
             <button
               key={h.id}
-              onClick={() => setSelectedId(h.id)}
+              onClick={() => selectHotspot(h.id)}
               className="text-left p-3 rounded-xl border transition-all hover:scale-[1.02]"
               style={{
                 borderColor: selectedId === h.id ? h.riskColor : 'rgba(255,255,255,0.08)',
@@ -411,7 +435,7 @@ export default function MapDashboard() {
                 <SatelliteMap
                   hotspots={hotspotList}
                   selected={hotspotList.find(h => h.id === selectedId) || hotspotList[0]}
-                  onSelect={(h: any) => setSelectedId(h.id)}
+                  onSelect={(h: any) => selectHotspot(h.id)}
                   vessels={vessels}
                 />
               ) : (
@@ -446,7 +470,7 @@ export default function MapDashboard() {
                   {hotspotList.map((h) => (
                     <button
                       key={`feed-${h.id}`}
-                      onClick={() => setSelectedId(h.id)}
+                      onClick={() => selectHotspot(h.id)}
                       className="rounded-lg border px-3 py-2 text-left transition-colors"
                       style={{
                         borderColor: selectedId === h.id ? h.riskColor : 'rgba(255,255,255,0.08)',

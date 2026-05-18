@@ -78,6 +78,44 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
   const vesselLayerRef = useRef<any>(null)
   const initializingRef = useRef(false)
 
+  const drawHotspotMarkers = useCallback((L: any) => {
+    if (!mapInstanceRef.current || !L) return
+
+    for (const item of hotspotMarkersRef.current) {
+      try { mapInstanceRef.current.removeLayer(item.marker) } catch {}
+    }
+    hotspotMarkersRef.current = []
+
+    hotspots.forEach((h) => {
+      const color = h.risk === 'CRITICAL' ? '#ef4444' : h.risk === 'HIGH' ? '#f97316' : h.risk === 'MEDIUM' ? '#eab308' : '#22c55e'
+      const icon = L.divIcon({
+        html: `<div style="position:relative;width:28px;height:28px">
+          <div style="position:absolute;inset:0;border-radius:50%;background:${color};opacity:0.2;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite"></div>
+          <div style="position:absolute;inset:4px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 0 8px ${color}"></div>
+        </div>
+        <style>@keyframes ping{75%,100%{transform:scale(2);opacity:0}}</style>`,
+        className: '',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+      })
+
+      const marker = L.marker([h.lat, h.lng], { icon, zIndexOffset: 1000 })
+      marker.bindPopup(
+        `<div style="font-family:monospace;font-size:11px">
+          <div style="font-weight:700;color:${color};font-size:12px">${h.name}</div>
+          <div style="color:#94a3b8">Risk: <span style="color:${color}">${h.risk}</span></div>
+          <div>${h.verifiedReports ?? 0} verified reports</div>
+          <div>${h.sourceCount ?? 0} trusted sources</div>
+          <div style="color:#94a3b8">AIS/transits: not verified</div>
+        </div>`,
+        { maxWidth: 180 }
+      )
+      marker.on('click', () => onSelect(h))
+      hotspotMarkersRef.current.push({ id: h.id, marker })
+      marker.addTo(mapInstanceRef.current)
+    })
+  }, [hotspots, onSelect])
+
   // Draw / update vessel dots
   const updateVesselMarkers = useCallback((L: any, vesselList: Vessel[]) => {
     if (!mapInstanceRef.current || !L) return
@@ -171,35 +209,7 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
 
         mapInstanceRef.current = map
 
-        // Hotspot pulse markers
-        hotspots.forEach((h) => {
-          const color = h.risk === 'CRITICAL' ? '#ef4444' : h.risk === 'HIGH' ? '#f97316' : h.risk === 'MEDIUM' ? '#eab308' : '#22c55e'
-          const icon = L.divIcon({
-            html: `<div style="position:relative;width:28px;height:28px">
-              <div style="position:absolute;inset:0;border-radius:50%;background:${color};opacity:0.2;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite"></div>
-              <div style="position:absolute;inset:4px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 0 8px ${color}"></div>
-            </div>
-            <style>@keyframes ping{75%,100%{transform:scale(2);opacity:0}}</style>`,
-            className: '',
-            iconSize: [28, 28],
-            iconAnchor: [14, 14],
-          })
-
-          const marker = L.marker([h.lat, h.lng], { icon, zIndexOffset: 1000 })
-          marker.bindPopup(
-            `<div style="font-family:monospace;font-size:11px">
-              <div style="font-weight:700;color:${color};font-size:12px">${h.name}</div>
-              <div style="color:#94a3b8">Risk: <span style="color:${color}">${h.risk}</span></div>
-              <div>${h.verifiedReports ?? 0} verified reports</div>
-              <div>${h.sourceCount ?? 0} trusted sources</div>
-              <div style="color:#94a3b8">AIS/transits: not verified</div>
-            </div>`,
-            { maxWidth: 180 }
-          )
-          marker.on('click', () => onSelect(h))
-          hotspotMarkersRef.current.push({ id: h.id, marker })
-          marker.addTo(map)
-        })
+        drawHotspotMarkers(L)
 
         // Draw initial vessels
         if (vessels.length > 0) updateVesselMarkers(L, vessels)
@@ -240,6 +250,13 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
       updateVesselMarkers(L, vessels)
     }).catch(() => {})
   }, [vessels, updateVesselMarkers])
+
+  // Keep hotspot marker color, report counts and popups aligned with live data.
+  useEffect(() => {
+    import('leaflet').then((L) => {
+      drawHotspotMarkers(L)
+    }).catch(() => {})
+  }, [drawHotspotMarkers])
 
   return (
     <div className="w-full h-full rounded-xl overflow-hidden relative bg-slate-900">
