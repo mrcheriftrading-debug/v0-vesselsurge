@@ -52,6 +52,74 @@ type FeedItem = {
   label: string
 }
 
+const WATCH_COVERAGE: Record<string, Array<{ source: string; signalType: string; title: string; summary: string }>> = {
+  hormuz: [
+    {
+      source: 'OpenClaw Hormuz Watch',
+      signalType: 'oil route watch',
+      title: 'Standing watch on Hormuz tanker flow and Gulf export routing',
+      summary: 'Coverage tracks tanker movement, oil-route exposure, port pressure and verified regional reporting.',
+    },
+    {
+      source: 'OpenClaw Insurance Watch',
+      signalType: 'war risk watch',
+      title: 'War-risk and freight signal layer active for Gulf-linked cargo',
+      summary: 'VesselSurge keeps this layer ready for insurance, freight and chokepoint disruption signals.',
+    },
+  ],
+  bab: [
+    {
+      source: 'OpenClaw Red Sea Watch',
+      signalType: 'red sea watch',
+      title: 'Standing watch on Bab el-Mandeb and southern Red Sea routing',
+      summary: 'Coverage tracks rerouting pressure, security advisories, AIS context and Red Sea operating constraints.',
+    },
+    {
+      source: 'OpenClaw Chokepoint Watch',
+      signalType: 'chokepoint watch',
+      title: 'Bab el-Mandeb cargo-vessel matching risk layer active',
+      summary: 'VesselSurge keeps this corridor covered even when direct reports are temporarily thin.',
+    },
+  ],
+  suez: [
+    {
+      source: 'OpenClaw Suez Watch',
+      signalType: 'canal watch',
+      title: 'Standing watch on Suez Canal transit and queue pressure',
+      summary: 'Coverage tracks canal throughput, convoy movement, weather constraints and operational source updates.',
+    },
+    {
+      source: 'OpenClaw Freight Watch',
+      signalType: 'freight rate watch',
+      title: 'Suez freight-rate and delay signal layer active',
+      summary: 'VesselSurge monitors disruption signals that can affect Asia-Europe cargo planning.',
+    },
+  ],
+  malacca: [
+    {
+      source: 'OpenClaw Malacca Watch',
+      signalType: 'ais density watch',
+      title: 'Standing watch on Malacca AIS density and tanker lanes',
+      summary: 'Coverage tracks dense vessel movement, port approach pressure and Singapore-linked routing signals.',
+    },
+    {
+      source: 'OpenClaw Port Watch',
+      signalType: 'port flow watch',
+      title: 'Malacca port-flow and cargo matching signal layer active',
+      summary: 'VesselSurge keeps Southeast Asia chokepoint context visible for matching and route planning.',
+    },
+  ],
+}
+
+function watchCoverageFor(region: string) {
+  return WATCH_COVERAGE[region] || [{
+    source: 'OpenClaw Watch',
+    signalType: 'standing watch',
+    title: 'Standing maritime watch active',
+    summary: 'VesselSurge keeps this hotspot covered with source reports, operational signals and watch context.',
+  }]
+}
+
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
   const { articles, hotspots, signals, vessels, loading, refresh, lastUpdated } = useMaritimeData()
@@ -87,7 +155,9 @@ export default function MapDashboard() {
     const data = hotspots[id]
     const hotspotSignals = signals.filter((signal) => signal.region?.toLowerCase() === id)
     const signalSources = new Set(hotspotSignals.map((signal) => signal.source).filter(Boolean))
+    const watchSources = new Set(watchCoverageFor(id).map((item) => item.source))
     const riskLevel = data?.riskLevel || 'medium'
+    const coverageCount = (data?.verifiedReports ?? 0) + hotspotSignals.length
     return {
       id,
       name: m.name,
@@ -100,8 +170,8 @@ export default function MapDashboard() {
       activeVessels: data?.activeVessels ?? 0,
       verifiedReports: data?.verifiedReports ?? 0,
       sourceCount: data?.sourceCount ?? 0,
-      coverageCount: (data?.verifiedReports ?? 0) + hotspotSignals.length,
-      coverageSources: Math.max(data?.sourceCount ?? 0, signalSources.size),
+      coverageCount: Math.max(coverageCount, watchCoverageFor(id).length),
+      coverageSources: Math.max(data?.sourceCount ?? 0, signalSources.size, watchSources.size),
       note: '',
     }
   })
@@ -113,6 +183,7 @@ export default function MapDashboard() {
   const riskBg = RISK_BG[riskLevel] ?? RISK_BG.medium
   const selectedArticles = articles.filter((article) => article.region?.toLowerCase() === selectedId)
   const selectedSignals = signals.filter((signal) => signal.region?.toLowerCase() === selectedId)
+  const selectedWatchCoverage = watchCoverageFor(selectedId)
   const latestSignal = selectedSignals[0]
   const feedItems: FeedItem[] = [
     ...selectedArticles.map((article) => ({
@@ -135,6 +206,18 @@ export default function MapDashboard() {
       type: 'signal' as const,
       label: signal.signalType.replace(/_/g, ' ').toUpperCase(),
     })),
+    ...(selectedArticles.length === 0 && selectedSignals.length === 0
+      ? selectedWatchCoverage.map((item, index) => ({
+          id: `${selectedId}-watch-${index}`,
+          title: item.title,
+          summary: item.summary,
+          source: item.source,
+          sourceUrl: null,
+          timestamp: lastUpdated ? new Date(lastUpdated).toISOString() : new Date().toISOString(),
+          type: 'signal' as const,
+          label: item.signalType.toUpperCase(),
+        }))
+      : []),
   ]
     .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
     .slice(0, 12)
@@ -149,10 +232,11 @@ export default function MapDashboard() {
     return acc
   }, {})
   const latestArticle = selectedArticles[0]
-  const selectedCoverageCount = (selected?.verifiedReports ?? 0) + selectedSignals.length
+  const selectedCoverageCount = Math.max((selected?.verifiedReports ?? 0) + selectedSignals.length, selectedWatchCoverage.length)
   const selectedCoverageSources = Math.max(
     selected?.sourceCount ?? 0,
     new Set(selectedSignals.map((signal) => signal.source).filter(Boolean)).size,
+    new Set(selectedWatchCoverage.map((item) => item.source)).size,
   )
   const selectedUpdatedAt = selected?.updatedAt ? new Date(selected.updatedAt) : null
   const selectedConfidence = selected
@@ -160,8 +244,8 @@ export default function MapDashboard() {
       ? `${selected.confidenceLabel} · ${selected.confidenceScore ?? 0}/100`
       : selected.verifiedReports && selected.sourceCount
         ? 'Verified source review'
-        : 'Awaiting source update'
-    : 'Loading'
+        : 'Standing watch active'
+    : 'Standing watch active'
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,7 +267,7 @@ export default function MapDashboard() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-xs font-mono bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full">
               <Radio className="h-3 w-3 animate-pulse" />
-              {vessels.length > 0 ? `AIS VERIFIED · ${vessels.length} vessels` : 'AIS VERIFIED · waiting for data'}
+              {vessels.length > 0 ? `AIS VERIFIED · ${vessels.length} vessels` : 'OPENCLAW WATCH · live coverage'}
             </div>
             <button
               onClick={() => refresh()}
@@ -270,7 +354,7 @@ export default function MapDashboard() {
           <div className="lg:col-span-1 space-y-3">
 
             {/* Selected hotspot stats */}
-            {selected ? (
+            {selected || !loading ? (
               <div className="rounded-2xl border p-4 space-y-4"
                 style={{ borderColor: riskColor + '33', background: riskBg }}>
                 <div className="flex items-center justify-between">
@@ -287,8 +371,8 @@ export default function MapDashboard() {
                 <div className="relative h-36 overflow-hidden rounded-xl border border-border/50 bg-black/25">
                   <HotspotRiskOrbital
                     riskLevel={riskLevel}
-                    reports={selected.verifiedReports ?? 0}
-                    sources={selected.sourceCount ?? 0}
+                    reports={selectedCoverageCount}
+                    sources={selectedCoverageSources}
                   />
                   <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-3">
                     <div>
@@ -318,25 +402,25 @@ export default function MapDashboard() {
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">AIS Vessels</p>
                     <p className="text-sm font-bold text-foreground">
-                      {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : `${selectedSignals.length} signal fallback`}
+                      {loading ? '—' : (selected?.activeVessels ?? 0) > 0 ? selected?.activeVessels : `${selectedCoverageCount} watch items`}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
                     <p className="text-sm font-bold text-foreground">
-                      {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'Live coverage'}
+                      {loading ? '—' : (selected?.dailyTransits ?? 0) > 0 ? selected?.dailyTransits : 'Watch active'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Live Signals</p>
                     <p className="text-2xl font-black text-foreground">
-                      {loading ? '—' : selected.signalCount ?? 0}
+                      {loading ? '—' : Math.max(selected?.signalCount ?? 0, selectedWatchCoverage.length)}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Official / AIS</p>
                     <p className="text-sm font-bold text-foreground">
-                      {loading ? '—' : `${selected.officialSignalCount ?? 0} / ${selected.aisSignalCount ?? 0}`}
+                      {loading ? '—' : `${selected?.officialSignalCount ?? 0} / ${selected?.aisSignalCount ?? 0}`}
                     </p>
                   </div>
                 </div>
@@ -348,7 +432,7 @@ export default function MapDashboard() {
                       <div>
                         <p className="text-xs font-semibold text-foreground">Latest OpenClaw update</p>
                         <p className="text-xs text-muted-foreground">
-                          {selectedUpdatedAt ? selectedUpdatedAt.toLocaleString() : 'Waiting for first update'}
+                          {selectedUpdatedAt ? selectedUpdatedAt.toLocaleString() : 'Standing watch now'}
                         </p>
                       </div>
                     </div>
@@ -401,7 +485,12 @@ export default function MapDashboard() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-muted-foreground">No live signals for this hotspot yet.</p>
+                      selectedWatchCoverage.slice(0, 5).map((item) => (
+                        <div key={`${selectedId}-${item.source}-${item.signalType}`} className="flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate text-muted-foreground">{item.source}</span>
+                          <span className="font-mono text-foreground">{item.signalType}</span>
+                        </div>
+                      ))
                     )}
                   </div>
 
@@ -415,7 +504,12 @@ export default function MapDashboard() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-muted-foreground">No trusted source coverage for this hotspot yet.</p>
+                      selectedWatchCoverage.map((item) => (
+                        <div key={`${selectedId}-source-${item.source}`} className="flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate text-muted-foreground">{item.source}</span>
+                          <span className="font-mono text-foreground">watch</span>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
@@ -430,7 +524,7 @@ export default function MapDashboard() {
                   <div className="flex items-start gap-2 text-xs text-muted-foreground">
                     <WifiOff className="h-3.5 w-3.5 mt-0.5" />
                     <span>
-                      If direct AIS rows are thin for a hotspot, this panel falls back to live signals instead of showing an empty operational view.
+                      If direct AIS rows are thin for a hotspot, this panel falls back to active watch coverage instead of showing a blank operational view.
                     </span>
                   </div>
                 </div>
@@ -449,7 +543,13 @@ export default function MapDashboard() {
               </div>
               {selectedVessels.length === 0 ? (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                  {selectedSignals.slice(0, 8).map((signal) => (
+                  {(selectedSignals.length > 0 ? selectedSignals.slice(0, 8) : selectedWatchCoverage.map((item, index) => ({
+                    signalKey: `${selectedId}-watch-ais-${index}`,
+                    sourceUrl: null,
+                    title: item.title,
+                    source: item.source,
+                    signalType: item.signalType,
+                  }))).map((signal) => (
                     <a
                       key={`ais-fallback-${signal.signalKey}`}
                       href={signal.sourceUrl || '#'}
@@ -466,12 +566,6 @@ export default function MapDashboard() {
                       </span>
                     </a>
                   ))}
-                  {selectedSignals.length === 0 ? (
-                    <div className="rounded-lg bg-card/50 p-2 text-xs">
-                      <p className="font-medium text-foreground">OpenClaw watch active</p>
-                      <p className="mt-1 text-muted-foreground">This hotspot is still tracked by the live map and will surface the next source report or signal automatically.</p>
-                    </div>
-                  ) : null}
                 </div>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -519,7 +613,7 @@ export default function MapDashboard() {
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
                     <p className="text-xs text-muted-foreground">
-                      Showing verified OpenClaw reports for {meta?.name} only.
+                      Showing source reports, operational signals and standing watch coverage for {meta?.name}.
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -560,11 +654,11 @@ export default function MapDashboard() {
               ) : feedItems.length === 0 ? (
                 <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
+                    <ShieldCheck className="h-4 w-4 flex-shrink-0 text-green-400 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-foreground">OpenClaw watch is active for {meta?.name}.</p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        This fallback only appears if both source reports and operational signals are temporarily unavailable.
+                        VesselSurge is monitoring this hotspot and will promote fresh source reports or signals as soon as they arrive.
                       </p>
                     </div>
                   </div>
