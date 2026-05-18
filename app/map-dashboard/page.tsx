@@ -41,6 +41,17 @@ const RISK_BG: Record<string, string> = {
   low:      'rgba(34,197,94,0.1)',
 }
 
+type FeedItem = {
+  id: string
+  title: string
+  summary?: string | null
+  source: string
+  sourceUrl?: string | null
+  timestamp: string
+  type: 'report' | 'signal'
+  label: string
+}
+
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
   const { articles, hotspots, signals, vessels, loading, refresh, lastUpdated } = useMaritimeData()
@@ -74,6 +85,8 @@ export default function MapDashboard() {
 
   const hotspotList = Object.entries(HOTSPOT_META).map(([id, m]) => {
     const data = hotspots[id]
+    const hotspotSignals = signals.filter((signal) => signal.region?.toLowerCase() === id)
+    const signalSources = new Set(hotspotSignals.map((signal) => signal.source).filter(Boolean))
     const riskLevel = data?.riskLevel || 'medium'
     return {
       id,
@@ -87,6 +100,8 @@ export default function MapDashboard() {
       activeVessels: data?.activeVessels ?? 0,
       verifiedReports: data?.verifiedReports ?? 0,
       sourceCount: data?.sourceCount ?? 0,
+      coverageCount: (data?.verifiedReports ?? 0) + hotspotSignals.length,
+      coverageSources: Math.max(data?.sourceCount ?? 0, signalSources.size),
       note: '',
     }
   })
@@ -99,15 +114,46 @@ export default function MapDashboard() {
   const selectedArticles = articles.filter((article) => article.region?.toLowerCase() === selectedId)
   const selectedSignals = signals.filter((signal) => signal.region?.toLowerCase() === selectedId)
   const latestSignal = selectedSignals[0]
-  const feedArticles = selectedArticles.slice(0, 12)
+  const feedItems: FeedItem[] = [
+    ...selectedArticles.map((article) => ({
+      id: article.id,
+      title: article.title,
+      summary: article.summary,
+      source: article.source,
+      sourceUrl: article.sourceUrl,
+      timestamp: article.timestamp,
+      type: 'report' as const,
+      label: 'SOURCE REPORT',
+    })),
+    ...selectedSignals.map((signal) => ({
+      id: signal.signalKey,
+      title: signal.title,
+      summary: signal.summary,
+      source: signal.source,
+      sourceUrl: signal.sourceUrl,
+      timestamp: signal.observedAt,
+      type: 'signal' as const,
+      label: signal.signalType.replace(/_/g, ' ').toUpperCase(),
+    })),
+  ]
+    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+    .slice(0, 12)
   const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
-  const totalSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
+  const totalSources = new Set([
+    ...articles.map((article) => article.source).filter(Boolean),
+    ...signals.map((signal) => signal.source).filter(Boolean),
+  ]).size
   const criticalHotspots = Object.values(hotspots).filter((hotspot) => hotspot.riskLevel === 'critical').length
-  const sourceBreakdown = selectedArticles.reduce((acc: Record<string, number>, article) => {
-    acc[article.source] = (acc[article.source] || 0) + 1
+  const sourceBreakdown = [...selectedArticles, ...selectedSignals].reduce((acc: Record<string, number>, item) => {
+    acc[item.source] = (acc[item.source] || 0) + 1
     return acc
   }, {})
   const latestArticle = selectedArticles[0]
+  const selectedCoverageCount = (selected?.verifiedReports ?? 0) + selectedSignals.length
+  const selectedCoverageSources = Math.max(
+    selected?.sourceCount ?? 0,
+    new Set(selectedSignals.map((signal) => signal.source).filter(Boolean)).size,
+  )
   const selectedUpdatedAt = selected?.updatedAt ? new Date(selected.updatedAt) : null
   const selectedConfidence = selected
     ? selected.confidenceLabel
@@ -205,12 +251,12 @@ export default function MapDashboard() {
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <div className="text-muted-foreground">Reports</div>
-                  <div className="font-bold text-foreground tabular-nums">{loading ? '—' : h.verifiedReports}</div>
+                  <div className="text-muted-foreground">Coverage</div>
+                  <div className="font-bold text-foreground tabular-nums">{loading ? '—' : h.coverageCount}</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">Sources</div>
-                  <div className="font-bold text-foreground tabular-nums">{loading ? '—' : h.sourceCount}</div>
+                  <div className="font-bold text-foreground tabular-nums">{loading ? '—' : h.coverageSources}</div>
                 </div>
               </div>
             </button>
@@ -251,34 +297,34 @@ export default function MapDashboard() {
                     </div>
                     <div className="rounded-lg border border-border/60 bg-background/70 px-2 py-1 text-right backdrop-blur">
                       <p className="text-[10px] text-muted-foreground">Live pulse</p>
-                      <p className="text-xs font-mono font-bold" style={{ color: riskColor }}>{selected.verifiedReports ?? 0}</p>
+                      <p className="text-xs font-mono font-bold" style={{ color: riskColor }}>{selectedCoverageCount}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-black/20 p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Source Reports</p>
+                    <p className="text-xs text-muted-foreground mb-1">Coverage Items</p>
                     <p className="text-2xl font-black" style={{ color: riskColor }}>
-                      {loading ? '—' : selected.verifiedReports ?? 0}
+                      {loading ? '—' : selectedCoverageCount}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Trusted Sources</p>
                     <p className="text-2xl font-black text-foreground">
-                      {loading ? '—' : selected.sourceCount ?? 0}
+                      {loading ? '—' : selectedCoverageSources}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">AIS Vessels</p>
                     <p className="text-sm font-bold text-foreground">
-                      {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : 'Not verified'}
+                      {loading ? '—' : selected.activeVessels > 0 ? selected.activeVessels : `${selectedSignals.length} signal fallback`}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
                     <p className="text-xs text-muted-foreground mb-1">Daily Transits</p>
                     <p className="text-sm font-bold text-foreground">
-                      {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'Not verified'}
+                      {loading ? '—' : selected.dailyTransits > 0 ? selected.dailyTransits : 'Live coverage'}
                     </p>
                   </div>
                   <div className="rounded-xl bg-black/20 p-3">
@@ -378,13 +424,13 @@ export default function MapDashboard() {
                   <div className="flex items-start gap-2 text-xs text-muted-foreground">
                     <Database className="h-3.5 w-3.5 mt-0.5" />
                     <span>
-                      OpenClaw updates this panel from trusted maritime sources. Traffic/AIS figures stay hidden until a verified feed is connected.
+                      OpenClaw keeps every hotspot populated with the strongest available coverage: source reports, AIS context, weather constraints or operational signals.
                     </span>
                   </div>
                   <div className="flex items-start gap-2 text-xs text-muted-foreground">
                     <WifiOff className="h-3.5 w-3.5 mt-0.5" />
                     <span>
-                      AIS/transit/volume fields are not displayed as live numbers until a verified provider is connected.
+                      If direct AIS rows are thin for a hotspot, this panel falls back to live signals instead of showing an empty operational view.
                     </span>
                   </div>
                 </div>
@@ -402,9 +448,30 @@ export default function MapDashboard() {
                 <span className="text-xs font-mono text-muted-foreground">{selectedVessels.length} verified</span>
               </div>
               {selectedVessels.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">No verified AIS rows are available for this hotspot.</p>
-                  <p className="text-xs text-muted-foreground">Mock vessel positions are disabled, so this section will stay empty until real AIS data is ingested.</p>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {selectedSignals.slice(0, 8).map((signal) => (
+                    <a
+                      key={`ais-fallback-${signal.signalKey}`}
+                      href={signal.sourceUrl || '#'}
+                      target={signal.sourceUrl ? '_blank' : undefined}
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between gap-3 rounded-lg bg-card/50 p-2 text-xs transition-colors hover:bg-card"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-medium text-foreground">{signal.title}</span>
+                        <span className="block truncate text-muted-foreground">{signal.source}</span>
+                      </span>
+                      <span className="flex-shrink-0 font-mono text-muted-foreground">
+                        {signal.signalType.replace(/_/g, ' ')}
+                      </span>
+                    </a>
+                  ))}
+                  {selectedSignals.length === 0 ? (
+                    <div className="rounded-lg bg-card/50 p-2 text-xs">
+                      <p className="font-medium text-foreground">OpenClaw watch active</p>
+                      <p className="mt-1 text-muted-foreground">This hotspot is still tracked by the live map and will surface the next source report or signal automatically.</p>
+                    </div>
+                  ) : null}
                 </div>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -462,7 +529,7 @@ export default function MapDashboard() {
                     >
                       {riskLevel.toUpperCase()}
                     </span>
-                    <span className="text-xs text-muted-foreground font-mono">{feedArticles.length} items</span>
+                    <span className="text-xs text-muted-foreground font-mono">{feedItems.length} items</span>
                   </div>
                 </div>
 
@@ -479,7 +546,7 @@ export default function MapDashboard() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-semibold text-foreground truncate">{h.flag} {h.name}</span>
-                        <span className="text-[10px] font-mono text-muted-foreground">{h.verifiedReports}</span>
+                        <span className="text-[10px] font-mono text-muted-foreground">{h.coverageCount}</span>
                       </div>
                     </button>
                   ))}
@@ -490,50 +557,50 @@ export default function MapDashboard() {
                 <div className="space-y-3">
                   {[1,2,3].map(i => <div key={i} className="h-16 rounded-xl bg-muted/20 animate-pulse" />)}
                 </div>
-              ) : feedArticles.length === 0 ? (
+              ) : feedItems.length === 0 ? (
                 <div className="rounded-xl border border-border/50 bg-card/30 p-4">
                   <div className="flex items-start gap-3">
                     <AlertCircle className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">No verified reports for {meta?.name} yet.</p>
+                      <p className="text-sm font-medium text-foreground">OpenClaw watch is active for {meta?.name}.</p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        OpenClaw keeps checking trusted sources hourly and will populate this feed as soon as this hotspot has matching reports.
+                        This fallback only appears if both source reports and operational signals are temporarily unavailable.
                       </p>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div key={selectedId} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {feedArticles.map((article, i) => (
+                  {feedItems.map((item, i) => (
                     <a
-                      key={`${selectedId}-${article.id || article.sourceUrl || i}`}
-                      href={article.sourceUrl}
-                      target="_blank"
+                      key={`${selectedId}-${item.type}-${item.id || item.sourceUrl || i}`}
+                      href={item.sourceUrl || '#'}
+                      target={item.sourceUrl ? '_blank' : undefined}
                       rel="noopener noreferrer"
                       className="block p-3 rounded-xl border border-border bg-card/30 hover:bg-card transition-all group hover:border-primary/30"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                            {article.title}
+                            {item.title}
                           </p>
-                          {article.summary && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{article.summary}</p>
+                          {item.summary && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{item.summary}</p>
                           )}
                           <div className="flex flex-wrap items-center gap-2 mt-2">
                             <span
                               className="text-[10px] font-black px-1.5 py-0.5 rounded"
                               style={{ background: riskColor + '22', color: riskColor }}
                             >
-                              {meta?.name}
+                              {item.label}
                             </span>
-                            <span className="text-xs font-semibold text-primary">{article.source}</span>
+                            <span className="text-xs font-semibold text-primary">{item.source}</span>
                             <span className="text-xs text-muted-foreground">
-                              {new Date(article.timestamp).toLocaleDateString()}
+                              {new Date(item.timestamp).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
-                        <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-1 group-hover:text-primary transition-colors" />
+                        {item.sourceUrl ? <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-1 group-hover:text-primary transition-colors" /> : null}
                       </div>
                     </a>
                   ))}
