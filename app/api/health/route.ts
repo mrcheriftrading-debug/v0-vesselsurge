@@ -34,10 +34,10 @@ export async function GET() {
   try {
     const supabase = createAdminClient()
 
-    const [cacheResult, vesselResult, hotspotStatsResult, newsResult, signalsResult, watchResult] = await Promise.all([
+    const [cacheResult, vesselResult, watchResult] = await Promise.all([
       supabase
         .from('maritime_dashboard_cache')
-        .select('generated_at')
+        .select('payload,generated_at')
         .eq('cache_key', 'live-map')
         .maybeSingle(),
       supabase
@@ -47,29 +47,13 @@ export async function GET() {
         .limit(1)
         .maybeSingle(),
       supabase
-        .from('hotspot_stats')
-        .select('hotspot,risk_level,updated_at')
-        .in('hotspot', [...HOTSPOTS]),
-      supabase
-        .from('news_articles')
-        .select('region,published_at')
-        .in('region', [...HOTSPOTS])
-        .order('published_at', { ascending: false })
-        .limit(60),
-      supabase
-        .from('maritime_signals')
-        .select('region,signal_type,severity,observed_at')
-        .in('region', [...HOTSPOTS])
-        .order('observed_at', { ascending: false })
-        .limit(80),
-      supabase
         .from('ingestion_state')
         .select('value,updated_at')
         .eq('key', 'maritime-watch')
         .maybeSingle(),
     ])
 
-    const errors = [cacheResult.error, vesselResult.error, hotspotStatsResult.error, newsResult.error, signalsResult.error, watchResult.error]
+    const errors = [cacheResult.error, vesselResult.error, watchResult.error]
       .filter(Boolean)
       .map((error) => error?.message || 'Unknown Supabase error')
 
@@ -98,23 +82,41 @@ export async function GET() {
     }
     const watchAge = ageMs(watchValue.lastCompletedAt || watchResult.data?.updated_at)
 
-    const hotspotRows = hotspotStatsResult.data || []
-    const newsRows = newsResult.data || []
-    const signalRows = signalsResult.data || []
+    const cachePayload = (cacheResult.data?.payload || {}) as {
+      data?: {
+        hotspots?: Array<{
+          hotspot: string
+          riskLevel?: string
+          updatedAt?: string
+        }>
+        articles?: Array<{
+          region?: string
+          timestamp?: string
+        }>
+        signals?: Array<{
+          region?: string
+          observedAt?: string
+          signalType?: string
+        }>
+      }
+    }
+    const hotspotRows = cachePayload.data?.hotspots || []
+    const newsRows = cachePayload.data?.articles || []
+    const signalRows = cachePayload.data?.signals || []
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
       const latestNews = newsRows.find((row) => row.region === hotspot)
       const latestSignal = signalRows.find((row) => row.region === hotspot)
-      const hasRecentNews = ageMs(latestNews?.published_at) < 7 * 24 * 60 * 60 * 1000
-      const hasRecentSignal = ageMs(latestSignal?.observed_at) < 6 * 60 * 60 * 1000
+      const hasRecentNews = ageMs(latestNews?.timestamp) < 7 * 24 * 60 * 60 * 1000
+      const hasRecentSignal = ageMs(latestSignal?.observedAt) < 6 * 60 * 60 * 1000
 
       return {
         hotspot,
-        riskLevel: stats?.risk_level || 'unknown',
-        statsUpdatedAt: stats?.updated_at || null,
-        latestNewsAt: latestNews?.published_at || null,
-        latestSignalAt: latestSignal?.observed_at || null,
-        latestSignalType: latestSignal?.signal_type || null,
+        riskLevel: stats?.riskLevel || 'unknown',
+        statsUpdatedAt: stats?.updatedAt || null,
+        latestNewsAt: latestNews?.timestamp || null,
+        latestSignalAt: latestSignal?.observedAt || null,
+        latestSignalType: latestSignal?.signalType || null,
         hasRecentNews,
         hasRecentSignal,
         hasRecentCoverage: hasRecentNews || hasRecentSignal,
