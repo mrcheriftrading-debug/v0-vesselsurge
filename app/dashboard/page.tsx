@@ -30,6 +30,7 @@ export default async function DashboardPage() {
 
   const companyName = user.user_metadata?.company_name || "Your Company"
   const serviceType = user.user_metadata?.service_type || "ship-owner"
+  const isTrader = serviceType === "trader"
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -59,7 +60,9 @@ export default async function DashboardPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground">Welcome, {companyName}</h1>
             <p className="mt-2 text-muted-foreground">
-              {serviceType === "ship-owner"
+              {isTrader
+                ? "Analyze maritime news, chokepoints and market pressure with Market Impact Pro"
+                : serviceType === "ship-owner"
                 ? "Manage your vessel listings and find cargo opportunities"
                 : "Find available vessels and manage your freight requests"
               }
@@ -71,7 +74,9 @@ export default async function DashboardPage() {
             <div className="rounded-lg border border-border bg-card p-6">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  {serviceType === "ship-owner" ? (
+                  {isTrader ? (
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  ) : serviceType === "ship-owner" ? (
                     <Ship className="h-5 w-5 text-primary" />
                   ) : (
                     <Package className="h-5 w-5 text-primary" />
@@ -80,7 +85,7 @@ export default async function DashboardPage() {
                 <div>
                   <p className="text-2xl font-bold text-foreground">0</p>
                   <p className="text-sm text-muted-foreground">
-                    {serviceType === "ship-owner" ? "Active Listings" : "Freight Requests"}
+                    {isTrader ? "Saved Watchlists" : serviceType === "ship-owner" ? "Active Listings" : "Freight Requests"}
                   </p>
                 </div>
               </div>
@@ -113,7 +118,28 @@ export default async function DashboardPage() {
           <div className="rounded-lg border border-border bg-card p-6">
             <h2 className="mb-4 text-lg font-semibold text-foreground">Quick Actions</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              {serviceType === "ship-owner" ? (
+              {isTrader ? (
+                <>
+                  <Link href="/pro-market">
+                    <Button className="w-full justify-start" variant="outline">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Open Market Impact Pro
+                    </Button>
+                  </Link>
+                  <Link href="/map-dashboard">
+                    <Button className="w-full justify-start" variant="outline">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      View Live Chokepoint Map
+                    </Button>
+                  </Link>
+                  <Link href="/intelligence">
+                    <Button className="w-full justify-start" variant="outline">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Read News & Risk Signals
+                    </Button>
+                  </Link>
+                </>
+              ) : serviceType === "ship-owner" ? (
                 <>
                   <Link href="/#contact-form">
                     <Button className="w-full justify-start" variant="outline">
@@ -174,7 +200,7 @@ export default async function DashboardPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Account Type</span>
                 <span className="font-medium text-foreground">
-                  {serviceType === "ship-owner" ? "Ship Owner" : "Cargo Owner"}
+                  {isTrader ? "Trader / Investor" : serviceType === "ship-owner" ? "Ship Owner" : "Cargo Owner"}
                 </span>
               </div>
               <div className="flex justify-between">

@@ -26,7 +26,10 @@ export async function POST(request: Request) {
   const email = payload.email?.trim().toLowerCase()
   const password = payload.password || ""
   const companyName = payload.companyName?.trim() || ""
-  const serviceType = payload.serviceType === "cargo-owner" ? "cargo-owner" : "ship-owner"
+  const allowedServiceTypes = new Set(["ship-owner", "cargo-owner", "trader"])
+  const serviceType = allowedServiceTypes.has(payload.serviceType || "")
+    ? payload.serviceType!
+    : "ship-owner"
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 })

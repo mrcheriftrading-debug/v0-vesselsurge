@@ -6,7 +6,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Zap, Ship, Package, Loader2, ShieldCheck } from "lucide-react"
+import { Zap, Ship, Package, Loader2, ShieldCheck, TrendingUp } from "lucide-react"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -28,7 +28,7 @@ export default function SignUpPage() {
       if (!active) return
 
       if (user) {
-        router.replace("/dashboard")
+        router.replace(getNextPath())
         router.refresh()
         return
       }
@@ -74,7 +74,7 @@ export default function SignUpPage() {
       return
     }
 
-    router.replace("/dashboard")
+    router.replace(getNextPath(formData.serviceType))
     router.refresh()
   }
 
@@ -110,7 +110,7 @@ export default function SignUpPage() {
               {/* Service Type Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">I am a:</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, serviceType: "ship-owner" })}
@@ -136,6 +136,19 @@ export default function SignUpPage() {
                   >
                     <Package className="h-6 w-6" />
                     <span className="text-sm font-medium">Cargo Team</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, serviceType: "trader" })}
+                    disabled={isLoading || isCheckingSession}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors ${
+                      formData.serviceType === "trader"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-secondary text-muted-foreground hover:bg-secondary/80"
+                    }`}
+                  >
+                    <TrendingUp className="h-6 w-6" />
+                    <span className="text-sm font-medium">Trader / Investor</span>
                   </button>
                 </div>
               </div>
@@ -234,4 +247,14 @@ export default function SignUpPage() {
       </main>
     </div>
   )
+}
+
+function getNextPath(serviceType?: string) {
+  if (typeof window === "undefined") return serviceType === "trader" ? "/pro-market" : "/dashboard"
+  const nextPath = new URLSearchParams(window.location.search).get("next")
+  if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
+    return nextPath
+  }
+
+  return serviceType === "trader" ? "/pro-market" : "/dashboard"
 }
