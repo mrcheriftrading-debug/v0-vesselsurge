@@ -125,6 +125,13 @@ const GOOGLE_NEWS_NOISE_KEYWORDS = [
 
 const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'crypto',
+  'bitcoin',
+  'blockchain',
+  'defi',
+  'decrypt',
+  'coingape',
+  'bitbo',
+  'bloomingbit',
   'facebook',
   'mexc',
   'forex',
