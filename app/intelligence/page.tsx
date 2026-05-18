@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { ArrowRight, Database, FileText, Globe, Radio, Shield } from "lucide-react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
+import { trafficTopicPages } from "@/lib/seo"
 
 const BASE_URL = "https://www.vesselsurge.com"
 
@@ -59,20 +60,84 @@ const intelligenceCards = [
   },
 ]
 
+const routeBriefings = [
+  {
+    href: "/regions/hormuz",
+    label: "Hormuz",
+    title: "Strait of Hormuz oil and tanker risk",
+    text: "Iran-linked route exposure, Gulf tanker traffic, oil-route pressure and insurance-sensitive maritime signals.",
+  },
+  {
+    href: "/regions/bab",
+    label: "Red Sea",
+    title: "Bab el-Mandeb and Gulf of Aden security",
+    text: "Red Sea routing, Gulf of Aden advisories, Houthi-related shipping risk and rerouting context.",
+  },
+  {
+    href: "/regions/suez",
+    label: "Suez",
+    title: "Suez Canal traffic and delay context",
+    text: "Canal transit, convoy flow, queue pressure, Red Sea spillover and Europe-Asia route disruption.",
+  },
+  {
+    href: "/regions/malacca",
+    label: "Malacca",
+    title: "Malacca and Singapore Strait vessel flow",
+    text: "AIS density, port-flow pressure, piracy alert context and Southeast Asia cargo movement risk.",
+  },
+]
+
+const highIntentTopics = trafficTopicPages.filter((topic) => [
+  "shipping-disruption-tracker",
+  "war-risk-insurance-shipping",
+  "freight-rate-risk-signals",
+  "cargo-vessel-matching",
+  "ais-vessel-tracking-map",
+  "cape-of-good-hope-rerouting",
+].includes(topic.slug))
+
 export default function IntelligencePage() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "@id": `${BASE_URL}/intelligence#webpage`,
-    url: `${BASE_URL}/intelligence`,
-    name: "VesselSurge Maritime Intelligence",
-    description:
-      "Source-reviewed maritime intelligence, shipping risk reports and chokepoint signals for Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca.",
-    isPartOf: { "@id": `${BASE_URL}/#website` },
-    about: [
-      { "@type": "Thing", name: "Maritime intelligence" },
-      { "@type": "Thing", name: "Shipping risk" },
-      { "@type": "Thing", name: "Chokepoint monitoring" },
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${BASE_URL}/intelligence#webpage`,
+        url: `${BASE_URL}/intelligence`,
+        name: "VesselSurge Maritime Intelligence",
+        description:
+          "Source-reviewed maritime intelligence, shipping risk reports and chokepoint signals for Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca.",
+        isPartOf: { "@id": `${BASE_URL}/#website` },
+        about: [
+          { "@type": "Thing", name: "Maritime intelligence" },
+          { "@type": "Thing", name: "Shipping risk" },
+          { "@type": "Thing", name: "Chokepoint monitoring" },
+        ],
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${BASE_URL}/intelligence#route-briefings`,
+        name: "Critical maritime intelligence route briefings",
+        itemListElement: routeBriefings.map((route, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: route.title,
+          url: `${BASE_URL}${route.href}`,
+          description: route.text,
+        })),
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${BASE_URL}/intelligence#high-intent-topics`,
+        name: "High intent maritime risk topics",
+        itemListElement: highIntentTopics.map((topic, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: topic.name,
+          url: `${BASE_URL}/topics/${topic.slug}`,
+          description: topic.description,
+        })),
+      },
     ],
   }
 
@@ -138,6 +203,53 @@ export default function IntelligencePage() {
                 <div key={item} className="rounded-lg border border-border bg-background/50 p-4 text-sm font-semibold text-foreground">
                   {item}
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-border bg-background px-4 py-12 sm:py-16 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-7 max-w-3xl">
+              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Route briefings</div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">Give search visitors the exact chokepoint they came for.</h2>
+              <p className="mt-3 text-muted-foreground">
+                Each briefing sends high-intent traffic into the right region page and live map view instead of leaving visitors on a generic news page.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {routeBriefings.map((route) => (
+                <Link key={route.href} href={route.href} className="group rounded-xl border border-border bg-card/50 p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
+                  <div className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-primary">{route.label}</div>
+                  <h3 className="mt-3 text-lg font-bold text-foreground">{route.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{route.text}</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    Open briefing <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-border bg-card px-4 py-12 sm:py-16 lg:px-8">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+            <div>
+              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">High-intent searches</div>
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">Turn maritime search demand into map usage and network leads.</h2>
+              <p className="mt-3 text-muted-foreground">
+                These pages target commercial searches around disruption, insurance, AIS maps, freight-rate pressure and cargo-vessel matching.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {highIntentTopics.map((topic) => (
+                <Link key={topic.slug} href={`/topics/${topic.slug}`} className="group rounded-lg border border-border bg-background/55 p-4 transition-colors hover:border-primary/30 hover:bg-white/[0.04]">
+                  <h3 className="text-base font-bold text-foreground">{topic.name}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{topic.description}</p>
+                  <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    Open topic <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
