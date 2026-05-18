@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import type { Article, Hotspot, MaritimeSignal } from '@/lib/maritime-data'
 
 type HotspotMap = Record<string, Hotspot>
@@ -38,7 +37,6 @@ export function useMaritimeData(): UseMaritimeDataReturn {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const subscriptionsRef = useRef<(() => void)[]>([])
   const vesselPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Fetch hotspots + articles from our API
@@ -47,7 +45,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
       setLoading(true)
       setError(null)
       const response = await fetch('/api/maritime-data', {
-        headers: { 'Cache-Control': 'no-cache' },
+        cache: 'default',
       })
       if (!response.ok) throw new Error('API error: ' + response.status)
       const { data } = await response.json()
@@ -68,7 +66,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
   const fetchVessels = useCallback(async () => {
     try {
       const res = await fetch('/api/ais-vessels', {
-        headers: { 'Cache-Control': 'no-cache' },
+        cache: 'default',
       })
       if (!res.ok) return
       const { vessels: vesselData } = await res.json()
@@ -78,58 +76,12 @@ export function useMaritimeData(): UseMaritimeDataReturn {
     } catch { /* silent - vessels are optional enhancement */ }
   }, [])
 
-  // Supabase realtime subscriptions
-  const setupRealtime = useCallback(() => {
-    try {
-      const supabase = createClient()
-
-      const articlesChannel = supabase
-        .channel('articles-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'news_articles' },
-          async () => { await fetchMaritimeData() }
-        )
-        .subscribe()
-
-      const statsChannel = supabase
-        .channel('hotspot-stats-realtime')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'hotspot_stats' },
-          async () => { await fetchMaritimeData() }
-        )
-        .subscribe()
-
-      const signalsChannel = supabase
-        .channel('maritime-signals-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'maritime_signals' },
-          async () => { await fetchMaritimeData() }
-        )
-        .subscribe()
-
-      // Vessel realtime - update positions live
-      const vesselsChannel = supabase
-        .channel('vessels-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'vessels' },
-          async () => { await fetchVessels() }
-        )
-        .subscribe()
-
-      subscriptionsRef.current.push(() => {
-        supabase.removeChannel(articlesChannel)
-        supabase.removeChannel(statsChannel)
-        supabase.removeChannel(signalsChannel)
-        supabase.removeChannel(vesselsChannel)
-      })
-    } catch (err) {
-      console.error('[realtime] setup error:', err)
-    }
-  }, [fetchMaritimeData, fetchVessels])
-
   useEffect(() => {
     // Initial load
     fetchMaritimeData()
     fetchVessels()
-    setupRealtime()
 
-    // Refresh hotspot stats/signals often; backend ingestion runs every 5 minutes.
+    // Keep the UI fresh without opening multiple realtime sockets.
     const statsInterval = setInterval(fetchMaritimeData, 60 * 1000)
 
     // Poll vessel positions every 60 seconds (AIS data updates frequently)
@@ -148,10 +100,8 @@ export function useMaritimeData(): UseMaritimeDataReturn {
       clearInterval(statsInterval)
       if (vesselPollRef.current) clearInterval(vesselPollRef.current)
       document.removeEventListener('visibilitychange', onVisible)
-      subscriptionsRef.current.forEach(u => u())
-      subscriptionsRef.current = []
     }
-  }, [fetchMaritimeData, fetchVessels, setupRealtime])
+  }, [fetchMaritimeData, fetchVessels])
 
   return {
     articles,

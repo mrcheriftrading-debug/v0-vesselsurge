@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +13,7 @@ export async function GET(request: NextRequest) {
       .from('vessels')
       .select('mmsi, name, lat, lng, speed, heading, ship_type, destination, hotspot, updated_at')
       .order('updated_at', { ascending: false })
-      .limit(500)
+      .limit(250)
 
     if (hotspot && hotspot !== 'all') {
       query = query.eq('hotspot', hotspot)
@@ -48,7 +47,7 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Cache-Control': 'public, s-maxage=20, stale-while-revalidate=60',
           'Access-Control-Allow-Origin': '*',
         },
       },

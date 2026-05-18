@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 function confidenceForHotspot(stats: {
   reports: number
@@ -39,8 +38,7 @@ function confidenceLabelForHotspot(score: number, stats: { officialSignalCount: 
   return 'Thin signal'
 }
 
-// Get verified vessel counts per hotspot. Do not synthesize live AIS counts.
-async function getVesselCounts(supabase: any) {
+async function fetchVesselCounts(supabase: any) {
   try {
     const freshCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
     const { data: vessels, error } = await supabase
@@ -66,27 +64,30 @@ export async function GET() {
     const supabase = createAdminClient()
     const now = new Date()
     const timestamp = now.toISOString()
-
-    // Fetch articles from Supabase
-    const { data: articlesData, error: articlesError } = await supabase
-      .from('news_articles')
-      .select('*')
-      .order('published_at', { ascending: false })
-      .limit(60)
-
-    // Fetch hotspots from Supabase
-    const { data: hotspotsData, error: hotspotsError } = await supabase
-      .from('hotspot_stats')
-      .select('*')
-      .order('updated_at', { ascending: false })
-
     const signalCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
-    const { data: signalsData, error: signalsError } = await supabase
-      .from('maritime_signals')
-      .select('*')
-      .gte('observed_at', signalCutoff)
-      .order('observed_at', { ascending: false })
-      .limit(100)
+
+    const [articlesResult, hotspotsResult, signalsResult, vesselCounts] = await Promise.all([
+      supabase
+        .from('news_articles')
+        .select('*')
+        .order('published_at', { ascending: false })
+        .limit(48),
+      supabase
+        .from('hotspot_stats')
+        .select('id,hotspot,active_vessels,daily_transits,avg_wait_time,market_volume,risk_level,updated_at')
+        .order('updated_at', { ascending: false }),
+      supabase
+        .from('maritime_signals')
+        .select('signal_key,source,source_url,title,summary,region,signal_type,severity,confidence,observed_at')
+        .gte('observed_at', signalCutoff)
+        .order('observed_at', { ascending: false })
+        .limit(80),
+      fetchVesselCounts(supabase),
+    ])
+
+    const { data: articlesData, error: articlesError } = articlesResult
+    const { data: hotspotsData, error: hotspotsError } = hotspotsResult
+    const { data: signalsData, error: signalsError } = signalsResult
 
     if (articlesError || hotspotsError || signalsError) {
       console.error('[v0] Supabase fetch error:', { articlesError, hotspotsError, signalsError })
@@ -95,9 +96,6 @@ export async function GET() {
         { status: 500 }
       )
     }
-
-    // Get actual vessel counts
-    const vesselCounts = await getVesselCounts(supabase)
 
     // Transform articles
     const articles = (articlesData || []).map((article: any) => ({
@@ -187,15 +185,13 @@ export async function GET() {
         meta: {
           version: '3.0.0',
           source: 'VesselSurge Maritime Data API',
-          cacheControl: 'no-cache, no-store, must-revalidate',
+          cacheControl: 'public, s-maxage=30, stale-while-revalidate=120',
           cached: false,
         },
       },
       {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
           'X-Content-Type-Options': 'nosniff',
         },
       }
