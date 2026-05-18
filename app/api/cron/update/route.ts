@@ -72,7 +72,7 @@ const TRUSTED_PAGES = [
   { source: 'ReCAAP ISC Alerts', url: 'https://www.recaap.org/alerts', credibility: 10, region: 'malacca' },
   { source: 'ReCAAP ISC Reports', url: 'https://www.recaap.org/reports', credibility: 10, region: 'malacca' },
   { source: 'Norwegian Maritime Authority', url: 'https://www.sdir.no/en/accidents-and-safety/maritim-sikring/security-level-for-norwegian-vessels/gulf-of-aden-bab-el-mandeb-red-sea/', credibility: 9, region: 'bab' },
-  { source: 'MARAD Maritime Security Advisory', url: 'https://www.maritime.dot.gov/msci/2025-001-southern-red-sea-bab-el-mandeb-strait-and-gulf-aden-houthi-attacks-commercial-vessels', credibility: 9, region: 'bab' },
+  { source: 'MARAD Maritime Security Advisory', url: 'https://www.maritime.dot.gov/msci/2026-006-red-sea-bab-el-mandeb-strait-gulf-aden-arabian-sea-and-somali-basin-houthi-attacks', credibility: 9, region: 'bab' },
   { source: 'Suez Canal Authority', url: 'https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx', credibility: 10, region: 'suez' },
   { source: 'MSCIO Alerts', url: 'https://www.mscio.eu/alerts/', credibility: 10, region: 'bab' },
   { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', credibility: 10, region: 'bab' },

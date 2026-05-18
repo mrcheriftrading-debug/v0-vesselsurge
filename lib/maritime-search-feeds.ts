@@ -30,6 +30,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Red Sea" OR "Bab el-Mandeb" OR "Gulf of Aden") (ship OR vessel OR tanker OR cargo) (attack OR missile OR drone OR Houthi OR warning OR incident)',
   },
   {
+    label: 'Red Sea official maritime warnings',
+    region: 'bab',
+    query: '("UKMTO" OR "MSCIO" OR "MARAD" OR "Red Sea") ("Bab el-Mandeb" OR "Gulf of Aden" OR Yemen) (warning OR advisory OR incident OR vessel OR shipping)',
+  },
+  {
     label: 'Bab el-Mandeb route risk',
     region: 'bab',
     query: '("Bab el-Mandeb" OR "Bab el Mandeb" OR "Gulf of Aden") (shipping OR maritime OR reroute OR divert OR war-risk OR insurance OR freight)',
@@ -45,9 +50,19 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Suez Canal" OR Suez) ("Red Sea" OR rerouting OR "Cape of Good Hope" OR freight OR container OR tanker)',
   },
   {
+    label: 'Suez authority and convoy operations',
+    region: 'suez',
+    query: '("Suez Canal Authority" OR "Suez Canal") (navigation OR convoy OR transit OR vessel OR canal traffic OR ship)',
+  },
+  {
     label: 'Malacca piracy and incidents',
     region: 'malacca',
     query: '("Strait of Malacca" OR "Singapore Strait" OR "Straits of Malacca") (piracy OR "armed robbery" OR incident OR ReCAAP OR vessel)',
+  },
+  {
+    label: 'Singapore Strait security alerts',
+    region: 'malacca',
+    query: '("Singapore Strait" OR "Strait of Malacca" OR ReCAAP) ("armed robbery" OR piracy OR alert OR incident OR tanker OR vessel)',
   },
   {
     label: 'Malacca congestion and tanker flow',
