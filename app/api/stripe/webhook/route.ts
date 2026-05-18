@@ -39,6 +39,25 @@ async function upsertSubscription(subscription: Stripe.Subscription, userId: str
   }
 }
 
+async function findUserIdByEmail(email?: string | null) {
+  if (!email) return null
+
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error('[stripe-webhook] email lookup failed:', error)
+    return null
+  }
+
+  return data?.id || null
+}
+
 export async function POST(request: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   if (!webhookSecret) {
@@ -67,7 +86,10 @@ export async function POST(request: Request) {
       const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id
       if (subscriptionId) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-        await upsertSubscription(subscription, session.metadata?.userId || session.client_reference_id || null)
+        const userId = session.metadata?.userId
+          || session.client_reference_id
+          || await findUserIdByEmail(session.customer_details?.email || session.customer_email || null)
+        await upsertSubscription(subscription, userId)
       }
     }
 
