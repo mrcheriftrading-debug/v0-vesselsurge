@@ -41,9 +41,88 @@ const quickActions = [
   { href: "/search", label: "Search", text: "Find anything", icon: Search },
 ]
 
+const chokepointLinks = [
+  { href: "/regions/hormuz", title: "Strait of Hormuz", text: "Oil tanker traffic, Iran tension and Persian Gulf maritime risk." },
+  { href: "/regions/bab", title: "Bab el-Mandeb", text: "Red Sea security, Gulf of Aden routing and Houthi risk signals." },
+  { href: "/regions/suez", title: "Suez Canal", text: "Transit flow, queue signals and Europe-Asia disruption context." },
+  { href: "/regions/malacca", title: "Strait of Malacca", text: "Singapore Strait traffic, congestion and piracy alert context." },
+]
+
+const maritimeFaq = [
+  {
+    question: "How can I monitor Strait of Hormuz vessel traffic?",
+    answer: "Open the live map or Hormuz region page for vessel context, oil route risk and Iran-related maritime signals.",
+  },
+  {
+    question: "Where can I track Red Sea and Bab el-Mandeb shipping risk?",
+    answer: "Use the intelligence hub and Bab el-Mandeb page for source-reviewed Red Sea security and Gulf of Aden route context.",
+  },
+  {
+    question: "How do I check Suez Canal and Malacca Strait disruptions?",
+    answer: "Dedicated region pages organize traffic, congestion, piracy and transit risk signals before you open the operational map.",
+  },
+  {
+    question: "Can VesselSurge help with cargo and vessel matching?",
+    answer: "The network page lets cargo teams and vessel operators submit route, cargo, timing and capacity requirements.",
+  },
+]
+
+const siteUrl = "https://www.vesselsurge.com"
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: maritimeFaq.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+}
+
+const chokepointItemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "VesselSurge maritime chokepoint intelligence pages",
+  itemListElement: chokepointLinks.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.title,
+    url: `${siteUrl}${item.href}`,
+    description: item.text,
+  })),
+}
+
+const topicItemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "VesselSurge maritime intelligence topic pages",
+  itemListElement: trafficTopicPages.map((topic, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: topic.name,
+    url: `${siteUrl}/topics/${topic.slug}`,
+    description: topic.description,
+  })),
+}
+
 export default function VesselSurgePage() {
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(chokepointItemListJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(topicItemListJsonLd) }}
+      />
       <SiteNavigation />
 
       <main>
@@ -180,12 +259,7 @@ export default function VesselSurgePage() {
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { href: "/regions/hormuz", title: "Strait of Hormuz", text: "Oil tanker traffic, Iran tension and Persian Gulf maritime risk." },
-                { href: "/regions/bab", title: "Bab el-Mandeb", text: "Red Sea security, Gulf of Aden routing and Houthi risk signals." },
-                { href: "/regions/suez", title: "Suez Canal", text: "Transit flow, queue signals and Europe-Asia disruption context." },
-                { href: "/regions/malacca", title: "Strait of Malacca", text: "Singapore Strait traffic, congestion and piracy alert context." },
-              ].map((region) => (
+              {chokepointLinks.map((region) => (
                 <Link key={region.href} href={region.href} className="group rounded-xl border border-border bg-card/50 p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
                   <h3 className="text-lg font-bold text-foreground">{region.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{region.text}</p>
@@ -208,24 +282,7 @@ export default function VesselSurgePage() {
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                {
-                  question: "How can I monitor Strait of Hormuz vessel traffic?",
-                  answer: "Open the live map or Hormuz region page for vessel context, oil route risk and Iran-related maritime signals.",
-                },
-                {
-                  question: "Where can I track Red Sea and Bab el-Mandeb shipping risk?",
-                  answer: "Use the intelligence hub and Bab el-Mandeb page for source-reviewed Red Sea security and Gulf of Aden route context.",
-                },
-                {
-                  question: "How do I check Suez Canal and Malacca Strait disruptions?",
-                  answer: "Dedicated region pages organize traffic, congestion, piracy and transit risk signals before you open the operational map.",
-                },
-                {
-                  question: "Can VesselSurge help with cargo and vessel matching?",
-                  answer: "The network page lets cargo teams and vessel operators submit route, cargo, timing and capacity requirements.",
-                },
-              ].map(({ question, answer }) => (
+              {maritimeFaq.map(({ question, answer }) => (
                 <div key={question} className="rounded-xl border border-border bg-background/55 p-5">
                   <h3 className="text-base font-bold text-foreground">{question}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{answer}</p>
