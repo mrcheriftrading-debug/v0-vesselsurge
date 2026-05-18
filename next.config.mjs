@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const projectRoot = dirname(fileURLToPath(import.meta.url))
+
 // Build timestamp: 2026-03-30T12:00:00Z - Tavily-powered maritime stats
 const nextConfig = {
+  turbopack: {
+    root: projectRoot,
+  },
   images: {
     unoptimized: true,
   },
