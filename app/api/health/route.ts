@@ -34,7 +34,7 @@ export async function GET() {
   try {
     const supabase = createAdminClient()
 
-    const [cacheResult, vesselResult, hotspotStatsResult, newsResult, watchResult] = await Promise.all([
+    const [cacheResult, vesselResult, hotspotStatsResult, newsResult, signalsResult, watchResult] = await Promise.all([
       supabase
         .from('maritime_dashboard_cache')
         .select('generated_at')
@@ -57,13 +57,19 @@ export async function GET() {
         .order('published_at', { ascending: false })
         .limit(60),
       supabase
+        .from('maritime_signals')
+        .select('region,signal_type,severity,observed_at')
+        .in('region', [...HOTSPOTS])
+        .order('observed_at', { ascending: false })
+        .limit(80),
+      supabase
         .from('ingestion_state')
         .select('value,updated_at')
         .eq('key', 'maritime-watch')
         .maybeSingle(),
     ])
 
-    const errors = [cacheResult.error, vesselResult.error, hotspotStatsResult.error, newsResult.error, watchResult.error]
+    const errors = [cacheResult.error, vesselResult.error, hotspotStatsResult.error, newsResult.error, signalsResult.error, watchResult.error]
       .filter(Boolean)
       .map((error) => error?.message || 'Unknown Supabase error')
 
@@ -86,16 +92,24 @@ export async function GET() {
 
     const hotspotRows = hotspotStatsResult.data || []
     const newsRows = newsResult.data || []
+    const signalRows = signalsResult.data || []
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
       const latestNews = newsRows.find((row) => row.region === hotspot)
+      const latestSignal = signalRows.find((row) => row.region === hotspot)
+      const hasRecentNews = ageMs(latestNews?.published_at) < 7 * 24 * 60 * 60 * 1000
+      const hasRecentSignal = ageMs(latestSignal?.observed_at) < 6 * 60 * 60 * 1000
 
       return {
         hotspot,
         riskLevel: stats?.risk_level || 'unknown',
         statsUpdatedAt: stats?.updated_at || null,
         latestNewsAt: latestNews?.published_at || null,
-        hasRecentCoverage: ageMs(latestNews?.published_at) < 7 * 24 * 60 * 60 * 1000,
+        latestSignalAt: latestSignal?.observed_at || null,
+        latestSignalType: latestSignal?.signal_type || null,
+        hasRecentNews,
+        hasRecentSignal,
+        hasRecentCoverage: hasRecentNews || hasRecentSignal,
       }
     })
 
