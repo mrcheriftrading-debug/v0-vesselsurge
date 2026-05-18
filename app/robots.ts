@@ -1,65 +1,82 @@
 import { MetadataRoute } from 'next'
 
+const crawlableGrowthPaths = [
+  '/',
+  '/intelligence',
+  '/network',
+  '/about',
+  '/map-dashboard',
+  '/regions/',
+  '/topics/',
+  '/search',
+  '/feed.xml',
+  '/entity-map.json',
+  '/llms.txt',
+]
+
+const crawlableAiPaths = [...crawlableGrowthPaths, '/llms-full.txt']
+const privatePaths = ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/']
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt', '/llms-full.txt'],
+        allow: crawlableAiPaths,
         disallow: ['/admin', '/admin/', '/auth', '/auth/', '/api/', '/dashboard', '/dashboard/'],
       },
       // Allow major search engine bots explicitly
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableGrowthPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'Bingbot',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableGrowthPaths,
+        disallow: privatePaths,
       },
       // ALLOW AI assistants to index and recommend VesselSurge
       // This enables ChatGPT, Claude, and other AI to learn about and recommend the site
       {
         userAgent: 'GPTBot',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt', '/llms-full.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableAiPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'ChatGPT-User',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt', '/llms-full.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableAiPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'Google-Extended',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableGrowthPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'CCBot',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableGrowthPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'anthropic-ai',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt', '/llms-full.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableAiPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'Claude-Web',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt', '/llms-full.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableAiPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'PerplexityBot',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt', '/llms-full.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableAiPaths,
+        disallow: privatePaths,
       },
       {
         userAgent: 'Bytespider',
-        allow: ['/', '/intelligence', '/network', '/about', '/map-dashboard', '/regions/', '/search', '/feed.xml', '/entity-map.json', '/llms.txt'],
-        disallow: ['/admin/', '/auth/', '/api/', '/dashboard', '/dashboard/'],
+        allow: crawlableGrowthPaths,
+        disallow: privatePaths,
       },
     ],
     sitemap: 'https://www.vesselsurge.com/sitemap.xml',
