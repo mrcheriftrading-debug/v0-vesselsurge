@@ -123,6 +123,7 @@ const GOOGLE_NEWS_NOISE_KEYWORDS = [
 
 const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'crypto',
+  'facebook',
   'mexc',
   'forex',
   'indexbox',
@@ -326,6 +327,45 @@ function hasDirectRegionSignal(article: TrustedArticle) {
   return keywords.some((keyword) => text.includes(keyword))
 }
 
+function hasRouteSpilloverSignal(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const hasReroutePressure = /\b(rerout|re-rout|divert|alternative route|cape of good hope|freight|transit|shipping companies|vessel|ship|tanker|cargo)\b/i.test(text)
+
+  if (article.region === 'suez') {
+    return hasReroutePressure && /\b(red sea|suez|canal|cape of good hope|mediterranean|port said)\b/i.test(text)
+  }
+
+  if (article.region === 'bab') {
+    return hasReroutePressure && /\b(red sea|bab el|gulf of aden|houthi|yemen|somali piracy|somalia)\b/i.test(text)
+  }
+
+  if (article.region === 'malacca') {
+    return hasReroutePressure && /\b(malacca|singapore strait|singapore|nicobar|land bridge|recaap|piracy)\b/i.test(text)
+  }
+
+  return false
+}
+
+function hasRegionOrRouteSignal(article: TrustedArticle) {
+  return hasDirectRegionSignal(article) || hasRouteSpilloverSignal(article)
+}
+
+function isMisassignedDominantRegionArticle(article: TrustedArticle) {
+  if (article.region === 'hormuz') return false
+
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const isHormuzDominant = /\b(hormuz|persian gulf|gulf of oman)\b/i.test(text)
+  if (!isHormuzDominant) return false
+
+  const hasTargetRegion = (REGION_KEYWORDS[article.region] || []).some((keyword) => text.includes(keyword))
+  if (hasTargetRegion) return false
+
+  const isRouteSpillover = /\b(rerout|re-rout|divert|avoid|cape route|cape of good hope|red sea|suez|freight|shipping companies|maersk)\b/i.test(text)
+    && /\b(ship|shipping|vessel|tanker|cargo|freight|transit|route|maersk)\b/i.test(text)
+
+  return !isRouteSpillover
+}
+
 function isWebSearchArticle(article: TrustedArticle) {
   return article.source.startsWith('Google News:') || article.source.startsWith('Bing News')
 }
@@ -488,7 +528,8 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => article.region !== 'global')
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
-    .filter((article) => hasDirectRegionSignal(article))
+    .filter((article) => !isMisassignedDominantRegionArticle(article))
+    .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
@@ -501,6 +542,8 @@ async function collectTrustedArticles(now = new Date()) {
     .filter((article) => article.region !== 'global')
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
+    .filter((article) => !isMisassignedDominantRegionArticle(article))
+    .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
