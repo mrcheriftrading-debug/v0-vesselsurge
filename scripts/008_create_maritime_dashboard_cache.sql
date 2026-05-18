@@ -14,3 +14,5 @@ CREATE INDEX IF NOT EXISTS idx_maritime_dashboard_cache_generated
   ON public.maritime_dashboard_cache(generated_at DESC);
 
 ALTER TABLE public.maritime_dashboard_cache ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.maritime_dashboard_cache TO service_role;

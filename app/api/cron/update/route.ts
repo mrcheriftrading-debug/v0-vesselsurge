@@ -379,7 +379,7 @@ async function fetchText(url: string) {
       'user-agent': 'VesselSurge OpenClaw/1.0',
     },
     cache: 'no-store',
-    signal: AbortSignal.timeout(12000),
+    signal: AbortSignal.timeout(7000),
   })
   if (!response.ok) throw new Error(`${url} returned ${response.status}`)
   return response.text()
@@ -493,8 +493,8 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
 }
 
 async function collectTrustedArticles(now = new Date()) {
-  const feedResults = await Promise.all(
-    TRUSTED_FEEDS.map(async (feed) => {
+  const sourceResults = await Promise.all([
+    ...TRUSTED_FEEDS.map(async (feed) => {
       try {
         return parseRss(await fetchText(feed.url), feed)
       } catch (error) {
@@ -502,10 +502,7 @@ async function collectTrustedArticles(now = new Date()) {
         return []
       }
     }),
-  )
-
-  const pageResults = await Promise.all(
-    TRUSTED_PAGES.map(async (page) => {
+    ...TRUSTED_PAGES.map(async (page) => {
       try {
         return parseTrustedPage(await fetchText(page.url), page.source, page.url, page.credibility, page.region)
       } catch (error) {
@@ -513,9 +510,9 @@ async function collectTrustedArticles(now = new Date()) {
         return []
       }
     }),
-  )
+  ])
 
-  const articles = [...feedResults, ...pageResults].flat()
+  const articles = sourceResults.flat()
 
   const seen = new Set<string>()
   const dedupedArticles = articles
@@ -769,11 +766,15 @@ export async function GET(request: Request) {
 
   const now = new Date()
   const timestamp = now.toISOString()
-  const articles = (await collectTrustedArticles(now)).map((article) => ({
+  const articlesPromise = collectTrustedArticles(now).then((rows) => rows.map((article) => ({
     ...article,
     created_at: timestamp,
     updated_at: timestamp,
-  }))
+  })))
+  const aisPromise = collectAisStreamVessels({ timeoutMs: 10000, maxVessels: 80 })
+  const marineConditionsPromise = fetchAllMarineConditions()
+
+  const articles = await articlesPromise
 
   const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
   if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
@@ -787,8 +788,7 @@ export async function GET(request: Request) {
     if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
   }
 
-  const ais = await collectAisStreamVessels({ timeoutMs: 18000, maxVessels: 120 })
-  const marineConditions = await fetchAllMarineConditions()
+  const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])
   const articleSignals = buildArticleSignals(articles)
   const aisSignals = buildAisSignals(ais.vessels, timestamp)
   const marineSignals = marineConditions.map((condition) => ({
