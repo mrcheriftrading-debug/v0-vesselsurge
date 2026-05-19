@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, LogIn, Map, Network, Newspaper, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
+import { ArrowRight, BarChart3, Map, Network, Newspaper, ShieldCheck, Ship, Zap } from "lucide-react"
 import { HomeLiveMapLink } from "@/components/home-live-map-link"
 import { HomeOceanScene } from "@/components/home-ocean-scene"
 import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
@@ -10,35 +10,36 @@ import { trafficTopicPages } from "@/lib/seo"
 const productCards = [
   {
     href: "/map-dashboard",
-    title: "I want the live map",
-    text: "See hotspots, vessel traffic, risk level, and selected maritime feed.",
+    title: "See risk on the map",
+    text: "Live chokepoint view with risk labels, source evidence and AIS context.",
     icon: Map,
     accent: "text-primary",
-    action: "Open map",
+    action: "Open Live Map",
   },
   {
     href: "/latest",
-    title: "I want news and risk",
-    text: "Read maritime reports, latest sources, and what changed in the last 24 hours.",
+    title: "Read News & Risk",
+    text: "Fresh maritime headlines, verified sources and route-specific risk signals.",
     icon: Newspaper,
     accent: "text-accent",
-    action: "Read news",
+    action: "Open News & Risk",
+  },
+  {
+    href: "/pro-market",
+    title: "Analyze market impact",
+    text: "Translate maritime disruption into investor and trading context.",
+    icon: BarChart3,
+    accent: "text-amber-300",
+    action: "View Market Pro",
   },
   {
     href: "/network",
-    title: "I want cargo or vessels",
-    text: "Join the network, list vessel capacity, or request shipping partners.",
+    title: "Find cargo or vessels",
+    text: "Submit cargo needs or vessel capacity through a focused B2B flow.",
     icon: Network,
     accent: "text-emerald-300",
-    action: "Join network",
+    action: "Join Network",
   },
-]
-
-const quickActions = [
-  { href: "/map-dashboard", label: "Live Map", text: "Track hotspots", icon: Map },
-  { href: "/latest", label: "News & Risk", text: "Fresh signals", icon: Newspaper },
-  { href: "/pro-market", label: "Market Pro", text: "Market impact", icon: ShieldCheck },
-  { href: "/network#surge-form", label: "Join", text: "Cargo or vessels", icon: Network },
 ]
 
 const chokepointLinks = [
@@ -143,48 +144,40 @@ export default function VesselSurgePage() {
             }}
           />
 
-          <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 py-14 text-center lg:px-8">
+          <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 pb-28 pt-14 text-center md:pb-14 lg:px-8">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.22em] text-accent sm:mb-7 sm:text-xs sm:tracking-[0.3em]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.8)]" />
               Maritime intelligence for critical routes
             </div>
 
-            <h1 className="max-w-5xl text-[2.6rem] font-extrabold leading-[1.04] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="max-w-5xl text-[2.25rem] font-extrabold leading-[1.04] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
               Maritime risk, live maps and cargo connections{" "}
               <span className="text-primary text-glow-blue">in one clean workspace.</span>
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-7 sm:text-lg md:text-xl">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-7 sm:text-lg md:text-xl">
               Track critical shipping routes, read the latest maritime signals, and move quickly between live intelligence and vessel matching.
             </p>
 
-            <div className="mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-7 grid w-full max-w-md gap-3 sm:max-w-4xl sm:grid-cols-4">
               <HomeLiveMapLink />
               <Link
                 href="/latest"
-                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                className="relative flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:min-h-14 sm:px-5 sm:py-4"
               >
                 News & Risk
               </Link>
               <Link
+                href="/pro-market"
+                className="relative flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-md border border-amber-300/35 bg-amber-300/10 px-5 py-3 text-sm font-semibold text-amber-200 transition-all hover:-translate-y-1 hover:bg-amber-300/15 sm:min-h-14 sm:px-5 sm:py-4"
+              >
+                Market Pro
+              </Link>
+              <Link
                 href="/network"
-                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                className="relative flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:min-h-14 sm:px-5 sm:py-4"
               >
                 Join Network
-              </Link>
-              <Link
-                href="/auth/sign-up"
-                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:w-auto sm:px-8 sm:py-4 sm:text-base"
-              >
-                <UserPlus className="h-5 w-5 text-primary" />
-                Create Account
-              </Link>
-              <Link
-                href="/auth/login"
-                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md px-5 py-3 text-sm font-semibold text-muted-foreground transition-all hover:text-foreground sm:w-auto sm:px-4 sm:py-4 sm:text-base"
-              >
-                <LogIn className="h-5 w-5" />
-                Log In
               </Link>
             </div>
 
@@ -210,19 +203,13 @@ export default function VesselSurgePage() {
             <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div className="max-w-2xl">
                 <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Start here</div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">What do you need right now?</h2>
-              <p className="mt-3 text-muted-foreground">Jump straight into the map, the latest risk signals, or the cargo and vessel network.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:w-[30rem]">
-                {quickActions.map(({ href, label, icon: Icon }) => (
-                  <Link key={href} href={href} className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-border bg-card px-3 text-xs font-bold text-foreground transition-colors hover:border-primary/30 hover:bg-white/[0.04]">
-                    <Icon className="h-4 w-4 text-primary" />
-                    {label}
-                  </Link>
-                ))}
+                <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Choose the job. Open the right tool.</h2>
+                <p className="mt-3 text-muted-foreground">
+                  VesselSurge now has four clear paths: map, news/risk, market impact and cargo-vessel matching.
+                </p>
               </div>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {productCards.map(({ href, title, text, icon: Icon, accent, action }) => (
                 <Link key={href} href={href} className="group rounded-xl border border-border bg-card/50 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
                   <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] ${accent}`}>
