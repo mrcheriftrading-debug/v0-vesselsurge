@@ -80,6 +80,37 @@ const productCards = [
   },
 ]
 
+const searchIntentLinks = [
+  {
+    href: "/map-dashboard",
+    eyebrow: "Live vessel tracking",
+    title: "Open the live maritime map",
+    text: "Use this when you need vessel context, AIS signals and route risk across Hormuz, Red Sea, Suez and Malacca.",
+    icon: Map,
+  },
+  {
+    href: "/latest",
+    eyebrow: "Shipping disruption tracker",
+    title: "Read latest maritime news",
+    text: "Use this when you want current source-reviewed headlines, published times and chokepoint evidence in one feed.",
+    icon: Newspaper,
+  },
+  {
+    href: "/pro-market",
+    eyebrow: "Market impact",
+    title: "Translate risk into market context",
+    text: "Use this when maritime events may affect oil, freight, tanker equities, logistics stocks or insurance pressure.",
+    icon: TrendingUp,
+  },
+  {
+    href: "/network",
+    eyebrow: "Cargo vessel matching",
+    title: "Find cargo or vessel capacity",
+    text: "Use this when you need a cleaner route, cargo, timing and capacity intake for maritime B2B matching.",
+    icon: Ship,
+  },
+]
+
 const chokepointLinks = [
   {
     href: "/regions/hormuz",
@@ -184,12 +215,26 @@ const topicItemListJsonLd = {
   })),
 }
 
+const searchIntentItemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "VesselSurge search intent paths",
+  itemListElement: searchIntentLinks.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.eyebrow,
+    url: `${siteUrl}${item.href}`,
+    description: item.text,
+  })),
+}
+
 export default function VesselSurgePage() {
   return (
     <div className="min-h-screen bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(chokepointItemListJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(topicItemListJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(searchIntentItemListJsonLd) }} />
       <SiteNavigation />
 
       <main>
@@ -285,6 +330,40 @@ export default function VesselSurgePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SEARCH INTENT PATHS ── */}
+      <section className="border-t border-white/[0.06] bg-background py-14 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div>
+              <div className="mb-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.25em] text-cyan-400">Choose your route</div>
+              <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Land on the answer faster.</h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">
+                VesselSurge is organized around high-intent maritime searches: live vessel tracking, shipping disruption, market impact and cargo-vessel matching.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {searchIntentLinks.map(({ href, eyebrow, title, text, icon: Icon }) => (
+                <Link key={href} href={href} className="group rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all hover:-translate-y-1 hover:border-cyan-300/25 hover:bg-white/[0.04]">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-cyan-300/10 text-cyan-300">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-mono text-[0.58rem] font-bold uppercase tracking-[0.18em] text-slate-500">{eyebrow}</div>
+                      <h3 className="mt-1 text-base font-bold text-white">{title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-400">{text}</p>
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300">
+                        Continue <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
