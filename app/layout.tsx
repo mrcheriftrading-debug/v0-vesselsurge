@@ -31,11 +31,11 @@ const authRecoveryRedirectScript = `
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'VesselSurge | Live Maritime Intelligence & Shipping Chokepoint Tracker',
+    default: 'VesselSurge | Global Live Maritime Intelligence & Shipping Risk Tracker',
     template: '%s | VesselSurge',
   },
   description:
-    'VesselSurge is a free live maritime intelligence platform for vessel context, source-reviewed reports, and risk labels at Strait of Hormuz, Bab el-Mandeb, Suez Canal & Malacca Strait.',
+    'VesselSurge is a free global maritime intelligence platform for vessel context, source-reviewed reports, shipping route risk, and risk labels across critical trade chokepoints.',
   keywords: [
     // Primary chokepoint keywords
     'strait of hormuz',
@@ -79,6 +79,12 @@ export const metadata: Metadata = {
     'maritime risk assessment',
     'piracy alerts',
     'shipping disruption',
+    'global shipping routes',
+    'global maritime intelligence',
+    'shipping route risk',
+    'port congestion tracker',
+    'container route tracking',
+    'ocean freight intelligence',
     'live shipping news',
     // B2B
     'maritime B2B',
@@ -106,9 +112,9 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: BASE_URL,
     siteName: 'VesselSurge',
-    title: 'VesselSurge | Live Maritime Intelligence — Hormuz, Red Sea & Suez Tracker',
+    title: 'VesselSurge | Global Live Maritime Intelligence and Shipping Risk Tracker',
     description:
-      'Free live maritime intelligence for critical shipping chokepoints — Hormuz, Bab el-Mandeb, Suez Canal, and Malacca Strait. Source-reviewed reports, risk labels, and vessel context.',
+      'Free global maritime intelligence for critical shipping routes and chokepoints. Source-reviewed reports, risk labels, vessel context, and cargo-vessel matching.',
     images: [
       {
         url: `${BASE_URL}/og-image.jpg`,

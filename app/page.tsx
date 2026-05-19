@@ -9,9 +9,9 @@ import { SiteNavigation } from "@/components/site-navigation"
 import { trafficTopicPages } from "@/lib/seo"
 
 export const metadata: Metadata = {
-  title: "Live Maritime Intelligence Platform, Vessel Tracking and Shipping Risk",
+  title: "Global Live Maritime Intelligence Platform, Vessel Tracking and Shipping Risk",
   description:
-    "Track live maritime intelligence, vessel context, shipping disruption, tanker routes, freight risk, war-risk insurance signals and cargo-vessel matching across Hormuz, Red Sea, Suez and Malacca.",
+    "Track global maritime intelligence, vessel context, shipping disruption, tanker routes, freight risk, war-risk insurance signals and cargo-vessel matching across critical routes.",
   alternates: { canonical: "https://www.vesselsurge.com/" },
   openGraph: {
     title: "VesselSurge, Live Maritime Intelligence Platform",
@@ -264,12 +264,12 @@ export default function VesselSurgePage() {
           </div>
 
           <h1 className="max-w-4xl text-[2.4rem] font-black leading-[1.02] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.5rem]">
-            Shipping intelligence<br />
+            Global shipping intelligence<br />
             <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">before the market moves.</span>
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-            Track vessel traffic, maritime risk signals and cargo opportunities across Hormuz, Red Sea, Suez and Malacca — in one workspace.
+            Track vessel traffic, maritime risk signals and cargo opportunities across global shipping routes, from Hormuz and the Red Sea to Suez and Malacca.
           </p>
 
           <p className="mt-3 max-w-2xl text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">

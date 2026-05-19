@@ -148,6 +148,102 @@ export const trafficTopicPages = [
     ],
   },
   {
+    slug: "global-maritime-intelligence-platform",
+    name: "Global Maritime Intelligence Platform",
+    title: "Global Maritime Intelligence Platform for Vessel Tracking and Shipping Risk",
+    description:
+      "Use VesselSurge as a global maritime intelligence platform for live vessel context, shipping route risk, chokepoint monitoring, source-reviewed news and cargo-vessel matching.",
+    keywords: ["global maritime intelligence platform", "global shipping intelligence", "maritime intelligence platform"],
+    regionHref: "/latest",
+    primaryHref: "/map-dashboard",
+    intent: "global operators, analysts, insurers and logistics teams comparing shipping risk across regions",
+    questions: [
+      "Where can I find a global maritime intelligence platform?",
+      "How can I compare shipping route risk worldwide?",
+      "What maritime intelligence helps global operators move faster?",
+    ],
+  },
+  {
+    slug: "global-shipping-route-risk",
+    name: "Global Shipping Route Risk",
+    title: "Global Shipping Route Risk, Chokepoint Monitoring and Disruption Intelligence",
+    description:
+      "Track global shipping route risk across critical chokepoints, vessel traffic context, disruption signals, security exposure, rerouting pressure and source-reviewed maritime news.",
+    keywords: ["global shipping route risk", "shipping route risk", "global shipping disruption"],
+    regionHref: "/latest",
+    primaryHref: "/map-dashboard",
+    intent: "shipping teams and market watchers comparing global route exposure and disruption risk",
+    questions: [
+      "How can I monitor global shipping route risk?",
+      "Which chokepoints create the highest route exposure?",
+      "Where can I compare shipping disruption across regions?",
+    ],
+  },
+  {
+    slug: "port-congestion-tracker",
+    name: "Port Congestion Tracker",
+    title: "Port Congestion Tracker, Vessel Queue Signals and Shipping Delay Intelligence",
+    description:
+      "Monitor port congestion context, vessel queue signals, canal flow pressure, route delays and maritime disruption indicators connected to VesselSurge live map intelligence.",
+    keywords: ["port congestion tracker", "vessel queue tracker", "shipping delay intelligence"],
+    regionHref: "/latest",
+    primaryHref: "/latest",
+    intent: "logistics teams monitoring port congestion, vessel queues and shipping delay signals",
+    questions: [
+      "Where can I monitor port congestion signals?",
+      "How do vessel queues affect shipping routes?",
+      "What maritime signals show delays are increasing?",
+    ],
+  },
+  {
+    slug: "container-ship-tracking",
+    name: "Container Ship Tracking",
+    title: "Container Ship Tracking, Route Risk and Global Shipping Disruption Context",
+    description:
+      "Use VesselSurge for container ship tracking context, chokepoint route risk, shipping disruption signals, source-reviewed maritime reports and global trade lane intelligence.",
+    keywords: ["container ship tracking", "container route tracking", "global container shipping risk"],
+    regionHref: "/latest",
+    primaryHref: "/map-dashboard",
+    intent: "cargo owners, freight teams and logistics analysts tracking container route disruption",
+    questions: [
+      "Where can I track container ship route risk?",
+      "How do chokepoints affect container shipping?",
+      "What signals matter for global container disruption?",
+    ],
+  },
+  {
+    slug: "maritime-security-alerts",
+    name: "Maritime Security Alerts",
+    title: "Maritime Security Alerts, Vessel Risk and Chokepoint Threat Intelligence",
+    description:
+      "Track maritime security alert context, vessel threat signals, piracy exposure, Red Sea and Gulf risk, source-reviewed reports and live route-risk monitoring.",
+    keywords: ["maritime security alerts", "vessel security alerts", "shipping threat intelligence"],
+    regionHref: "/latest",
+    primaryHref: "/latest",
+    intent: "security teams and operators checking vessel threat context before route decisions",
+    questions: [
+      "Where can I monitor maritime security alerts?",
+      "How can I compare vessel threat signals across chokepoints?",
+      "What security context matters before routing vessels?",
+    ],
+  },
+  {
+    slug: "ocean-freight-intelligence",
+    name: "Ocean Freight Intelligence",
+    title: "Ocean Freight Intelligence, Shipping Cost Pressure and Route Risk Signals",
+    description:
+      "Follow ocean freight intelligence tied to route risk, war-risk insurance, rerouting, vessel queues, fuel pressure, chokepoint disruption and source-reviewed maritime news.",
+    keywords: ["ocean freight intelligence", "shipping cost pressure", "freight market signals"],
+    regionHref: "/latest",
+    primaryHref: "/pro-market",
+    intent: "freight desks, cargo teams and analysts connecting maritime risk to shipping cost pressure",
+    questions: [
+      "What maritime signals affect ocean freight?",
+      "How can route risk affect shipping costs?",
+      "Where can I connect freight pressure with maritime intelligence?",
+    ],
+  },
+  {
     slug: "cargo-vessel-matching",
     name: "Cargo Vessel Matching",
     title: "Cargo Vessel Matching, Vessel Capacity Intake and Maritime B2B Network",
