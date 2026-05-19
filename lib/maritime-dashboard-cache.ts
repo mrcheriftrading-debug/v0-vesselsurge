@@ -9,6 +9,17 @@ type DashboardCacheRow = {
   generated_at: string
 }
 
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
 export type MaritimeDashboardResponse = {
   success: true
   data: {
@@ -253,11 +264,15 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
 
 export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
   try {
-    const { data, error } = await supabase
-      .from('maritime_dashboard_cache')
-      .select('payload,generated_at')
-      .eq('cache_key', CACHE_KEY)
-      .maybeSingle()
+    const { data, error } = await withTimeout(
+      supabase
+        .from('maritime_dashboard_cache')
+        .select('payload,generated_at')
+        .eq('cache_key', CACHE_KEY)
+        .maybeSingle(),
+      1200,
+      'fresh maritime dashboard cache',
+    )
 
     if (error || !data) return null
 
@@ -268,7 +283,7 @@ export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
     return {
       ...row.payload,
       meta: {
-        ...row.payload.meta,
+        ...(row.payload.meta || {}),
         cached: true,
         generatedAt: row.generated_at,
       },
@@ -280,11 +295,15 @@ export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
 
 export async function getLastMaritimeDashboardCache(supabase: SupabaseClient, reason = 'serving last known VesselSurge cache') {
   try {
-    const { data, error } = await supabase
-      .from('maritime_dashboard_cache')
-      .select('payload,generated_at')
-      .eq('cache_key', CACHE_KEY)
-      .maybeSingle()
+    const { data, error } = await withTimeout(
+      supabase
+        .from('maritime_dashboard_cache')
+        .select('payload,generated_at')
+        .eq('cache_key', CACHE_KEY)
+        .maybeSingle(),
+      1200,
+      'last maritime dashboard cache',
+    )
 
     if (error || !data) return null
 
@@ -295,7 +314,7 @@ export async function getLastMaritimeDashboardCache(supabase: SupabaseClient, re
     return {
       ...row.payload,
       meta: {
-        ...row.payload.meta,
+        ...(row.payload.meta || {}),
         cached: true,
         generatedAt: row.generated_at,
         stale: true,

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -33,6 +34,17 @@ const TRUSTED_SOURCES = [
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 
+const FAST_LIVE_NEWS_FEED_LABELS = [
+  'Google News Search: Hormuz tanker security',
+  'Google News Search: Hormuz oil route disruption',
+  'Google News Search: Red Sea vessel security',
+  'Google News Search: Red Sea official maritime warnings',
+  'Google News Search: Suez traffic and queues',
+  'Google News Search: Suez authority and convoy operations',
+  'Google News Search: Malacca piracy and incidents',
+  'Google News Search: Singapore Strait security alerts',
+]
+
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'iran', 'oman', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'gulf of aden', 'houthi', 'yemen', 'aden'],
@@ -43,6 +55,7 @@ const REGION_KEYWORDS: Record<string, string[]> = {
 const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng)\b/i
 const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|crypto|bitcoin|railway|football|cricket|tourism|movie|celebrity)\b/i
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
+const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment)\b/i
 
 const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string; source: string; topic: string }>> = {
   hormuz: [
@@ -117,6 +130,113 @@ function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: strin
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId))
 }
 
+function decodeHtml(value: string) {
+  return value
+    .replace(/<!\[CDATA\[|\]\]>/g, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;|&apos;|&#8217;/g, "'")
+    .replace(/&#8211;|&#8212;/g, '-')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function between(value: string, start: string, end: string) {
+  const from = value.indexOf(start)
+  if (from === -1) return ''
+  const to = value.indexOf(end, from + start.length)
+  if (to === -1) return ''
+  return value.slice(from + start.length, to)
+}
+
+function safeIsoDate(value: string) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString()
+}
+
+function googleNewsSource(title: string) {
+  const parts = title.split(' - ')
+  return parts.length > 1 ? `Google News: ${parts.at(-1)}` : 'Google News'
+}
+
+function googleNewsTitle(title: string) {
+  const parts = title.split(' - ')
+  return parts.length > 1 ? parts.slice(0, -1).join(' - ').trim() : title.trim()
+}
+
+async function fetchDirectLiveNews(region: string | null, topic: string | null, limit: number) {
+  const selectedFeeds = MARITIME_SEARCH_FEEDS
+    .filter((feed) => FAST_LIVE_NEWS_FEED_LABELS.includes(feed.source))
+    .filter((feed) => !region || region === 'all' || feed.regionHint === region)
+
+  const results = await Promise.allSettled(selectedFeeds.map(async (feed) => {
+    const response = await fetch(feed.url, {
+      signal: AbortSignal.timeout(1800),
+      headers: {
+        accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.8',
+        'user-agent': 'VesselSurge OpenClaw/1.0',
+      },
+      next: { revalidate: 120 },
+    })
+
+    if (!response.ok) return []
+    const xml = await response.text()
+    const items = xml.split('<item>').slice(1, 8)
+
+    return items.map((item, index) => {
+      const rawTitle = decodeHtml(between(item, '<title>', '</title>'))
+      const source = googleNewsSource(rawTitle)
+      const title = googleNewsTitle(rawTitle)
+      const summary = decodeHtml(between(item, '<description>', '</description>'))
+      const url = decodeHtml(between(item, '<link>', '</link>'))
+      const publishedAt = safeIsoDate(decodeHtml(between(item, '<pubDate>', '</pubDate>')))
+      return {
+        id: `direct-${feed.regionHint}-${index}-${Buffer.from(url || title).toString('base64url').slice(0, 16)}`,
+        title,
+        snippet: summary,
+        summary,
+        source,
+        sourceUrl: url || null,
+        topic: topic && topic !== 'all' ? topic : 'live_maritime_news',
+        region: feed.regionHint,
+        timestamp: publishedAt,
+        published_at: publishedAt,
+        derivedFrom: 'direct_google_news_rss',
+      }
+    })
+  }))
+
+  const seen = new Set<string>()
+  return results
+    .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
+    .filter((article) => article.title && article.sourceUrl)
+    .filter((article) => !GOOGLE_NEWS_SOURCE_BLOCKLIST.test(article.source))
+    .filter((article) => isOperationalMaritimeNews(article))
+    .filter((article) => {
+      const key = article.sourceUrl || article.title
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+    .slice(0, Math.min(limit, 50))
+    .map((article) => ({
+      id: article.id,
+      title: article.title,
+      summary: article.summary,
+      source: article.source,
+      sourceUrl: article.sourceUrl,
+      topic: article.topic,
+      region: article.region,
+      timestamp: article.timestamp,
+      derivedFrom: article.derivedFrom,
+    }))
+}
+
 function buildWatchFallback(region: string | null) {
   const regions = region && region !== 'all' ? [region] : ['hormuz', 'bab', 'suez', 'malacca']
   return regions.flatMap((itemRegion) => (WATCH_NEWS_CONTEXT[itemRegion] || []).map((item, index) => ({
@@ -140,8 +260,8 @@ export async function GET(request: Request) {
 
   try {
     const supabase = createAdminClient()
-    const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 1200, 'dashboard cache')
-      .catch(() => withTimeout(getLastMaritimeDashboardCache(supabase, 'fresh news query unavailable; serving last known source-reviewed news'), 1200, 'stale dashboard cache').catch(() => null))
+    const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 700, 'dashboard cache')
+      .catch(() => withTimeout(getLastMaritimeDashboardCache(supabase, 'fresh news query unavailable; serving last known source-reviewed news'), 700, 'stale dashboard cache').catch(() => null))
     if (cached?.data?.articles?.length) {
       const cachedArticles = cached.data.articles
         .filter((article: any) => !region || region === 'all' || article.region === region)
@@ -190,33 +310,40 @@ export async function GET(request: Request) {
 
     let newsResult
     try {
-      newsResult = await withTimeout(query, 3500, 'news query')
+      newsResult = await withTimeout(query, 900, 'news query')
     } catch (error) {
       console.error('[live-news] News query timeout:', error)
-      const fallback = buildWatchFallback(region).slice(0, Math.min(limit, 50))
+      const directNews = await fetchDirectLiveNews(region, topic, limit).catch((directError) => {
+        console.error('[live-news] Direct news fallback failed:', directError)
+        return []
+      })
+      const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
       return NextResponse.json({
         success: true,
         articles: fallback,
         count: fallback.length,
         fallbackCount: 0,
-        watchCount: fallback.length,
-        warning: 'news query timed out; showing live watch context',
-      })
+        watchCount: directNews.length > 0 ? 0 : fallback.length,
+        directNewsCount: directNews.length,
+        warning: directNews.length > 0 ? 'database news query timed out; served live source-linked web news' : 'news query timed out; showing live watch context',
+      }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
     }
 
     const { data, error } = newsResult
 
     if (error) {
       console.error('[live-news] Supabase error:', error)
-      const fallback = buildWatchFallback(region).slice(0, Math.min(limit, 50))
+      const directNews = await fetchDirectLiveNews(region, topic, limit).catch(() => [])
+      const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
       return NextResponse.json({
         success: true,
         articles: fallback,
         count: fallback.length,
         fallbackCount: 0,
-        watchCount: fallback.length,
-        warning: 'news query failed; showing live watch context',
-      })
+        watchCount: directNews.length > 0 ? 0 : fallback.length,
+        directNewsCount: directNews.length,
+        warning: directNews.length > 0 ? 'database news query failed; served live source-linked web news' : 'news query failed; showing live watch context',
+      }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
     }
 
     const articles = (data || [])
@@ -252,7 +379,7 @@ export async function GET(request: Request) {
 
       let signalResult
       try {
-        signalResult = await withTimeout(signalQuery, 2500, 'signal query')
+        signalResult = await withTimeout(signalQuery, 800, 'signal query')
       } catch (error) {
         console.error('[live-news] Signal query timeout:', error)
         signalResult = { data: [], error: null }

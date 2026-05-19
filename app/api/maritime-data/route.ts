@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { buildMaritimeDashboardPayload, getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
@@ -37,26 +37,42 @@ function buildValidatedJsonResponse(payload: unknown, request: Request) {
   })
 }
 
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
 export async function GET(request: Request) {
   const supabase = createAdminClient()
-  const cached = await getFreshMaritimeDashboardCache(supabase)
+  const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 1500, 'fresh dashboard cache').catch(() => null)
 
   if (cached) {
     return buildValidatedJsonResponse(cached, request)
   }
 
   try {
-    return buildValidatedJsonResponse(await buildMaritimeDashboardPayload(supabase), request)
+    return buildValidatedJsonResponse(await withTimeout(buildMaritimeDashboardPayload(supabase), 5000, 'live maritime payload'), request)
   } catch (error) {
     console.error('[v0] Maritime data API error:', error)
-    const stale = await getLastMaritimeDashboardCache(supabase, 'live refresh failed; serving last known real hotspot statistics and news')
+    const stale = await withTimeout(
+      getLastMaritimeDashboardCache(supabase, 'live refresh failed; serving last known real hotspot statistics and news'),
+      1500,
+      'stale dashboard cache',
+    ).catch(() => null)
+
     if (stale) {
       return buildValidatedJsonResponse(stale, request)
     }
 
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch maritime data' },
-      { status: 500, headers: { 'X-Content-Type-Options': 'nosniff' } },
+    return buildValidatedJsonResponse(
+      buildOfflineMaritimeDashboardSnapshot('live refresh and database cache unavailable; serving bundled source-reviewed route context'),
+      request,
     )
   }
 }

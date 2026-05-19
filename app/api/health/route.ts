@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
@@ -30,43 +31,81 @@ function worstStatus(statuses: Status[]): Status {
   return 'ok'
 }
 
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
+function offlineHealthResponse(error: string) {
+  const snapshot = buildOfflineMaritimeDashboardSnapshot('health check could not reach live data; bundled archive remains available')
+
+  return NextResponse.json(
+    {
+      success: true,
+      status: 'degraded',
+      checkedAt: new Date().toISOString(),
+      warning: error,
+      components: {
+        server: { status: 'ok' },
+        offlineArchive: {
+          status: 'ok',
+          generatedAt: snapshot.meta.generatedAt,
+          articles: snapshot.data.count.articles,
+          hotspots: snapshot.data.count.hotspots,
+          signals: snapshot.data.count.signals,
+        },
+        database: { status: 'degraded' },
+      },
+    },
+    {
+      status: 200,
+      headers: {
+        'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    },
+  )
+}
+
 export async function GET() {
   try {
     const supabase = createAdminClient()
 
-    const [cacheResult, vesselResult, watchResult] = await Promise.all([
-      supabase
-        .from('maritime_dashboard_cache')
-        .select('payload,generated_at')
-        .eq('cache_key', 'live-map')
-        .maybeSingle(),
-      supabase
-        .from('vessels')
-        .select('updated_at')
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from('ingestion_state')
-        .select('value,updated_at')
-        .eq('key', 'maritime-watch')
-        .maybeSingle(),
-    ])
+    const [cacheResult, vesselResult, watchResult] = await withTimeout(
+      Promise.all([
+        supabase
+          .from('maritime_dashboard_cache')
+          .select('payload,generated_at')
+          .eq('cache_key', 'live-map')
+          .maybeSingle(),
+        supabase
+          .from('vessels')
+          .select('updated_at')
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('ingestion_state')
+          .select('value,updated_at')
+          .eq('key', 'maritime-watch')
+          .maybeSingle(),
+      ]),
+      4500,
+      'health data queries',
+    )
 
     const errors = [cacheResult.error, vesselResult.error, watchResult.error]
       .filter(Boolean)
       .map((error) => error?.message || 'Unknown Supabase error')
 
     if (errors.length > 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 'unhealthy',
-          checkedAt: new Date().toISOString(),
-          errors,
-        },
-        { status: 503 },
-      )
+      return offlineHealthResponse(errors.join('; '))
     }
 
     const cacheAge = ageMs(cacheResult.data?.generated_at)
@@ -175,14 +214,6 @@ export async function GET() {
       },
     )
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        status: 'unhealthy',
-        checkedAt: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Health check failed',
-      },
-      { status: 503 },
-    )
+    return offlineHealthResponse(error instanceof Error ? error.message : 'Health check failed')
   }
 }
