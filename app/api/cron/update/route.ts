@@ -78,6 +78,13 @@ const TRUSTED_PAGES = [
   { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', credibility: 10, region: 'bab' },
 ]
 
+const FAST_NEWS_FEED_LABELS = [
+  'Google News Search: Hormuz tanker security',
+  'Google News Search: Red Sea vessel security',
+  'Google News Search: Suez traffic and queues',
+  'Google News Search: Malacca piracy and incidents',
+]
+
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'houthi', 'yemen', 'aden', 'gulf of aden', 'djibouti', 'eritrea'],
@@ -390,14 +397,14 @@ function isWebSearchArticle(article: TrustedArticle) {
   return article.source.startsWith('Google News:') || article.source.startsWith('Bing News')
 }
 
-async function fetchText(url: string) {
+async function fetchText(url: string, timeoutMs = 7000) {
   const response = await fetch(url, {
     headers: {
       accept: 'text/html,application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
       'user-agent': 'VesselSurge OpenClaw/1.0',
     },
     cache: 'no-store',
-    signal: AbortSignal.timeout(7000),
+    signal: AbortSignal.timeout(timeoutMs),
   })
   if (!response.ok) throw new Error(`${url} returned ${response.status}`)
   return response.text()
@@ -510,19 +517,25 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
   })
 }
 
-async function collectTrustedArticles(now = new Date()) {
+async function collectTrustedArticles(now = new Date(), options: { fast?: boolean } = {}) {
+  const feeds = options.fast
+    ? TRUSTED_FEEDS.filter((feed) => FAST_NEWS_FEED_LABELS.includes(feed.source))
+    : TRUSTED_FEEDS
+  const pages = options.fast ? [] : TRUSTED_PAGES
+  const fetchTimeoutMs = options.fast ? 1800 : 7000
+
   const sourceResults = await Promise.all([
-    ...TRUSTED_FEEDS.map(async (feed) => {
+    ...feeds.map(async (feed) => {
       try {
-        return parseRss(await fetchText(feed.url), feed)
+        return parseRss(await fetchText(feed.url, fetchTimeoutMs), feed)
       } catch (error) {
         console.warn('[trusted-update] feed failed', feed.source, error)
         return []
       }
     }),
-    ...TRUSTED_PAGES.map(async (page) => {
+    ...pages.map(async (page) => {
       try {
-        return parseTrustedPage(await fetchText(page.url), page.source, page.url, page.credibility, page.region)
+        return parseTrustedPage(await fetchText(page.url, fetchTimeoutMs), page.source, page.url, page.credibility, page.region)
       } catch (error) {
         console.warn('[trusted-update] page failed', page.source, error)
         return []
@@ -787,7 +800,7 @@ export async function GET(request: Request) {
 
   const now = new Date()
   const timestamp = now.toISOString()
-  const articlesPromise = collectTrustedArticles(now).then((rows) => rows.map((article) => ({
+  const articlesPromise = collectTrustedArticles(now, { fast: newsOnly }).then((rows) => rows.map((article) => ({
     ...article,
     created_at: timestamp,
     updated_at: timestamp,

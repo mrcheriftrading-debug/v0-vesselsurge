@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildMarketImpactReport } from '@/lib/market-impact'
-import { getFreshMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subscription'
 
 export const dynamic = 'force-dynamic'
@@ -548,7 +548,8 @@ function CheckoutStatus({ status }: { status?: string }) {
 
 async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabaseFallback: boolean }): Promise<Report> {
   const admin = createAdminClient()
-  const cached = await withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache').catch(() => null)
+  const cached = await withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache')
+    .catch(() => withTimeout(getLastMaritimeDashboardCache(admin, 'fresh market cache unavailable; serving last known source-backed market context'), 1500, 'stale market cache').catch(() => null))
   if (cached?.data) {
     return buildMarketImpactReport(
       cached.data.articles.map((article) => ({

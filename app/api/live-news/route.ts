@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getFreshMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -140,7 +140,8 @@ export async function GET(request: Request) {
 
   try {
     const supabase = createAdminClient()
-    const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 1200, 'dashboard cache').catch(() => null)
+    const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 1200, 'dashboard cache')
+      .catch(() => withTimeout(getLastMaritimeDashboardCache(supabase, 'fresh news query unavailable; serving last known source-reviewed news'), 1200, 'stale dashboard cache').catch(() => null))
     if (cached?.data?.articles?.length) {
       const cachedArticles = cached.data.articles
         .filter((article: any) => !region || region === 'all' || article.region === region)
