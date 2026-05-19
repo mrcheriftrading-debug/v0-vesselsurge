@@ -149,7 +149,7 @@ function formatExactPublishedTime(value: string) {
 
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
-  const { articles, hotspots, signals, vessels, loading, refresh, lastUpdated } = useMaritimeData()
+  const { articles, hotspots, signals, vessels, meta: dataMeta, loading, refresh, lastUpdated } = useMaritimeData()
 
   const selectHotspot = useCallback((id: string) => {
     if (!(id in HOTSPOT_META)) return
@@ -266,6 +266,7 @@ export default function MapDashboard() {
     new Set(selectedWatchCoverage.map((item) => item.source)).size,
   )
   const selectedUpdatedAt = selected?.updatedAt ? new Date(selected.updatedAt) : null
+  const isStaleData = Boolean(dataMeta?.stale)
   const selectedConfidence = selected
     ? selected.confidenceLabel
       ? `${selected.confidenceLabel} · ${selected.confidenceScore ?? 0}/100`
@@ -287,14 +288,20 @@ export default function MapDashboard() {
               <h1 className="sr-only">Live Maritime Intelligence Map</h1>
               <span className="text-sm font-bold text-foreground">Live Maritime Intelligence</span>
               <span className="ml-2 text-xs text-muted-foreground font-mono">
-                {lastUpdated ? 'Updated ' + new Date(lastUpdated).toLocaleTimeString() : 'Loading...'}
+                {lastUpdated ? `${isStaleData ? 'Last known data' : 'Updated'} ${new Date(lastUpdated).toLocaleTimeString()}` : 'Loading...'}
               </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs font-mono bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full">
-              <Radio className="h-3 w-3 animate-pulse" />
-              {vessels.length > 0 ? `AIS VERIFIED · ${vessels.length} vessels` : 'OPENCLAW WATCH · live coverage'}
+            <div className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono ${
+              isStaleData
+                ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
+                : 'border-green-500/20 bg-green-500/10 text-green-400'
+            }`}>
+              {isStaleData ? <WifiOff className="h-3 w-3" /> : <Radio className="h-3 w-3 animate-pulse" />}
+              {isStaleData
+                ? 'LAST KNOWN REAL DATA'
+                : vessels.length > 0 ? `AIS VERIFIED · ${vessels.length} vessels` : 'OPENCLAW WATCH · live coverage'}
             </div>
             <button
               onClick={() => refresh()}
@@ -309,6 +316,19 @@ export default function MapDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
+        {isStaleData && (
+          <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            <div className="flex items-start gap-3">
+              <WifiOff className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+              <div>
+                <p className="font-semibold">Offline-safe mode: showing last known real VesselSurge data.</p>
+                <p className="mt-1 text-xs text-amber-100/80">
+                  {dataMeta?.staleReason || 'Fresh refresh is unavailable, so the map keeps serving saved hotspot statistics, source-reviewed news and maritime signals.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="rounded-xl border border-border bg-card/40 p-3">

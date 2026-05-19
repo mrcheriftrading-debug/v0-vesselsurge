@@ -22,6 +22,12 @@ interface UseMaritimeDataReturn {
   hotspots: HotspotMap
   signals: MaritimeSignal[]
   vessels: Vessel[]
+  meta: {
+    cached?: boolean
+    generatedAt?: string
+    stale?: boolean
+    staleReason?: string
+  } | null
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
@@ -39,6 +45,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
   const [hotspots, setHotspots] = useState<HotspotMap>({})
   const [signals, setSignals] = useState<MaritimeSignal[]>([])
   const [vessels, setVessels] = useState<Vessel[]>([])
+  const [meta, setMeta] = useState<UseMaritimeDataReturn['meta']>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -64,13 +71,15 @@ export function useMaritimeData(): UseMaritimeDataReturn {
         signal: controller.signal,
       })
       if (!response.ok) throw new Error('API error: ' + response.status)
-      const { data } = await response.json()
+      const payload = await response.json()
+      const { data } = payload
       setArticles(data.articles || [])
       setSignals(data.signals || [])
       const map: HotspotMap = {}
       for (const h of data.hotspots || []) map[h.hotspot] = h
       setHotspots(map)
-      setLastUpdated(new Date())
+      setMeta(payload.meta || null)
+      setLastUpdated(new Date(payload.meta?.generatedAt || data.timestamp || Date.now()))
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return
       setError(err instanceof Error ? err.message : 'Failed to fetch data')
@@ -141,6 +150,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
     hotspots,
     signals,
     vessels,
+    meta,
     loading,
     error,
     refresh: async () => {

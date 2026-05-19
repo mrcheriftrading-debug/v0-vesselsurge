@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createHash } from 'crypto'
-import { buildMaritimeDashboardPayload, getFreshMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { buildMaritimeDashboardPayload, getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
@@ -38,17 +38,22 @@ function buildValidatedJsonResponse(payload: unknown, request: Request) {
 }
 
 export async function GET(request: Request) {
+  const supabase = createAdminClient()
+  const cached = await getFreshMaritimeDashboardCache(supabase)
+
+  if (cached) {
+    return buildValidatedJsonResponse(cached, request)
+  }
+
   try {
-    const supabase = createAdminClient()
-    const cached = await getFreshMaritimeDashboardCache(supabase)
-
-    if (cached) {
-      return buildValidatedJsonResponse(cached, request)
-    }
-
     return buildValidatedJsonResponse(await buildMaritimeDashboardPayload(supabase), request)
   } catch (error) {
     console.error('[v0] Maritime data API error:', error)
+    const stale = await getLastMaritimeDashboardCache(supabase, 'live refresh failed; serving last known real hotspot statistics and news')
+    if (stale) {
+      return buildValidatedJsonResponse(stale, request)
+    }
+
     return NextResponse.json(
       { success: false, error: 'Failed to fetch maritime data' },
       { status: 500, headers: { 'X-Content-Type-Options': 'nosniff' } },

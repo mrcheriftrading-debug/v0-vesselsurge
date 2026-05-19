@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 const CACHE_KEY = 'live-map'
 const CACHE_TTL_MS = 5 * 60 * 1000
+const STALE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 type DashboardCacheRow = {
   payload: MaritimeDashboardResponse
@@ -65,6 +66,8 @@ export type MaritimeDashboardResponse = {
     cacheControl: string
     cached: boolean
     generatedAt?: string
+    stale?: boolean
+    staleReason?: string
   }
 }
 
@@ -268,6 +271,35 @@ export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
         ...row.payload.meta,
         cached: true,
         generatedAt: row.generated_at,
+      },
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getLastMaritimeDashboardCache(supabase: SupabaseClient, reason = 'serving last known VesselSurge cache') {
+  try {
+    const { data, error } = await supabase
+      .from('maritime_dashboard_cache')
+      .select('payload,generated_at')
+      .eq('cache_key', CACHE_KEY)
+      .maybeSingle()
+
+    if (error || !data) return null
+
+    const row = data as DashboardCacheRow
+    const generatedAt = new Date(row.generated_at).getTime()
+    if (!Number.isFinite(generatedAt) || Date.now() - generatedAt > STALE_CACHE_TTL_MS) return null
+
+    return {
+      ...row.payload,
+      meta: {
+        ...row.payload.meta,
+        cached: true,
+        generatedAt: row.generated_at,
+        stale: true,
+        staleReason: reason,
       },
     }
   } catch {
