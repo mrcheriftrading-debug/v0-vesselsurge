@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { ArrowRight, BarChart3, Map, Network, Newspaper, ShieldCheck, Ship, Zap, Activity, Globe, TrendingUp } from "lucide-react"
 import { HomeLiveMapLink } from "@/components/home-live-map-link"
 import { HomeOceanScene } from "@/components/home-ocean-scene"
@@ -6,6 +7,27 @@ import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
 import { trafficTopicPages } from "@/lib/seo"
+
+export const metadata: Metadata = {
+  title: "Live Maritime Intelligence Platform, Vessel Tracking and Shipping Risk",
+  description:
+    "Track live maritime intelligence, vessel context, shipping disruption, tanker routes, freight risk, war-risk insurance signals and cargo-vessel matching across Hormuz, Red Sea, Suez and Malacca.",
+  alternates: { canonical: "https://www.vesselsurge.com/" },
+  openGraph: {
+    title: "VesselSurge, Live Maritime Intelligence Platform",
+    description:
+      "Live shipping chokepoint intelligence for operators, analysts, traders, cargo teams and vessel owners.",
+    url: "https://www.vesselsurge.com/",
+    siteName: "VesselSurge",
+    images: [{ url: "https://www.vesselsurge.com/og-image.jpg", width: 1200, height: 630, alt: "VesselSurge maritime intelligence live map" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VesselSurge, Live Maritime Intelligence Platform",
+    description: "Track vessel context, chokepoint risk, shipping disruption and cargo-vessel matching from one live workspace.",
+    images: ["https://www.vesselsurge.com/og-image.jpg"],
+  },
+}
 
 const productCards = [
   {
@@ -203,6 +225,10 @@ export default function VesselSurgePage() {
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
             Track vessel traffic, maritime risk signals and cargo opportunities across Hormuz, Red Sea, Suez and Malacca — in one workspace.
+          </p>
+
+          <p className="mt-3 max-w-2xl text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            Built for operators, charterers, insurers, analysts, freight desks and energy-market watchers.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
