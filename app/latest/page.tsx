@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, Clock, ExternalLink, Map, Newspaper, Radar, ShieldAlert } from "lucide-react"
+import { ArrowRight, Clock, ExternalLink, Map, Newspaper, Radar, ShieldAlert, TrendingUp } from "lucide-react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from "@/lib/maritime-dashboard-cache"
@@ -195,6 +195,16 @@ export default async function LatestMaritimeNewsPage() {
                   Items are source-linked or clearly marked as saved context when live feeds are unavailable.
                 </p>
               </div>
+              <Link href="/pro-market" className="block rounded-xl border border-primary/30 bg-primary/10 p-5 transition-colors hover:border-primary/60">
+                <TrendingUp className="h-6 w-6 text-primary" />
+                <h2 className="mt-4 text-xl font-bold text-foreground">Market impact report</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Turn these shipping headlines into research context for oil, freight, tanker stocks, logistics equities and insurance pressure.
+                </p>
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-primary">
+                  View Market Pro <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
             </aside>
 
             <div className="grid gap-3">
