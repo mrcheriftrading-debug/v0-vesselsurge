@@ -94,6 +94,9 @@ const highIntentTopics = trafficTopicPages.filter((topic) => [
   "cargo-vessel-matching",
   "ais-vessel-tracking-map",
   "cape-of-good-hope-rerouting",
+  "latest-maritime-news",
+  "red-sea-vessel-tracking",
+  "singapore-strait-piracy-alerts",
 ].includes(topic.slug))
 
 export default function IntelligencePage() {
@@ -161,6 +164,9 @@ export default function IntelligencePage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/map-dashboard" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
                   Open Live Map <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/latest" className="inline-flex min-h-12 items-center justify-center rounded-md border border-accent/40 bg-accent/10 px-5 text-sm font-semibold text-accent transition-colors hover:bg-accent/20">
+                  Latest News
                 </Link>
                 <Link href="/network" className="inline-flex min-h-12 items-center justify-center rounded-md border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.04]">
                   View Network

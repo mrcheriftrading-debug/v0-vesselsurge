@@ -8,6 +8,7 @@ import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, TrendingUp
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Live Map", icon: Map },
+  { href: "/latest", label: "Latest", icon: Newspaper },
   { href: "/intelligence", label: "News & Risk", icon: Newspaper },
   { href: "/pro-market", label: "Market Pro", icon: TrendingUp },
   { href: "/network", label: "Join Network", icon: Network },
@@ -17,8 +18,8 @@ const navItems = [
 const mobilePrimaryItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Map", icon: Map },
+  { href: "/latest", label: "Latest", icon: Newspaper },
   { href: "/pro-market", label: "Pro", icon: BarChart3 },
-  { href: "/auth/sign-up", label: "Account", icon: UserPlus },
 ]
 
 function isActive(pathname: string, href: string) {

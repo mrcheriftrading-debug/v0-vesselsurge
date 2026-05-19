@@ -35,6 +35,16 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("UKMTO" OR "MSCIO" OR "MARAD" OR "Red Sea") ("Bab el-Mandeb" OR "Gulf of Aden" OR Yemen) (warning OR advisory OR incident OR vessel OR shipping)',
   },
   {
+    label: 'Red Sea merchant vessel incidents',
+    region: 'bab',
+    query: '("Red Sea" OR "Gulf of Aden" OR "Bab el-Mandeb") ("merchant vessel" OR "commercial ship" OR tanker OR cargo) (incident OR attack OR security OR advisory OR rerouting)',
+  },
+  {
+    label: 'Houthi shipping disruption',
+    region: 'bab',
+    query: '(Houthi OR Yemen OR "Red Sea") (shipping OR vessel OR maritime OR tanker OR cargo) (disruption OR reroute OR security OR insurance OR freight)',
+  },
+  {
     label: 'Bab el-Mandeb route risk',
     region: 'bab',
     query: '("Bab el-Mandeb" OR "Bab el Mandeb" OR "Gulf of Aden") (shipping OR maritime OR reroute OR divert OR war-risk OR insurance OR freight)',
@@ -55,6 +65,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Suez Canal Authority" OR "Suez Canal") (navigation OR convoy OR transit OR vessel OR canal traffic OR ship)',
   },
   {
+    label: 'Suez rerouting and freight pressure',
+    region: 'suez',
+    query: '("Suez Canal" OR "Red Sea route" OR "Cape of Good Hope") (freight OR container OR tanker OR rerouting OR delay OR schedule)',
+  },
+  {
     label: 'Malacca piracy and incidents',
     region: 'malacca',
     query: '("Strait of Malacca" OR "Singapore Strait" OR "Straits of Malacca") (piracy OR "armed robbery" OR incident OR ReCAAP OR vessel)',
@@ -63,6 +78,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Singapore Strait security alerts',
     region: 'malacca',
     query: '("Singapore Strait" OR "Strait of Malacca" OR ReCAAP) ("armed robbery" OR piracy OR alert OR incident OR tanker OR vessel)',
+  },
+  {
+    label: 'Singapore Strait port and bunker flow',
+    region: 'malacca',
+    query: '("Singapore Strait" OR "Port of Singapore" OR "Strait of Malacca") (bunker OR vessel OR tanker OR congestion OR throughput OR shipping)',
   },
   {
     label: 'Malacca congestion and tanker flow',

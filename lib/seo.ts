@@ -16,6 +16,13 @@ export const publicFeaturePages = [
     keywords: ["maritime intelligence", "shipping risk reports", "chokepoint news"],
   },
   {
+    name: "Latest Maritime News",
+    url: `${BASE_URL}/latest`,
+    description:
+      "Fresh source-reviewed maritime news, chokepoint signals and live map context for shipping risk searches.",
+    keywords: ["latest maritime news", "shipping news today", "chokepoint news"],
+  },
+  {
     name: "Maritime B2B Network",
     url: `${BASE_URL}/network`,
     description:
@@ -282,6 +289,86 @@ export const trafficTopicPages = [
       "What maritime signals can affect freight rates?",
       "How do chokepoint risks affect shipping costs?",
       "Where can I monitor freight and insurance pressure?",
+    ],
+  },
+  {
+    slug: "red-sea-vessel-tracking",
+    name: "Red Sea Vessel Tracking",
+    title: "Red Sea Vessel Tracking, Bab el-Mandeb Map Context and Shipping Security Signals",
+    description:
+      "Track Red Sea vessel context, Bab el-Mandeb route risk, Gulf of Aden advisories and source-reviewed maritime security signals with VesselSurge.",
+    keywords: ["Red Sea vessel tracking", "Bab el-Mandeb vessel map", "Gulf of Aden ship tracking"],
+    regionHref: "/regions/bab",
+    primaryHref: "/map-dashboard?hotspot=bab",
+    intent: "operators and analysts looking for Red Sea vessel tracking and route security context",
+    questions: [
+      "Where can I track vessels near the Red Sea and Bab el-Mandeb?",
+      "How can I monitor Gulf of Aden route security?",
+      "What live signals matter for Red Sea shipping risk?",
+    ],
+  },
+  {
+    slug: "ukmto-maritime-alerts",
+    name: "UKMTO Maritime Alerts Context",
+    title: "UKMTO Maritime Alerts, Red Sea Warnings and Vessel Security Context",
+    description:
+      "Use VesselSurge to connect UKMTO-style maritime alert context with Red Sea, Bab el-Mandeb, Gulf of Aden and live route-risk monitoring.",
+    keywords: ["UKMTO maritime alerts", "Red Sea maritime warnings", "vessel security alerts"],
+    regionHref: "/regions/bab",
+    primaryHref: "/map-dashboard?hotspot=bab",
+    intent: "security teams checking maritime alert context before routing decisions",
+    questions: [
+      "How do I monitor UKMTO maritime alert context?",
+      "Where can I compare Red Sea warnings with route risk?",
+      "How should shipping teams interpret vessel security alerts?",
+    ],
+  },
+  {
+    slug: "singapore-strait-piracy-alerts",
+    name: "Singapore Strait Piracy Alerts",
+    title: "Singapore Strait Piracy Alerts, Malacca Vessel Risk and ReCAAP Context",
+    description:
+      "Monitor Singapore Strait piracy alert context, Strait of Malacca vessel flow, ReCAAP-style incident signals and Southeast Asia maritime risk.",
+    keywords: ["Singapore Strait piracy alerts", "Malacca piracy risk", "ReCAAP incident context"],
+    regionHref: "/regions/malacca",
+    primaryHref: "/map-dashboard?hotspot=malacca",
+    intent: "operators tracking piracy, armed robbery and vessel risk near Malacca and Singapore Strait",
+    questions: [
+      "Where can I monitor Singapore Strait piracy alerts?",
+      "How can I track Malacca vessel risk?",
+      "What signals matter for ReCAAP incident context?",
+    ],
+  },
+  {
+    slug: "suez-canal-convoy-tracker",
+    name: "Suez Canal Convoy Tracker",
+    title: "Suez Canal Convoy Tracker, Transit Flow and Route Delay Signals",
+    description:
+      "Track Suez Canal convoy context, transit flow, vessel queue pressure, canal authority updates and shipping delay intelligence with VesselSurge.",
+    keywords: ["Suez Canal convoy tracker", "Suez transit flow", "Suez Canal route delays"],
+    regionHref: "/regions/suez",
+    primaryHref: "/map-dashboard?hotspot=suez",
+    intent: "logistics teams checking Suez transit flow and route delay context",
+    questions: [
+      "Where can I track Suez Canal convoy context?",
+      "How can I monitor Suez transit delays?",
+      "What signals show canal flow pressure?",
+    ],
+  },
+  {
+    slug: "latest-maritime-news",
+    name: "Latest Maritime News",
+    title: "Latest Maritime News, Chokepoint Signals and Shipping Risk Updates",
+    description:
+      "Read the latest source-reviewed maritime news and shipping risk signals for Hormuz, Red Sea, Suez, Malacca, tanker routes and freight pressure.",
+    keywords: ["latest maritime news", "shipping risk news", "chokepoint news today"],
+    regionHref: "/latest",
+    primaryHref: "/latest",
+    intent: "visitors searching for fresh maritime news and route risk updates",
+    questions: [
+      "Where can I read the latest maritime news?",
+      "How can I connect shipping headlines to live map context?",
+      "Which chokepoint signals changed most recently?",
     ],
   },
 ] as const

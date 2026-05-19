@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, LogIn, Map, Network, Newspaper, Search, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
+import { ArrowRight, LogIn, Map, Network, Newspaper, ShieldCheck, Ship, UserPlus, Zap } from "lucide-react"
 import { HomeLiveMapLink } from "@/components/home-live-map-link"
 import { HomeOceanScene } from "@/components/home-ocean-scene"
 import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
@@ -36,9 +36,9 @@ const productCards = [
 
 const quickActions = [
   { href: "/map-dashboard", label: "Live Map", text: "Track hotspots", icon: Map },
+  { href: "/latest", label: "Latest", text: "Fresh signals", icon: Newspaper },
   { href: "/intelligence", label: "News & Risk", text: "Latest reports", icon: Newspaper },
   { href: "/network#surge-form", label: "Join", text: "Cargo or vessels", icon: Network },
-  { href: "/search", label: "Search", text: "Find anything", icon: Search },
 ]
 
 const chokepointLinks = [
@@ -161,8 +161,14 @@ export default function VesselSurgePage() {
             <div className="mt-8 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
               <HomeLiveMapLink />
               <Link
-                href="/intelligence"
+                href="/latest"
                 className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+              >
+                Latest News
+              </Link>
+              <Link
+                href="/intelligence"
+                className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
                 News & Risk
               </Link>
