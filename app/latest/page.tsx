@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, Clock, ExternalLink, Map, Newspaper, Radar, ShieldAlert, TrendingUp } from "lucide-react"
+import { ArrowRight, Clock, ExternalLink, Globe2, Map, Newspaper, Radar, ShieldAlert, TrendingUp } from "lucide-react"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavigation } from "@/components/site-navigation"
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from "@/lib/maritime-dashboard-cache"
@@ -80,6 +80,13 @@ function dedupeArticles(articles: LatestArticle[]) {
   })
 }
 
+const globalRiskLinks = [
+  { href: "/topics/global-shipping-route-risk", label: "Global route risk", text: "Compare chokepoint exposure and disruption pressure." },
+  { href: "/topics/port-congestion-tracker", label: "Port congestion", text: "Track vessel queues, canal flow and delay signals." },
+  { href: "/topics/maritime-security-alerts", label: "Security alerts", text: "Review vessel threat, piracy and route-risk context." },
+  { href: "/topics/ocean-freight-intelligence", label: "Ocean freight", text: "Connect maritime disruption with cost pressure." },
+]
+
 async function loadLatestData() {
   const admin = createAdminClient()
   const cached = await getFreshMaritimeDashboardCache(admin)
@@ -141,10 +148,10 @@ export default async function LatestMaritimeNewsPage() {
                 News & Risk
               </div>
               <h1 className="max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Maritime news and route risk tied to the live map.
+                Global maritime news tied to live route risk.
               </h1>
               <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
-                Source-reviewed shipping headlines, chokepoint signals and live route context for Hormuz, Red Sea, Suez and Malacca.
+                Source-reviewed shipping headlines, chokepoint signals and global route context for operators, freight desks, insurers and market watchers.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/map-dashboard" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
@@ -155,14 +162,20 @@ export default async function LatestMaritimeNewsPage() {
                 </Link>
               </div>
             </div>
-            <div className="rounded-xl border border-border bg-card/55 p-5">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-primary" />
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                    Feed refreshed
+            <div className="rounded-xl border border-border bg-card/55 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.18)]">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between lg:flex-col">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                      Feed refreshed
+                    </div>
+                    <div className="mt-1 text-sm font-semibold text-foreground">{formatTime(generatedAt)}</div>
                   </div>
-                  <div className="mt-1 text-sm font-semibold text-foreground">{formatTime(generatedAt)}</div>
+                </div>
+                <div className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2">
+                  <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Reviewed items</div>
+                  <div className="mt-1 text-2xl font-black text-foreground">{articles.length}</div>
                 </div>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -182,18 +195,33 @@ export default async function LatestMaritimeNewsPage() {
           <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[0.72fr_1.28fr]">
             <aside className="space-y-4">
               <div className="rounded-xl border border-border bg-card/50 p-5">
-                <Radar className="h-6 w-6 text-primary" />
-                <h2 className="mt-4 text-xl font-bold text-foreground">Why this page exists</h2>
+                <Globe2 className="h-6 w-6 text-primary" />
+                <h2 className="mt-4 text-xl font-bold text-foreground">Global risk desk</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Search visitors want fresh shipping news first. VesselSurge turns that intent into live map usage, route pages and network leads.
+                  Fresh maritime news is grouped by route exposure so visitors can move from headline to map, region page or market context without hunting.
                 </p>
               </div>
               <div className="rounded-xl border border-border bg-card/50 p-5">
                 <ShieldAlert className="h-6 w-6 text-accent" />
-                <h2 className="mt-4 text-xl font-bold text-foreground">No fake breaking claims</h2>
+                <h2 className="mt-4 text-xl font-bold text-foreground">Source discipline</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Items are source-linked or clearly marked as saved context when live feeds are unavailable.
+                  Items stay source-linked or clearly marked as saved context when live feeds are unavailable, so the page keeps value without overstating claims.
                 </p>
+              </div>
+              <div className="rounded-xl border border-border bg-card/50 p-5">
+                <Radar className="h-6 w-6 text-cyan-300" />
+                <h2 className="mt-4 text-xl font-bold text-foreground">Coverage paths</h2>
+                <div className="mt-4 grid gap-2">
+                  {globalRiskLinks.map((item) => (
+                    <Link key={item.href} href={item.href} className="group rounded-lg border border-border bg-background/55 p-3 transition-colors hover:border-primary/30">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-bold text-foreground">{item.label}</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.text}</p>
+                    </Link>
+                  ))}
+                </div>
               </div>
               <Link href="/pro-market" className="block rounded-xl border border-primary/30 bg-primary/10 p-5 transition-colors hover:border-primary/60">
                 <TrendingUp className="h-6 w-6 text-primary" />
@@ -207,7 +235,17 @@ export default async function LatestMaritimeNewsPage() {
               </Link>
             </aside>
 
-            <div className="grid gap-3">
+            <div>
+              <div className="mb-4 flex flex-col gap-2 rounded-xl border border-border bg-card/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-black text-foreground">Latest reviewed signals</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Published times, source links and live-map routes stay visible on every item.</p>
+                </div>
+                <Link href="/map-dashboard" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-primary/30 px-3 text-xs font-bold text-primary transition-colors hover:bg-primary/10">
+                  Open map <Map className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="grid gap-3">
               {articles.map((article) => (
                 <article key={`${article.id}-${article.sourceUrl}`} className="rounded-xl border border-border bg-card/50 p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -234,6 +272,7 @@ export default async function LatestMaritimeNewsPage() {
                   </div>
                 </article>
               ))}
+              </div>
             </div>
           </div>
         </section>
