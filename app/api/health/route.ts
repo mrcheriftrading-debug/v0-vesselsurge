@@ -66,7 +66,7 @@ function offlineHealthResponse(error: string) {
     {
       status: 200,
       headers: {
-        'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
+        'Cache-Control': 'no-store, max-age=0',
         'X-Content-Type-Options': 'nosniff',
       },
     },
