@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -169,6 +169,13 @@ export const metadata: Metadata = {
     'DC.subject': 'maritime intelligence, vessel tracking, shipping',
     'DC.description': 'Real-time maritime intelligence for global shipping chokepoints',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0ea5e9',
 }
 
 // Rich schema.org structured data — multiple types for maximum search coverage
