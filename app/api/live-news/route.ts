@@ -34,17 +34,6 @@ const TRUSTED_SOURCES = [
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 
-const FAST_LIVE_NEWS_FEED_LABELS = [
-  'Google News Search: Hormuz tanker security',
-  'Google News Search: Hormuz oil route disruption',
-  'Google News Search: Red Sea vessel security',
-  'Google News Search: Red Sea official maritime warnings',
-  'Google News Search: Suez traffic and queues',
-  'Google News Search: Suez authority and convoy operations',
-  'Google News Search: Malacca piracy and incidents',
-  'Google News Search: Singapore Strait security alerts',
-]
-
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'iran', 'oman', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'gulf of aden', 'houthi', 'yemen', 'aden'],
@@ -56,7 +45,7 @@ const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|m
 const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|crypto|bitcoin|railway|football|cricket|tourism|movie|celebrity)\b/i
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
 const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|coinmarketcap|coin republic|unchained|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment)\b/i
-const HARD_NEWS_NOISE_PATTERN = /\b(crypto|bitcoin|blockchain|defi|token|coinmarketcap|football|cricket|celebrity|movie)\b/i
+const HARD_NEWS_NOISE_PATTERN = /\b(crypto|bitcoin|blockchain|defi|token|coinmarketcap|football|cricket|celebrity|movie|tourism|historic|history|accidentally blocked|ever given)\b/i
 
 const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string; source: string; topic: string }>> = {
   hormuz: [
@@ -169,10 +158,18 @@ function googleNewsTitle(title: string) {
   return parts.length > 1 ? parts.slice(0, -1).join(' - ').trim() : title.trim()
 }
 
+function broadenGoogleNewsWindow(url: string) {
+  return url.replace('when%3A1d', 'when%3A7d').replace('when:1d', 'when:7d')
+}
+
 async function fetchDirectLiveNews(region: string | null, topic: string | null, limit: number) {
   const selectedFeeds = MARITIME_SEARCH_FEEDS
-    .filter((feed) => FAST_LIVE_NEWS_FEED_LABELS.includes(feed.source))
+    .filter((feed) => feed.source.startsWith('Google News Search:'))
     .filter((feed) => !region || region === 'all' || feed.regionHint === region)
+    .flatMap((feed) => [
+      { ...feed, url: feed.url, window: '24h' },
+      { ...feed, url: broadenGoogleNewsWindow(feed.url), window: '7d' },
+    ])
 
   const results = await Promise.allSettled(selectedFeeds.map(async (feed) => {
     const response = await fetch(feed.url, {
@@ -196,7 +193,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
       const url = decodeHtml(between(item, '<link>', '</link>'))
       const publishedAt = safeIsoDate(decodeHtml(between(item, '<pubDate>', '</pubDate>')))
       return {
-        id: `direct-${feed.regionHint}-${index}-${Buffer.from(url || title).toString('base64url').slice(0, 16)}`,
+        id: `direct-${feed.regionHint}-${feed.window}-${index}-${Buffer.from(url || title).toString('base64url').slice(0, 16)}`,
         title,
         snippet: summary,
         summary,
