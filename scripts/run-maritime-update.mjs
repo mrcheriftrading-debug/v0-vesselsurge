@@ -28,7 +28,7 @@ function readLocalEnv(filePath) {
 
 const localEnv = readLocalEnv(envPath)
 const cronSecret = process.env.CRON_SECRET || localEnv.CRON_SECRET
-const updateUrl = process.env.MARITIME_UPDATE_URL || 'https://www.vesselsurge.com/api/cron/update'
+const updateUrl = process.env.MARITIME_UPDATE_URL || 'https://www.vesselsurge.com/api/cron/update?scope=news'
 
 if (!cronSecret) {
   console.error('[maritime-update] Missing CRON_SECRET. Run `vercel env pull .env.local --yes` or set CRON_SECRET.')

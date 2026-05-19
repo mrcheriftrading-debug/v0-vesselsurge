@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { getFreshMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -107,6 +108,30 @@ function isOperationalMaritimeNews(article: any) {
   return hasRegionSignal(article)
 }
 
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId))
+}
+
+function buildWatchFallback(region: string | null) {
+  const regions = region && region !== 'all' ? [region] : ['hormuz', 'bab', 'suez', 'malacca']
+  return regions.flatMap((itemRegion) => (WATCH_NEWS_CONTEXT[itemRegion] || []).map((item, index) => ({
+    id: `openclaw-watch-${itemRegion}-${index}`,
+    title: item.title,
+    summary: item.summary,
+    source: item.source,
+    sourceUrl: null,
+    topic: item.topic,
+    region: itemRegion,
+    timestamp: new Date().toISOString(),
+    derivedFrom: 'openclaw_watch',
+  })))
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const topic = searchParams.get('topic') || null
@@ -114,7 +139,40 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get('limit') || '20')
 
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
+    const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 1200, 'dashboard cache').catch(() => null)
+    if (cached?.data?.articles?.length) {
+      const cachedArticles = cached.data.articles
+        .filter((article: any) => !region || region === 'all' || article.region === region)
+        .filter((article: any) => !topic || topic === 'all' || article.category === topic)
+        .slice(0, Math.min(limit, 50))
+        .map((article: any) => ({
+          id: article.id,
+          title: article.title,
+          summary: article.summary || '',
+          source: article.source,
+          sourceUrl: article.sourceUrl || null,
+          topic: article.category || 'global',
+          region: article.region || 'global',
+          timestamp: article.timestamp,
+          derivedFrom: 'maritime_dashboard_cache',
+        }))
+
+      if (cachedArticles.length > 0) {
+        return NextResponse.json(
+          {
+            success: true,
+            articles: cachedArticles,
+            count: cachedArticles.length,
+            fallbackCount: 0,
+            watchCount: 0,
+            cached: true,
+            generatedAt: cached.meta.generatedAt,
+          },
+          { headers: { 'Cache-Control': 'public, max-age=15, s-maxage=30, stale-while-revalidate=120' } },
+        )
+      }
+    }
 
     let query = supabase
       .from('news_articles')
@@ -129,11 +187,35 @@ export async function GET(request: Request) {
       query = query.eq('topic', topic)
     }
 
-    const { data, error } = await query
+    let newsResult
+    try {
+      newsResult = await withTimeout(query, 3500, 'news query')
+    } catch (error) {
+      console.error('[live-news] News query timeout:', error)
+      const fallback = buildWatchFallback(region).slice(0, Math.min(limit, 50))
+      return NextResponse.json({
+        success: true,
+        articles: fallback,
+        count: fallback.length,
+        fallbackCount: 0,
+        watchCount: fallback.length,
+        warning: 'news query timed out; showing live watch context',
+      })
+    }
+
+    const { data, error } = newsResult
 
     if (error) {
       console.error('[live-news] Supabase error:', error)
-      return NextResponse.json({ success: false, articles: [], error: error.message }, { status: 500 })
+      const fallback = buildWatchFallback(region).slice(0, Math.min(limit, 50))
+      return NextResponse.json({
+        success: true,
+        articles: fallback,
+        count: fallback.length,
+        fallbackCount: 0,
+        watchCount: fallback.length,
+        warning: 'news query failed; showing live watch context',
+      })
     }
 
     const articles = (data || [])
@@ -167,7 +249,15 @@ export async function GET(request: Request) {
         signalQuery = signalQuery.eq('region', region)
       }
 
-      const { data: signalData, error: signalError } = await signalQuery
+      let signalResult
+      try {
+        signalResult = await withTimeout(signalQuery, 2500, 'signal query')
+      } catch (error) {
+        console.error('[live-news] Signal query timeout:', error)
+        signalResult = { data: [], error: null }
+      }
+
+      const { data: signalData, error: signalError } = signalResult
       if (signalError) {
         console.error('[live-news] Signal fallback error:', signalError)
       } else {
@@ -191,19 +281,7 @@ export async function GET(request: Request) {
     }
 
     const currentCount = articles.length + signalFallback.length
-    const watchFallback = currentCount > 0
-      ? []
-      : (WATCH_NEWS_CONTEXT[region || ''] || []).map((item, index) => ({
-          id: `openclaw-watch-${region || 'all'}-${index}`,
-          title: item.title,
-          summary: item.summary,
-          source: item.source,
-          sourceUrl: null,
-          topic: item.topic,
-          region: region || 'global',
-          timestamp: new Date().toISOString(),
-          derivedFrom: 'openclaw_watch',
-        }))
+    const watchFallback = currentCount > 0 ? [] : buildWatchFallback(region)
 
     const mergedArticles = [...articles, ...signalFallback, ...watchFallback].slice(0, Math.min(limit, 50))
 
@@ -218,6 +296,14 @@ export async function GET(request: Request) {
       { headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' } }
     )
   } catch (err: any) {
-    return NextResponse.json({ success: false, articles: [], error: err.message }, { status: 500 })
+    const fallback = buildWatchFallback(region).slice(0, Math.min(limit, 50))
+    return NextResponse.json({
+      success: true,
+      articles: fallback,
+      count: fallback.length,
+      fallbackCount: 0,
+      watchCount: fallback.length,
+      warning: err?.message || 'live news fallback active',
+    })
   }
 }

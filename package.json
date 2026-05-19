@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "maritime:update": "node scripts/run-maritime-update.mjs",
+    "maritime:update:full": "MARITIME_UPDATE_URL=https://www.vesselsurge.com/api/cron/update node scripts/run-maritime-update.mjs",
     "x:check": "node scripts/x-check-auth.mjs",
     "x:oauth2": "node scripts/x-oauth2-authorize.mjs",
     "x:post": "node scripts/x-post.mjs",

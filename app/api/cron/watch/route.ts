@@ -178,8 +178,8 @@ function appBaseUrl(request: Request) {
   return `${url.protocol}//${url.host}`
 }
 
-async function runHeavyUpdate(request: Request, cronSecret: string) {
-  const response = await fetch(`${appBaseUrl(request)}/api/cron/update`, {
+async function runHeavyUpdate(request: Request, cronSecret: string, scope: 'all' | 'news') {
+  const response = await fetch(`${appBaseUrl(request)}/api/cron/update?scope=${scope}`, {
     headers: {
       authorization: `Bearer ${cronSecret}`,
       accept: 'application/json',
@@ -253,7 +253,8 @@ export async function GET(request: Request) {
     }
 
     await setWatchState(supabase, { ...nextState, lastStartedAt: now })
-    const update = await runHeavyUpdate(request, cronSecret)
+    const updateScope = ais.stale ? 'all' : 'news'
+    const update = await runHeavyUpdate(request, cronSecret, updateScope)
     const completedAt = new Date().toISOString()
     const durationMs = Date.now() - startedMs
     await setWatchState(supabase, {
@@ -274,6 +275,7 @@ export async function GET(request: Request) {
         runId,
         durationMs,
         reasons,
+        updateScope,
         sourcesChecked: sourceFingerprint.sourcesChecked,
         sourcesFailed: sourceFingerprint.sourcesFailed,
         ais,

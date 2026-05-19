@@ -773,6 +773,9 @@ async function supabaseRequest(path: string, init: RequestInit = {}) {
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
+  const { searchParams } = new URL(request.url)
+  const scope = searchParams.get('scope') || 'all'
+  const newsOnly = scope === 'news'
 
   if (!cronSecret) {
     return NextResponse.json({ error: 'Cron is not configured' }, { status: 503 })
@@ -804,6 +807,42 @@ export async function GET(request: Request) {
       body: JSON.stringify(articles),
     })
     if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
+  }
+
+  if (newsOnly) {
+    const articleSignals = buildArticleSignals(articles)
+    const deleteNewsSignals = await supabaseRequest('maritime_signals?signal_type=eq.news_corroboration', { method: 'DELETE' })
+    if (!deleteNewsSignals.ok) throw new Error(`Failed to refresh news signals: ${deleteNewsSignals.status} ${await deleteNewsSignals.text()}`)
+
+    if (articleSignals.length > 0) {
+      const upsertArticleSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
+        method: 'POST',
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(articleSignals.map((signal) => ({ ...signal, updated_at: timestamp }))),
+      })
+      if (!upsertArticleSignals.ok) throw new Error(`Failed to upsert news signals: ${upsertArticleSignals.status} ${await upsertArticleSignals.text()}`)
+    }
+
+    const dashboardCacheUpdated = await upsertMaritimeDashboardCache(createAdminClient())
+
+    return NextResponse.json({
+      success: true,
+      timestamp,
+      scope: 'news',
+      source: 'openclaw-trusted-web',
+      articles_fetched: articles.length,
+      articles_inserted: articles.length,
+      signals_found: articleSignals.length,
+      verified: articles.length,
+      dashboard_cache_updated: dashboardCacheUpdated,
+      window: {
+        from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+        to: timestamp,
+        policy: 'Only source-published articles from the latest 24 hours are written, with recent fallback by hotspot when needed.',
+      },
+      sources: [...new Set(articles.map((article) => article.source))],
+      note: 'Fast news-only update. AIS, weather and vessel tables are left untouched so news freshness cannot be blocked by heavier data jobs.',
+    })
   }
 
   const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])

@@ -19,13 +19,26 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildMarketImpactReport } from '@/lib/market-impact'
+import { getFreshMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subscription'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Market Impact Pro | VesselSurge',
-  description: 'Professional market-impact analysis for maritime news, chokepoints, tanker routes, freight, oil and insurance risk.',
+  title: 'Stock Market Impact From Shipping Risk | VesselSurge Market Pro',
+  description: 'Source-backed maritime market impact analysis for oil, freight, tanker stocks, logistics equities, war-risk insurance, Hormuz, Red Sea, Suez and Malacca.',
+  keywords: [
+    'shipping risk stock market impact',
+    'maritime market intelligence',
+    'oil market shipping risk',
+    'tanker stock market analysis',
+    'freight rate signals',
+    'war-risk insurance shipping',
+    'Strait of Hormuz oil risk',
+    'Red Sea shipping risk',
+    'Suez Canal market impact',
+    'Malacca Strait maritime risk',
+  ],
   alternates: {
     canonical: 'https://www.vesselsurge.com/pro-market',
   },
@@ -44,7 +57,7 @@ export default async function ProMarketPage({
   const { data: { user } } = await supabase.auth.getUser()
   const subscription = user ? await getUserProSubscription(user.id) : null
   const hasAccess = isActiveProSubscription(subscription)
-  const report = hasAccess ? await loadReport() : buildLockedPreview()
+  const report = await loadReport({ allowDirectDatabaseFallback: hasAccess })
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -61,11 +74,11 @@ export default async function ProMarketPage({
               </div>
 
               <h1 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-                See how shipping risk can move oil, freight, tankers and insurance.
+                Source-backed shipping risk analysis for oil, freight and public markets.
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                Market Impact Pro turns maritime news and VesselSurge live-map signals into one plain-English investor report: what happened, which market channels may feel pressure, and what to watch next.
+                Market Impact Pro turns real VesselSurge news and live-map signals into one plain-English investor report: what happened, which market channels may feel pressure, and what to watch next. No invented breaking news. No buy or sell calls.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -98,9 +111,9 @@ export default async function ProMarketPage({
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <TrustItem icon={ShieldCheck} title="1. Evidence" body="News, AIS context and route signals are checked before they enter the report." />
-                <TrustItem icon={BarChart3} title="2. Market channel" body="The page shows whether oil, freight, tankers or insurance are most exposed." />
-                <TrustItem icon={FileText} title="3. Decision support" body="You get research context and watch triggers, not financial advice." />
+                <TrustItem icon={ShieldCheck} title="1. Real evidence" body="The report is built from current VesselSurge news, AIS context and maritime signals." />
+                <TrustItem icon={BarChart3} title="2. Market channel" body="It maps route risk into oil, freight, tankers, logistics equities and insurance." />
+                <TrustItem icon={FileText} title="3. Research only" body="Clear market context and watch triggers, never financial advice." />
               </div>
             </div>
 
@@ -192,7 +205,7 @@ export default async function ProMarketPage({
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">What Pro unlocks</p>
             <h2 className="mt-2 text-2xl font-black text-slate-950">A market briefing you can read before the market reacts.</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              The free preview shows the structure. Pro turns the same page into a live source-backed briefing with the evidence trail visible.
+              The free preview uses the same live VesselSurge data layer. Pro unlocks the evidence trail, ranked source links and full market-impact context.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -226,7 +239,7 @@ export default async function ProMarketPage({
             <h2 className="mt-2 text-2xl font-black text-slate-950">The page is built to answer these fast</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            <QuestionCard text="Is this maritime event relevant to oil, freight, tankers, insurance or logistics?" />
+            <QuestionCard text="Is this maritime event relevant to oil, freight, tanker stocks, insurers, logistics equities or fuel-sensitive companies?" />
             <QuestionCard text="Which chokepoint is driving the risk, and is the pressure spreading?" />
             <QuestionCard text="What exact new information would change the market-impact score?" />
           </div>
@@ -261,7 +274,7 @@ export default async function ProMarketPage({
             </div>
           </Panel>
 
-          <Panel title="Ranked source events" subtitle={hasAccess ? 'The live report ranks events by likely market transmission.' : 'Preview examples show the format. Live source links unlock with Pro.'} icon={AlertTriangle} wide>
+          <Panel title="Ranked source events" subtitle={hasAccess ? 'Live VesselSurge events ranked by likely market transmission.' : 'Live VesselSurge events are visible here. Source links and full trail unlock with Pro.'} icon={AlertTriangle} wide>
             <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
               {report.topStories.slice(0, 6).map((story, index) => (
                 <div key={`${story.kind}-${story.id}`} className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0 md:grid-cols-[3rem_1fr_7rem] md:items-start">
@@ -324,7 +337,7 @@ function ProductJsonLd() {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: 'VesselSurge Market Impact Pro',
-          description: 'Professional market-impact analysis for maritime news, chokepoints, tanker routes, freight, oil and insurance risk.',
+          description: 'Source-backed maritime market impact analysis for oil, freight, tanker stocks, logistics equities, insurance risk and global shipping chokepoints.',
           brand: { '@type': 'Brand', name: 'VesselSurge' },
           offers: {
             '@type': 'Offer',
@@ -533,56 +546,85 @@ function CheckoutStatus({ status }: { status?: string }) {
   )
 }
 
-async function loadReport(): Promise<Report> {
+async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabaseFallback: boolean }): Promise<Report> {
   const admin = createAdminClient()
-  const [{ data: news }, { data: signals }] = await Promise.all([
-    admin
-      .from('news_articles')
-      .select('id, title, snippet, source, url, topic, region, published_at, created_at')
-      .eq('is_active', true)
-      .order('published_at', { ascending: false })
-      .limit(90),
-    admin
-      .from('maritime_signals')
-      .select('signal_key, title, summary, source, source_url, region, signal_type, observed_at, confidence')
-      .order('observed_at', { ascending: false })
-      .limit(70),
-  ])
+  const cached = await withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache').catch(() => null)
+  if (cached?.data) {
+    return buildMarketImpactReport(
+      cached.data.articles.map((article) => ({
+        id: article.id,
+        title: article.title,
+        snippet: article.summary,
+        source: article.source,
+        url: article.sourceUrl,
+        topic: article.category,
+        region: article.region,
+        published_at: article.timestamp,
+      })),
+      cached.data.signals.map((signal) => ({
+        signal_key: signal.signalKey,
+        title: signal.title,
+        summary: signal.summary,
+        source: signal.source,
+        source_url: signal.sourceUrl,
+        region: signal.region,
+        signal_type: signal.signalType,
+        observed_at: signal.observedAt,
+        confidence: signal.confidence,
+      })),
+    )
+  }
+
+  if (!allowDirectDatabaseFallback) {
+    return buildMarketImpactReport([], [])
+  }
+
+  let news = null
+  let signals = null
+  let newsError = null
+  let signalsError = null
+
+  try {
+    const [newsResult, signalsResult] = await withTimeout(
+      Promise.all([
+        admin
+          .from('news_articles')
+          .select('id, title, snippet, source, url, topic, region, published_at, created_at')
+          .eq('is_active', true)
+          .order('published_at', { ascending: false })
+          .limit(90),
+        admin
+          .from('maritime_signals')
+          .select('signal_key, title, summary, source, source_url, region, signal_type, observed_at, confidence')
+          .order('observed_at', { ascending: false })
+          .limit(70),
+      ]),
+      3000,
+      'market report data',
+    )
+
+    news = newsResult.data
+    signals = signalsResult.data
+    newsError = newsResult.error
+    signalsError = signalsResult.error
+  } catch (error) {
+    console.error('[pro-market] market report data timeout:', error)
+  }
+
+  if (newsError || signalsError) {
+    console.error('[pro-market] failed to load live report data:', newsError || signalsError)
+  }
 
   return buildMarketImpactReport(news || [], signals || [])
 }
 
-function buildLockedPreview(): Report {
-  return buildMarketImpactReport([
-    {
-      title: 'Preview: Hormuz escalation can reprice oil, tankers and war-risk insurance',
-      snippet: 'Full Pro access unlocks source-backed calculations from current VesselSurge news and operational signals.',
-      source: 'VesselSurge Pro',
-      region: 'hormuz',
-      published_at: new Date().toISOString(),
-    },
-    {
-      title: 'Preview: Red Sea disruption can spill into Suez freight and rerouting costs',
-      snippet: 'The Pro model links maritime incident language to freight, insurance, energy and logistics pressure.',
-      source: 'VesselSurge Pro',
-      region: 'bab',
-      published_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      title: 'Preview: Canal delay and convoy pressure can move Asia-Europe logistics',
-      snippet: 'Subscribers see ranked source events, asset impact tables and chokepoint heat by region.',
-      source: 'VesselSurge Pro',
-      region: 'suez',
-      published_at: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      title: 'Preview: Malacca density can create hidden port-flow and delay pressure',
-      snippet: 'The analyst desk watches Southeast Asia traffic, ReCAAP context and port approach pressure.',
-      source: 'VesselSurge Pro',
-      region: 'malacca',
-      published_at: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
-    },
-  ], [])
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId))
 }
 
 function scorePillClass(score: number) {
