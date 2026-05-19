@@ -45,8 +45,9 @@ function formatLastUpdated(date: Date | null) {
 }
 
 export function NewsFeed() {
-  const { articles, loading, error, refresh, lastUpdated } = useMaritimeData()
+  const { articles, meta, loading, error, refresh, lastUpdated } = useMaritimeData()
   const latestArticles = articles.slice(0, 25)
+  const isStale = Boolean(meta?.stale)
 
   return (
     <div className="glass flex h-full flex-col rounded-lg border border-border">
@@ -55,7 +56,7 @@ export function NewsFeed() {
           <Newspaper className="h-4 w-4 text-primary" />
           <div>
             <h3 className="text-sm font-semibold text-foreground">Maritime Intelligence Feed</h3>
-            <p className="text-xs text-muted-foreground">{formatLastUpdated(lastUpdated)}</p>
+            <p className="text-xs text-muted-foreground">{isStale ? 'Last known source-reviewed feed' : formatLastUpdated(lastUpdated)}</p>
           </div>
         </div>
         <button
@@ -135,7 +136,7 @@ export function NewsFeed() {
 
       <div className="border-t border-border px-4 py-2">
         <p className="text-center text-xs text-muted-foreground">
-          Real-time maritime news from Supabase
+          {isStale ? 'Offline-safe: serving last known source-reviewed maritime news' : 'Real-time maritime news from Supabase'}
         </p>
       </div>
     </div>
