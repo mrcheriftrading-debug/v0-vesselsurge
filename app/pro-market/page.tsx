@@ -4,10 +4,7 @@ import type { Metadata } from 'next'
 import {
   AlertTriangle,
   ArrowRight,
-  BarChart3,
   CheckCircle2,
-  ClipboardCheck,
-  FileText,
   Gauge,
   LockKeyhole,
   Radar,
@@ -46,6 +43,30 @@ export const metadata: Metadata = {
 }
 
 type Report = ReturnType<typeof buildMarketImpactReport>
+
+const customerProfiles = [
+  {
+    title: 'Traders and investors',
+    body: 'See which maritime event could matter to oil, freight, tanker stocks, insurance or logistics equities.',
+  },
+  {
+    title: 'Shipping operators',
+    body: 'Understand whether a chokepoint signal is isolated noise or part of a wider cost and delay pattern.',
+  },
+  {
+    title: 'Analysts and founders',
+    body: 'Turn messy route news into a source-backed briefing that is faster to scan than raw headlines.',
+  },
+]
+
+const reportIncludes = [
+  'Market pressure score',
+  'Lead asset channel',
+  'Ranked source events',
+  'Chokepoint heat map',
+  'Watch triggers',
+  'Research-only disclaimer',
+]
 
 export default async function ProMarketPage({
   searchParams,
@@ -110,14 +131,12 @@ export default async function ProMarketPage({
                 )}
               </div>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <TrustItem icon={ShieldCheck} title="1. Real evidence" body="The report is built from current VesselSurge news, AIS context and maritime signals." />
-                <TrustItem icon={BarChart3} title="2. Market channel" body="It maps route risk into oil, freight, tankers, logistics equities and insurance." />
-                <TrustItem icon={FileText} title="3. Research only" body="Clear market context and watch triggers, never financial advice." />
-              </div>
             </div>
 
-            <ReportPreview report={report} hasAccess={hasAccess} />
+            <div className="space-y-4">
+              <PricingCard hasAccess={hasAccess} isLoggedIn={Boolean(user)} />
+              <ReportPreview report={report} hasAccess={hasAccess} />
+            </div>
           </div>
         </div>
       </section>
@@ -141,78 +160,35 @@ export default async function ProMarketPage({
         </section>
       )}
 
-      {!hasAccess && (
-        <section className="border-b border-slate-200 bg-slate-950 px-4 py-5 text-white">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">Subscription</p>
-              <h2 className="mt-1 text-xl font-black">Create an account, then unlock the live analyst report for 199 kr every 14 days.</h2>
-              <p className="mt-1 text-sm text-slate-300">Full source links, ranked events, asset pressure, chokepoint heat and watch triggers.</p>
-            </div>
-            {user ? (
-              <form action="/api/stripe/checkout" method="post">
-                <Button type="submit" className="min-h-11 bg-white text-slate-950 hover:bg-slate-100">
-                  Start subscription
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
-            ) : (
-              <Link href="/auth/sign-up?next=/pro-market">
-                <Button className="min-h-11 bg-white text-slate-950 hover:bg-slate-100">
-                  Create account first
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            )}
-          </div>
-        </section>
-      )}
-
       <section className="border-b border-slate-200 bg-white px-4 py-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Read it in 30 seconds</p>
-            <h2 className="mt-2 text-2xl font-black text-slate-950">How this page works</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">What the customer buys</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-950">A fast market-impact layer on top of maritime intelligence.</h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-4">
-            <MetricGuide
-              label="Pressure score"
-              value="0-100"
-              body="A higher score means maritime disruption has a clearer route into markets."
-            />
-            <MetricGuide
-              label="Asset impact"
-              value="Who feels it"
-              body="Shows the market channel most exposed: oil, tankers, freight, logistics or insurance."
-            />
-            <MetricGuide
-              label="Chokepoint heat"
-              value="Where risk sits"
-              body="Ranks Hormuz, Bab el-Mandeb, Suez and Malacca by current evidence."
-            />
-            <MetricGuide
-              label="Watch triggers"
-              value="What changes next"
-              body="Clear events that would raise or lower the report score."
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-slate-200 bg-[#f8fafc] px-4 py-9">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">What Pro unlocks</p>
-            <h2 className="mt-2 text-2xl font-black text-slate-950">A market briefing you can read before the market reacts.</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              The free preview uses the same live VesselSurge data layer. Pro unlocks the evidence trail, ranked source links and full market-impact context.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <UnlockItem title="Live source trail" body="Open the ranked news or maritime signal behind each score." />
-            <UnlockItem title="Asset pressure table" body="See which market channel is most exposed and why." />
-            <UnlockItem title="Chokepoint comparison" body="Compare Hormuz, Bab el-Mandeb, Suez and Malacca in one scan." />
-            <UnlockItem title="Watch triggers" body="Know what would raise, lower or confirm the market-pressure score." />
+          <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="grid gap-3">
+              {customerProfiles.map((profile) => (
+                <div key={profile.title} className="rounded-md border border-slate-200 bg-slate-50 p-4">
+                  <h3 className="font-black text-slate-950">{profile.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{profile.body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">Included in Pro</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {reportIncludes.map((item) => (
+                  <div key={item} className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] p-3 text-sm font-bold">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <p className="mt-5 text-sm leading-6 text-slate-300">
+                Built for fast research context. It explains possible transmission channels; it does not provide financial advice or buy/sell recommendations.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -352,6 +328,62 @@ function ProductJsonLd() {
   )
 }
 
+function PricingCard({ hasAccess, isLoggedIn }: { hasAccess: boolean; isLoggedIn: boolean }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">Market Pro</p>
+          <h2 className="mt-2 text-2xl font-black">199 kr / 14 days</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            Unlock the full analyst report, source trail, asset pressure table and watch triggers.
+          </p>
+        </div>
+        <div className="rounded-md bg-white/10 px-2.5 py-1.5 text-xs font-black uppercase text-slate-100">
+          {hasAccess ? 'Active' : 'Pro'}
+        </div>
+      </div>
+
+      <div className="mt-5">
+        {hasAccess ? (
+          <div className="flex min-h-11 items-center justify-center rounded-md bg-emerald-500 px-4 text-sm font-black text-emerald-950">
+            Pro access active
+          </div>
+        ) : isLoggedIn ? (
+          <form action="/api/stripe/checkout" method="post">
+            <Button type="submit" className="min-h-11 w-full bg-white text-slate-950 hover:bg-slate-100">
+              Start subscription
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <Link href="/auth/sign-up?next=/pro-market">
+            <Button className="min-h-11 w-full bg-white text-slate-950 hover:bg-slate-100">
+              Create account to unlock
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-4 grid gap-2 text-sm text-slate-300">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+          Stripe subscription checkout
+        </div>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+          Source-backed research context
+        </div>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+          No financial advice or trade calls
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ReportPreview({ report, hasAccess }: { report: Report; hasAccess: boolean }) {
   const leadAsset = report.assetImpacts[0]
 
@@ -399,38 +431,6 @@ function ReportRow({ label, value, detail }: { label: string; value: string; det
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
       <p className="mt-2 font-black text-slate-950">{value}</p>
       <p className="mt-1 text-sm text-slate-600">{detail}</p>
-    </div>
-  )
-}
-
-function TrustItem({ icon: Icon, title, body }: { icon: ComponentType<{ className?: string }>; title: string; body: string }) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-      <Icon className="h-5 w-5 text-sky-700" />
-      <p className="mt-3 font-black text-slate-950">{title}</p>
-      <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
-    </div>
-  )
-}
-
-function MetricGuide({ label, value, body }: { label: string; value: string; body: string }) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="mt-3 text-xl font-black text-slate-950">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
-    </div>
-  )
-}
-
-function UnlockItem({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
-        <ClipboardCheck className="h-4 w-4" />
-      </div>
-      <h3 className="font-black text-slate-950">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
     </div>
   )
 }
