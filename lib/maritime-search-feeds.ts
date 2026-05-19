@@ -15,6 +15,11 @@ type MaritimeSearchDefinition = {
 
 const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
   {
+    label: 'Global maritime chokepoint disruption',
+    region: 'hormuz',
+    query: '("shipping chokepoint" OR "maritime chokepoint" OR "oil route" OR "tanker route") (disruption OR risk OR warning OR incident OR delay OR insurance OR freight)',
+  },
+  {
     label: 'Hormuz tanker security',
     region: 'hormuz',
     query: '("Strait of Hormuz" OR Hormuz OR "Gulf of Oman") (tanker OR vessel OR shipping OR maritime) (attack OR seizure OR threat OR warning OR incident OR insurance OR oil)',
@@ -50,6 +55,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Bab el-Mandeb" OR "Bab el Mandeb" OR "Gulf of Aden") (shipping OR maritime OR reroute OR divert OR war-risk OR insurance OR freight)',
   },
   {
+    label: 'Global Red Sea shipping coverage',
+    region: 'bab',
+    query: '("Red Sea shipping" OR "Red Sea route" OR "Gulf of Aden shipping") (vessel OR cargo OR tanker OR container OR freight OR insurance OR disruption)',
+  },
+  {
     label: 'Suez traffic and queues',
     region: 'suez',
     query: '("Suez Canal" OR "Port Said" OR Suez) (vessel OR convoy OR transit OR shipping OR queue OR congestion OR delay)',
@@ -70,6 +80,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Suez Canal" OR "Red Sea route" OR "Cape of Good Hope") (freight OR container OR tanker OR rerouting OR delay OR schedule)',
   },
   {
+    label: 'Global canal and port disruption',
+    region: 'suez',
+    query: '("Suez Canal" OR "canal transit" OR "Port Said") (shipping news OR vessel traffic OR congestion OR disruption OR convoy OR maritime)',
+  },
+  {
     label: 'Malacca piracy and incidents',
     region: 'malacca',
     query: '("Strait of Malacca" OR "Singapore Strait" OR "Straits of Malacca") (piracy OR "armed robbery" OR incident OR ReCAAP OR vessel)',
@@ -88,6 +103,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Malacca congestion and tanker flow',
     region: 'malacca',
     query: '("Strait of Malacca" OR "Singapore Strait") (shipping OR tanker OR cargo OR congestion OR port OR transit OR maritime)',
+  },
+  {
+    label: 'Southeast Asia shipping risk',
+    region: 'malacca',
+    query: '("Southeast Asia shipping" OR "Singapore Strait" OR "Port of Singapore") (vessel OR tanker OR cargo OR piracy OR congestion OR maritime risk)',
   },
 ]
 

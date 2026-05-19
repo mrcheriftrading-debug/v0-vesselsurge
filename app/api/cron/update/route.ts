@@ -78,12 +78,7 @@ const TRUSTED_PAGES = [
   { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', credibility: 10, region: 'bab' },
 ]
 
-const FAST_NEWS_FEED_LABELS = [
-  'Google News Search: Hormuz tanker security',
-  'Google News Search: Red Sea vessel security',
-  'Google News Search: Suez traffic and queues',
-  'Google News Search: Malacca piracy and incidents',
-]
+const FAST_NEWS_SEARCH_PREFIXES = ['Google News Search:', 'Bing News Search:']
 
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae'],
@@ -519,7 +514,7 @@ function parseTrustedPage(html: string, source: string, pageUrl: string, credibi
 
 async function collectTrustedArticles(now = new Date(), options: { fast?: boolean } = {}) {
   const feeds = options.fast
-    ? TRUSTED_FEEDS.filter((feed) => FAST_NEWS_FEED_LABELS.includes(feed.source))
+    ? TRUSTED_FEEDS.filter((feed) => FAST_NEWS_SEARCH_PREFIXES.some((prefix) => feed.source.startsWith(prefix)))
     : TRUSTED_FEEDS
   const pages = options.fast ? [] : TRUSTED_PAGES
   const fetchTimeoutMs = options.fast ? 1800 : 7000

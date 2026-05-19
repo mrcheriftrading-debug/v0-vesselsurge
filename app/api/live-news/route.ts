@@ -164,12 +164,14 @@ function broadenGoogleNewsWindow(url: string) {
 
 async function fetchDirectLiveNews(region: string | null, topic: string | null, limit: number) {
   const selectedFeeds = MARITIME_SEARCH_FEEDS
-    .filter((feed) => feed.source.startsWith('Google News Search:'))
     .filter((feed) => !region || region === 'all' || feed.regionHint === region)
-    .flatMap((feed) => [
-      { ...feed, url: feed.url, window: '24h' },
-      { ...feed, url: broadenGoogleNewsWindow(feed.url), window: '7d' },
-    ])
+    .flatMap((feed) => feed.source.startsWith('Google News Search:')
+      ? [
+          { ...feed, url: feed.url, window: '24h' },
+          { ...feed, url: broadenGoogleNewsWindow(feed.url), window: '7d' },
+        ]
+      : [{ ...feed, url: feed.url, window: 'live' }],
+    )
 
   const results = await Promise.allSettled(selectedFeeds.map(async (feed) => {
     const response = await fetch(feed.url, {
@@ -187,8 +189,8 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
 
     return items.map((item, index) => {
       const rawTitle = decodeHtml(between(item, '<title>', '</title>'))
-      const source = googleNewsSource(rawTitle)
-      const title = googleNewsTitle(rawTitle)
+      const source = feed.source.startsWith('Google News Search:') ? googleNewsSource(rawTitle) : feed.source
+      const title = feed.source.startsWith('Google News Search:') ? googleNewsTitle(rawTitle) : rawTitle.trim()
       const summary = decodeHtml(between(item, '<description>', '</description>'))
       const url = decodeHtml(between(item, '<link>', '</link>'))
       const publishedAt = safeIsoDate(decodeHtml(between(item, '<pubDate>', '</pubDate>')))
@@ -203,7 +205,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
         region: feed.regionHint,
         timestamp: publishedAt,
         published_at: publishedAt,
-        derivedFrom: 'direct_google_news_rss',
+        derivedFrom: 'direct_news_search_rss',
       }
     })
   }))
