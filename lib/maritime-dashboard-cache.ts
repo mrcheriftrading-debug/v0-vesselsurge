@@ -51,6 +51,8 @@ export type MaritimeDashboardResponse = {
       aisSignalCount: number
       confidenceScore: number
       confidenceLabel: string
+      riskSummary?: string
+      riskDrivers?: string[]
     }>
     signals: Array<{
       signalKey: string
@@ -115,6 +117,66 @@ function confidenceLabelForHotspot(score: number, stats: { officialSignalCount: 
   if (score >= 65) return 'Corroborated'
   if (score >= 45) return 'Watchlist'
   return 'Thin signal'
+}
+
+function signalTypeLabel(type?: string | null) {
+  switch (type) {
+    case 'official_alert':
+      return 'Official alert'
+    case 'navigation_warning':
+      return 'Navigation warning'
+    case 'ais_anomaly':
+      return 'AIS anomaly'
+    case 'weather_constraint':
+      return 'Marine condition'
+    case 'news_corroboration':
+      return 'News corroboration'
+    default:
+      return 'Watch signal'
+  }
+}
+
+function riskSummaryForHotspot(stats: {
+  riskLevel: string
+  reports: number
+  sourceCount: number
+  signals: any[]
+  latestSource: string | null
+  activeVessels: number
+}) {
+  const sortedSignals = [...stats.signals]
+    .sort((a, b) => {
+      const severityRank: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 }
+      const severityDiff = (severityRank[b.severity] || 0) - (severityRank[a.severity] || 0)
+      if (severityDiff !== 0) return severityDiff
+      return (b.confidence || 0) - (a.confidence || 0)
+    })
+    .slice(0, 3)
+
+  const drivers = sortedSignals.map((signal) => {
+    const confidence = signal.confidence ? ` · ${signal.confidence}/100` : ''
+    return `${signalTypeLabel(signal.signal_type)} from ${signal.source || 'VesselSurge watch'}${confidence}`
+  })
+
+  if (stats.reports > 0) {
+    drivers.push(`${stats.reports} source-reviewed report${stats.reports === 1 ? '' : 's'}${stats.sourceCount ? ` across ${stats.sourceCount} source${stats.sourceCount === 1 ? '' : 's'}` : ''}`)
+  }
+
+  if (stats.activeVessels > 0) {
+    drivers.push(`${stats.activeVessels} fresh AIS vessel position${stats.activeVessels === 1 ? '' : 's'} in watch boxes`)
+  }
+
+  const uniqueDrivers = Array.from(new Set(drivers)).slice(0, 4)
+  const strongest = uniqueDrivers[0]
+
+  const riskSummary = strongest
+    ? `${stats.riskLevel.toUpperCase()} because ${strongest}${stats.latestSource ? `; latest source: ${stats.latestSource}` : ''}.`
+    : `${stats.riskLevel.toUpperCase()} from standing watch coverage while fresh direct signals are thin.`
+
+  return {
+    riskSummary,
+    riskDrivers: uniqueDrivers.length > 0 ? uniqueDrivers : ['Standing watch coverage active'],
+  }
 }
 
 function dedupeArticles<T extends { title?: string | null; sourceUrl?: string | null; source?: string | null }>(articles: T[]) {
@@ -230,10 +292,21 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     const regionSignals = signalStats[hotspot.hotspot]?.signals || []
     const officialSignalCount = regionSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
     const aisSignalCount = regionSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
+    const reports = articleStats[hotspot.hotspot]?.reports || 0
+    const sourceCount = articleStats[hotspot.hotspot]?.sources.size || 0
+    const latestSource = articleStats[hotspot.hotspot]?.latestSource || null
     const confidenceScore = confidenceForHotspot({
-      reports: articleStats[hotspot.hotspot]?.reports || 0,
+      reports,
       sources: articleStats[hotspot.hotspot]?.sources || new Set(),
       signals: regionSignals,
+      activeVessels,
+    })
+    const riskEvidence = riskSummaryForHotspot({
+      riskLevel: hotspot.risk_level,
+      reports,
+      sourceCount,
+      signals: regionSignals,
+      latestSource,
       activeVessels,
     })
 
@@ -246,14 +319,16 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       marketVolume: hotspot.market_volume,
       riskLevel: hotspot.risk_level,
       updatedAt: hotspot.updated_at || timestamp,
-      verifiedReports: articleStats[hotspot.hotspot]?.reports || 0,
-      sourceCount: articleStats[hotspot.hotspot]?.sources.size || 0,
-      latestSource: articleStats[hotspot.hotspot]?.latestSource || null,
+      verifiedReports: reports,
+      sourceCount,
+      latestSource,
       signalCount: regionSignals.length,
       officialSignalCount,
       aisSignalCount,
       confidenceScore,
       confidenceLabel: confidenceLabelForHotspot(confidenceScore, { officialSignalCount, aisSignalCount }),
+      riskSummary: riskEvidence.riskSummary,
+      riskDrivers: riskEvidence.riskDrivers,
     }
   })
 

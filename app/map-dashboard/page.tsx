@@ -139,6 +139,13 @@ function formatExactPublishedTime(value: string) {
   })
 }
 
+function readableSignalType(value?: string | null) {
+  if (!value) return 'Watch signal'
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
   const { articles, hotspots, signals, vessels, meta: dataMeta, loading, refresh, lastUpdated } = useMaritimeData()
@@ -261,6 +268,14 @@ export default function MapDashboard() {
         ? 'Verified source review'
         : 'Standing watch active'
     : 'Standing watch active'
+  const fallbackRiskDrivers = [
+    ...(latestSignal ? [`${readableSignalType(latestSignal.signalType)} from ${latestSignal.source} · ${latestSignal.confidence}/100`] : []),
+    ...(latestArticle ? [`Latest report from ${latestArticle.source}`] : []),
+    `${selectedCoverageCount} coverage item${selectedCoverageCount === 1 ? '' : 's'} across ${selectedCoverageSources} source${selectedCoverageSources === 1 ? '' : 's'}`,
+  ]
+  const selectedRiskDrivers = (selected?.riskDrivers?.length ? selected.riskDrivers : fallbackRiskDrivers).slice(0, 4)
+  const selectedRiskSummary = selected?.riskSummary ||
+    `${riskLevel.toUpperCase()} based on ${selectedRiskDrivers[0] || 'standing VesselSurge watch coverage'}.`
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -409,6 +424,7 @@ export default function MapDashboard() {
                   <span className="text-xs font-mono text-muted-foreground">{selectedConfidence}</span>
                 </div>
                 <h2 className="mt-2 truncate text-lg font-black sm:text-xl">{meta?.flag} {meta?.name}</h2>
+                <p className="mt-2 max-w-2xl text-xs leading-5 text-muted-foreground">{selectedRiskSummary}</p>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-lg border border-border bg-background/50 px-3 py-2">
@@ -468,6 +484,19 @@ export default function MapDashboard() {
                 <div className="rounded-xl border border-border/70 bg-background/45 p-3">
                   <p className="text-[10px] uppercase text-muted-foreground">Signals</p>
                   <p className="mt-1 text-lg font-black">{loading ? '—' : Math.max(selected?.signalCount ?? 0, selectedWatchCoverage.length)}</p>
+                </div>
+              </div>
+
+              <div className="mb-3 rounded-xl border border-border/70 bg-background/45 p-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Why this risk level</p>
+                <p className="mt-1 text-xs leading-5 text-foreground">{selectedRiskSummary}</p>
+                <div className="mt-3 space-y-1.5">
+                  {selectedRiskDrivers.map((driver) => (
+                    <div key={driver} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: riskColor }} />
+                      <span>{driver}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 

@@ -68,6 +68,8 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
       aisSignalCount: 0,
       confidenceScore: 62,
       confidenceLabel: 'Archived context',
+      riskSummary: 'HIGH because archived Hormuz oil-route context is active while live feeds are unavailable; latest source: U.S. Energy Information Administration.',
+      riskDrivers: ['Archived EIA chokepoint context', 'Offline-safe standing watch coverage'],
     },
     {
       id: 'offline-bab',
@@ -86,6 +88,8 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
       aisSignalCount: 0,
       confidenceScore: 62,
       confidenceLabel: 'Archived context',
+      riskSummary: 'HIGH because archived Red Sea and Bab el-Mandeb security context is active while live feeds are unavailable; latest source: UKMTO.',
+      riskDrivers: ['Archived maritime security context', 'Offline-safe standing watch coverage'],
     },
     {
       id: 'offline-suez',
@@ -104,6 +108,8 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
       aisSignalCount: 0,
       confidenceScore: 58,
       confidenceLabel: 'Archived context',
+      riskSummary: 'MEDIUM because archived canal transit context is active while live feeds are unavailable; latest source: Suez Canal Authority.',
+      riskDrivers: ['Archived Suez transit context', 'Offline-safe standing watch coverage'],
     },
     {
       id: 'offline-malacca',
@@ -122,6 +128,8 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
       aisSignalCount: 0,
       confidenceScore: 58,
       confidenceLabel: 'Archived context',
+      riskSummary: 'MEDIUM because archived Southeast Asia route-risk context is active while live feeds are unavailable; latest source: ReCAAP ISC.',
+      riskDrivers: ['Archived ReCAAP route-risk context', 'Offline-safe standing watch coverage'],
     },
   ]
 

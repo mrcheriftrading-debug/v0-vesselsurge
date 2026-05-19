@@ -30,6 +30,8 @@ export interface Hotspot {
   aisSignalCount?: number
   confidenceScore?: number
   confidenceLabel?: string
+  riskSummary?: string
+  riskDrivers?: string[]
 }
 
 export interface MaritimeSignal {
