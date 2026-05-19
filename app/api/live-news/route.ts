@@ -38,7 +38,19 @@ const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'iran', 'oman', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'gulf of aden', 'houthi', 'yemen', 'aden'],
   suez: ['suez', 'suez canal', 'port said', 'egypt', 'ismailia'],
-  malacca: ['malacca', 'strait of malacca', 'straits of malacca', 'singapore strait', 'recaap', 'singapore', 'malaysia', 'indonesia'],
+  malacca: [
+    'malacca',
+    'strait of malacca',
+    'straits of malacca',
+    'singapore strait',
+    'port of singapore',
+    'singapore port',
+    'singapore shipping',
+    'southeast asia shipping',
+    'recaap',
+    'piracy',
+    'armed robbery',
+  ],
 }
 
 const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng)\b/i

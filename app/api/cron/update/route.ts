@@ -84,7 +84,20 @@ const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'houthi', 'yemen', 'aden', 'gulf of aden', 'djibouti', 'eritrea'],
   suez: ['suez', 'suez canal', 'egypt', 'port said', 'ismailia', 'sinai'],
-  malacca: ['malacca', 'strait of malacca', 'straits of malacca', 'singapore strait', 'singapore', 'recaap', 'piracy', 'armed robbery', 'sea robbery', 'malaysia', 'indonesia'],
+  malacca: [
+    'malacca',
+    'strait of malacca',
+    'straits of malacca',
+    'singapore strait',
+    'port of singapore',
+    'singapore port',
+    'singapore shipping',
+    'southeast asia shipping',
+    'recaap',
+    'piracy',
+    'armed robbery',
+    'sea robbery',
+  ],
 }
 
 const SEVERITY_KEYWORDS = {
@@ -340,6 +353,14 @@ function isFinancialMarketNoise(article: TrustedArticle) {
   return financialNoise && !hasOperationalChokepointSignal(article)
 }
 
+function isGlobalSupplyChainNoise(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const broadIndustryStory = /\b(global supply|covid|pandemic|container manufacturer|container manufacturers|antitrust|price fixing|conspiracy|shipyard order|offshore wind|ctv)\b/i.test(text)
+  if (!broadIndustryStory) return false
+
+  return !/\b(strait of malacca|malacca strait|singapore strait|port of singapore|suez canal|bab el-mandeb|red sea|strait of hormuz|gulf of aden|gulf of oman)\b/i.test(text)
+}
+
 function hasDirectRegionSignal(article: TrustedArticle) {
   if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
   if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
@@ -362,7 +383,7 @@ function hasRouteSpilloverSignal(article: TrustedArticle) {
   }
 
   if (article.region === 'malacca') {
-    return hasReroutePressure && /\b(malacca|singapore strait|singapore|nicobar|land bridge|recaap|piracy)\b/i.test(text)
+    return hasReroutePressure && /\b(malacca|singapore strait|port of singapore|singapore port|singapore shipping|nicobar|land bridge|recaap|piracy)\b/i.test(text)
   }
 
   return false
@@ -553,6 +574,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => article.region !== 'global')
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
+    .filter((article) => !isGlobalSupplyChainNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
@@ -567,6 +589,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => article.region !== 'global')
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
+    .filter((article) => !isGlobalSupplyChainNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
