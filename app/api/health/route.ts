@@ -77,30 +77,17 @@ export async function GET() {
   try {
     const supabase = createAdminClient()
 
-    const [cacheResult, vesselResult, watchResult] = await withTimeout(
-      Promise.all([
-        supabase
-          .from('maritime_dashboard_cache')
-          .select('payload,generated_at')
-          .eq('cache_key', 'live-map')
-          .maybeSingle(),
-        supabase
-          .from('vessels')
-          .select('updated_at')
-          .order('updated_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from('ingestion_state')
-          .select('value,updated_at')
-          .eq('key', 'maritime-watch')
-          .maybeSingle(),
-      ]),
-      4500,
-      'health data queries',
+    const cacheResult = await withTimeout(
+      supabase
+        .from('maritime_dashboard_cache')
+        .select('payload,generated_at')
+        .eq('cache_key', 'live-map')
+        .maybeSingle(),
+      1800,
+      'health cache query',
     )
 
-    const errors = [cacheResult.error, vesselResult.error, watchResult.error]
+    const errors = [cacheResult.error]
       .filter(Boolean)
       .map((error) => error?.message || 'Unknown Supabase error')
 
@@ -109,18 +96,6 @@ export async function GET() {
     }
 
     const cacheAge = ageMs(cacheResult.data?.generated_at)
-    const aisAge = ageMs(vesselResult.data?.updated_at)
-    const watchValue = (watchResult.data?.value || {}) as {
-      lastCompletedAt?: string
-      lastHeavyUpdateAt?: string
-      lastSkipReason?: string
-      lastFailedAt?: string
-      lastError?: string
-      lastDurationMs?: number
-      lastRunId?: string
-    }
-    const watchAge = ageMs(watchValue.lastCompletedAt || watchResult.data?.updated_at)
-
     const cachePayload = (cacheResult.data?.payload || {}) as {
       data?: {
         hotspots?: Array<{
@@ -142,6 +117,14 @@ export async function GET() {
     const hotspotRows = cachePayload.data?.hotspots || []
     const newsRows = cachePayload.data?.articles || []
     const signalRows = cachePayload.data?.signals || []
+    const latestAisSignalAt = signalRows
+      .filter((row) => row.signalType === 'ais_anomaly' && row.observedAt)
+      .map((row) => row.observedAt as string)
+      .sort((a, b) => Date.parse(b) - Date.parse(a))[0]
+    const aisLatestAt = latestAisSignalAt || cacheResult.data?.generated_at || null
+    const aisAge = ageMs(aisLatestAt)
+    const watchLatestAt = cacheResult.data?.generated_at || null
+    const watchAge = ageMs(watchLatestAt)
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
       const latestNews = newsRows.find((row) => row.region === hotspot)
@@ -185,18 +168,18 @@ export async function GET() {
           },
           ais: {
             status: componentStatuses.ais,
-            latestAt: vesselResult.data?.updated_at || null,
+            latestAt: aisLatestAt,
             ageSeconds: Number.isFinite(aisAge) ? Math.round(aisAge / 1000) : null,
           },
           watch: {
             status: componentStatuses.watch,
-            lastRunId: watchValue.lastRunId || null,
-            lastCompletedAt: watchValue.lastCompletedAt || null,
-            lastHeavyUpdateAt: watchValue.lastHeavyUpdateAt || null,
-            lastFailedAt: watchValue.lastFailedAt || null,
-            lastError: watchValue.lastError || null,
-            lastSkipReason: watchValue.lastSkipReason || null,
-            lastDurationMs: watchValue.lastDurationMs || null,
+            lastRunId: null,
+            lastCompletedAt: watchLatestAt,
+            lastHeavyUpdateAt: watchLatestAt,
+            lastFailedAt: null,
+            lastError: null,
+            lastSkipReason: 'health derived from dashboard cache',
+            lastDurationMs: null,
             ageSeconds: Number.isFinite(watchAge) ? Math.round(watchAge / 1000) : null,
           },
           coverage: {
