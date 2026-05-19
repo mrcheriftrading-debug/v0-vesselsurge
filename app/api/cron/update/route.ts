@@ -805,8 +805,6 @@ export async function GET(request: Request) {
     created_at: timestamp,
     updated_at: timestamp,
   })))
-  const aisPromise = collectAisStreamVessels({ timeoutMs: 10000, maxVessels: 80 })
-  const marineConditionsPromise = fetchAllMarineConditions()
 
   const articles = await articlesPromise
 
@@ -858,6 +856,8 @@ export async function GET(request: Request) {
     })
   }
 
+  const aisPromise = collectAisStreamVessels({ timeoutMs: 10000, maxVessels: 80 })
+  const marineConditionsPromise = fetchAllMarineConditions()
   const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])
   const articleSignals = buildArticleSignals(articles)
   const aisSignals = buildAisSignals(ais.vessels, timestamp)
