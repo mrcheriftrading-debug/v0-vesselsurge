@@ -347,66 +347,30 @@ export default function MapDashboard() {
           </div>
         )}
 
-        <div className="grid gap-3 xl:grid-cols-[300px_minmax(0,1fr)_380px]">
-          <aside className="order-2 min-w-0 space-y-3 xl:order-1 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)]">
-            <div className="rounded-2xl border border-border bg-card/45 p-3">
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Overview</p>
-                  <h2 className="mt-1 text-sm font-black text-foreground">System snapshot</h2>
-                </div>
-                <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${
-                  isStaleData
-                    ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
-                    : 'border-green-500/20 bg-green-500/10 text-green-400'
-                }`}>
-                  {isStaleData ? 'Fallback' : 'Live'}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
-                <div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <FileText className="h-3.5 w-3.5 text-primary" />
-                    Reports
-                  </div>
-                  <p className="mt-1 text-lg font-black tabular-nums">{loading ? '—' : totalReports}</p>
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Database className="h-3.5 w-3.5 text-sky-400" />
-                    Sources
-                  </div>
-                  <p className="mt-1 text-lg font-black tabular-nums">{loading ? '—' : totalSources}</p>
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <AlertCircle className="h-3.5 w-3.5 text-red-400" />
-                    Critical
-                  </div>
-                  <p className="mt-1 text-lg font-black tabular-nums">{loading ? '—' : criticalHotspots}</p>
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <ShieldCheck className="h-3.5 w-3.5 text-green-400" />
-                    Method
-                  </div>
-                  <p className="mt-1 text-sm font-black">Verified</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-border bg-card/45 p-3">
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <div>
+        <div className="space-y-3">
+          <section className="rounded-2xl border border-border bg-card/45 p-3">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Route selector</p>
-                  <h2 className="mt-1 text-sm font-black text-foreground">Choose hotspot</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Refocus the map, risk evidence and feed.</p>
+                  <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${
+                    isStaleData
+                      ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
+                      : 'border-green-500/20 bg-green-500/10 text-green-400'
+                  }`}>
+                    {isStaleData ? 'Fallback' : 'Live'}
+                  </span>
                 </div>
-                <span className="rounded-full border border-border px-2 py-1 text-[11px] font-mono text-muted-foreground">
-                  {hotspotList.length}
-                </span>
+                <h2 className="mt-1 text-sm font-black text-foreground">Choose one hotspot, then read the evidence.</h2>
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                  <span><FileText className="mr-1 inline h-3.5 w-3.5 text-primary" />{loading ? '—' : totalReports} reports</span>
+                  <span><Database className="mr-1 inline h-3.5 w-3.5 text-sky-400" />{loading ? '—' : totalSources} sources</span>
+                  <span><AlertCircle className="mr-1 inline h-3.5 w-3.5 text-red-400" />{loading ? '—' : criticalHotspots} critical</span>
+                  <span><ShieldCheck className="mr-1 inline h-3.5 w-3.5 text-green-400" />Verified method</span>
+                </div>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:min-w-[780px]">
                 {hotspotList.map((h) => (
                   <button
                     key={h.id}
@@ -431,19 +395,14 @@ export default function MapDashboard() {
                         {h.risk}
                       </span>
                     </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${Math.min(100, Math.max(18, h.coverageCount * 8))}%`, background: h.riskColor }}
-                      />
-                    </div>
                   </button>
                 ))}
               </div>
             </div>
-          </aside>
+          </section>
 
-          <section className="order-1 min-w-0 rounded-2xl border border-border bg-card/35 p-2 shadow-2xl shadow-black/20 xl:order-2">
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <section className="min-w-0 rounded-2xl border border-border bg-card/35 p-2 shadow-2xl shadow-black/20">
             <div className="flex flex-col gap-3 border-b border-border/60 px-2 pb-3 pt-1 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Live map</p>
@@ -499,7 +458,7 @@ export default function MapDashboard() {
             </div>
           </section>
 
-          <aside className="order-3 min-w-0 space-y-3 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)] xl:overflow-y-auto xl:pr-1">
+          <aside className="min-w-0 space-y-3 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)] xl:overflow-y-auto xl:pr-1">
             <div className="rounded-2xl border border-border bg-card/45 p-4">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
@@ -713,6 +672,7 @@ export default function MapDashboard() {
               )}
             </div>
           </aside>
+          </div>
         </div>
       </main>
     </div>
