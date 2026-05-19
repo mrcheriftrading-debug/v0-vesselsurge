@@ -834,8 +834,6 @@ export async function GET(request: Request) {
       if (!upsertArticleSignals.ok) throw new Error(`Failed to upsert news signals: ${upsertArticleSignals.status} ${await upsertArticleSignals.text()}`)
     }
 
-    const dashboardCacheUpdated = await upsertMaritimeDashboardCache(createAdminClient())
-
     return NextResponse.json({
       success: true,
       timestamp,
@@ -845,14 +843,14 @@ export async function GET(request: Request) {
       articles_inserted: articles.length,
       signals_found: articleSignals.length,
       verified: articles.length,
-      dashboard_cache_updated: dashboardCacheUpdated,
+      dashboard_cache_updated: false,
       window: {
         from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
         to: timestamp,
         policy: 'Only source-published articles from the latest 24 hours are written, with recent fallback by hotspot when needed.',
       },
       sources: [...new Set(articles.map((article) => article.source))],
-      note: 'Fast news-only update. AIS, weather and vessel tables are left untouched so news freshness cannot be blocked by heavier data jobs.',
+      note: 'Fast news-only update. AIS, weather, vessel tables and dashboard cache rebuilds are left untouched so news freshness cannot be blocked by heavier data jobs.',
     })
   }
 
