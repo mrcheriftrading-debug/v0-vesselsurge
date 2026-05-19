@@ -774,6 +774,7 @@ async function supabaseRequest(path: string, init: RequestInit = {}) {
 
   return fetch(`${supabaseUrl}/rest/v1/${path}`, {
     ...init,
+    signal: init.signal || AbortSignal.timeout(8000),
     headers: {
       apikey: serviceRoleKey,
       authorization: `Bearer ${serviceRoleKey}`,
@@ -810,28 +811,48 @@ export async function GET(request: Request) {
 
   if (newsOnly) {
     let articlesInserted = 0
+    let fastWriteWarning: string | null = null
     if (articles.length > 0) {
-      const insertNews = await supabaseRequest('news_articles', {
-        method: 'POST',
-        headers: { prefer: 'return=minimal' },
-        body: JSON.stringify(articles),
-      })
-      if (insertNews.ok) {
-        articlesInserted = articles.length
-      } else {
-        console.warn('[trusted-update] fast news insert skipped:', insertNews.status, await insertNews.text())
+      try {
+        const insertNews = await supabaseRequest('news_articles', {
+          method: 'POST',
+          headers: { prefer: 'return=minimal' },
+          signal: AbortSignal.timeout(3500),
+          body: JSON.stringify(articles),
+        })
+        if (insertNews.ok) {
+          articlesInserted = articles.length
+        } else {
+          fastWriteWarning = `fast news insert skipped: ${insertNews.status}`
+          console.warn('[trusted-update]', fastWriteWarning, await insertNews.text())
+        }
+      } catch (error) {
+        fastWriteWarning = 'fast news insert timed out'
+        console.warn('[trusted-update] fast news insert timed out:', error)
       }
     }
 
     const articleSignals = buildArticleSignals(articles)
+    let signalsWritten = 0
 
     if (articleSignals.length > 0) {
-      const upsertArticleSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
-        method: 'POST',
-        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(articleSignals.map((signal) => ({ ...signal, updated_at: timestamp }))),
-      })
-      if (!upsertArticleSignals.ok) throw new Error(`Failed to upsert news signals: ${upsertArticleSignals.status} ${await upsertArticleSignals.text()}`)
+      try {
+        const upsertArticleSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
+          method: 'POST',
+          headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+          signal: AbortSignal.timeout(3500),
+          body: JSON.stringify(articleSignals.map((signal) => ({ ...signal, updated_at: timestamp }))),
+        })
+        if (upsertArticleSignals.ok) {
+          signalsWritten = articleSignals.length
+        } else {
+          fastWriteWarning ||= `fast news signal upsert skipped: ${upsertArticleSignals.status}`
+          console.warn('[trusted-update] fast news signal upsert skipped:', upsertArticleSignals.status, await upsertArticleSignals.text())
+        }
+      } catch (error) {
+        fastWriteWarning ||= 'fast news signal upsert timed out'
+        console.warn('[trusted-update] fast news signal upsert timed out:', error)
+      }
     }
 
     return NextResponse.json({
@@ -842,8 +863,10 @@ export async function GET(request: Request) {
       articles_fetched: articles.length,
       articles_inserted: articlesInserted,
       signals_found: articleSignals.length,
+      signals_written: signalsWritten,
       verified: articles.length,
       dashboard_cache_updated: false,
+      warning: fastWriteWarning,
       window: {
         from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
         to: timestamp,
