@@ -228,7 +228,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
                 <Link href={region.mapHref} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
                   Open live map <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/intelligence" className="inline-flex min-h-12 items-center justify-center rounded-md border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.04]">
+                <Link href="/latest" className="inline-flex min-h-12 items-center justify-center rounded-md border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.04]">
                   Read latest intelligence
                 </Link>
               </div>

@@ -159,7 +159,7 @@ async function searchStoredMaritimeIntel(query: string, maxResults: number) {
     .slice(0, Math.min(maxResults, 10))
 
   const results: SearchResult[] = scored.map(({ article, title, snippet }) => {
-    const link = String(article.url || "https://www.vesselsurge.com/intelligence")
+    const link = String(article.url || "https://www.vesselsurge.com/latest")
     let source = String(article.source || "")
     try {
       source ||= new URL(link).hostname.replace("www.", "")

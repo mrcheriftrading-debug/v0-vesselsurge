@@ -9,18 +9,11 @@ export const publicFeaturePages = [
     keywords: ["live maritime map", "vessel tracking", "shipping chokepoint map"],
   },
   {
-    name: "Maritime Intelligence",
-    url: `${BASE_URL}/intelligence`,
-    description:
-      "Source-reviewed shipping risk reports and route signals for Hormuz, Red Sea, Suez and Malacca.",
-    keywords: ["maritime intelligence", "shipping risk reports", "chokepoint news"],
-  },
-  {
-    name: "Latest Maritime News",
+    name: "News & Risk",
     url: `${BASE_URL}/latest`,
     description:
-      "Fresh source-reviewed maritime news, chokepoint signals and live map context for shipping risk searches.",
-    keywords: ["latest maritime news", "shipping news today", "chokepoint news"],
+      "Fresh source-reviewed maritime news, chokepoint risk signals and live map context for shipping risk searches.",
+    keywords: ["latest maritime news", "shipping news today", "chokepoint news", "maritime intelligence", "shipping risk reports"],
   },
   {
     name: "Maritime B2B Network",
@@ -138,8 +131,8 @@ export const trafficTopicPages = [
     description:
       "Use VesselSurge for maritime risk intelligence across Hormuz, Bab el-Mandeb, Suez and Malacca with live map context and source-reviewed reports.",
     keywords: ["maritime risk intelligence", "shipping disruption tracker", "chokepoint monitoring"],
-    regionHref: "/intelligence",
-    primaryHref: "/intelligence",
+    regionHref: "/latest",
+    primaryHref: "/latest",
     intent: "researchers and operators comparing shipping risk across chokepoints",
     questions: [
       "What is maritime risk intelligence?",
@@ -170,8 +163,8 @@ export const trafficTopicPages = [
     description:
       "Track war risk insurance pressure, maritime premium signals, shipping security exposure and chokepoint disruption context across Hormuz, Red Sea, Suez and Malacca.",
     keywords: ["war risk insurance shipping", "maritime insurance risk", "shipping premium pressure"],
-    regionHref: "/intelligence",
-    primaryHref: "/intelligence",
+    regionHref: "/latest",
+    primaryHref: "/latest",
     intent: "operators, cargo teams and analysts watching insurance costs around risky routes",
     questions: [
       "How does war risk insurance affect shipping routes?",
@@ -202,7 +195,7 @@ export const trafficTopicPages = [
     description:
       "Track shipping disruption signals across major chokepoints, including route delays, rerouting pressure, source-reviewed reports and live maritime map context.",
     keywords: ["shipping disruption tracker", "route delay tracker", "maritime disruption intelligence"],
-    regionHref: "/intelligence",
+    regionHref: "/latest",
     primaryHref: "/map-dashboard",
     intent: "teams watching disruption, rerouting, congestion and security signals",
     questions: [
@@ -266,8 +259,8 @@ export const trafficTopicPages = [
     description:
       "Track rerouting pressure around the Cape of Good Hope, Red Sea bypass decisions, voyage time impact, fuel cost pressure and maritime disruption signals.",
     keywords: ["Cape of Good Hope rerouting", "Red Sea rerouting", "shipping route bypass"],
-    regionHref: "/intelligence",
-    primaryHref: "/intelligence",
+    regionHref: "/latest",
+    primaryHref: "/latest",
     intent: "logistics and cargo teams evaluating rerouting pressure and longer voyages",
     questions: [
       "When do ships reroute around the Cape of Good Hope?",
@@ -282,8 +275,8 @@ export const trafficTopicPages = [
     description:
       "Monitor freight rate risk signals tied to chokepoint disruption, war risk premiums, fuel pressure, route delays and source-reviewed maritime intelligence.",
     keywords: ["freight rate risk", "shipping cost signals", "maritime rate pressure"],
-    regionHref: "/intelligence",
-    primaryHref: "/intelligence",
+    regionHref: "/latest",
+    primaryHref: "/latest",
     intent: "market watchers and logistics teams tracking shipping cost pressure",
     questions: [
       "What maritime signals can affect freight rates?",

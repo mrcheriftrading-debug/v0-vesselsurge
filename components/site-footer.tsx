@@ -14,8 +14,7 @@ export function SiteFooter() {
             <span className="text-lg font-bold text-foreground">VesselSurge</span>
           </Link>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-muted-foreground">
-            <Link href="/intelligence" className="transition-colors hover:text-foreground">News & Risk</Link>
-            <Link href="/latest" className="transition-colors hover:text-foreground">Latest</Link>
+            <Link href="/latest" className="transition-colors hover:text-foreground">News & Risk</Link>
             <Link href="/map-dashboard" className="transition-colors hover:text-foreground">Live Map</Link>
             <Link href="/regions/hormuz" className="transition-colors hover:text-foreground">Hormuz</Link>
             <Link href="/regions/bab" className="transition-colors hover:text-foreground">Bab el-Mandeb</Link>

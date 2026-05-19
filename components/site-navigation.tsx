@@ -8,8 +8,7 @@ import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, TrendingUp
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Live Map", icon: Map },
-  { href: "/latest", label: "Latest", icon: Newspaper },
-  { href: "/intelligence", label: "News & Risk", icon: Newspaper },
+  { href: "/latest", label: "News & Risk", icon: Newspaper },
   { href: "/pro-market", label: "Market Pro", icon: TrendingUp },
   { href: "/network", label: "Join Network", icon: Network },
   { href: "/about", label: "About", icon: Info },
@@ -18,7 +17,7 @@ const navItems = [
 const mobilePrimaryItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Map", icon: Map },
-  { href: "/latest", label: "Latest", icon: Newspaper },
+  { href: "/latest", label: "News", icon: Newspaper },
   { href: "/pro-market", label: "Pro", icon: BarChart3 },
 ]
 

@@ -14,7 +14,7 @@ function escapeXml(value: string) {
 }
 
 function itemXml(article: Awaited<ReturnType<typeof getMaritimeArticles>>[number]) {
-  const link = article.sourceUrl || `${BASE_URL}/intelligence`
+  const link = article.sourceUrl || `${BASE_URL}/latest`
   const pubDate = article.timestamp ? new Date(article.timestamp).toUTCString() : new Date().toUTCString()
 
   return `
@@ -51,7 +51,7 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>VesselSurge Maritime Intelligence Feed</title>
-    <link>${BASE_URL}/intelligence</link>
+    <link>${BASE_URL}/latest</link>
     <atom:link href="${BASE_URL}/feed.xml" rel="self" type="application/rss+xml" />
     <description>Source-reviewed maritime intelligence, shipping risk reports and chokepoint signals for Hormuz, Bab el-Mandeb, Suez and Malacca.</description>
     <language>en-US</language>

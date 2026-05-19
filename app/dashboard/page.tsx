@@ -132,7 +132,7 @@ export default async function DashboardPage() {
                       View Live Chokepoint Map
                     </Button>
                   </Link>
-                  <Link href="/intelligence">
+                  <Link href="/latest">
                     <Button className="w-full justify-start" variant="outline">
                       <TrendingUp className="mr-2 h-4 w-4" />
                       Read News & Risk Signals

@@ -52,7 +52,7 @@ export default function AboutPage() {
                 VesselSurge combines live maritime intelligence, chokepoint monitoring, and B2B vessel matching into a simple product structure that teams can understand quickly.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/intelligence" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
+                <Link href="/latest" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
                   Explore Intelligence <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/network" className="inline-flex min-h-12 items-center justify-center rounded-md border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.04]">

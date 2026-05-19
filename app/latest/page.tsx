@@ -14,7 +14,7 @@ export const revalidate = 300
 type LatestArticle = MaritimeDashboardResponse["data"]["articles"][number]
 
 export const metadata: Metadata = {
-  title: "Latest Maritime News, Chokepoint Signals and Shipping Risk Updates",
+  title: "News & Risk, Latest Maritime News and Chokepoint Signals",
   description:
     "Read latest source-reviewed maritime news and route-risk signals for Hormuz, Red Sea, Suez, Malacca, tanker tracking, freight pressure and shipping disruption.",
   alternates: { canonical: `${BASE_URL}/latest` },
@@ -31,14 +31,14 @@ export const metadata: Metadata = {
     type: "website",
     url: `${BASE_URL}/latest`,
     siteName: "VesselSurge",
-    title: "Latest Maritime News and Chokepoint Signals | VesselSurge",
+    title: "News & Risk, Latest Maritime News and Chokepoint Signals | VesselSurge",
     description:
       "Fresh source-reviewed maritime news connected to VesselSurge live map context for critical shipping routes.",
     images: [{ url: `${BASE_URL}/og-image.jpg`, width: 1200, height: 630, alt: "VesselSurge latest maritime news" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Latest Maritime News and Chokepoint Signals | VesselSurge",
+    title: "News & Risk, Latest Maritime News and Chokepoint Signals | VesselSurge",
     description: "Fresh maritime news, shipping risk signals and live map context.",
     images: [`${BASE_URL}/og-image.jpg`],
   },
@@ -138,10 +138,10 @@ export default async function LatestMaritimeNewsPage() {
             <div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">
                 <Newspaper className="h-3.5 w-3.5" />
-                Latest maritime news
+                News & Risk
               </div>
               <h1 className="max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Fresh maritime news tied to the live map.
+                Maritime news and route risk tied to the live map.
               </h1>
               <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
                 Source-reviewed shipping headlines, chokepoint signals and live route context for Hormuz, Red Sea, Suez and Malacca.

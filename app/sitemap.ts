@@ -20,12 +20,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       images: [`${BASE_URL}/og-image.jpg`],
     },
     {
-      url: `${BASE_URL}/intelligence`,
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
       url: `${BASE_URL}/latest`,
       lastModified: now,
       changeFrequency: 'hourly',

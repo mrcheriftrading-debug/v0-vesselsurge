@@ -111,7 +111,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
                 <Link href={topic.primaryHref} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">
                   Open relevant tool <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/intelligence" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.04]">
+                <Link href="/latest" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-border px-5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.04]">
                   Read intelligence <FileText className="h-4 w-4" />
                 </Link>
               </div>

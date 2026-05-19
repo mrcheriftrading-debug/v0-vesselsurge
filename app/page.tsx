@@ -17,7 +17,7 @@ const productCards = [
     action: "Open map",
   },
   {
-    href: "/intelligence",
+    href: "/latest",
     title: "I want news and risk",
     text: "Read maritime reports, latest sources, and what changed in the last 24 hours.",
     icon: Newspaper,
@@ -36,8 +36,8 @@ const productCards = [
 
 const quickActions = [
   { href: "/map-dashboard", label: "Live Map", text: "Track hotspots", icon: Map },
-  { href: "/latest", label: "Latest", text: "Fresh signals", icon: Newspaper },
-  { href: "/intelligence", label: "News & Risk", text: "Latest reports", icon: Newspaper },
+  { href: "/latest", label: "News & Risk", text: "Fresh signals", icon: Newspaper },
+  { href: "/pro-market", label: "Market Pro", text: "Market impact", icon: ShieldCheck },
   { href: "/network#surge-form", label: "Join", text: "Cargo or vessels", icon: Network },
 ]
 
@@ -164,13 +164,13 @@ export default function VesselSurgePage() {
                 href="/latest"
                 className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
-                Latest News
+                News & Risk
               </Link>
               <Link
-                href="/intelligence"
+                href="/network"
                 className="relative flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:w-auto sm:px-8 sm:py-4 sm:text-base"
               >
-                News & Risk
+                Join Network
               </Link>
               <Link
                 href="/auth/sign-up"
