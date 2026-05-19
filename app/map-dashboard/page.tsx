@@ -317,7 +317,7 @@ export default function MapDashboard() {
         )}
 
         <div className="grid gap-3 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
-          <aside className="min-w-0 space-y-3 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)]">
+          <aside className="order-2 min-w-0 space-y-3 xl:order-1 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)]">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2">
               <div className="rounded-xl border border-border bg-card/55 p-3">
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -396,7 +396,7 @@ export default function MapDashboard() {
             </div>
           </aside>
 
-          <section className="min-w-0 rounded-2xl border border-border bg-card/35 p-2 shadow-2xl shadow-black/20">
+          <section className="order-1 min-w-0 rounded-2xl border border-border bg-card/35 p-2 shadow-2xl shadow-black/20 xl:order-2">
             <div className="flex flex-col gap-3 border-b border-border/60 px-2 pb-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
@@ -426,7 +426,7 @@ export default function MapDashboard() {
               </div>
             </div>
 
-            <div className="relative mt-2 h-[56vh] min-h-[420px] overflow-hidden rounded-xl border border-border xl:h-[calc(100vh-15rem)] xl:min-h-[610px]">
+            <div className="relative mt-2 h-[48vh] min-h-[340px] overflow-hidden rounded-xl border border-border sm:min-h-[420px] xl:h-[calc(100vh-15rem)] xl:min-h-[610px]">
               {hotspotList.length > 0 ? (
                 <SatelliteMap
                   hotspots={hotspotList}
@@ -448,7 +448,7 @@ export default function MapDashboard() {
             </div>
           </section>
 
-          <aside className="min-w-0 space-y-3 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)] xl:overflow-y-auto xl:pr-1">
+          <aside className="order-3 min-w-0 space-y-3 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)] xl:overflow-y-auto xl:pr-1">
             <div className="rounded-2xl border border-border bg-card/45 p-4">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
