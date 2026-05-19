@@ -55,7 +55,8 @@ const REGION_KEYWORDS: Record<string, string[]> = {
 const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng)\b/i
 const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|crypto|bitcoin|railway|football|cricket|tourism|movie|celebrity)\b/i
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
-const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment)\b/i
+const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|coinmarketcap|coin republic|unchained|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment)\b/i
+const HARD_NEWS_NOISE_PATTERN = /\b(crypto|bitcoin|blockchain|defi|token|coinmarketcap|football|cricket|celebrity|movie)\b/i
 
 const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string; source: string; topic: string }>> = {
   hormuz: [
@@ -211,10 +212,11 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
   }))
 
   const seen = new Set<string>()
-  return results
+  const filtered = results
     .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
     .filter((article) => article.title && article.sourceUrl)
     .filter((article) => !GOOGLE_NEWS_SOURCE_BLOCKLIST.test(article.source))
+    .filter((article) => !HARD_NEWS_NOISE_PATTERN.test(`${article.title} ${article.summary} ${article.source}`))
     .filter((article) => isOperationalMaritimeNews(article))
     .filter((article) => {
       const key = article.sourceUrl || article.title
@@ -222,8 +224,25 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
       seen.add(key)
       return true
     })
-    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
-    .slice(0, Math.min(limit, 50))
+
+  const max = Math.min(limit, 50)
+  const sorted = filtered.sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+  const balancedRegions = ['hormuz', 'bab', 'suez', 'malacca']
+  const byRegion = new Map(balancedRegions.map((itemRegion) => [
+    itemRegion,
+    sorted.filter((article) => article.region === itemRegion),
+  ]))
+  const balanced: typeof sorted = []
+
+  while (balanced.length < max && balancedRegions.some((itemRegion) => (byRegion.get(itemRegion)?.length || 0) > 0)) {
+    for (const itemRegion of balancedRegions) {
+      const next = byRegion.get(itemRegion)?.shift()
+      if (next) balanced.push(next)
+      if (balanced.length >= max) break
+    }
+  }
+
+  return balanced
     .map((article) => ({
       id: article.id,
       title: article.title,
