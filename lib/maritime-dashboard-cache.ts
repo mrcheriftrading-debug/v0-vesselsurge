@@ -117,6 +117,19 @@ function confidenceLabelForHotspot(score: number, stats: { officialSignalCount: 
   return 'Thin signal'
 }
 
+function dedupeArticles<T extends { title?: string | null; sourceUrl?: string | null; source?: string | null }>(articles: T[]) {
+  const seen = new Set<string>()
+  return articles.filter((article) => {
+    const key = (article.sourceUrl || `${article.source || 'unknown'}:${article.title || ''}`)
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 async function fetchVesselCounts(supabase: SupabaseClient) {
   try {
     const freshCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
@@ -171,7 +184,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     throw new Error('Failed to fetch maritime data')
   }
 
-  const articles = (articlesData || []).map((article: any) => ({
+  const articles = dedupeArticles((articlesData || []).map((article: any) => ({
     id: article.id,
     title: article.title,
     summary: article.summary || article.description || article.snippet,
@@ -181,7 +194,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     region: article.region || 'global',
     timestamp: article.published_at || article.created_at || timestamp,
     isBreaking: article.is_breaking || false,
-  }))
+  })))
 
   const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
     const region = article.region || 'global'

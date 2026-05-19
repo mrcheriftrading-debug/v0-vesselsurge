@@ -268,6 +268,19 @@ function buildWatchFallback(region: string | null) {
   })))
 }
 
+function dedupeNewsItems<T extends { title?: string | null; source?: string | null; sourceUrl?: string | null; url?: string | null }>(items: T[]) {
+  const seen = new Set<string>()
+  return items.filter((item) => {
+    const key = (item.sourceUrl || item.url || `${item.source || 'unknown'}:${item.title || ''}`)
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const topic = searchParams.get('topic') || null
@@ -279,10 +292,9 @@ export async function GET(request: Request) {
     const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 700, 'dashboard cache')
       .catch(() => withTimeout(getLastMaritimeDashboardCache(supabase, 'fresh news query unavailable; serving last known source-reviewed news'), 700, 'stale dashboard cache').catch(() => null))
     if (cached?.data?.articles?.length) {
-      const cachedArticles = cached.data.articles
+      const cachedArticles = dedupeNewsItems(cached.data.articles
         .filter((article: any) => !region || region === 'all' || article.region === region)
         .filter((article: any) => !topic || topic === 'all' || article.category === topic)
-        .slice(0, Math.min(limit, 50))
         .map((article: any) => ({
           id: article.id,
           title: article.title,
@@ -293,7 +305,8 @@ export async function GET(request: Request) {
           region: article.region || 'global',
           timestamp: article.timestamp,
           derivedFrom: 'maritime_dashboard_cache',
-        }))
+        })))
+        .slice(0, Math.min(limit, 50))
 
       if (cachedArticles.length > 0) {
         return NextResponse.json(
@@ -362,7 +375,7 @@ export async function GET(request: Request) {
       }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
     }
 
-    const articles = (data || [])
+    const articles = dedupeNewsItems((data || [])
       .filter((a: any) => isTrustedSource(a.source || ''))
       .filter((a: any) => isOperationalMaritimeNews(a))
       .filter((a: any) => !region || region === 'all' || a.region === region)
@@ -375,7 +388,7 @@ export async function GET(request: Request) {
         topic: a.topic || 'global',
         region: a.region || 'global',
         timestamp: a.published_at || a.created_at,
-      }))
+      })))
 
     const articleUrls = new Set(articles.map((article: any) => article.sourceUrl).filter(Boolean))
     const signalLimit = Math.max(0, Math.min(limit, 50) - articles.length)
@@ -427,7 +440,7 @@ export async function GET(request: Request) {
     const currentCount = articles.length + signalFallback.length
     const watchFallback = currentCount > 0 ? [] : buildWatchFallback(region)
 
-    const mergedArticles = [...articles, ...signalFallback, ...watchFallback].slice(0, Math.min(limit, 50))
+    const mergedArticles = dedupeNewsItems([...articles, ...signalFallback, ...watchFallback]).slice(0, Math.min(limit, 50))
 
     return NextResponse.json(
       {
