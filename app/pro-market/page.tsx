@@ -6,6 +6,7 @@ import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
+  ClipboardCheck,
   FileText,
   Gauge,
   LockKeyhole,
@@ -132,8 +133,8 @@ export default async function ProMarketPage({
           <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">Subscription</p>
-              <h2 className="mt-1 text-xl font-black">Unlock the live analyst report for 199 kr every 14 days.</h2>
-              <p className="mt-1 text-sm text-slate-300">Full source links, live ranking, asset pressure, chokepoint heat and watch triggers.</p>
+              <h2 className="mt-1 text-xl font-black">Create an account, then unlock the live analyst report for 199 kr every 14 days.</h2>
+              <p className="mt-1 text-sm text-slate-300">Full source links, ranked events, asset pressure, chokepoint heat and watch triggers.</p>
             </div>
             {user ? (
               <form action="/api/stripe/checkout" method="post">
@@ -185,6 +186,24 @@ export default async function ProMarketPage({
         </div>
       </section>
 
+      <section className="border-b border-slate-200 bg-[#f8fafc] px-4 py-9">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">What Pro unlocks</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-950">A market briefing you can read before the market reacts.</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              The free preview shows the structure. Pro turns the same page into a live source-backed briefing with the evidence trail visible.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <UnlockItem title="Live source trail" body="Open the ranked news or maritime signal behind each score." />
+            <UnlockItem title="Asset pressure table" body="See which market channel is most exposed and why." />
+            <UnlockItem title="Chokepoint comparison" body="Compare Hormuz, Bab el-Mandeb, Suez and Malacca in one scan." />
+            <UnlockItem title="Watch triggers" body="Know what would raise, lower or confirm the market-pressure score." />
+          </div>
+        </div>
+      </section>
+
       <section className="px-4 py-10">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
           <AgentPanel
@@ -197,6 +216,20 @@ export default async function ProMarketPage({
             subtitle="Turns messy maritime information into a ranked, readable report."
             points={['Scores severity, recency and source quality', 'Compares chokepoints side by side', 'Shows the exact triggers to monitor next']}
           />
+        </div>
+      </section>
+
+      <section className="px-4 pb-10">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Investor questions</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-950">The page is built to answer these fast</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <QuestionCard text="Is this maritime event relevant to oil, freight, tankers, insurance or logistics?" />
+            <QuestionCard text="Which chokepoint is driving the risk, and is the pressure spreading?" />
+            <QuestionCard text="What exact new information would change the market-impact score?" />
+          </div>
         </div>
       </section>
 
@@ -373,6 +406,26 @@ function MetricGuide({ label, value, body }: { label: string; value: string; bod
       <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
       <p className="mt-3 text-xl font-black text-slate-950">{value}</p>
       <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+    </div>
+  )
+}
+
+function UnlockItem({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+        <ClipboardCheck className="h-4 w-4" />
+      </div>
+      <h3 className="font-black text-slate-950">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+    </div>
+  )
+}
+
+function QuestionCard({ text }: { text: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-sm font-bold leading-6 text-slate-800">{text}</p>
     </div>
   )
 }
