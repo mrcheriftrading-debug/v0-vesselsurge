@@ -808,22 +808,22 @@ export async function GET(request: Request) {
 
   const articles = await articlesPromise
 
-  const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
-  if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
-
-  if (articles.length > 0) {
-    const insertNews = await supabaseRequest('news_articles', {
-      method: 'POST',
-      headers: { prefer: 'return=minimal' },
-      body: JSON.stringify(articles),
-    })
-    if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
-  }
-
   if (newsOnly) {
+    let articlesInserted = 0
+    if (articles.length > 0) {
+      const insertNews = await supabaseRequest('news_articles', {
+        method: 'POST',
+        headers: { prefer: 'return=minimal' },
+        body: JSON.stringify(articles),
+      })
+      if (insertNews.ok) {
+        articlesInserted = articles.length
+      } else {
+        console.warn('[trusted-update] fast news insert skipped:', insertNews.status, await insertNews.text())
+      }
+    }
+
     const articleSignals = buildArticleSignals(articles)
-    const deleteNewsSignals = await supabaseRequest('maritime_signals?signal_type=eq.news_corroboration', { method: 'DELETE' })
-    if (!deleteNewsSignals.ok) throw new Error(`Failed to refresh news signals: ${deleteNewsSignals.status} ${await deleteNewsSignals.text()}`)
 
     if (articleSignals.length > 0) {
       const upsertArticleSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
@@ -840,7 +840,7 @@ export async function GET(request: Request) {
       scope: 'news',
       source: 'openclaw-trusted-web',
       articles_fetched: articles.length,
-      articles_inserted: articles.length,
+      articles_inserted: articlesInserted,
       signals_found: articleSignals.length,
       verified: articles.length,
       dashboard_cache_updated: false,
@@ -850,8 +850,20 @@ export async function GET(request: Request) {
         policy: 'Only source-published articles from the latest 24 hours are written, with recent fallback by hotspot when needed.',
       },
       sources: [...new Set(articles.map((article) => article.source))],
-      note: 'Fast news-only update. AIS, weather, vessel tables and dashboard cache rebuilds are left untouched so news freshness cannot be blocked by heavier data jobs.',
+      note: 'Fast news-only update. AIS, weather, vessel tables, destructive news clearing and dashboard cache rebuilds are left untouched so news freshness cannot be blocked by heavier data jobs.',
     })
+  }
+
+  const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
+  if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
+
+  if (articles.length > 0) {
+    const insertNews = await supabaseRequest('news_articles', {
+      method: 'POST',
+      headers: { prefer: 'return=minimal' },
+      body: JSON.stringify(articles),
+    })
+    if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
   }
 
   const aisPromise = collectAisStreamVessels({ timeoutMs: 10000, maxVessels: 80 })
