@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, BarChart3, Map, Network, Newspaper, ShieldCheck, Ship, Zap } from "lucide-react"
+import { ArrowRight, BarChart3, Map, Network, Newspaper, ShieldCheck, Ship, Zap, Activity, Globe, TrendingUp } from "lucide-react"
 import { HomeLiveMapLink } from "@/components/home-live-map-link"
 import { HomeOceanScene } from "@/components/home-ocean-scene"
 import { CommandStrip, FloatingIntelSignals } from "@/components/maritime-motion-effects"
@@ -10,43 +10,99 @@ import { trafficTopicPages } from "@/lib/seo"
 const productCards = [
   {
     href: "/map-dashboard",
-    title: "See risk on the map",
-    text: "Live chokepoint view with risk labels, source evidence and AIS context.",
+    title: "Live Map",
+    text: "Real-time chokepoint view with risk labels, AIS vessel context and source evidence.",
     icon: Map,
-    accent: "text-primary",
+    color: "from-blue-500/20 to-blue-600/5",
+    border: "border-blue-500/25 hover:border-blue-400/50",
+    iconBg: "bg-blue-500/15 text-blue-400",
+    glow: "hover:shadow-[0_0_40px_rgba(59,130,246,0.12)]",
     action: "Open Live Map",
+    badge: "LIVE",
   },
   {
     href: "/latest",
-    title: "Read News & Risk",
-    text: "Fresh maritime headlines, verified sources and route-specific risk signals.",
+    title: "News & Risk",
+    text: "Fresh maritime headlines, verified sources and route-specific risk signals updated continuously.",
     icon: Newspaper,
-    accent: "text-accent",
-    action: "Open News & Risk",
+    color: "from-cyan-500/20 to-cyan-600/5",
+    border: "border-cyan-500/25 hover:border-cyan-400/50",
+    iconBg: "bg-cyan-500/15 text-cyan-400",
+    glow: "hover:shadow-[0_0_40px_rgba(0,255,255,0.10)]",
+    action: "Read Intel",
+    badge: "24H",
   },
   {
     href: "/pro-market",
-    title: "Analyze market impact",
-    text: "Translate maritime disruption into investor and trading context.",
+    title: "Market Pro",
+    text: "Translate maritime disruption into investor-grade market context and trading signals.",
     icon: BarChart3,
-    accent: "text-amber-300",
-    action: "View Market Pro",
+    color: "from-amber-500/20 to-amber-600/5",
+    border: "border-amber-500/25 hover:border-amber-400/50",
+    iconBg: "bg-amber-500/15 text-amber-400",
+    glow: "hover:shadow-[0_0_40px_rgba(245,158,11,0.10)]",
+    action: "View Pro",
+    badge: "PRO",
   },
   {
     href: "/network",
-    title: "Find cargo or vessels",
-    text: "Submit cargo needs or vessel capacity through a focused B2B flow.",
+    title: "B2B Network",
+    text: "Submit cargo needs or vessel capacity. Connect with operators through a focused matching flow.",
     icon: Network,
-    accent: "text-emerald-300",
+    color: "from-emerald-500/20 to-emerald-600/5",
+    border: "border-emerald-500/25 hover:border-emerald-400/50",
+    iconBg: "bg-emerald-500/15 text-emerald-400",
+    glow: "hover:shadow-[0_0_40px_rgba(16,185,129,0.10)]",
     action: "Join Network",
+    badge: "FREE",
   },
 ]
 
 const chokepointLinks = [
-  { href: "/regions/hormuz", title: "Strait of Hormuz", text: "Oil tanker traffic, Iran tension and Persian Gulf maritime risk." },
-  { href: "/regions/bab", title: "Bab el-Mandeb", text: "Red Sea security, Gulf of Aden routing and Houthi risk signals." },
-  { href: "/regions/suez", title: "Suez Canal", text: "Transit flow, queue signals and Europe-Asia disruption context." },
-  { href: "/regions/malacca", title: "Strait of Malacca", text: "Singapore Strait traffic, congestion and piracy alert context." },
+  {
+    href: "/regions/hormuz",
+    title: "Strait of Hormuz",
+    short: "HORMUZ",
+    text: "Oil tanker traffic, Iran tension and Persian Gulf maritime risk.",
+    risk: "HIGH",
+    riskColor: "text-red-400",
+    riskBg: "bg-red-400/10 border-red-400/20",
+    dot: "bg-red-400",
+    flag: "🟥",
+  },
+  {
+    href: "/regions/bab",
+    title: "Bab el-Mandeb",
+    short: "BAB",
+    text: "Red Sea security, Gulf of Aden routing and Houthi risk signals.",
+    risk: "MEDIUM",
+    riskColor: "text-amber-400",
+    riskBg: "bg-amber-400/10 border-amber-400/20",
+    dot: "bg-amber-400",
+    flag: "🟨",
+  },
+  {
+    href: "/regions/suez",
+    title: "Suez Canal",
+    short: "SUEZ",
+    text: "Transit flow, vessel queue signals and Europe-Asia disruption context.",
+    risk: "MEDIUM",
+    riskColor: "text-amber-400",
+    riskBg: "bg-amber-400/10 border-amber-400/20",
+    dot: "bg-amber-400",
+    flag: "🟨",
+  },
+  {
+    href: "/regions/malacca",
+    title: "Strait of Malacca",
+    short: "MALACCA",
+    text: "Singapore Strait traffic, congestion signals and piracy alert context.",
+    risk: "MEDIUM",
+    riskColor: "text-amber-400",
+    riskBg: "bg-amber-400/10 border-amber-400/20",
+    dot: "bg-amber-400",
+    flag: "🟨",
+  },
 ]
 
 const maritimeFaq = [
@@ -76,10 +132,7 @@ const faqJsonLd = {
   mainEntity: maritimeFaq.map((item) => ({
     "@type": "Question",
     name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
   })),
 }
 
@@ -112,203 +165,192 @@ const topicItemListJsonLd = {
 export default function VesselSurgePage() {
   return (
     <div className="min-h-screen bg-background">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(chokepointItemListJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(topicItemListJsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(chokepointItemListJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(topicItemListJsonLd) }} />
       <SiteNavigation />
 
       <main>
-        <section className="relative min-h-[100svh] overflow-hidden pt-16">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#071020] via-background to-card" />
-          <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(0,119,255,0.13),transparent_36%,rgba(0,255,255,0.08)_72%,transparent)]" />
-          <div className="absolute inset-x-0 top-16 h-px bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent" />
-          <div className="absolute inset-x-[-20%] bottom-0 top-[62%] opacity-55 sm:inset-x-0 sm:opacity-65 md:top-[54%]">
-            <HomeOceanScene />
+      {/* ── HERO ── */}
+      <section className="relative min-h-[100svh] overflow-hidden pt-16">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#040d1e] via-[#071020] to-background" />
+        <div className="absolute inset-0" style={{backgroundImage:"radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,119,255,0.18) 0%, transparent 60%), radial-gradient(ellipse 40% 30% at 80% 30%, rgba(0,255,255,0.08) 0%, transparent 50%)"}} />
+        <div className="absolute inset-x-0 top-16 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent" />
+        <div className="absolute inset-x-[-20%] bottom-0 top-[60%] opacity-50 sm:inset-x-0 sm:opacity-60 md:top-[52%]">
+          <HomeOceanScene />
+        </div>
+        <FloatingIntelSignals />
+        <CommandStrip />
+        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage:"linear-gradient(rgba(0,119,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,119,255,0.15) 1px, transparent 1px)", backgroundSize:"72px 72px"}} />
+
+        <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 pb-28 pt-16 text-center md:pb-16 lg:px-8">
+
+          {/* Status pill */}
+          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+            <span className="font-mono text-[0.6rem] font-bold uppercase tracking-[0.25em] text-emerald-300">Live maritime intelligence</span>
+            <span className="h-3 w-px bg-white/10" />
+            <span className="font-mono text-[0.6rem] text-muted-foreground">4 chokepoints monitored</span>
           </div>
-          <FloatingIntelSignals />
-          <CommandStrip />
-          <div
-            className="absolute inset-0 opacity-[0.14]"
-            style={{
-              backgroundImage: "linear-gradient(rgba(0,119,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,119,255,0.1) 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
-            }}
-          />
 
-          <div className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col items-center justify-center px-4 pb-28 pt-14 text-center md:pb-14 lg:px-8">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.22em] text-accent sm:mb-7 sm:text-xs sm:tracking-[0.3em]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.8)]" />
-              Maritime intelligence for critical routes
-            </div>
+          <h1 className="max-w-4xl text-[2.4rem] font-black leading-[1.02] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.5rem]">
+            Shipping intelligence<br />
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">before the market moves.</span>
+          </h1>
 
-            <h1 className="max-w-5xl text-[2.25rem] font-extrabold leading-[1.04] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-              Maritime risk, live maps and cargo connections{" "}
-              <span className="text-primary text-glow-blue">in one clean workspace.</span>
-            </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
+            Track vessel traffic, maritime risk signals and cargo opportunities across Hormuz, Red Sea, Suez and Malacca — in one workspace.
+          </p>
 
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-7 sm:text-lg md:text-xl">
-              Track critical shipping routes, read the latest maritime signals, and move quickly between live intelligence and vessel matching.
-            </p>
-
-            <div className="mt-7 grid w-full max-w-md gap-3 sm:max-w-4xl sm:grid-cols-4">
-              <HomeLiveMapLink />
-              <Link
-                href="/latest"
-                className="relative flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-md border border-accent/45 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent shadow-[0_0_22px_rgba(0,255,255,0.08)] transition-all hover:-translate-y-1 hover:bg-accent/20 sm:min-h-14 sm:px-5 sm:py-4"
-              >
-                News & Risk
-              </Link>
-              <Link
-                href="/pro-market"
-                className="relative flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-md border border-amber-300/35 bg-amber-300/10 px-5 py-3 text-sm font-semibold text-amber-200 transition-all hover:-translate-y-1 hover:bg-amber-300/15 sm:min-h-14 sm:px-5 sm:py-4"
-              >
-                Market Pro
-              </Link>
-              <Link
-                href="/network"
-                className="relative flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-md border border-border bg-card/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-1 hover:border-primary/50 hover:bg-card sm:min-h-14 sm:px-5 sm:py-4"
-              >
-                Join Network
-              </Link>
-            </div>
-
-            <div className="mt-8 grid w-full max-w-3xl grid-cols-3 gap-2 rounded-xl border border-white/10 bg-slate-950/25 p-2 backdrop-blur sm:gap-3 sm:p-3">
-              <div className="rounded-lg bg-white/[0.03] px-3 py-3">
-                <div className="text-lg font-black text-foreground sm:text-2xl">4</div>
-                <div className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">Hotspots</div>
-              </div>
-              <div className="rounded-lg bg-white/[0.03] px-3 py-3">
-                <div className="text-lg font-black text-foreground sm:text-2xl">24h</div>
-                <div className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">Intel</div>
-              </div>
-              <div className="rounded-lg bg-white/[0.03] px-3 py-3">
-                <div className="text-lg font-black text-foreground sm:text-2xl">B2B</div>
-                <div className="mt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">Network</div>
-              </div>
-            </div>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <HomeLiveMapLink />
+            <Link href="/latest" className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-5 text-sm font-semibold text-slate-200 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/[0.07] hover:text-cyan-300">
+              <Newspaper className="h-4 w-4" /> News & Risk
+            </Link>
+            <Link href="/pro-market" className="inline-flex h-12 items-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/[0.06] px-5 text-sm font-semibold text-amber-300 transition-all hover:-translate-y-0.5 hover:border-amber-400/40 hover:bg-amber-400/10">
+              <TrendingUp className="h-4 w-4" /> Market Pro
+            </Link>
           </div>
-        </section>
 
-        <section className="border-t border-border bg-background py-14 sm:py-20">
-          <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-              <div className="max-w-2xl">
-                <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Start here</div>
-                <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Choose the job. Open the right tool.</h2>
-                <p className="mt-3 text-muted-foreground">
-                  VesselSurge now has four clear paths: map, news/risk, market impact and cargo-vessel matching.
-                </p>
-              </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {productCards.map(({ href, title, text, icon: Icon, accent, action }) => (
-                <Link key={href} href={href} className="group rounded-xl border border-border bg-card/50 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
-                  <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] ${accent}`}>
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-foreground">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                    {action} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-t border-border bg-card py-14 sm:py-20">
-          <div className="mx-auto grid max-w-7xl gap-5 px-4 md:grid-cols-3 lg:px-8">
+          {/* Live stats strip */}
+          <div className="mt-10 flex items-center gap-0 rounded-2xl border border-white/[0.07] bg-white/[0.025] backdrop-blur-md overflow-hidden">
             {[
-              { label: "See risk clearly", text: "Critical routes, source signals, and live map context stay easy to scan.", icon: ShieldCheck },
-              { label: "Act faster", text: "Move from news to map to decision without digging through a long page.", icon: Zap },
-              { label: "Find capacity", text: "Connect cargo needs with vessel operators through a focused network flow.", icon: Ship },
-            ].map(({ label, text, icon: Icon }) => (
-              <div key={label} className="rounded-xl border border-border bg-background/50 p-5">
-                <Icon className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 text-base font-bold text-foreground">{label}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
+              { val: "4", label: "Chokepoints", icon: Globe },
+              { val: "24h", label: "Intel refresh", icon: Activity },
+              { val: "AIS", label: "Vessel data", icon: Ship },
+              { val: "B2B", label: "Cargo network", icon: Network },
+            ].map(({ val, label, icon: Icon }, i) => (
+              <div key={val} className={`flex items-center gap-3 px-5 py-4 ${i < 3 ? "border-r border-white/[0.06]" : ""}`}>
+                <Icon className="h-4 w-4 text-blue-400/60 shrink-0" />
+                <div>
+                  <div className="text-base font-black text-white leading-none">{val}</div>
+                  <div className="mt-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
+                </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="border-t border-border bg-background px-4 py-14 sm:py-20 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-2xl">
-              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Critical chokepoints</div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Dedicated pages for the routes people search first.</h2>
-              <p className="mt-3 text-muted-foreground">
-                Stable, crawlable intelligence pages help search engines and AI assistants understand what VesselSurge monitors before users open the live map.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {chokepointLinks.map((region) => (
-                <Link key={region.href} href={region.href} className="group rounded-xl border border-border bg-card/50 p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
-                  <h3 className="text-lg font-bold text-foreground">{region.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{region.text}</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                    Open route page <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </Link>
-              ))}
-            </div>
+      {/* ── PRODUCT CARDS ── */}
+      <section className="border-t border-white/[0.06] bg-[#070e1f] py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mb-10">
+            <div className="mb-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.25em] text-blue-400">What you can do</div>
+            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Four tools. One maritime edge.</h2>
+            <p className="mt-2 text-slate-400 max-w-xl">Map, news, market signals and cargo matching — each with a distinct job, all in one platform.</p>
           </div>
-        </section>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {productCards.map(({ href, title, text, icon: Icon, color, border, iconBg, glow, action, badge }) => (
+              <Link key={href} href={href} className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-b ${color} ${border} ${glow} p-6 transition-all duration-300 hover:-translate-y-1.5`}>
+                <div className="absolute top-4 right-4">
+                  <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 font-mono text-[0.55rem] font-bold tracking-widest text-slate-400">{badge}</span>
+                </div>
+                <div className={`mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 ${iconBg}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{text}</p>
+                <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">
+                  {action} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <section className="border-t border-border bg-card px-4 py-14 sm:py-20 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Maritime search answers</div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Built for the chokepoint questions people ask first.</h2>
-              <p className="mt-3 text-muted-foreground">
-                VesselSurge gives researchers, operators and market watchers a faster way to move from shipping headlines to live route context.
-              </p>
-            </div>
+      {/* ── CHOKEPOINTS ── */}
+      <section className="border-t border-white/[0.06] bg-background py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mb-10">
+            <div className="mb-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.25em] text-cyan-400">Critical routes</div>
+            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Four chokepoints. One platform.</h2>
+            <p className="mt-2 text-slate-400 max-w-xl">Dedicated intelligence pages for the routes that move global trade — updated continuously.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {chokepointLinks.map((region) => (
+              <Link key={region.href} href={region.href} className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04]">
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="font-mono text-[0.55rem] font-bold tracking-[0.2em] text-slate-500">{region.short}</span>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[0.55rem] font-bold tracking-wider ${region.riskBg} ${region.riskColor}`}>
+                    <span className={`h-1 w-1 rounded-full ${region.dot}`} />
+                    {region.risk}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-white">{region.title}</h3>
+                <p className="mt-2 text-sm leading-5 text-slate-400">{region.text}</p>
+                <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 group-hover:text-slate-300 transition-colors">
+                  Open intelligence <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── VALUE PROPS ── */}
+      <section className="border-t border-white/[0.06] bg-[#070e1f] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              { label: "See risk clearly", text: "Critical routes, source signals, and live map context stay easy to scan across all four chokepoints.", icon: ShieldCheck, color: "text-blue-400" },
+              { label: "Act before the market", text: "Move from news to map to decision without digging — maritime disruption translates directly into context.", icon: Zap, color: "text-cyan-400" },
+              { label: "Find capacity fast", text: "Connect cargo needs with vessel operators through a focused, direct B2B network intake flow.", icon: Ship, color: "text-emerald-400" },
+            ].map(({ label, text, icon: Icon, color }) => (
+              <div key={label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                <div className={`mb-4 h-10 w-10 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center ${color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-base font-bold text-white">{label}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="border-t border-white/[0.06] bg-background py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mx-auto max-w-3xl">
+            <div className="mb-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.25em] text-blue-400">Quick answers</div>
+            <h2 className="mb-8 text-3xl font-black tracking-tight text-white sm:text-4xl">What people ask first.</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {maritimeFaq.map(({ question, answer }) => (
-                <div key={question} className="rounded-xl border border-border bg-background/55 p-5">
-                  <h3 className="text-base font-bold text-foreground">{question}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{answer}</p>
+                <div key={question} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+                  <h3 className="text-sm font-bold text-white">{question}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{answer}</p>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="border-t border-border bg-background px-4 py-14 sm:py-20 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-8 max-w-3xl">
-              <div className="mb-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Traffic topics</div>
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">High-intent pages for the maritime searches that matter.</h2>
-              <p className="mt-3 text-muted-foreground">
-                These topic guides connect search demand directly to VesselSurge tools, from Hormuz oil risk to cargo-vessel matching.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {trafficTopicPages.map((topic) => (
-                <Link key={topic.slug} href={`/topics/${topic.slug}`} className="group rounded-xl border border-border bg-card/50 p-5 transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-white/[0.045]">
-                  <h3 className="text-lg font-bold text-foreground">{topic.name}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{topic.description}</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                    Open topic <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </Link>
-              ))}
-            </div>
+      {/* ── TOPIC PAGES ── */}
+      <section className="border-t border-white/[0.06] bg-[#070e1f] py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mb-10">
+            <div className="mb-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.25em] text-slate-500">Intelligence library</div>
+            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">Deep-dive topic pages.</h2>
+            <p className="mt-2 text-slate-400 max-w-xl">From Hormuz oil risk to freight rate signals — structured intelligence for every angle.</p>
           </div>
-        </section>
-      </main>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {trafficTopicPages.map((topic) => (
+              <Link key={topic.slug} href={`/topics/${topic.slug}`} className="group flex items-center justify-between rounded-xl border border-white/[0.05] bg-white/[0.015] px-4 py-3.5 transition-all hover:border-white/10 hover:bg-white/[0.03]">
+                <span className="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">{topic.name}</span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-600 transition-all group-hover:translate-x-0.5 group-hover:text-slate-400" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      </main>
       <SiteFooter />
     </div>
   )
