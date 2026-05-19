@@ -27,6 +27,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       images: [`${BASE_URL}/og-image.jpg`],
     },
     {
+      url: `${BASE_URL}/pro-market`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.88,
+      images: [`${BASE_URL}/og-image.jpg`],
+    },
+    {
       url: `${BASE_URL}/network`,
       lastModified: now,
       changeFrequency: 'weekly',

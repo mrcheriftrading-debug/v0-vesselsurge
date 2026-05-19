@@ -16,6 +16,13 @@ export const publicFeaturePages = [
     keywords: ["latest maritime news", "shipping news today", "chokepoint news", "maritime intelligence", "shipping risk reports"],
   },
   {
+    name: "Market Pro",
+    url: `${BASE_URL}/pro-market`,
+    description:
+      "Source-backed maritime market impact reports for oil, freight, tanker stocks, logistics equities, insurance risk and critical chokepoints.",
+    keywords: ["shipping risk stock market impact", "maritime market intelligence", "oil market shipping risk", "freight rate signals"],
+  },
+  {
     name: "Maritime B2B Network",
     url: `${BASE_URL}/network`,
     description:

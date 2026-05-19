@@ -3,6 +3,7 @@ import { MetadataRoute } from 'next'
 const crawlableGrowthPaths = [
   '/',
   '/latest',
+  '/pro-market',
   '/network',
   '/about',
   '/map-dashboard',
