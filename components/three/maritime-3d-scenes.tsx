@@ -16,7 +16,16 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
 
+function canUseWebgl() {
+  if (typeof document === "undefined") return false
+  const testCanvas = document.createElement("canvas")
+  const context = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl")
+  context?.getExtension("WEBGL_lose_context")?.loseContext()
+  return Boolean(context)
+}
+
 function createRenderer(canvas: HTMLCanvasElement) {
+  if (!canUseWebgl()) throw new Error("WebGL unavailable")
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8))
   renderer.setClearColor(0x000000, 0)
@@ -53,7 +62,13 @@ function useThreeScene(setup: (canvas: HTMLCanvasElement) => () => void) {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    return setup(canvas)
+    try {
+      return setup(canvas)
+    } catch {
+      canvas.dataset.webglUnavailable = "true"
+      canvas.style.display = "none"
+      return undefined
+    }
   }, [setup])
 
   return canvasRef
@@ -200,7 +215,14 @@ export function HeroOceanScene() {
     }
   })
 
-  return <canvas ref={canvasRef} className="h-full w-full" aria-hidden="true" />
+  return (
+    <div className="relative h-full w-full" aria-hidden="true">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(14,165,233,0.20),transparent_34%),radial-gradient(circle_at_34%_58%,rgba(34,211,238,0.14),transparent_26%),linear-gradient(180deg,transparent,rgba(8,47,73,0.36))]" />
+      <div className="absolute inset-x-[8%] bottom-[18%] h-px bg-cyan-300/35 shadow-[0_0_42px_rgba(34,211,238,0.45)]" />
+      <div className="absolute inset-x-[22%] bottom-[34%] h-px bg-blue-400/25 shadow-[0_0_28px_rgba(59,130,246,0.38)]" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+    </div>
+  )
 }
 
 export function DataNetworkScene() {

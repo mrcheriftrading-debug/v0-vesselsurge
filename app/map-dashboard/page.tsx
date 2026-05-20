@@ -152,6 +152,8 @@ const EXPANSION_WATCHLIST = [
   },
 ] as const
 
+const STANDING_WATCH_TIMESTAMP = '2026-05-20T00:00:00.000Z'
+
 function watchCoverageFor(region: string) {
   return WATCH_COVERAGE[region] || [{
     source: 'OpenClaw Watch',
@@ -180,7 +182,27 @@ function formatExactPublishedTime(value: string) {
   const publishedAt = new Date(value)
   if (Number.isNaN(publishedAt.getTime())) return 'time unavailable'
 
-  return publishedAt.toLocaleString([], {
+  return publishedAt.toLocaleString('en-US', {
+    timeZone: 'UTC',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function formatDashboardClock(value: Date) {
+  return value.toLocaleTimeString('en-US', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+}
+
+function formatDashboardDateTime(value: Date) {
+  return value.toLocaleString('en-US', {
+    timeZone: 'UTC',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -283,6 +305,7 @@ export default function MapDashboard() {
   const selectedArticles = articles.filter((article) => article.region?.toLowerCase() === selectedId)
   const selectedSignals = signals.filter((signal) => signal.region?.toLowerCase() === selectedId)
   const selectedWatchCoverage = watchCoverageFor(selectedId)
+  const watchTimestamp = lastUpdated?.toISOString() || dataMeta?.generatedAt || STANDING_WATCH_TIMESTAMP
   const latestSignal = selectedSignals[0]
   const rawFeedItems: FeedItem[] = [
     ...selectedArticles.map((article) => ({
@@ -316,7 +339,7 @@ export default function MapDashboard() {
           summary: item.summary,
           source: item.source,
           sourceUrl: null,
-          timestamp: lastUpdated ? new Date(lastUpdated).toISOString() : new Date().toISOString(),
+          timestamp: watchTimestamp,
           type: 'signal' as const,
           label: item.signalType.toUpperCase(),
           sourceQualityLabel: 'Standing watch',
@@ -400,7 +423,7 @@ export default function MapDashboard() {
           : {
               title: watchItem.title,
               source: watchItem.source,
-              timestamp: lastUpdated ? new Date(lastUpdated).toISOString() : new Date().toISOString(),
+              timestamp: watchTimestamp,
               label: watchItem.signalType,
             }
       const rowRisk = data?.riskLevel || 'medium'
@@ -551,7 +574,7 @@ export default function MapDashboard() {
               {isStaleData ? 'OFFLINE-SAFE DATA' : vessels.length > 0 ? `${vessels.length} AIS VESSELS` : 'WATCH ACTIVE'}
             </div>
             <div className="rounded-full border border-border bg-card/60 px-3 py-1.5 text-xs font-mono text-muted-foreground">
-              {lastUpdated ? `${isStaleData ? 'Last known' : 'Updated'} ${new Date(lastUpdated).toLocaleTimeString()}` : 'Loading data'}
+              {lastUpdated ? `${isStaleData ? 'Last known' : 'Updated'} ${formatDashboardClock(lastUpdated)}` : 'Loading data'}
             </div>
             <button
               onClick={() => refresh()}
@@ -940,7 +963,7 @@ export default function MapDashboard() {
               <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/85 px-3 py-2 text-xs backdrop-blur">
                 <span className="font-semibold text-foreground">Live route focus</span>
                 <span className="font-mono text-muted-foreground">
-                  {selectedUpdatedAt ? `Updated ${selectedUpdatedAt.toLocaleString()}` : 'Standing watch active'}
+                  {selectedUpdatedAt ? `Updated ${formatDashboardDateTime(selectedUpdatedAt)}` : 'Standing watch active'}
                 </span>
               </div>
             </div>

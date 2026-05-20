@@ -162,6 +162,7 @@ export const metadata: Metadata = {
     'theme-color': '#0ea5e9',
     'msapplication-TileColor': '#0f172a',
     'msapplication-config': '/browserconfig.xml',
+    'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
     'apple-mobile-web-app-title': 'VesselSurge',
@@ -405,6 +406,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* PWA / theme */}
         <meta name="theme-color" content="#0ea5e9" />
         <meta name="msapplication-TileColor" content="#0f172a" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="VesselSurge" />
