@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ComponentType, ReactNode } from 'react'
 import type { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import {
   AlertTriangle,
   ArrowRight,
@@ -77,7 +78,7 @@ export default async function ProMarketPage({
   const [params, authState, previewReport] = await Promise.all([
     paramsPromise,
     loadAuthState(),
-    loadReport({ allowDirectDatabaseFallback: false }),
+    loadCachedPreviewReport(),
   ])
   const { user, hasAccess } = authState
   const report = hasAccess && isEmptyReport(previewReport)
@@ -635,6 +636,12 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
 
   return buildMarketImpactReport(news || [], signals || [])
 }
+
+const loadCachedPreviewReport = unstable_cache(
+  async () => loadReport({ allowDirectDatabaseFallback: false }),
+  ['vesselsurge-market-pro-preview-report-v1'],
+  { revalidate: 60 },
+)
 
 function isEmptyReport(report: Report) {
   return report.topStories.length === 0 && report.assetImpacts.every((asset) => asset.score === 0)
