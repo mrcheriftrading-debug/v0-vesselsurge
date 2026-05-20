@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
-import { TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
+import { isTierOneNewsSource, TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -220,6 +220,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
         timestamp: publishedAt,
         published_at: publishedAt,
         derivedFrom: 'direct_news_search_rss',
+        tierOneSweep: feed.source.includes('Tier-1'),
       }
     })
   }))
@@ -228,6 +229,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
   const filtered = results
     .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
     .filter((article) => article.title && article.sourceUrl)
+    .filter((article) => !article.tierOneSweep || isTierOneNewsSource(`${article.source} ${article.sourceUrl}`))
     .filter((article) => !GOOGLE_NEWS_SOURCE_BLOCKLIST.test(article.source))
     .filter((article) => !HARD_NEWS_NOISE_PATTERN.test(`${article.title} ${article.summary} ${article.source}`))
     .filter((article) => isOperationalMaritimeNews(article))

@@ -14,15 +14,15 @@ export const TIER_ONE_NEWS_SOURCE_NAMES = [
 ]
 
 const TIER_ONE_SOURCE_PATTERNS = [
-  /\bal jazeera\b/i,
-  /\bbloomberg\b/i,
-  /\bnew york times\b|\bnytimes\b|\bnyt\b/i,
-  /\breuters\b/i,
-  /\bassociated press\b|\bap news\b/i,
-  /\bbbc\b/i,
+  /\bal jazeera\b|\baljazeera\.com\b/i,
+  /\bbloomberg\b|\bbloomberg\.com\b/i,
+  /\bnew york times\b|\bnytimes\b|\bnyt\b|\bnytimes\.com\b/i,
+  /\breuters\b|\breuters\.com\b/i,
+  /\bassociated press\b|\bap news\b|\bapnews\.com\b/i,
+  /\bbbc\b|\bbbc\.com\b|\bbbc\.co\.uk\b/i,
   /\bfinancial times\b|\bft\.com\b/i,
-  /\bthe guardian\b|\bguardian\b/i,
-  /\bcnbc\b/i,
+  /\bthe guardian\b|\bguardian\b|\btheguardian\.com\b/i,
+  /\bcnbc\b|\bcnbc\.com\b/i,
 ]
 
 const OFFICIAL_SOURCE_PATTERNS = [

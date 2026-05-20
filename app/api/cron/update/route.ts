@@ -4,6 +4,7 @@ import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { isTierOneNewsSource } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
@@ -428,6 +429,7 @@ async function fetchText(url: string, timeoutMs = 7000) {
 }
 
 function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
+  const tierOneSweep = feed.source.includes('Tier-1')
   const items = [...xml.matchAll(/<item[\s\S]*?<\/item>/gi)].map((match) => match[0])
   return items
     .map((item) => {
@@ -455,6 +457,7 @@ function parseRss(xml: string, feed: TrustedFeed): TrustedArticle[] {
       }
     })
     .filter((article) => article.title && article.url && isRelevant(`${article.title} ${article.snippet}`))
+    .filter((article) => !tierOneSweep || isTierOneNewsSource(`${article.source} ${article.url}`))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => {
       if (!article.source.startsWith('Bloomberg')) return true
