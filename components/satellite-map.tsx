@@ -214,7 +214,6 @@ export default function SatelliteMap({ hotspots, selected, onSelect, vessels = [
         // Draw initial vessels
         if (vessels.length > 0) updateVesselMarkers(L, vessels)
 
-        console.log('[map] initialized with', vessels.length, 'vessels')
       } catch (e) {
         console.error('[map] init error:', e)
         initializingRef.current = false
