@@ -145,6 +145,27 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
     confidence: 60,
     observedAt: ARCHIVE_TIMESTAMP,
   }))
+  const qualityAudit = {
+    status: 'watch' as const,
+    sourceMix: {
+      official: 3,
+      tierOne: 0,
+      trade: 0,
+      search: 0,
+      general: 1,
+      watch: 0,
+    },
+    coverageGaps: hotspots.map((hotspot) => ({
+      hotspot: hotspot.hotspot,
+      score: hotspot.hotspot === 'hormuz' || hotspot.hotspot === 'bab' ? 72 : 68,
+      status: 'good' as const,
+      missing: ['live network refresh'],
+      sourceCount: hotspot.sourceCount,
+      latestNewsAt: ARCHIVE_TIMESTAMP,
+      latestSignalAt: ARCHIVE_TIMESTAMP,
+    })),
+    recommendations: ['Live feeds are unavailable; keep serving source-reviewed archive and restore network/database freshness.'],
+  }
 
   return {
     success: true,
@@ -158,6 +179,7 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
         hotspots: hotspots.length,
         signals: signals.length,
       },
+      qualityAudit,
     },
     meta: {
       version: '3.2.0-offline',

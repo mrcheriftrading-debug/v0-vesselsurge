@@ -13,6 +13,28 @@ const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
+type QualityAudit = {
+  status?: 'healthy' | 'watch' | 'degraded'
+  sourceMix?: {
+    official?: number
+    tierOne?: number
+    trade?: number
+    search?: number
+    general?: number
+    watch?: number
+  }
+  coverageGaps?: Array<{
+    hotspot?: string
+    score?: number
+    status?: 'strong' | 'good' | 'watch'
+    missing?: string[]
+    sourceCount?: number
+    latestNewsAt?: string | null
+    latestSignalAt?: string | null
+  }>
+  recommendations?: string[]
+}
+
 function ageMs(value?: string | null) {
   if (!value) return Number.POSITIVE_INFINITY
   const parsed = Date.parse(value)
@@ -31,6 +53,20 @@ function worstStatus(statuses: Status[]): Status {
   return 'ok'
 }
 
+function sourceQualityStatus(audit?: QualityAudit | null): Status {
+  if (!audit) return 'degraded'
+  if (audit.status === 'degraded') return 'degraded'
+  if (audit.status === 'watch') return 'degraded'
+
+  const sourceMix = audit.sourceMix || {}
+  const officialOrTierOne = (sourceMix.official || 0) + (sourceMix.tierOne || 0)
+  const watchRows = (audit.coverageGaps || []).filter((row) => row.status === 'watch' || (row.score || 0) < 68)
+
+  if (watchRows.length > 0) return 'degraded'
+  if (officialOrTierOne < 2) return 'degraded'
+  return 'ok'
+}
+
 function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = new Promise<never>((_, reject) => {
@@ -44,6 +80,7 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Pro
 
 function offlineHealthResponse(error: string) {
   const snapshot = buildOfflineMaritimeDashboardSnapshot('health check could not reach live data; bundled archive remains available')
+  const qualityAudit = snapshot.data.qualityAudit
 
   return NextResponse.json(
     {
@@ -59,6 +96,13 @@ function offlineHealthResponse(error: string) {
           articles: snapshot.data.count.articles,
           hotspots: snapshot.data.count.hotspots,
           signals: snapshot.data.count.signals,
+        },
+        sourceQuality: {
+          status: sourceQualityStatus(qualityAudit),
+          auditStatus: qualityAudit?.status || 'missing',
+          sourceMix: qualityAudit?.sourceMix || null,
+          coverageGaps: qualityAudit?.coverageGaps || [],
+          recommendations: qualityAudit?.recommendations || ['Offline archive is available, but source-quality metadata is missing.'],
         },
         database: { status: 'degraded' },
       },
@@ -112,11 +156,13 @@ export async function GET() {
           observedAt?: string
           signalType?: string
         }>
+        qualityAudit?: QualityAudit
       }
     }
     const hotspotRows = cachePayload.data?.hotspots || []
     const newsRows = cachePayload.data?.articles || []
     const signalRows = cachePayload.data?.signals || []
+    const qualityAudit = cachePayload.data?.qualityAudit || null
     const latestAisSignalAt = signalRows
       .filter((row) => row.signalType === 'ais_anomaly' && row.observedAt)
       .map((row) => row.observedAt as string)
@@ -151,6 +197,7 @@ export async function GET() {
       ais: statusFromAge(aisAge, AIS_DEGRADED_MS, 6 * 60 * 60 * 1000),
       watch: statusFromAge(watchAge, WATCH_DEGRADED_MS, WATCH_UNHEALTHY_MS),
       coverage: coverageStatus,
+      sourceQuality: sourceQualityStatus(qualityAudit),
       hotspots: hotspotRows.length === HOTSPOTS.length ? 'ok' as Status : 'unhealthy' as Status,
     }
     const status = worstStatus(Object.values(componentStatuses))
@@ -185,6 +232,13 @@ export async function GET() {
           coverage: {
             status: componentStatuses.coverage,
             hotspots: hotspotSummary,
+          },
+          sourceQuality: {
+            status: componentStatuses.sourceQuality,
+            auditStatus: qualityAudit?.status || 'missing',
+            sourceMix: qualityAudit?.sourceMix || null,
+            coverageGaps: qualityAudit?.coverageGaps || [],
+            recommendations: qualityAudit?.recommendations || ['Dashboard cache is missing quality audit metadata; rebuild maritime dashboard cache.'],
           },
         },
       },
