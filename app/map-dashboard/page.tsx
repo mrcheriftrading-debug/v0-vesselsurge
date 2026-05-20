@@ -185,6 +185,23 @@ function formatExactPublishedTime(value: string) {
   })
 }
 
+function ageHours(value?: string | null) {
+  if (!value) return null
+  const publishedAt = new Date(value)
+  if (Number.isNaN(publishedAt.getTime())) return null
+
+  return Math.max(0, (Date.now() - publishedAt.getTime()) / 36e5)
+}
+
+function formatQualityAge(value?: string | null) {
+  if (!value) return 'missing'
+  const hours = ageHours(value)
+  if (hours === null) return 'time unavailable'
+  if (hours < 1) return `${Math.max(1, Math.round(hours * 60))}m old`
+  if (hours < 24) return `${Math.round(hours)}h old`
+  return `${Math.round(hours / 24)}d old`
+}
+
 function readableSignalType(value?: string | null) {
   if (!value) return 'Watch signal'
   return value
@@ -398,6 +415,65 @@ export default function MapDashboard() {
       }
     })
     .sort((a, b) => (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0) || Date.parse(b.latest.timestamp) - Date.parse(a.latest.timestamp))
+  const coverageQualityRows = Object.entries(HOTSPOT_META)
+    .map(([id, hotspotMeta]) => {
+      const data = hotspots[id]
+      const hotspotArticles = articles
+        .filter((article) => article.region?.toLowerCase() === id)
+        .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+      const hotspotSignals = signals
+        .filter((signal) => signal.region?.toLowerCase() === id)
+        .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))
+      const latestNews = hotspotArticles[0]
+      const latestRouteSignal = hotspotSignals[0]
+      const newsFresh = latestNews ? (ageHours(latestNews.timestamp) ?? 999) <= 24 : false
+      const signalFresh = latestRouteSignal ? (ageHours(latestRouteSignal.observedAt) ?? 999) <= 12 : false
+      const sourceCount = Math.max(
+        data?.sourceCount ?? 0,
+        new Set([
+          ...hotspotArticles.map((article) => article.source),
+          ...hotspotSignals.map((signal) => signal.source),
+          ...watchCoverageFor(id).map((item) => item.source),
+        ].filter(Boolean)).size,
+      )
+      const hasRiskDrivers = Boolean(data?.riskDrivers?.length || hotspotSignals.length || hotspotArticles.length)
+      const score = Math.min(
+        100,
+        (newsFresh ? 30 : latestNews ? 18 : 0) +
+          (signalFresh ? 30 : latestRouteSignal ? 18 : 0) +
+          (sourceCount >= 3 ? 25 : sourceCount >= 2 ? 18 : 8) +
+          (hasRiskDrivers ? 15 : 0),
+      )
+      const missing = [
+        latestNews ? (newsFresh ? null : 'fresh news') : 'news',
+        latestRouteSignal ? (signalFresh ? null : 'fresh signal') : 'signal',
+        sourceCount >= 2 ? null : 'second source',
+      ].filter(Boolean) as string[]
+      const tier = score >= 85 ? 'Strong' : score >= 68 ? 'Good' : 'Watch'
+      const tone = score >= 85
+        ? 'text-green-400 border-green-500/25 bg-green-500/10'
+        : score >= 68
+          ? 'text-sky-300 border-sky-500/25 bg-sky-500/10'
+          : 'text-amber-300 border-amber-500/25 bg-amber-500/10'
+
+      return {
+        id,
+        name: hotspotMeta.name,
+        flag: hotspotMeta.flag,
+        risk: data?.riskLevel || 'medium',
+        riskColor: RISK_COLOR[data?.riskLevel || 'medium'] ?? RISK_COLOR.medium,
+        tier,
+        score,
+        tone,
+        sourceCount,
+        newsFresh,
+        signalFresh,
+        latestNews,
+        latestRouteSignal,
+        missing,
+      }
+    })
+    .sort((a, b) => b.score - a.score || (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0))
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -509,6 +585,88 @@ export default function MapDashboard() {
                   </button>
                 ))}
               </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-card/45 p-3 sm:p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Coverage quality layer</p>
+                <h2 className="mt-1 text-sm font-black text-foreground">Freshness, source depth and missing inputs by hotspot.</h2>
+                <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
+                  This layer audits each live route before the user reads the map: latest news, latest signal, source count, risk level and any gap that needs the next update cycle.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">News target: 24h</span>
+                <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">Signal target: 12h</span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+              {coverageQualityRows.map((row) => (
+                <button
+                  key={`coverage-quality-${row.id}`}
+                  onClick={() => selectHotspot(row.id)}
+                  className="rounded-xl border border-border/70 bg-background/35 p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black text-foreground">{row.flag} {row.name}</p>
+                      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Coverage audit</p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${row.tone}`}>
+                        {row.tier}
+                      </span>
+                      <span
+                        className="rounded-full px-2 py-1 text-[10px] font-black uppercase"
+                        style={{ background: row.riskColor + '22', color: row.riskColor }}
+                      >
+                        {row.risk}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-[70px_minmax(0,1fr)] gap-x-2 gap-y-2 border-t border-border/60 pt-3 text-xs">
+                    <span className="font-mono text-[10px] uppercase text-muted-foreground">News</span>
+                    <span className={row.newsFresh ? 'min-w-0 text-foreground' : 'min-w-0 text-amber-300'}>
+                      {row.latestNews ? (
+                        <>
+                          <span className="block truncate font-semibold">{row.latestNews.source}</span>
+                          <span className="block truncate text-[11px] text-muted-foreground">
+                            {formatQualityAge(row.latestNews.timestamp)} · {formatExactPublishedTime(row.latestNews.timestamp)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-semibold">No source report in feed</span>
+                      )}
+                    </span>
+
+                    <span className="font-mono text-[10px] uppercase text-muted-foreground">Signal</span>
+                    <span className={row.signalFresh ? 'min-w-0 text-foreground' : 'min-w-0 text-amber-300'}>
+                      {row.latestRouteSignal ? (
+                        <>
+                          <span className="block truncate font-semibold">{readableSignalType(row.latestRouteSignal.signalType)}</span>
+                          <span className="block truncate text-[11px] text-muted-foreground">
+                            {row.latestRouteSignal.source} · {formatQualityAge(row.latestRouteSignal.observedAt)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-semibold">No operational signal</span>
+                      )}
+                    </span>
+
+                    <span className="font-mono text-[10px] uppercase text-muted-foreground">Sources</span>
+                    <span className="font-semibold text-foreground">{row.sourceCount} source{row.sourceCount === 1 ? '' : 's'} · {row.score}/100</span>
+
+                    <span className="font-mono text-[10px] uppercase text-muted-foreground">Needs</span>
+                    <span className="line-clamp-1 font-semibold text-muted-foreground">
+                      {row.missing.length ? row.missing.join(', ') : 'No immediate gap'}
+                    </span>
+                  </div>
+                </button>
+              ))}
             </div>
           </section>
 
