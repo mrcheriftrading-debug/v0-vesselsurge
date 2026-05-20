@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSafeNextPath } from '@/lib/auth-next'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -68,12 +69,4 @@ export async function updateSession(request: NextRequest) {
   }
 
   return supabaseResponse
-}
-
-function getSafeNextPath(nextPath: string | null) {
-  if (!nextPath || !nextPath.startsWith('/') || nextPath.startsWith('//')) {
-    return '/dashboard'
-  }
-
-  return nextPath
 }

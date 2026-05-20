@@ -4,9 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { getSafeNextPath } from "@/lib/auth-next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Zap, Loader2, ShieldCheck } from "lucide-react"
+
+const SESSION_CHECK_TIMEOUT_MS = 3500
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,9 +25,13 @@ export default function LoginPage() {
     const supabase = createClient()
     let active = true
     const nextPath = getNextPath()
+    const timeout = window.setTimeout(() => {
+      if (active) setIsCheckingSession(false)
+    }, SESSION_CHECK_TIMEOUT_MS)
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!active) return
+      window.clearTimeout(timeout)
 
       if (user) {
         router.replace(nextPath)
@@ -34,11 +41,13 @@ export default function LoginPage() {
 
       setIsCheckingSession(false)
     }).catch(() => {
+      window.clearTimeout(timeout)
       if (active) setIsCheckingSession(false)
     })
 
     return () => {
       active = false
+      window.clearTimeout(timeout)
     }
   }, [router])
 
@@ -179,11 +188,7 @@ export default function LoginPage() {
 function getNextPath() {
   if (typeof window === "undefined") return "/dashboard"
   const nextPath = new URLSearchParams(window.location.search).get("next")
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) {
-    return "/dashboard"
-  }
-
-  return nextPath
+  return getSafeNextPath(nextPath)
 }
 
 function getFriendlyAuthError(message: string) {
@@ -204,6 +209,7 @@ function getFriendlyAuthError(message: string) {
 function withCurrentNext(path: string) {
   if (typeof window === "undefined") return path
   const nextPath = new URLSearchParams(window.location.search).get("next")
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) return path
-  return `${path}?next=${encodeURIComponent(nextPath)}`
+  const safeNextPath = getSafeNextPath(nextPath, "")
+  if (!safeNextPath) return path
+  return `${path}?next=${encodeURIComponent(safeNextPath)}`
 }

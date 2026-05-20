@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { getSafeNextPath } from "@/lib/auth-next"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -16,12 +17,4 @@ export async function GET(request: Request) {
 
   // Return the user to an error page with instructions
   return NextResponse.redirect(`${origin}/auth/error`)
-}
-
-function getSafeNextPath(nextPath: string | null) {
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) {
-    return "/dashboard"
-  }
-
-  return nextPath
 }

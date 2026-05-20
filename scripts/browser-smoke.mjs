@@ -22,6 +22,9 @@ const ROUTES = [
   ['/latest', 'News'],
   ['/pro-market', 'Market'],
   ['/search', 'Search'],
+  ['/auth/login', 'Welcome Back'],
+  ['/auth/sign-up', 'Create Your Account'],
+  ['/auth/forgot-password', 'Reset Password'],
 ]
 
 const VIEWPORTS = [

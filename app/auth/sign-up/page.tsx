@@ -4,9 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { getSafeNextPath } from "@/lib/auth-next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Zap, Ship, Package, Loader2, ShieldCheck, TrendingUp } from "lucide-react"
+
+const SESSION_CHECK_TIMEOUT_MS = 3500
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -24,9 +27,13 @@ export default function SignUpPage() {
   useEffect(() => {
     const supabase = createClient()
     let active = true
+    const timeout = window.setTimeout(() => {
+      if (active) setIsCheckingSession(false)
+    }, SESSION_CHECK_TIMEOUT_MS)
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!active) return
+      window.clearTimeout(timeout)
 
       if (user) {
         router.replace(getNextPath())
@@ -36,11 +43,13 @@ export default function SignUpPage() {
 
       setIsCheckingSession(false)
     }).catch(() => {
+      window.clearTimeout(timeout)
       if (active) setIsCheckingSession(false)
     })
 
     return () => {
       active = false
+      window.clearTimeout(timeout)
     }
   }, [router])
 
@@ -261,23 +270,22 @@ export default function SignUpPage() {
 }
 
 function getNextPath(serviceType?: string) {
-  if (typeof window === "undefined") return serviceType === "trader" ? "/pro-market" : "/dashboard"
+  const fallback = serviceType === "trader" ? "/pro-market" : "/dashboard"
+  if (typeof window === "undefined") return fallback
   const nextPath = new URLSearchParams(window.location.search).get("next")
-  if (nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")) {
-    return nextPath
-  }
-
-  return serviceType === "trader" ? "/pro-market" : "/dashboard"
+  return getSafeNextPath(nextPath, fallback)
 }
 
 function withNext(path: string, nextPath: string) {
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) return path
-  return `${path}?next=${encodeURIComponent(nextPath)}`
+  const safeNextPath = getSafeNextPath(nextPath, "")
+  if (!safeNextPath) return path
+  return `${path}?next=${encodeURIComponent(safeNextPath)}`
 }
 
 function withCurrentNext(path: string) {
   if (typeof window === "undefined") return path
   const nextPath = new URLSearchParams(window.location.search).get("next")
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) return path
-  return withNext(path, nextPath)
+  const safeNextPath = getSafeNextPath(nextPath, "")
+  if (!safeNextPath) return path
+  return withNext(path, safeNextPath)
 }
