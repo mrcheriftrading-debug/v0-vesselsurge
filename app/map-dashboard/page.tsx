@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff } from 'lucide-react'
+import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff, Globe2 } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
 import { SiteNavigation } from '@/components/site-navigation'
@@ -31,6 +31,13 @@ const RISK_COLOR: Record<string, string> = {
   high:     '#f97316',
   medium:   '#eab308',
   low:      '#22c55e',
+}
+
+const RISK_RANK: Record<string, number> = {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
 }
 
 type FeedItem = {
@@ -292,6 +299,66 @@ export default function MapDashboard() {
   const selectedRiskDrivers = (selected?.riskDrivers?.length ? selected.riskDrivers : fallbackRiskDrivers).slice(0, 4)
   const selectedRiskSummary = selected?.riskSummary ||
     `${riskLevel.toUpperCase()} based on ${selectedRiskDrivers[0] || 'standing VesselSurge watch coverage'}.`
+  const globalRiskRows = Object.entries(HOTSPOT_META)
+    .map(([id, hotspotMeta]) => {
+      const data = hotspots[id]
+      const hotspotArticles = articles
+        .filter((article) => article.region?.toLowerCase() === id)
+        .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+      const hotspotSignals = signals
+        .filter((signal) => signal.region?.toLowerCase() === id)
+        .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))
+      const latestReport = hotspotArticles[0]
+      const latestRouteSignal = hotspotSignals[0]
+      const latestReportTime = latestReport ? Date.parse(latestReport.timestamp) : 0
+      const latestSignalTime = latestRouteSignal ? Date.parse(latestRouteSignal.observedAt) : 0
+      const watchItem = watchCoverageFor(id)[0]
+      const latest = latestReportTime >= latestSignalTime && latestReport
+        ? {
+            title: latestReport.title,
+            source: latestReport.source,
+            timestamp: latestReport.timestamp,
+            label: 'Source report',
+          }
+        : latestRouteSignal
+          ? {
+              title: latestRouteSignal.title,
+              source: latestRouteSignal.source,
+              timestamp: latestRouteSignal.observedAt,
+              label: readableSignalType(latestRouteSignal.signalType),
+            }
+          : {
+              title: watchItem.title,
+              source: watchItem.source,
+              timestamp: lastUpdated ? new Date(lastUpdated).toISOString() : new Date().toISOString(),
+              label: watchItem.signalType,
+            }
+      const rowRisk = data?.riskLevel || 'medium'
+      const watchSources = new Set(watchCoverageFor(id).map((item) => item.source))
+      const rowCoverage = Math.max((data?.verifiedReports ?? 0) + hotspotSignals.length, watchCoverageFor(id).length)
+      const rowSources = Math.max(
+        data?.sourceCount ?? 0,
+        new Set(hotspotSignals.map((signal) => signal.source).filter(Boolean)).size,
+        watchSources.size,
+      )
+
+      return {
+        id,
+        name: hotspotMeta.name,
+        flag: hotspotMeta.flag,
+        risk: rowRisk,
+        riskColor: RISK_COLOR[rowRisk] ?? RISK_COLOR.medium,
+        coverage: rowCoverage,
+        sources: rowSources,
+        confidence: data?.confidenceLabel
+          ? `${data.confidenceLabel} · ${data.confidenceScore ?? 0}/100`
+          : rowCoverage > watchCoverageFor(id).length
+            ? 'Source reviewed'
+            : 'Standing watch',
+        latest,
+      }
+    })
+    .sort((a, b) => (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0) || Date.parse(b.latest.timestamp) - Date.parse(a.latest.timestamp))
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -348,6 +415,64 @@ export default function MapDashboard() {
         )}
 
         <div className="space-y-3">
+          <section className="rounded-2xl border border-border bg-card/45 p-3 sm:p-4">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0 xl:max-w-sm">
+                <div className="flex items-center gap-2">
+                  <Globe2 className="h-4 w-4 text-primary" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Global risk board</p>
+                </div>
+                <h2 className="mt-2 text-lg font-black tracking-tight text-foreground">All monitored routes, ranked by current risk.</h2>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  Click a route to focus the map. Each card shows latest evidence, publication time, source count and confidence so the map never feels empty.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">{hotspotList.length} routes</span>
+                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">{articles.length} reports</span>
+                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">{signals.length} signals</span>
+                </div>
+              </div>
+
+              <div className="grid flex-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                {globalRiskRows.map((row) => (
+                  <button
+                    key={`global-risk-${row.id}`}
+                    onClick={() => selectHotspot(row.id)}
+                    className="group rounded-xl border p-3 text-left transition-all hover:-translate-y-0.5 hover:bg-card"
+                    style={{
+                      borderColor: selectedId === row.id ? row.riskColor : 'rgba(255,255,255,0.09)',
+                      background: selectedId === row.id ? row.riskColor + '16' : 'rgba(255,255,255,0.025)',
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-foreground">{row.flag} {row.name}</p>
+                        <p className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">{row.latest.label}</p>
+                      </div>
+                      <span
+                        className="shrink-0 rounded-full px-2 py-1 text-[10px] font-black uppercase"
+                        style={{ background: row.riskColor + '22', color: row.riskColor }}
+                      >
+                        {row.risk}
+                      </span>
+                    </div>
+                    <p className="mt-3 line-clamp-2 min-h-10 text-xs font-semibold leading-5 text-foreground group-hover:text-primary">
+                      {row.latest.title}
+                    </p>
+                    <div className="mt-3 space-y-1 border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
+                      <p className="truncate">
+                        <span className="font-semibold text-foreground">{row.latest.source}</span>
+                        {' '}· {formatRelativePublishedTime(row.latest.timestamp)}
+                      </p>
+                      <p className="font-mono">{formatExactPublishedTime(row.latest.timestamp)}</p>
+                      <p>{row.coverage} coverage · {row.sources} sources · {row.confidence}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="rounded-2xl border border-border bg-card/45 p-3">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div className="min-w-0">
