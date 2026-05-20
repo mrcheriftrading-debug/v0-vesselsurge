@@ -73,12 +73,16 @@ export default async function ProMarketPage({
 }: {
   searchParams?: Promise<{ checkout?: string }>
 }) {
-  const params = await searchParams
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const subscription = user ? await getUserProSubscription(user.id) : null
-  const hasAccess = isActiveProSubscription(subscription)
-  const report = await loadReport({ allowDirectDatabaseFallback: hasAccess })
+  const paramsPromise: Promise<{ checkout?: string }> = searchParams ?? Promise.resolve({})
+  const [params, authState, previewReport] = await Promise.all([
+    paramsPromise,
+    loadAuthState(),
+    loadReport({ allowDirectDatabaseFallback: false }),
+  ])
+  const { user, hasAccess } = authState
+  const report = hasAccess && isEmptyReport(previewReport)
+    ? await loadReport({ allowDirectDatabaseFallback: true })
+    : previewReport
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -523,6 +527,17 @@ function AssetTable({ report }: { report: Report }) {
   )
 }
 
+async function loadAuthState() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const subscription = user ? await getUserProSubscription(user.id) : null
+
+  return {
+    user,
+    hasAccess: isActiveProSubscription(subscription),
+  }
+}
+
 function CheckoutStatus({ status }: { status?: string }) {
   if (status !== 'success' && status !== 'cancelled') return null
 
@@ -619,6 +634,10 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   }
 
   return buildMarketImpactReport(news || [], signals || [])
+}
+
+function isEmptyReport(report: Report) {
+  return report.topStories.length === 0 && report.assetImpacts.every((asset) => asset.score === 0)
 }
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
