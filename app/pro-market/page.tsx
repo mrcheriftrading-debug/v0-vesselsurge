@@ -259,6 +259,7 @@ export default async function ProMarketPage({
                     <div className="mb-2 flex flex-wrap gap-2">
                       <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${scorePillClass(story.score)}`}>{story.severity}</span>
                       <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{story.source}</span>
+                      <span className="rounded-md bg-sky-50 px-2 py-1 text-xs font-bold text-sky-800">{story.sourceQualityLabel}</span>
                     </div>
                     <h3 className="font-black leading-snug text-slate-950">{story.title}</h3>
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{story.summary}</p>
@@ -417,6 +418,7 @@ function ReportPreview({ report, hasAccess }: { report: Report; hasAccess: boole
         <div className="divide-y divide-slate-200">
           <ReportRow label="Lead asset channel" value={leadAsset?.asset || 'No signal'} detail={leadAsset?.bias || 'Waiting for confirmation'} />
           <ReportRow label="Strongest driver" value={leadAsset?.drivers?.[0] || 'No confirmed driver'} detail={leadAsset ? `${leadAsset.score}/100 pressure` : 'Preview'} />
+          <ReportRow label="Evidence quality" value={report.topStories[0]?.sourceQualityLabel || 'No ranked source'} detail={report.topStories[0] ? `${report.topStories[0].sourceQualityScore}/100 source score` : 'Waiting for live evidence'} />
           <ReportRow label="Next watch trigger" value={report.watchTriggers[0]} detail="Raises score if confirmed by trusted sources" />
           <ReportRow label="Customer access" value={hasAccess ? 'Full report unlocked' : 'Preview only'} detail={hasAccess ? 'Live source trail visible' : 'Subscription required'} />
         </div>

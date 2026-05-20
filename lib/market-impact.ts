@@ -1,4 +1,5 @@
 import 'server-only'
+import { maritimeSourceQualityLabel, maritimeSourceQualityScore } from '@/lib/maritime-source-quality'
 
 type NewsInput = {
   id?: string
@@ -97,9 +98,13 @@ function clamp(value: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, value))
 }
 
-function scoreText(text: string, timestamp?: string | null) {
+function scoreText(text: string, timestamp?: string | null, source?: string | null) {
   const reasons: string[] = []
-  let score = recencyBoost(timestamp)
+  const sourceQualityScore = maritimeSourceQualityScore(source)
+  let score = recencyBoost(timestamp) + Math.round(sourceQualityScore * 0.16)
+
+  if (sourceQualityScore >= 90) reasons.push(`${maritimeSourceQualityLabel(source)} confirmation`)
+  else if (sourceQualityScore >= 76) reasons.push(`${maritimeSourceQualityLabel(source)} evidence`)
 
   for (const term of MARKET_TERMS) {
     if (term.pattern.test(text)) {
@@ -154,14 +159,17 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
   const scored = merged
     .map(({ kind, item }) => {
       const text = `${item.title || ''} ${itemSummary(item)} ${item.region || ''} ${isSignalInput(item) ? item.signal_type || '' : item.topic || ''}`
-      const { score, reasons } = scoreText(text, itemTime(item))
+      const source = item.source || 'VesselSurge source layer'
+      const { score, reasons } = scoreText(text, itemTime(item), source)
       return {
         id: (isSignalInput(item) ? item.signal_key : item.id) || item.title,
         kind,
         title: item.title,
         summary: itemSummary(item),
-        source: item.source || 'VesselSurge source layer',
+        source,
         sourceUrl: itemUrl(item),
+        sourceQualityLabel: maritimeSourceQualityLabel(source),
+        sourceQualityScore: maritimeSourceQualityScore(source),
         region: item.region || 'global',
         timestamp: itemTime(item),
         score,
@@ -202,8 +210,10 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     }
   })
 
-  const narrative = topStories[0]
-    ? `${topStories[0].region.toUpperCase()} is the lead market-impact signal. ${topStories[0].reasons[0] || 'Fresh maritime evidence'} is pushing the highest pressure into ${assetImpacts[0]?.asset || 'energy and freight markets'}.`
+  const leadStory = topStories[0]
+  const leadAsset = assetImpacts[0]
+  const narrative = leadStory
+    ? `${leadStory.region.toUpperCase()} is the lead market-impact signal. ${leadStory.sourceQualityLabel} evidence and ${leadStory.reasons[0] || 'fresh maritime context'} point first toward ${leadAsset?.asset || 'energy and freight markets'} through ${leadAsset?.bias?.toLowerCase() || 'route-risk pressure'}.`
     : 'No major market-impact signal is currently strong enough for a high-conviction alert.'
 
   return {

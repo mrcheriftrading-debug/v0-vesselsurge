@@ -5,6 +5,28 @@ import type { Article, Hotspot, MaritimeSignal } from '@/lib/maritime-data'
 
 type HotspotMap = Record<string, Hotspot>
 
+type QualityAudit = {
+  status: 'healthy' | 'watch' | 'degraded'
+  sourceMix: {
+    official: number
+    tierOne: number
+    trade: number
+    search: number
+    general: number
+    watch: number
+  }
+  coverageGaps: Array<{
+    hotspot: string
+    score: number
+    status: 'strong' | 'good' | 'watch'
+    missing: string[]
+    sourceCount: number
+    latestNewsAt: string | null
+    latestSignalAt: string | null
+  }>
+  recommendations: string[]
+}
+
 interface Vessel {
   mmsi: number
   name: string
@@ -22,6 +44,7 @@ interface UseMaritimeDataReturn {
   hotspots: HotspotMap
   signals: MaritimeSignal[]
   vessels: Vessel[]
+  qualityAudit: QualityAudit | null
   meta: {
     cached?: boolean
     generatedAt?: string
@@ -45,6 +68,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
   const [hotspots, setHotspots] = useState<HotspotMap>({})
   const [signals, setSignals] = useState<MaritimeSignal[]>([])
   const [vessels, setVessels] = useState<Vessel[]>([])
+  const [qualityAudit, setQualityAudit] = useState<QualityAudit | null>(null)
   const [meta, setMeta] = useState<UseMaritimeDataReturn['meta']>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -75,6 +99,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
       const { data } = payload
       setArticles(data.articles || [])
       setSignals(data.signals || [])
+      setQualityAudit(data.qualityAudit || null)
       const map: HotspotMap = {}
       for (const h of data.hotspots || []) map[h.hotspot] = h
       setHotspots(map)
@@ -150,6 +175,7 @@ export function useMaritimeData(): UseMaritimeDataReturn {
     hotspots,
     signals,
     vessels,
+    qualityAudit,
     meta,
     loading,
     error,

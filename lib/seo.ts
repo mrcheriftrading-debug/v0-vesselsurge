@@ -308,6 +308,22 @@ export const trafficTopicPages = [
     ],
   },
   {
+    slug: "source-reviewed-maritime-news",
+    name: "Source-Reviewed Maritime News",
+    title: "Source-Reviewed Maritime News, Shipping Risk Signals and Chokepoint Intelligence",
+    description:
+      "Read source-reviewed maritime news tied to live route risk, Tier-1 newsroom coverage, official maritime alerts, chokepoint signals and global shipping disruption context.",
+    keywords: ["source reviewed maritime news", "shipping risk news", "maritime news tracker"],
+    regionHref: "/latest",
+    primaryHref: "/latest",
+    intent: "operators, analysts and market watchers searching for credible maritime news with source quality labels",
+    questions: [
+      "Where can I read source-reviewed maritime news?",
+      "How can I separate credible shipping risk signals from noisy headlines?",
+      "Which maritime news sources matter for chokepoint risk?",
+    ],
+  },
+  {
     slug: "ais-vessel-tracking-map",
     name: "AIS Vessel Tracking Map",
     title: "AIS Vessel Tracking Map, Live Maritime Context and Chokepoint Intelligence",

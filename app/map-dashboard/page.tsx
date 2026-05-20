@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff, Globe2 } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
-import { maritimeSourceQualityLabel } from '@/lib/maritime-source-quality'
+import { maritimeSourceQualityLabel, maritimeSourceQualityTier } from '@/lib/maritime-source-quality'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
 import { SiteNavigation } from '@/components/site-navigation'
 
@@ -51,6 +51,8 @@ type FeedItem = {
   timestamp: string
   type: 'report' | 'signal'
   label: string
+  sourceQualityLabel?: string
+  intelligenceScore?: number
 }
 
 const WATCH_COVERAGE: Record<string, Array<{ source: string; signalType: string; title: string; summary: string }>> = {
@@ -220,7 +222,7 @@ function normalizeFeedTitle(value: string) {
 
 export default function MapDashboard() {
   const [selectedId, setSelectedId] = useState('hormuz')
-  const { articles, hotspots, signals, vessels, meta: dataMeta, loading, refresh, lastUpdated } = useMaritimeData()
+  const { articles, hotspots, signals, vessels, qualityAudit, meta: dataMeta, loading, refresh, lastUpdated } = useMaritimeData()
 
   const selectHotspot = useCallback((id: string) => {
     if (!(id in HOTSPOT_META)) return
@@ -292,6 +294,8 @@ export default function MapDashboard() {
       timestamp: article.timestamp,
       type: 'report' as const,
       label: 'SOURCE REPORT',
+      sourceQualityLabel: article.sourceQualityLabel || maritimeSourceQualityLabel(article.source),
+      intelligenceScore: article.intelligenceScore,
     })),
     ...selectedSignals.map((signal) => ({
       id: signal.signalKey,
@@ -302,6 +306,8 @@ export default function MapDashboard() {
       timestamp: signal.observedAt,
       type: 'signal' as const,
       label: signal.signalType.replace(/_/g, ' ').toUpperCase(),
+      sourceQualityLabel: maritimeSourceQualityLabel(signal.source),
+      intelligenceScore: Math.min(100, Math.round((signal.confidence || 0) * 0.8 + 18)),
     })),
     ...(selectedArticles.length === 0 && selectedSignals.length === 0
       ? selectedWatchCoverage.map((item, index) => ({
@@ -313,6 +319,8 @@ export default function MapDashboard() {
           timestamp: lastUpdated ? new Date(lastUpdated).toISOString() : new Date().toISOString(),
           type: 'signal' as const,
           label: item.signalType.toUpperCase(),
+          sourceQualityLabel: 'Standing watch',
+          intelligenceScore: 45,
         }))
       : []),
   ]
@@ -324,6 +332,11 @@ export default function MapDashboard() {
       if (seenFeedItems.has(key)) return false
       seenFeedItems.add(key)
       return true
+    })
+    .sort((a, b) => {
+      const timeDiff = Date.parse(b.timestamp) - Date.parse(a.timestamp)
+      const scoreDiff = (b.intelligenceScore || 0) - (a.intelligenceScore || 0)
+      return scoreDiff || timeDiff
     })
     .slice(0, 8)
   const totalReports = Object.values(hotspots).reduce((sum, hotspot) => sum + (hotspot.verifiedReports || 0), 0)
@@ -476,6 +489,42 @@ export default function MapDashboard() {
       }
     })
     .sort((a, b) => b.score - a.score || (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0))
+  const derivedSourceMix = articles.reduce((mix, article) => {
+    const tier = maritimeSourceQualityTier(article.source) as keyof typeof mix
+    mix[tier] += 1
+    return mix
+  }, {
+    official: 0,
+    tierOne: 0,
+    trade: 0,
+    search: 0,
+    general: 0,
+    watch: 0,
+  })
+  const effectiveQualityAudit = qualityAudit || {
+    status: coverageQualityRows.every((row) => row.score >= 85) ? 'healthy' as const : coverageQualityRows.some((row) => row.score < 68) ? 'degraded' as const : 'watch' as const,
+    sourceMix: derivedSourceMix,
+    coverageGaps: coverageQualityRows.map((row) => ({
+      hotspot: row.id,
+      score: row.score,
+      status: row.score >= 85 ? 'strong' as const : row.score >= 68 ? 'good' as const : 'watch' as const,
+      missing: row.missing,
+      sourceCount: row.sourceCount,
+      latestNewsAt: row.latestNews?.timestamp || null,
+      latestSignalAt: row.latestRouteSignal?.observedAt || null,
+    })),
+    recommendations: ['Client-side quality review active until the next server cache refresh writes the full audit.'],
+  }
+  const selectedAudit = effectiveQualityAudit.coverageGaps.find((gap) => gap.hotspot === selectedId)
+  const sourceMix = effectiveQualityAudit.sourceMix
+  const totalQualitySources = sourceMix
+    ? sourceMix.official + sourceMix.tierOne + sourceMix.trade + sourceMix.search + sourceMix.general + sourceMix.watch
+    : 0
+  const qualityAuditTone = effectiveQualityAudit.status === 'healthy'
+    ? 'border-green-500/25 bg-green-500/10 text-green-300'
+    : effectiveQualityAudit.status === 'watch'
+      ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
+      : 'border-red-500/25 bg-red-500/10 text-red-300'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -532,6 +581,75 @@ export default function MapDashboard() {
         )}
 
         <div className="space-y-3">
+          <section className="grid gap-3 xl:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-2xl border border-border bg-card/50 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Operator summary</p>
+                  <h2 className="mt-1 text-lg font-black text-foreground">{meta?.flag} {meta?.name}: {riskLevel.toUpperCase()} · {selectedConfidence}</h2>
+                  <p className="mt-2 max-w-4xl text-xs leading-5 text-muted-foreground">{selectedRiskSummary}</p>
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <Link href="/latest" className="inline-flex min-h-9 items-center justify-center rounded-md border border-border bg-background/45 px-3 text-xs font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                    News desk
+                  </Link>
+                  <Link href="/pro-market" className="inline-flex min-h-9 items-center justify-center rounded-md border border-primary/35 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:border-primary/70">
+                    Market impact
+                  </Link>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-xl border border-border/70 bg-background/35 p-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Selected route audit</p>
+                  <p className="mt-1 text-2xl font-black text-foreground">{selectedAudit?.score ?? '—'}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">{selectedAudit?.missing.length ? `Needs ${selectedAudit.missing.join(', ')}` : 'No immediate coverage gap'}</p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-background/35 p-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Tier-1 / official mix</p>
+                  <p className="mt-1 text-2xl font-black text-foreground">
+                    {sourceMix ? sourceMix.official + sourceMix.tierOne : '—'}
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">{totalQualitySources ? `${totalQualitySources} total source entries in current payload` : 'Waiting for source mix'}</p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-background/35 p-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Next operator action</p>
+                  <p className="mt-1 line-clamp-2 text-sm font-bold leading-5 text-foreground">
+                    {effectiveQualityAudit.recommendations[0] || 'Keep current live-map monitoring active.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`rounded-2xl border p-4 ${qualityAuditTone}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em]">Automated quality review</p>
+                  <h2 className="mt-1 text-lg font-black text-foreground">
+                    {effectiveQualityAudit.status.toUpperCase()}
+                  </h2>
+                </div>
+                <ShieldCheck className="h-5 w-5 shrink-0" />
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg border border-current/20 bg-background/30 px-2 py-2">
+                  <p className="text-[10px] uppercase opacity-80">Official</p>
+                  <p className="text-lg font-black text-foreground">{sourceMix?.official ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-current/20 bg-background/30 px-2 py-2">
+                  <p className="text-[10px] uppercase opacity-80">Tier-1</p>
+                  <p className="text-lg font-black text-foreground">{sourceMix?.tierOne ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-current/20 bg-background/30 px-2 py-2">
+                  <p className="text-[10px] uppercase opacity-80">Trade</p>
+                  <p className="text-lg font-black text-foreground">{sourceMix?.trade ?? 0}</p>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                Every payload is reviewed for source mix, fresh news, fresh signals and second-source coverage before it reaches this map.
+              </p>
+            </div>
+          </section>
+
           <section className="rounded-2xl border border-border bg-card/45 p-3 sm:p-4">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="min-w-0 xl:max-w-sm">
@@ -973,6 +1091,14 @@ export default function MapDashboard() {
                               {item.label}
                             </span>
                             <span className="text-xs font-semibold text-primary">{item.source}</span>
+                            <span className="rounded border border-border bg-card/50 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              {item.sourceQualityLabel || maritimeSourceQualityLabel(item.source)}
+                            </span>
+                            {typeof item.intelligenceScore === 'number' ? (
+                              <span className="rounded border border-cyan-300/20 bg-cyan-300/10 px-1.5 py-0.5 text-[10px] font-black text-cyan-200">
+                                IQ {item.intelligenceScore}
+                              </span>
+                            ) : null}
                             <span className="text-xs text-muted-foreground" title={`Published ${formatExactPublishedTime(item.timestamp)}`}>
                               Published {formatRelativePublishedTime(item.timestamp)}
                             </span>

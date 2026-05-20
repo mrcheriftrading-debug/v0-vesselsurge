@@ -6,7 +6,7 @@ import { SiteNavigation } from "@/components/site-navigation"
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from "@/lib/maritime-dashboard-cache"
 import { buildOfflineMaritimeDashboardSnapshot } from "@/lib/maritime-offline-snapshot"
 import { BASE_URL } from "@/lib/seo"
-import { isTierOneNewsSource, maritimeSourceQualityLabel } from "@/lib/maritime-source-quality"
+import { isTierOneNewsSource, maritimeArticleIntelligenceScore, maritimeSourceQualityLabel } from "@/lib/maritime-source-quality"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 export const dynamic = "force-dynamic"
@@ -108,13 +108,30 @@ export default async function LatestMaritimeNewsPage() {
     hotspot: payload.data.hotspots.find((hotspot) => hotspot.hotspot === region),
   }))
   const tierOneCount = articles.filter((article) => isTierOneNewsSource(article.source)).length
+  const articleIntelScore = (article: LatestArticle) => article.intelligenceScore ?? maritimeArticleIntelligenceScore({
+    source: article.source,
+    timestamp: article.timestamp,
+    title: article.title,
+    summary: article.summary,
+    region: article.region,
+  })
+  const averageIntelligenceScore = articles.length
+    ? Math.round(articles.reduce((sum, article) => sum + articleIntelScore(article), 0) / articles.length)
+    : 0
+  const qualityAudit = payload.data.qualityAudit
   const sourceQualityRows = Array.from(new Set(articles.map((article) => article.source).filter(Boolean)))
     .map((source) => ({
       source,
       count: articles.filter((article) => article.source === source).length,
       label: maritimeSourceQualityLabel(source),
+      averageScore: Math.round(
+        articles
+          .filter((article) => article.source === source)
+          .reduce((sum, article) => sum + articleIntelScore(article), 0) /
+          Math.max(1, articles.filter((article) => article.source === source).length),
+      ),
     }))
-    .sort((a, b) => Number(isTierOneNewsSource(b.source)) - Number(isTierOneNewsSource(a.source)) || b.count - a.count)
+    .sort((a, b) => Number(isTierOneNewsSource(b.source)) - Number(isTierOneNewsSource(a.source)) || b.averageScore - a.averageScore || b.count - a.count)
     .slice(0, 8)
   const generatedAt = payload.meta.generatedAt || payload.data.timestamp
 
@@ -191,6 +208,10 @@ export default async function LatestMaritimeNewsPage() {
                   <div className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Tier-1 hits</div>
                   <div className="mt-1 text-2xl font-black text-foreground">{tierOneCount}</div>
                 </div>
+                <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
+                  <div className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">Intel score</div>
+                  <div className="mt-1 text-2xl font-black text-foreground">{averageIntelligenceScore}</div>
+                </div>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 {byRegion.map(({ region, count, hotspot }) => (
@@ -207,7 +228,7 @@ export default async function LatestMaritimeNewsPage() {
 
         <section className="px-4 py-12 sm:py-16 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[0.72fr_1.28fr]">
-            <aside className="space-y-4">
+            <aside className="min-w-0 space-y-4">
               <div className="rounded-xl border border-border bg-card/50 p-5">
                 <Globe2 className="h-6 w-6 text-primary" />
                 <h2 className="mt-4 text-xl font-bold text-foreground">Global risk desk</h2>
@@ -221,15 +242,31 @@ export default async function LatestMaritimeNewsPage() {
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   Items stay source-linked or clearly marked as saved context. Tier-1 source sweeps now include Bloomberg, Al Jazeera, New York Times, Reuters/AP via news search, BBC, Financial Times, Guardian and CNBC.
                 </p>
+                {qualityAudit ? (
+                  <div className="mt-4 rounded-lg border border-border bg-background/55 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Automated review</p>
+                      <span className="rounded-full border border-border bg-card px-2 py-1 text-[10px] font-black uppercase text-foreground">
+                        {qualityAudit.status}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{qualityAudit.recommendations[0]}</p>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
+                      <span className="rounded-md border border-border bg-card px-2 py-1">Official {qualityAudit.sourceMix.official}</span>
+                      <span className="rounded-md border border-border bg-card px-2 py-1">Tier-1 {qualityAudit.sourceMix.tierOne}</span>
+                      <span className="rounded-md border border-border bg-card px-2 py-1">Trade {qualityAudit.sourceMix.trade}</span>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="mt-4 grid gap-2">
                   {sourceQualityRows.length > 0 ? sourceQualityRows.map((item) => (
-                    <div key={item.source} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/55 px-3 py-2">
+                    <div key={item.source} className="flex min-w-0 max-w-full items-center justify-between gap-3 overflow-hidden rounded-lg border border-border bg-background/55 px-3 py-2">
                       <div className="min-w-0">
                         <p className="truncate text-xs font-bold text-foreground">{item.source}</p>
                         <p className="mt-0.5 text-[11px] text-muted-foreground">{item.label}</p>
                       </div>
                       <span className="rounded-full border border-border bg-card px-2 py-1 text-[10px] font-black text-muted-foreground">
-                        {item.count}
+                        {item.count} · {item.averageScore}
                       </span>
                     </div>
                   )) : (
@@ -264,7 +301,7 @@ export default async function LatestMaritimeNewsPage() {
               </Link>
             </aside>
 
-            <div>
+            <div className="min-w-0">
               <div className="mb-4 flex flex-col gap-2 rounded-xl border border-border bg-card/40 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-lg font-black text-foreground">Latest reviewed signals</h2>
@@ -290,6 +327,11 @@ export default async function LatestMaritimeNewsPage() {
                           {maritimeSourceQualityLabel(article.source)}
                         </span>
                         <span>{formatTime(article.timestamp)}</span>
+                        {typeof articleIntelScore(article) === "number" ? (
+                          <span className="rounded-md border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-emerald-200">
+                            Intel {articleIntelScore(article)}
+                          </span>
+                        ) : null}
                       </div>
                       <h2 className="mt-3 text-lg font-bold leading-snug text-foreground">{article.title}</h2>
                       <p className="mt-2 text-sm leading-6 text-muted-foreground">{article.summary}</p>

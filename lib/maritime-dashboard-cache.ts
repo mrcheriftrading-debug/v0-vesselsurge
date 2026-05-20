@@ -1,4 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import {
+  maritimeArticleIntelligenceScore,
+  maritimeFreshnessScore,
+  maritimeSourceQualityLabel,
+  maritimeSourceQualityScore,
+  maritimeSourceQualityTier,
+} from '@/lib/maritime-source-quality'
 
 const CACHE_KEY = 'live-map'
 const CACHE_TTL_MS = 5 * 60 * 1000
@@ -33,6 +40,11 @@ export type MaritimeDashboardResponse = {
       region: string
       timestamp: string
       isBreaking: boolean
+      sourceQualityLabel?: string
+      sourceQualityScore?: number
+      sourceQualityTier?: string
+      freshnessScore?: number
+      intelligenceScore?: number
     }>
     hotspots: Array<{
       id: string
@@ -71,6 +83,27 @@ export type MaritimeDashboardResponse = {
       articles: number
       hotspots: number
       signals: number
+    }
+    qualityAudit?: {
+      status: 'healthy' | 'watch' | 'degraded'
+      sourceMix: {
+        official: number
+        tierOne: number
+        trade: number
+        search: number
+        general: number
+        watch: number
+      }
+      coverageGaps: Array<{
+        hotspot: string
+        score: number
+        status: 'strong' | 'good' | 'watch'
+        missing: string[]
+        sourceCount: number
+        latestNewsAt: string | null
+        latestSignalAt: string | null
+      }>
+      recommendations: string[]
     }
   }
   meta: {
@@ -192,6 +225,101 @@ function dedupeArticles<T extends { title?: string | null; sourceUrl?: string | 
   })
 }
 
+function hoursOld(value?: string | null) {
+  if (!value) return null
+  const parsed = Date.parse(value)
+  if (!Number.isFinite(parsed)) return null
+  return Math.max(0, (Date.now() - parsed) / 36e5)
+}
+
+function qualityCoverageScore(input: {
+  latestNewsAt: string | null
+  latestSignalAt: string | null
+  sourceCount: number
+  riskDrivers: string[]
+}) {
+  const newsAge = hoursOld(input.latestNewsAt)
+  const signalAge = hoursOld(input.latestSignalAt)
+  const newsScore = newsAge === null ? 0 : newsAge <= 24 ? 30 : newsAge <= 72 ? 18 : 8
+  const signalScore = signalAge === null ? 0 : signalAge <= 12 ? 30 : signalAge <= 48 ? 18 : 8
+  const sourceScore = input.sourceCount >= 4 ? 25 : input.sourceCount >= 2 ? 18 : input.sourceCount >= 1 ? 10 : 0
+  const evidenceScore = input.riskDrivers.length > 0 ? 15 : 0
+  return Math.min(100, newsScore + signalScore + sourceScore + evidenceScore)
+}
+
+function buildQualityAudit(
+  hotspots: MaritimeDashboardResponse['data']['hotspots'],
+  articles: MaritimeDashboardResponse['data']['articles'],
+  signals: MaritimeDashboardResponse['data']['signals'],
+) {
+  const sourceMix = {
+    official: 0,
+    tierOne: 0,
+    trade: 0,
+    search: 0,
+    general: 0,
+    watch: 0,
+  }
+
+  for (const article of articles) {
+    const tier = maritimeSourceQualityTier(article.source) as keyof typeof sourceMix
+    sourceMix[tier] = (sourceMix[tier] || 0) + 1
+  }
+
+  const coverageGaps = hotspots.map((hotspot) => {
+    const hotspotArticles = articles
+      .filter((article) => article.region === hotspot.hotspot)
+      .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+    const hotspotSignals = signals
+      .filter((signal) => signal.region === hotspot.hotspot)
+      .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))
+    const latestNewsAt = hotspotArticles[0]?.timestamp || null
+    const latestSignalAt = hotspotSignals[0]?.observedAt || null
+    const sourceCount = Math.max(
+      hotspot.sourceCount || 0,
+      new Set([
+        ...hotspotArticles.map((article) => article.source),
+        ...hotspotSignals.map((signal) => signal.source),
+      ].filter(Boolean)).size,
+    )
+    const score = qualityCoverageScore({
+      latestNewsAt,
+      latestSignalAt,
+      sourceCount,
+      riskDrivers: hotspot.riskDrivers || [],
+    })
+    const missing = [
+      hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : 'fresh news under 24h',
+      hoursOld(latestSignalAt) !== null && (hoursOld(latestSignalAt) || 999) <= 12 ? null : 'fresh signal under 12h',
+      sourceCount >= 2 ? null : 'second independent source',
+    ].filter(Boolean) as string[]
+
+    return {
+      hotspot: hotspot.hotspot,
+      score,
+      status: score >= 85 ? 'strong' as const : score >= 68 ? 'good' as const : 'watch' as const,
+      missing,
+      sourceCount,
+      latestNewsAt,
+      latestSignalAt,
+    }
+  })
+
+  const watchRows = coverageGaps.filter((gap) => gap.status === 'watch')
+  const recommendations = [
+    watchRows.length ? `Prioritize ${watchRows.map((gap) => gap.hotspot).join(', ')} for the next source sweep.` : null,
+    sourceMix.official + sourceMix.tierOne < 4 ? 'Increase official and Tier-1 confirmation density.' : null,
+    coverageGaps.some((gap) => gap.missing.includes('fresh signal under 12h')) ? 'Refresh operational signals for routes with stale signal context.' : null,
+  ].filter(Boolean) as string[]
+
+  return {
+    status: watchRows.length > 1 ? 'degraded' as const : watchRows.length === 1 ? 'watch' as const : 'healthy' as const,
+    sourceMix,
+    coverageGaps,
+    recommendations: recommendations.length ? recommendations : ['Coverage, source mix and freshness are within current operating targets.'],
+  }
+}
+
 async function fetchVesselCounts(supabase: SupabaseClient) {
   try {
     const freshCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
@@ -246,17 +374,34 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     throw new Error('Failed to fetch maritime data')
   }
 
-  const articles = dedupeArticles((articlesData || []).map((article: any) => ({
-    id: article.id,
-    title: article.title,
-    summary: article.summary || article.description || article.snippet,
-    source: article.source,
-    sourceUrl: article.source_url || article.url,
-    category: article.category || 'industry',
-    region: article.region || 'global',
-    timestamp: article.published_at || article.created_at || timestamp,
-    isBreaking: article.is_breaking || false,
-  })))
+  const articles = dedupeArticles((articlesData || []).map((article: any) => {
+    const articleTimestamp = article.published_at || article.created_at || timestamp
+    const source = article.source || 'VesselSurge source layer'
+    const summary = article.summary || article.description || article.snippet || ''
+
+    return {
+      id: article.id,
+      title: article.title,
+      summary,
+      source,
+      sourceUrl: article.source_url || article.url,
+      category: article.category || 'industry',
+      region: article.region || 'global',
+      timestamp: articleTimestamp,
+      isBreaking: article.is_breaking || false,
+      sourceQualityLabel: maritimeSourceQualityLabel(source),
+      sourceQualityScore: maritimeSourceQualityScore(source),
+      sourceQualityTier: maritimeSourceQualityTier(source),
+      freshnessScore: maritimeFreshnessScore(articleTimestamp),
+      intelligenceScore: maritimeArticleIntelligenceScore({
+        source,
+        timestamp: articleTimestamp,
+        title: article.title,
+        summary,
+        region: article.region || 'global',
+      }),
+    }
+  }))
 
   const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
     const region = article.region || 'global'
@@ -331,6 +476,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       riskDrivers: riskEvidence.riskDrivers,
     }
   })
+  const qualityAudit = buildQualityAudit(hotspots, articles, signals)
 
   return {
     success: true,
@@ -340,6 +486,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       signals,
       timestamp,
       count: { articles: articles.length, hotspots: hotspots.length, signals: signals.length },
+      qualityAudit,
     },
     meta: {
       version: '3.1.0',

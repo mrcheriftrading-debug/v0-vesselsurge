@@ -11,6 +11,11 @@ export interface Article {
   region: string
   timestamp: string
   isBreaking: boolean
+  sourceQualityLabel?: string
+  sourceQualityScore?: number
+  sourceQualityTier?: string
+  freshnessScore?: number
+  intelligenceScore?: number
 }
 
 export interface Hotspot {
