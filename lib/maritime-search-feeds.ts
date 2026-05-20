@@ -159,10 +159,10 @@ export const MARITIME_SEARCH_FEEDS: MaritimeSearchFeed[] = SEARCH_DEFINITIONS.fl
     credibility: 7,
     regionHint: definition.region,
   },
-  {
+  ...(definition.label.startsWith('Tier-1') ? [] : [{
     source: `Bing News Search: ${definition.label}`,
     url: bingNewsSearchUrl(definition.query),
     credibility: 6,
     regionHint: definition.region,
-  },
+  }]),
 ])
