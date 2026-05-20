@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-static'
+
 const LLMS_TXT_CONTENT = `# VesselSurge - Real-Time Maritime Intelligence Platform
 
 > VesselSurge is a free maritime intelligence platform for live chokepoint monitoring, vessel context, source-reviewed shipping news, and maritime risk signals.

@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
-import { getMaritimeArticles } from '@/lib/maritime-data'
+import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
+import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
 import { BASE_URL } from '@/lib/seo'
+import { createAdminClient } from '@/lib/supabase/admin'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
+
+const FALLBACK_FEED_TIMESTAMP = '2026-05-20T00:00:00.000Z'
+type FeedArticle = MaritimeDashboardResponse['data']['articles'][number]
 
 function escapeXml(value: string) {
   return value
@@ -13,9 +18,9 @@ function escapeXml(value: string) {
     .replace(/'/g, '&apos;')
 }
 
-function itemXml(article: Awaited<ReturnType<typeof getMaritimeArticles>>[number]) {
+function itemXml(article: FeedArticle) {
   const link = article.sourceUrl || `${BASE_URL}/latest`
-  const pubDate = article.timestamp ? new Date(article.timestamp).toUTCString() : new Date().toUTCString()
+  const pubDate = new Date(article.timestamp || FALLBACK_FEED_TIMESTAMP).toUTCString()
 
   return `
     <item>
@@ -29,9 +34,24 @@ function itemXml(article: Awaited<ReturnType<typeof getMaritimeArticles>>[number
     </item>`
 }
 
+async function loadFeedArticles() {
+  try {
+    const admin = createAdminClient()
+    const cached = await getFreshMaritimeDashboardCache(admin)
+      .catch(() => getLastMaritimeDashboardCache(admin, 'rss feed cache unavailable; serving last known source-reviewed maritime news'))
+      .catch(() => null)
+
+    return cached || buildOfflineMaritimeDashboardSnapshot('rss feed cache unavailable; serving bundled maritime route context')
+  } catch {
+    return buildOfflineMaritimeDashboardSnapshot('rss feed cache unavailable; serving bundled maritime route context')
+  }
+}
+
 export async function GET() {
-  const articles = await getMaritimeArticles(30)
-  const now = new Date().toUTCString()
+  const dashboard = await loadFeedArticles()
+  const articles = dashboard.data.articles
+    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+    .slice(0, 30)
   const fallbackItems = [
     {
       id: 'vesselsurge-live-map',
@@ -41,12 +61,13 @@ export async function GET() {
       sourceUrl: `${BASE_URL}/map-dashboard`,
       category: 'platform',
       region: 'global',
-      timestamp: new Date().toISOString(),
+      timestamp: FALLBACK_FEED_TIMESTAMP,
       isBreaking: false,
     },
   ]
 
   const items = (articles.length ? articles : fallbackItems).map(itemXml).join('')
+  const lastBuildDate = new Date(articles[0]?.timestamp || FALLBACK_FEED_TIMESTAMP).toUTCString()
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -55,7 +76,7 @@ export async function GET() {
     <atom:link href="${BASE_URL}/feed.xml" rel="self" type="application/rss+xml" />
     <description>Source-reviewed maritime intelligence, shipping risk reports and chokepoint signals for Hormuz, Bab el-Mandeb, Suez and Malacca.</description>
     <language>en-US</language>
-    <lastBuildDate>${now}</lastBuildDate>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <ttl>30</ttl>
     ${items}
   </channel>
@@ -64,7 +85,7 @@ export async function GET() {
   return new NextResponse(xml, {
     headers: {
       'Content-Type': 'application/rss+xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=900, s-maxage=1800',
+      'Cache-Control': 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800',
       'X-Robots-Tag': 'index, follow',
     },
   })

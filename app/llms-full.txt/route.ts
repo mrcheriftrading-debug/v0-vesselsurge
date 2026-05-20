@@ -2,25 +2,27 @@ import { NextResponse } from 'next/server'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-export async function GET() {
+export const dynamic = 'force-static'
+
+const LLMS_HEADERS = {
+  'Content-Type': 'text/plain; charset=utf-8',
+  'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+  'X-Robots-Tag': 'index, follow',
+}
+
+function loadLlmsFullContent() {
   try {
-    // Try to read from public folder
     const filePath = join(process.cwd(), 'public', 'llms-full.txt')
-    const content = readFileSync(filePath, 'utf-8')
-    
-    return new NextResponse(content, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'public, max-age=86400, s-maxage=86400',
-        'X-Robots-Tag': 'index, follow',
-      },
-    })
+    return readFileSync(filePath, 'utf-8')
   } catch {
-    // Fallback content if file not found
-    return new NextResponse('# VesselSurge Documentation\n\nVisit https://www.vesselsurge.com for maritime intelligence.', {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-      },
-    })
+    return '# VesselSurge Documentation\n\nVisit https://www.vesselsurge.com for maritime intelligence.'
   }
+}
+
+const LLMS_FULL_CONTENT = loadLlmsFullContent()
+
+export async function GET() {
+  return new NextResponse(LLMS_FULL_CONTENT, {
+    headers: LLMS_HEADERS,
+  })
 }
