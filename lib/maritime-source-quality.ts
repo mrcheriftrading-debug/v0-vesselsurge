@@ -88,7 +88,7 @@ export function maritimeSourceQualityScore(source?: string | null) {
 export function maritimeSourceQualityTier(source?: string | null) {
   if (!source) return 'watch'
   if (isOfficialMaritimeSource(source)) return 'official'
-  if (isTierOneNewsSource(source)) return 'tier_one'
+  if (isTierOneNewsSource(source)) return 'tierOne'
   if (isMaritimeTradeSource(source)) return 'trade'
   if (SEARCH_LAYER_PATTERN.test(source)) return 'search'
   return 'general'
