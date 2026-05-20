@@ -5,7 +5,6 @@ import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState } from "react"
 import { ArrowRight } from "lucide-react"
 import { LiveMapVoyageTransition } from "@/components/live-map-voyage-transition"
-import { Button3DEffect } from "@/components/maritime-motion-effects"
 
 export function HomeLiveMapLink() {
   const [voyageActive, setVoyageActive] = useState(false)
@@ -21,11 +20,10 @@ export function HomeLiveMapLink() {
       <Link
         href="/map-dashboard"
         onClick={launchLiveMapVoyage}
-        className="relative flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_28px_rgba(0,119,255,0.26)] transition-all hover:-translate-y-1 hover:bg-primary/90 sm:min-h-14 sm:px-5 sm:py-4"
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-cyan-200 px-5 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-white sm:px-6"
       >
-        <span className="relative z-10">Open Live Map</span>
-        <ArrowRight className="relative z-10 h-5 w-5" />
-        <Button3DEffect variant="map" compact />
+        <span>Open Live Map</span>
+        <ArrowRight className="h-4 w-4" />
       </Link>
     </>
   )

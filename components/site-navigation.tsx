@@ -3,15 +3,15 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, TrendingUp, UserPlus, X, Zap } from "lucide-react"
+import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, Ship, TrendingUp, UserPlus, X } from "lucide-react"
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Live Map", icon: Map },
   { href: "/latest", label: "News & Risk", icon: Newspaper },
   { href: "/pro-market", label: "Market Pro", icon: TrendingUp },
-  { href: "/network", label: "Join Network", icon: Network },
-  { href: "/about", label: "About", icon: Info },
+  { href: "/network", label: "Network", icon: Network },
+  { href: "/about", label: "Company", icon: Info },
 ]
 
 const mobilePrimaryItems = [
@@ -32,11 +32,11 @@ export function SiteNavigation() {
 
   return (
     <>
-      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-cyan-300/10 bg-background/90 backdrop-blur-xl">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/[0.08] bg-[#071020]/92 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 lg:px-8">
           <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3" onClick={() => setMobileOpen(false)}>
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary shadow-[0_0_24px_rgba(0,119,255,0.35)]">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-cyan-200/20 bg-cyan-200/10 text-cyan-100">
+              <Ship className="h-5 w-5" />
             </div>
             <span className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">VesselSurge</span>
           </Link>
@@ -50,7 +50,7 @@ export function SiteNavigation() {
                   href={href}
                   className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
                     active
-                      ? "bg-primary/12 text-primary"
+                      ? "bg-cyan-200/10 text-cyan-100"
                       : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
                   }`}
                 >
@@ -64,11 +64,11 @@ export function SiteNavigation() {
           <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <Link href="/auth/login" className="inline-flex min-h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground">
               <LogIn className="h-4 w-4" />
-              Log In
+              Sign in
             </Link>
-            <Link href="/auth/sign-up" className="inline-flex min-h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_24px_rgba(0,119,255,0.24)] transition-all hover:-translate-y-0.5 hover:bg-primary/90">
+            <Link href="/auth/sign-up" className="inline-flex min-h-10 items-center gap-2 rounded-md bg-cyan-200 px-4 text-sm font-semibold text-slate-950 transition-colors hover:bg-white">
               <UserPlus className="h-4 w-4" />
-              Create Account
+              Client access
             </Link>
           </div>
 
@@ -87,7 +87,7 @@ export function SiteNavigation() {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 bg-background/80 pt-16 backdrop-blur-md md:hidden" onClick={() => setMobileOpen(false)}>
           <div className="border-b border-border bg-card px-4 py-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Where do you want to go?</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">VesselSurge navigation</p>
             <div className="grid gap-2">
               {navItems.map(({ href, label, icon: Icon }) => {
                 const active = isActive(pathname, href)
@@ -98,8 +98,8 @@ export function SiteNavigation() {
                     onClick={() => setMobileOpen(false)}
                     className={`flex min-h-12 items-center gap-3 rounded-md border px-3 text-sm font-semibold ${
                       active
-                        ? "border-primary/30 bg-primary/12 text-primary"
-                        : "border-border bg-background/60 text-foreground"
+                        ? "border-cyan-200/25 bg-cyan-200/10 text-cyan-100"
+                        : "border-white/[0.08] bg-[#071020]/80 text-foreground"
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -110,10 +110,10 @@ export function SiteNavigation() {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Link href="/auth/login" onClick={() => setMobileOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-md border border-border text-sm font-semibold text-foreground">
-                Log In
+                Sign in
               </Link>
-              <Link href="/auth/sign-up" onClick={() => setMobileOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
-                Create Account
+              <Link href="/auth/sign-up" onClick={() => setMobileOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-md bg-cyan-200 text-sm font-semibold text-slate-950">
+                Client access
               </Link>
             </div>
           </div>
@@ -129,7 +129,7 @@ export function SiteNavigation() {
                 key={href}
                 href={href}
                 className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[0.68rem] font-bold ${
-                  active ? "bg-primary/15 text-primary" : "text-muted-foreground"
+                  active ? "bg-cyan-200/10 text-cyan-100" : "text-muted-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
