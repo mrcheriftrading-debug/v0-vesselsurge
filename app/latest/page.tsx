@@ -9,7 +9,6 @@ import { BASE_URL } from "@/lib/seo"
 import { isTierOneNewsSource, maritimeArticleIntelligenceScore, maritimeSourceQualityLabel } from "@/lib/maritime-source-quality"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 300
 
 type LatestArticle = MaritimeDashboardResponse["data"]["articles"][number]
