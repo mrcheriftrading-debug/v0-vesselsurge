@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff, Globe2 } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
@@ -109,6 +110,44 @@ const WATCH_COVERAGE: Record<string, Array<{ source: string; signalType: string;
     },
   ],
 }
+
+const EXPANSION_WATCHLIST = [
+  {
+    name: 'Panama Canal',
+    lane: 'Atlantic-Pacific capacity',
+    href: '/topics/panama-canal-shipping-risk',
+    focus: 'Queue pressure, water constraints and container flow exposure',
+    signals: ['Canal restrictions', 'Queue pressure', 'Rerouting economics'],
+  },
+  {
+    name: 'Taiwan Strait',
+    lane: 'Asia trade lane exposure',
+    href: '/topics/taiwan-strait-shipping-risk',
+    focus: 'Maritime alerts, geopolitical tension and Asia cargo continuity',
+    signals: ['Security notices', 'Trade lane exposure', 'Rerouting pressure'],
+  },
+  {
+    name: 'Turkish Straits',
+    lane: 'Black Sea tanker route',
+    href: '/topics/turkish-straits-shipping-risk',
+    focus: 'Bosporus transit, tanker constraints and Black Sea route risk',
+    signals: ['Bosporus flow', 'Tanker constraints', 'Weather holds'],
+  },
+  {
+    name: 'Strait of Gibraltar',
+    lane: 'Atlantic-Mediterranean flow',
+    href: '/topics/strait-of-gibraltar-vessel-traffic',
+    focus: 'Vessel density, Mediterranean entry flow and congestion context',
+    signals: ['Traffic density', 'Port approach pressure', 'Security context'],
+  },
+  {
+    name: 'Cape of Good Hope',
+    lane: 'Red Sea bypass route',
+    href: '/topics/cape-of-good-hope-rerouting',
+    focus: 'Rerouting pressure, voyage time, fuel burn and freight cost impact',
+    signals: ['Bypass pressure', 'Voyage time', 'Fuel cost'],
+  },
+] as const
 
 function watchCoverageFor(region: string) {
   return WATCH_COVERAGE[region] || [{
@@ -470,6 +509,52 @@ export default function MapDashboard() {
                   </button>
                 ))}
               </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-border bg-card/35 p-3 sm:p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Expansion watchlist</p>
+                <h2 className="mt-1 text-sm font-black text-foreground">Next global routes VesselSurge is organizing for search and monitoring.</h2>
+                <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
+                  These are not promoted as live hotspots yet. They give visitors and AI search engines clean route pages while the live system keeps verified coverage focused on the four monitored chokepoints above.
+                </p>
+              </div>
+              <Link
+                href="/topics/global-shipping-route-risk"
+                className="inline-flex min-h-10 items-center justify-center rounded-md border border-border bg-background/45 px-3 text-xs font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                View global route risk
+              </Link>
+            </div>
+
+            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+              {EXPANSION_WATCHLIST.map((route) => (
+                <Link
+                  key={route.name}
+                  href={route.href}
+                  className="group rounded-xl border border-border/70 bg-background/35 p-3 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black text-foreground">{route.name}</p>
+                      <p className="mt-1 truncate text-[11px] font-semibold text-primary">{route.lane}</p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-border bg-card/70 px-2 py-1 text-[10px] font-black uppercase text-muted-foreground">
+                      Watch
+                    </span>
+                  </div>
+                  <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-muted-foreground">{route.focus}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {route.signals.map((signal) => (
+                      <span key={signal} className="rounded-full border border-border/70 bg-card/50 px-2 py-1 text-[10px] font-semibold text-muted-foreground">
+                        {signal}
+                      </span>
+                    ))}
+                  </div>
+                </Link>
+              ))}
             </div>
           </section>
 

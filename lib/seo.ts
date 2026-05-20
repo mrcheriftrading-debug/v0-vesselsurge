@@ -372,6 +372,70 @@ export const trafficTopicPages = [
     ],
   },
   {
+    slug: "panama-canal-shipping-risk",
+    name: "Panama Canal Shipping Risk",
+    title: "Panama Canal Shipping Risk, Queue Pressure and Atlantic-Pacific Route Intelligence",
+    description:
+      "Monitor Panama Canal shipping risk context, queue pressure, water constraint reports, route delays, container flow exposure and global maritime disruption signals.",
+    keywords: ["Panama Canal shipping risk", "Panama Canal queue tracker", "Atlantic Pacific shipping route"],
+    regionHref: "/latest",
+    primaryHref: "/topics/global-shipping-route-risk",
+    intent: "cargo teams and analysts tracking Atlantic-Pacific canal capacity, queue pressure and route alternatives",
+    questions: [
+      "How can I monitor Panama Canal shipping risk?",
+      "What signals matter for Panama Canal queue pressure?",
+      "Where can I compare canal delays with global route risk?",
+    ],
+  },
+  {
+    slug: "taiwan-strait-shipping-risk",
+    name: "Taiwan Strait Shipping Risk",
+    title: "Taiwan Strait Shipping Risk, Asia Trade Lane Exposure and Maritime Alert Context",
+    description:
+      "Track Taiwan Strait shipping risk context, Asia trade lane exposure, maritime alert signals, rerouting pressure and source-reviewed route intelligence.",
+    keywords: ["Taiwan Strait shipping risk", "Asia trade lane risk", "Taiwan Strait maritime alerts"],
+    regionHref: "/latest",
+    primaryHref: "/topics/global-shipping-route-risk",
+    intent: "operators, market watchers and logistics teams monitoring Asia trade lane exposure",
+    questions: [
+      "How can I monitor Taiwan Strait shipping risk?",
+      "What maritime signals matter around Taiwan trade lanes?",
+      "Where can I compare Taiwan Strait risk with other chokepoints?",
+    ],
+  },
+  {
+    slug: "turkish-straits-shipping-risk",
+    name: "Turkish Straits Shipping Risk",
+    title: "Turkish Straits Shipping Risk, Bosporus Transit and Black Sea Route Context",
+    description:
+      "Monitor Turkish Straits shipping risk context, Bosporus transit flow, Black Sea route exposure, tanker constraints and source-reviewed maritime signals.",
+    keywords: ["Turkish Straits shipping risk", "Bosporus vessel traffic", "Black Sea tanker route"],
+    regionHref: "/latest",
+    primaryHref: "/topics/global-shipping-route-risk",
+    intent: "energy, tanker and logistics teams watching Bosporus and Black Sea route exposure",
+    questions: [
+      "Where can I monitor Turkish Straits shipping risk?",
+      "How do Bosporus constraints affect tanker routes?",
+      "What signals matter for Black Sea shipping exposure?",
+    ],
+  },
+  {
+    slug: "strait-of-gibraltar-vessel-traffic",
+    name: "Strait of Gibraltar Vessel Traffic",
+    title: "Strait of Gibraltar Vessel Traffic, Atlantic-Mediterranean Flow and Shipping Risk",
+    description:
+      "Track Strait of Gibraltar vessel traffic context, Atlantic-Mediterranean route flow, congestion signals, security exposure and maritime intelligence updates.",
+    keywords: ["Strait of Gibraltar vessel traffic", "Gibraltar shipping risk", "Atlantic Mediterranean vessel flow"],
+    regionHref: "/latest",
+    primaryHref: "/topics/global-shipping-route-risk",
+    intent: "operators comparing Atlantic-Mediterranean vessel flow, congestion and route risk",
+    questions: [
+      "Where can I track Strait of Gibraltar vessel traffic?",
+      "What signals matter for Atlantic-Mediterranean shipping flow?",
+      "How can I compare Gibraltar with other maritime chokepoints?",
+    ],
+  },
+  {
     slug: "freight-rate-risk-signals",
     name: "Freight Rate Risk Signals",
     title: "Freight Rate Risk Signals, Insurance Pressure and Maritime Disruption Context",
