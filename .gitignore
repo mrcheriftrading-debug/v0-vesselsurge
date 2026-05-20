@@ -13,8 +13,10 @@ next.user-config.*
 .x-compose-state.json
 .x-compose-pending.json
 .x-approved-feed-cache.json
+.x-direct-post-state.json
 .buffer-post-state.json
 .buffer-approved-feed-cache.json
+automation-runs/
 
 # Common ignores
 node_modules
