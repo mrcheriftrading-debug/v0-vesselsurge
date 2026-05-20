@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -17,6 +18,7 @@ const TRUSTED_SOURCES = [
   'Bloomberg Politics',
   'Bloomberg Economics',
   'Bloomberg Business',
+  ...TIER_ONE_NEWS_SOURCE_NAMES,
   'Safety4Sea',
   'MarineLog',
   'World Oil',

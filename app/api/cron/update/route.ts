@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
-import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
@@ -65,6 +65,7 @@ const TRUSTED_FEEDS = [
   { source: 'MarineLog', url: 'https://www.marinelog.com/feed/', credibility: 8 },
   { source: 'World Oil', url: 'https://www.worldoil.com/rss', credibility: 7 },
   { source: 'Arab News', url: 'https://www.arabnews.com/rss.xml', credibility: 7 },
+  ...ADDITIONAL_TRUSTED_NEWS_FEEDS,
   ...MARITIME_SEARCH_FEEDS,
 ] satisfies TrustedFeed[]
 

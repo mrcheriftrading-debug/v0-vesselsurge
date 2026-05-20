@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
 import { buildMarketingPost, getMarketingApproval } from '@/scripts/lib/x-marketing-post.mjs'
 
 export const dynamic = 'force-dynamic'
@@ -21,6 +22,7 @@ const TRUSTED_SOURCES = [
   'Bloomberg Politics',
   'Bloomberg Economics',
   'Bloomberg Business',
+  ...TIER_ONE_NEWS_SOURCE_NAMES,
   'Safety4Sea',
   'MarineLog',
   'World Oil',

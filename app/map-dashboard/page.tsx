@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff, Globe2 } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
+import { maritimeSourceQualityLabel } from '@/lib/maritime-source-quality'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
 import { SiteNavigation } from '@/components/site-navigation'
 
@@ -471,6 +472,7 @@ export default function MapDashboard() {
         latestNews,
         latestRouteSignal,
         missing,
+        sourceQuality: maritimeSourceQualityLabel(latestNews?.source || latestRouteSignal?.source),
       }
     })
     .sort((a, b) => b.score - a.score || (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0))
@@ -658,7 +660,7 @@ export default function MapDashboard() {
                     </span>
 
                     <span className="font-mono text-[10px] uppercase text-muted-foreground">Sources</span>
-                    <span className="font-semibold text-foreground">{row.sourceCount} source{row.sourceCount === 1 ? '' : 's'} · {row.score}/100</span>
+                    <span className="font-semibold text-foreground">{row.sourceCount} source{row.sourceCount === 1 ? '' : 's'} · {row.score}/100 · {row.sourceQuality}</span>
 
                     <span className="font-mono text-[10px] uppercase text-muted-foreground">Needs</span>
                     <span className="line-clamp-1 font-semibold text-muted-foreground">

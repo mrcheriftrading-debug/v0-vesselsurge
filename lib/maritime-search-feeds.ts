@@ -13,6 +13,19 @@ type MaritimeSearchDefinition = {
   query: string
 }
 
+export const ADDITIONAL_TRUSTED_NEWS_FEEDS = [
+  { source: 'New York Times World', url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', credibility: 8 },
+  { source: 'New York Times Business', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml', credibility: 7 },
+  { source: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml', credibility: 8 },
+  { source: 'The Guardian World', url: 'https://www.theguardian.com/world/rss', credibility: 7 },
+  { source: 'Financial Times World', url: 'https://www.ft.com/world?format=rss', credibility: 8 },
+  { source: 'Financial Times Markets', url: 'https://www.ft.com/markets?format=rss', credibility: 8 },
+  { source: 'CNBC World News', url: 'https://www.cnbc.com/id/100727362/device/rss/rss.html', credibility: 7 },
+  { source: 'OilPrice', url: 'https://oilprice.com/rss/main', credibility: 6 },
+] as const
+
+const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com)'
+
 const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
   {
     label: 'Global maritime chokepoint disruption',
@@ -28,6 +41,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Hormuz oil route disruption',
     region: 'hormuz',
     query: '("Strait of Hormuz" OR Hormuz OR "Persian Gulf") (oil OR crude OR LNG OR energy) (shipping OR tanker OR route OR disruption OR sanctions OR Iran)',
+  },
+  {
+    label: 'Tier-1 Hormuz newsroom sweep',
+    region: 'hormuz',
+    query: `("Strait of Hormuz" OR Hormuz OR "Persian Gulf" OR "Gulf of Oman" OR Iran) (shipping OR tanker OR maritime OR vessel OR oil OR crude OR insurance OR freight OR sanctions) ${TIER_ONE_SOURCE_SITES}`,
   },
   {
     label: 'Red Sea vessel security',
@@ -60,6 +78,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Red Sea shipping" OR "Red Sea route" OR "Gulf of Aden shipping") (vessel OR cargo OR tanker OR container OR freight OR insurance OR disruption)',
   },
   {
+    label: 'Tier-1 Red Sea newsroom sweep',
+    region: 'bab',
+    query: `("Red Sea" OR "Bab el-Mandeb" OR "Bab el Mandeb" OR "Gulf of Aden" OR Yemen OR Houthi) (shipping OR vessel OR tanker OR maritime OR cargo OR route OR rerouting OR insurance OR freight OR attack OR advisory) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
     label: 'Suez traffic and queues',
     region: 'suez',
     query: '("Suez Canal" OR "Port Said" OR Suez) (vessel OR convoy OR transit OR shipping OR queue OR congestion OR delay)',
@@ -85,6 +108,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Suez Canal" OR "canal transit" OR "Port Said") (shipping news OR vessel traffic OR congestion OR disruption OR convoy OR maritime)',
   },
   {
+    label: 'Tier-1 Suez newsroom sweep',
+    region: 'suez',
+    query: `("Suez Canal" OR Suez OR "Port Said" OR "Red Sea route" OR "Cape of Good Hope") (shipping OR vessel OR maritime OR canal OR convoy OR transit OR queue OR delay OR freight OR rerouting) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
     label: 'Malacca piracy and incidents',
     region: 'malacca',
     query: '("Strait of Malacca" OR "Singapore Strait" OR "Straits of Malacca") (piracy OR "armed robbery" OR incident OR ReCAAP OR vessel)',
@@ -108,6 +136,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Southeast Asia shipping risk',
     region: 'malacca',
     query: '("Southeast Asia shipping" OR "Singapore Strait" OR "Port of Singapore") (vessel OR tanker OR cargo OR piracy OR congestion OR maritime risk)',
+  },
+  {
+    label: 'Tier-1 Malacca newsroom sweep',
+    region: 'malacca',
+    query: `("Strait of Malacca" OR "Singapore Strait" OR "Port of Singapore" OR ReCAAP) (shipping OR vessel OR tanker OR maritime OR cargo OR congestion OR piracy OR "armed robbery" OR port) ${TIER_ONE_SOURCE_SITES}`,
   },
 ]
 

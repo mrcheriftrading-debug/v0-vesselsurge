@@ -6,6 +6,7 @@ import { SiteNavigation } from "@/components/site-navigation"
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from "@/lib/maritime-dashboard-cache"
 import { buildOfflineMaritimeDashboardSnapshot } from "@/lib/maritime-offline-snapshot"
 import { BASE_URL } from "@/lib/seo"
+import { isTierOneNewsSource, maritimeSourceQualityLabel } from "@/lib/maritime-source-quality"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 export const dynamic = "force-dynamic"
@@ -106,6 +107,15 @@ export default async function LatestMaritimeNewsPage() {
     count: articles.filter((article) => article.region === region).length,
     hotspot: payload.data.hotspots.find((hotspot) => hotspot.hotspot === region),
   }))
+  const tierOneCount = articles.filter((article) => isTierOneNewsSource(article.source)).length
+  const sourceQualityRows = Array.from(new Set(articles.map((article) => article.source).filter(Boolean)))
+    .map((source) => ({
+      source,
+      count: articles.filter((article) => article.source === source).length,
+      label: maritimeSourceQualityLabel(source),
+    }))
+    .sort((a, b) => Number(isTierOneNewsSource(b.source)) - Number(isTierOneNewsSource(a.source)) || b.count - a.count)
+    .slice(0, 8)
   const generatedAt = payload.meta.generatedAt || payload.data.timestamp
 
   const schema = {
@@ -177,6 +187,10 @@ export default async function LatestMaritimeNewsPage() {
                   <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Reviewed items</div>
                   <div className="mt-1 text-2xl font-black text-foreground">{articles.length}</div>
                 </div>
+                <div className="rounded-lg border border-cyan-300/20 bg-cyan-300/10 px-3 py-2">
+                  <div className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Tier-1 hits</div>
+                  <div className="mt-1 text-2xl font-black text-foreground">{tierOneCount}</div>
+                </div>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 {byRegion.map(({ region, count, hotspot }) => (
@@ -205,8 +219,23 @@ export default async function LatestMaritimeNewsPage() {
                 <ShieldAlert className="h-6 w-6 text-accent" />
                 <h2 className="mt-4 text-xl font-bold text-foreground">Source discipline</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Items stay source-linked or clearly marked as saved context when live feeds are unavailable, so the page keeps value without overstating claims.
+                  Items stay source-linked or clearly marked as saved context. Tier-1 source sweeps now include Bloomberg, Al Jazeera, New York Times, Reuters/AP via news search, BBC, Financial Times, Guardian and CNBC.
                 </p>
+                <div className="mt-4 grid gap-2">
+                  {sourceQualityRows.length > 0 ? sourceQualityRows.map((item) => (
+                    <div key={item.source} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/55 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-bold text-foreground">{item.source}</p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{item.label}</p>
+                      </div>
+                      <span className="rounded-full border border-border bg-card px-2 py-1 text-[10px] font-black text-muted-foreground">
+                        {item.count}
+                      </span>
+                    </div>
+                  )) : (
+                    <p className="text-xs text-muted-foreground">Source watch activates when live articles are available.</p>
+                  )}
+                </div>
               </div>
               <div className="rounded-xl border border-border bg-card/50 p-5">
                 <Radar className="h-6 w-6 text-cyan-300" />
@@ -253,6 +282,13 @@ export default async function LatestMaritimeNewsPage() {
                       <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
                         <span className="rounded-md border border-border bg-background/60 px-2 py-1">{regionName(article.region)}</span>
                         <span>{article.source}</span>
+                        <span className={`rounded-md border px-2 py-1 ${
+                          isTierOneNewsSource(article.source)
+                            ? "border-cyan-300/25 bg-cyan-300/10 text-cyan-200"
+                            : "border-border bg-background/60 text-muted-foreground"
+                        }`}>
+                          {maritimeSourceQualityLabel(article.source)}
+                        </span>
                         <span>{formatTime(article.timestamp)}</span>
                       </div>
                       <h2 className="mt-3 text-lg font-bold leading-snug text-foreground">{article.title}</h2>
