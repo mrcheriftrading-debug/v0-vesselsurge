@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "browser:smoke": "node scripts/browser-smoke.mjs",
     "maritime:update": "node scripts/run-maritime-update.mjs",
     "maritime:update:full": "MARITIME_UPDATE_URL=https://www.vesselsurge.com/api/cron/update node scripts/run-maritime-update.mjs",
     "x:check": "node scripts/x-check-auth.mjs",

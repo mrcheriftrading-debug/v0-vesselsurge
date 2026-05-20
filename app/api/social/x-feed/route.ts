@@ -8,6 +8,8 @@ export const revalidate = 0
 
 const FEED_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300'
 const DEFAULT_VARIANT_SEED = 'vesselsurge-stable-social-feed-v1'
+const FEED_SETTLE_MS = 2 * 60 * 1000
+const STABLE_FALLBACK_TIMESTAMP = '2026-05-20T00:00:00.000Z'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -71,6 +73,7 @@ export async function GET(request: Request) {
   const approval = url.searchParams.get('approval') || 'approved'
   const outputLimit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10), 50)
   const requestVariantSeed = url.searchParams.get('variant') || DEFAULT_VARIANT_SEED
+  const settledBefore = new Date(Date.now() - FEED_SETTLE_MS).toISOString()
 
   try {
     const supabase = await createClient()
@@ -92,7 +95,11 @@ export async function GET(request: Request) {
       .select('id, title, snippet, url, source, topic, region, published_at, created_at')
       .eq('is_active', true)
       .neq('region', 'global')
+      .lte('published_at', settledBefore)
       .order('published_at', { ascending: false })
+      .order('source', { ascending: true })
+      .order('title', { ascending: true })
+      .order('id', { ascending: true })
       .limit(100)
 
     if (region && region !== 'all') {
@@ -116,7 +123,7 @@ export async function GET(request: Request) {
           region: article.region || 'global',
           topic: article.topic || 'global',
           riskLevel: riskByRegion.get(article.region) || 'medium',
-          timestamp: article.published_at || article.created_at || new Date().toISOString(),
+          timestamp: article.published_at || article.created_at || STABLE_FALLBACK_TIMESTAMP,
         }
         const agentApproval = getMarketingApproval(item)
 
@@ -147,6 +154,7 @@ export async function GET(request: Request) {
 
     if (shouldReturnRss(request)) {
       const feedUrl = absoluteUrl(request, '/api/social/x-feed?format=rss')
+      const lastBuildDate = items[0]?.timestamp ? new Date(items[0].timestamp).toUTCString() : new Date(STABLE_FALLBACK_TIMESTAMP).toUTCString()
       const rssItems = items
         .map((item) => {
           const guid = item.sourceUrl || `${feedUrl}#${item.id}`
@@ -168,7 +176,7 @@ export async function GET(request: Request) {
     <title>VesselSurge Agent-Approved X Post Feed</title>
     <link>https://www.vesselsurge.com/map-dashboard</link>
     <description>Agent-approved maritime intelligence posts prepared for X automation.</description>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>${rssItems}
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>${rssItems}
   </channel>
 </rss>`
 
