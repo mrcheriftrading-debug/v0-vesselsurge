@@ -131,7 +131,13 @@ export async function GET(request: Request) {
       .sort((a: any, b: any) => {
         if (a.approval.approved !== b.approval.approved) return a.approval.approved ? -1 : 1
         if (a.approval.score !== b.approval.score) return b.approval.score - a.approval.score
-        return Date.parse(b.timestamp) - Date.parse(a.timestamp)
+        const timestampDiff = Date.parse(b.timestamp) - Date.parse(a.timestamp)
+        if (timestampDiff !== 0) return timestampDiff
+        const sourceDiff = `${a.source}`.localeCompare(`${b.source}`)
+        if (sourceDiff !== 0) return sourceDiff
+        const titleDiff = `${a.title}`.localeCompare(`${b.title}`)
+        if (titleDiff !== 0) return titleDiff
+        return `${a.id}`.localeCompare(`${b.id}`)
       })
 
     const items = (approval === 'all' ? reviewedItems : reviewedItems.filter((item: any) => item.approval.approved)).slice(
