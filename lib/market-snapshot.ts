@@ -3,7 +3,7 @@ import 'server-only'
 type MarketInstrument = {
   symbol: string
   label: string
-  group: 'Equities' | 'Energy' | 'Rates' | 'FX' | 'Safe haven' | 'Transport'
+  group: 'Equities' | 'Energy' | 'Rates' | 'FX' | 'Currencies' | 'Crypto' | 'Safe haven' | 'Transport'
   valueType?: 'price' | 'yield'
 }
 
@@ -39,12 +39,21 @@ const MARKET_INSTRUMENTS: MarketInstrument[] = [
   { symbol: '^IXIC', label: 'Nasdaq Composite', group: 'Equities' },
   { symbol: '^DJI', label: 'Dow Jones', group: 'Equities' },
   { symbol: '^OMX', label: 'OMXS30', group: 'Equities' },
+  { symbol: 'FRO', label: 'Frontline', group: 'Transport' },
+  { symbol: 'ZIM', label: 'ZIM Integrated Shipping', group: 'Transport' },
+  { symbol: 'IYT', label: 'US transports ETF', group: 'Transport' },
   { symbol: 'BZ=F', label: 'Brent crude', group: 'Energy' },
   { symbol: 'CL=F', label: 'WTI crude', group: 'Energy' },
   { symbol: '^TNX', label: 'US 10Y yield', group: 'Rates', valueType: 'yield' },
   { symbol: 'DX-Y.NYB', label: 'US Dollar Index', group: 'FX' },
+  { symbol: 'EURUSD=X', label: 'EUR/USD', group: 'Currencies' },
+  { symbol: 'USDSEK=X', label: 'USD/SEK', group: 'Currencies' },
+  { symbol: 'GBPUSD=X', label: 'GBP/USD', group: 'Currencies' },
+  { symbol: 'USDJPY=X', label: 'USD/JPY', group: 'Currencies' },
+  { symbol: 'BTC-USD', label: 'Bitcoin', group: 'Crypto' },
+  { symbol: 'ETH-USD', label: 'Ethereum', group: 'Crypto' },
+  { symbol: 'SOL-USD', label: 'Solana', group: 'Crypto' },
   { symbol: 'GC=F', label: 'Gold', group: 'Safe haven' },
-  { symbol: 'IYT', label: 'US transports ETF', group: 'Transport' },
 ]
 
 function quoteUrl(symbol: string) {

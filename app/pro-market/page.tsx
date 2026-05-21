@@ -1,16 +1,12 @@
 import Link from 'next/link'
-import type { ComponentType, ReactNode } from 'react'
 import type { Metadata } from 'next'
 import {
   AlertTriangle,
   ArrowRight,
   Activity,
   CheckCircle2,
-  Gauge,
   LockKeyhole,
   Radar,
-  ShieldCheck,
-  TrendingUp,
 } from 'lucide-react'
 import { SiteNavigation } from '@/components/site-navigation'
 import { Button } from '@/components/ui/button'
@@ -29,8 +25,8 @@ export const dynamic = 'force-dynamic'
 const BASE_URL = 'https://www.vesselsurge.com'
 
 export const metadata: Metadata = {
-  title: 'Stock Market Impact From Shipping Risk | VesselSurge Market Pro',
-  description: 'Source-backed maritime market impact analysis for oil, freight, tanker stocks, logistics equities, war-risk insurance, Hormuz, Red Sea, Suez and Malacca.',
+  title: 'Live Markets and AI Shipping Risk Analysis | VesselSurge Market Pro',
+  description: 'Choose stocks, crypto or currencies and compare the live market tape with AI analysis of how maritime news may move markets.',
   keywords: [
     'shipping risk stock market impact',
     'maritime market intelligence',
@@ -52,44 +48,38 @@ export const metadata: Metadata = {
 type Report = ReturnType<typeof buildMarketImpactReport>
 type MarketSnapshotReport = NonNullable<Report['marketSnapshot']>
 type MarketQuoteReport = MarketSnapshotReport['quotes'][number]
+type AssetCategory = 'stocks' | 'crypto' | 'fx'
 
-const customerProfiles = [
+const assetCategories: Array<{ id: AssetCategory; label: string; description: string }> = [
   {
-    title: 'Traders and investors',
-    body: 'See which maritime event could matter to oil, freight, tanker stocks, insurance or logistics equities.',
+    id: 'stocks',
+    label: 'Stocks',
+    description: 'Indices, transports and listed shipping exposure',
   },
   {
-    title: 'Shipping operators',
-    body: 'Understand whether a chokepoint signal is isolated noise or part of a wider cost and delay pattern.',
+    id: 'crypto',
+    label: 'Crypto',
+    description: 'Bitcoin, Ethereum and high-beta risk appetite',
   },
   {
-    title: 'Analysts and founders',
-    body: 'Turn messy route news into a source-backed briefing that is faster to scan than raw headlines.',
+    id: 'fx',
+    label: 'Currencies',
+    description: 'Dollar, SEK and major FX stress channels',
   },
-]
-
-const reportIncludes = [
-  'AI analyst brief',
-  'Live market tape',
-  'Market pressure score',
-  'Lead asset channel',
-  'Ranked source events',
-  'Chokepoint heat map',
-  'Watch triggers',
-  'Research-only disclaimer',
 ]
 
 export default async function ProMarketPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ checkout?: string }>
+  searchParams?: Promise<{ checkout?: string; asset?: string }>
 }) {
-  const paramsPromise: Promise<{ checkout?: string }> = searchParams ?? Promise.resolve({})
+  const paramsPromise: Promise<{ checkout?: string; asset?: string }> = searchParams ?? Promise.resolve({})
   const [params, authState] = await Promise.all([
     paramsPromise,
     loadAuthState(),
   ])
   const { user, hasAccess } = authState
+  const selectedCategory = normalizeAssetCategory(params?.asset)
   const report = hasAccess ? await loadReport({ allowDirectDatabaseFallback: true }) : null
 
   return (
@@ -107,11 +97,11 @@ export default async function ProMarketPage({
               </div>
 
               <h1 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-                Source-backed shipping risk analysis for oil, freight and public markets.
+                Live markets beside AI analysis of what maritime news may move next.
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                Market Impact Pro turns real VesselSurge news and live-map signals into one plain-English investor report: what happened, which market channels may feel pressure, and what to watch next. No invented breaking news. No buy or sell calls.
+                Pick stocks, crypto or currencies. The left panel shows the live market tape; the right panel explains what the AI expects, why it expects it, and which VesselSurge news is driving the view. No invented breaking news. No buy or sell calls.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -128,7 +118,7 @@ export default async function ProMarketPage({
                   </form>
                 ) : (
                   <>
-                    <Link href="/auth/sign-up?next=/pro-market">
+                    <Link href={proMarketSignUpHref(selectedCategory)}>
                       <Button className="min-h-11 bg-slate-950 text-white hover:bg-slate-800">
                         Create account
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -145,13 +135,8 @@ export default async function ProMarketPage({
 
             </div>
 
-            <div className="space-y-4">
-              <PricingCard hasAccess={hasAccess} isLoggedIn={Boolean(user)} />
-              {report ? (
-                <ReportPreview report={report} />
-              ) : (
-                <LockedReportPreview isLoggedIn={Boolean(user)} />
-              )}
+            <div>
+              <PricingCard hasAccess={hasAccess} isLoggedIn={Boolean(user)} selectedCategory={selectedCategory} />
             </div>
           </div>
         </div>
@@ -159,87 +144,12 @@ export default async function ProMarketPage({
 
       <CheckoutStatus status={params?.checkout} />
 
-      {!hasAccess && user?.user_metadata?.service_type === 'trader' && (
-        <section className="border-b border-sky-200 bg-sky-50 px-4 py-4">
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm font-black text-sky-950">Trader account detected</p>
-              <p className="mt-1 text-sm text-sky-900">Your account is ready. Start the subscription to unlock live market-impact analysis and source links.</p>
-            </div>
-            <form action="/api/stripe/checkout" method="post">
-              <Button type="submit" className="min-h-10 bg-sky-900 text-white hover:bg-sky-800">
-                Unlock trader report
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </form>
-          </div>
-        </section>
-      )}
-
-      <section className="border-b border-slate-200 bg-white px-4 py-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">What the customer buys</p>
-            <h2 className="mt-2 text-2xl font-black text-slate-950">A fast market-impact layer on top of maritime intelligence.</h2>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="grid gap-3">
-              {customerProfiles.map((profile) => (
-                <div key={profile.title} className="rounded-md border border-slate-200 bg-slate-50 p-4">
-                  <h3 className="font-black text-slate-950">{profile.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{profile.body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">Included in Pro</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {reportIncludes.map((item) => (
-                  <div key={item} className="flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] p-3 text-sm font-bold">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-5 text-sm leading-6 text-slate-300">
-                Built for fast research context. It explains possible transmission channels; it does not provide financial advice or buy/sell recommendations.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="px-4 py-10">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
-          <AgentPanel
-            title="Pro Investor Agent"
-            subtitle="Answers the investor question: why should this shipping event matter to markets?"
-            points={['Finds the affected asset channel', 'Explains the cost or supply transmission path', 'Separates watch signals from stronger evidence']}
-          />
-          <AgentPanel
-            title="Pro Market Analyst Agent"
-            subtitle="Turns messy maritime information into a ranked, readable report."
-            points={['Scores severity, recency and source quality', 'Compares chokepoints side by side', 'Shows the exact triggers to monitor next']}
-          />
-        </div>
-      </section>
-
-      <section className="px-4 pb-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Investor questions</p>
-            <h2 className="mt-2 text-2xl font-black text-slate-950">The page is built to answer these fast</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <QuestionCard text="Is this maritime event relevant to oil, freight, tanker stocks, insurers, logistics equities or fuel-sensitive companies?" />
-            <QuestionCard text="Which chokepoint is driving the risk, and is the pressure spreading?" />
-            <QuestionCard text="What exact new information would change the market-impact score?" />
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 pb-12">
-        {report ? <UnlockedReport report={report} /> : <LockedAnalysisSection isLoggedIn={Boolean(user)} />}
+        {report ? (
+          <UnlockedReport report={report} selectedCategory={selectedCategory} />
+        ) : (
+          <LockedAnalysisSection isLoggedIn={Boolean(user)} selectedCategory={selectedCategory} />
+        )}
       </section>
     </main>
   )
@@ -254,7 +164,7 @@ function ProductJsonLd() {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: 'VesselSurge Market Impact Pro',
-          description: 'Source-backed maritime market impact analysis for oil, freight, tanker stocks, logistics equities, insurance risk and global shipping chokepoints.',
+          description: 'Live stocks, crypto and currency market tape paired with source-backed AI analysis of maritime news and shipping-risk market impact.',
           brand: { '@type': 'Brand', name: 'VesselSurge' },
           offers: {
             '@type': 'Offer',
@@ -269,7 +179,15 @@ function ProductJsonLd() {
   )
 }
 
-function PricingCard({ hasAccess, isLoggedIn }: { hasAccess: boolean; isLoggedIn: boolean }) {
+function PricingCard({
+  hasAccess,
+  isLoggedIn,
+  selectedCategory,
+}: {
+  hasAccess: boolean;
+  isLoggedIn: boolean;
+  selectedCategory: AssetCategory;
+}) {
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm">
       <div className="flex items-start justify-between gap-4">
@@ -277,7 +195,7 @@ function PricingCard({ hasAccess, isLoggedIn }: { hasAccess: boolean; isLoggedIn
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-200">Market Pro</p>
           <h2 className="mt-2 text-2xl font-black">199 kr / 14 days</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            Unlock the full analyst report, source trail, asset pressure table and watch triggers.
+            Unlock one focused workspace: live market tape on the left and AI market reasoning with source news on the right.
           </p>
         </div>
         <div className="rounded-md bg-white/10 px-2.5 py-1.5 text-xs font-black uppercase text-slate-100">
@@ -298,7 +216,7 @@ function PricingCard({ hasAccess, isLoggedIn }: { hasAccess: boolean; isLoggedIn
             </Button>
           </form>
         ) : (
-          <Link href="/auth/sign-up?next=/pro-market">
+          <Link href={proMarketSignUpHref(selectedCategory)}>
             <Button className="min-h-11 w-full bg-white text-slate-950 hover:bg-slate-100">
               Create account to unlock
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -314,244 +232,223 @@ function PricingCard({ hasAccess, isLoggedIn }: { hasAccess: boolean; isLoggedIn
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-          Source-backed research context
+          Stocks, crypto and currency categories
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-          No financial advice or trade calls
+          Source-backed news trail, no trade calls
         </div>
       </div>
     </div>
   )
 }
 
-function ReportPreview({ report }: { report: Report }) {
-  const leadAsset = report.assetImpacts[0]
-
+function UnlockedReport({ report, selectedCategory }: { report: Report; selectedCategory: AssetCategory }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 px-5 py-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Subscriber report</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">Market impact report</h2>
-          </div>
-          <span className="rounded-md bg-emerald-50 px-2.5 py-1.5 text-xs font-black uppercase text-emerald-800">
-            Live
-          </span>
-        </div>
+    <div className="mx-auto max-w-7xl">
+      <MarketCategorySelector selectedCategory={selectedCategory} />
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[0.96fr_1.04fr]">
+        <LiveMarketWorkspace report={report} selectedCategory={selectedCategory} />
+        <AiMarketWorkspace report={report} selectedCategory={selectedCategory} />
       </div>
 
-      <div className="grid gap-0 md:grid-cols-[0.45fr_0.55fr]">
-        <div className="border-b border-slate-200 p-5 md:border-b-0 md:border-r">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Pressure score</p>
-          <div className="mt-3 flex items-end gap-3">
-            <p className="text-7xl font-black tracking-tight text-slate-950">{report.marketPressureScore}</p>
-            <p className="pb-3 text-sm font-bold uppercase text-slate-500">{report.confidence}</p>
-          </div>
-          <div className="mt-4 h-2 rounded-full bg-slate-100">
-            <div className="h-full rounded-full bg-sky-700" style={{ width: `${report.marketPressureScore}%` }} />
-          </div>
-          <p className="mt-4 text-sm leading-6 text-slate-600">{report.analysisBrief.meaning}</p>
-        </div>
-
-        <div className="divide-y divide-slate-200">
-          <ReportRow label="Lead asset channel" value={leadAsset?.asset || 'No signal'} detail={leadAsset?.bias || 'Waiting for confirmation'} />
-          <ReportRow label="Strongest driver" value={leadAsset?.drivers?.[0] || 'No confirmed driver'} detail={leadAsset ? `${leadAsset.score}/100 pressure` : 'Preview'} />
-          <ReportRow label="Evidence quality" value={report.topStories[0]?.sourceQualityLabel || 'No ranked source'} detail={report.topStories[0] ? `${report.topStories[0].sourceQualityScore}/100 source score` : 'Waiting for live evidence'} />
-          <ReportRow label="Next watch trigger" value={report.watchTriggers[0]} detail="Raises score if confirmed by trusted sources" />
-          <ReportRow label="Customer access" value="Full report unlocked" detail="Live source trail visible" />
-        </div>
+      <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+        {report.disclaimer}
       </div>
     </div>
   )
 }
 
-function LockedReportPreview({ isLoggedIn }: { isLoggedIn: boolean }) {
+function MarketCategorySelector({ selectedCategory }: { selectedCategory: AssetCategory }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 px-5 py-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Paid subscriber area</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">Market impact report</h2>
-          </div>
-          <span className="rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-black uppercase text-slate-600">
-            Locked
-          </span>
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Choose market category</p>
+          <h2 className="mt-1 text-2xl font-black text-slate-950">Live market plus AI outlook</h2>
         </div>
-      </div>
-
-      <div className="grid gap-0 md:grid-cols-[0.45fr_0.55fr]">
-        <div className="border-b border-slate-200 p-5 md:border-b-0 md:border-r">
-          <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50">
-            <LockKeyhole className="h-8 w-8 text-slate-500" />
-          </div>
-          <p className="mt-4 text-sm leading-6 text-slate-600">
-            Live market scores, ranked source events, asset pressure and watch triggers open only after Stripe confirms an active paid Market Pro subscription.
-          </p>
-          <div className="mt-5">
-            {isLoggedIn ? (
-              <form action="/api/stripe/checkout" method="post">
-                <Button type="submit" className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
-                  Start subscription
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
-            ) : (
-              <Link href="/auth/sign-up?next=/pro-market">
-                <Button className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
-                  Create account to unlock
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {assetCategories.map((category) => {
+            const active = category.id === selectedCategory
+            return (
+              <Link
+                key={category.id}
+                href={`/pro-market?asset=${category.id}`}
+                className={`rounded-md border px-4 py-3 text-sm transition ${
+                  active
+                    ? 'border-slate-950 bg-slate-950 text-white'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'
+                }`}
+              >
+                <span className="block font-black">{category.label}</span>
+                <span className={`mt-1 block text-xs leading-5 ${active ? 'text-slate-200' : 'text-slate-500'}`}>{category.description}</span>
               </Link>
-            )}
-          </div>
-        </div>
-
-        <div className="divide-y divide-slate-200">
-          <ReportRow label="Pressure score" value="Subscription required" detail="No live score is shown before payment" />
-          <ReportRow label="Lead asset channel" value="Locked" detail="Oil, freight, tanker, insurance and logistics channels" />
-          <ReportRow label="Ranked source events" value="Locked" detail="Source trail is available to paid users only" />
-          <ReportRow label="Watch triggers" value="Locked" detail="Subscriber-only market monitoring context" />
+            )
+          })}
         </div>
       </div>
     </div>
   )
 }
 
-function UnlockedReport({ report }: { report: Report }) {
-  return (
-    <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-      <Panel title="AI analyst brief" subtitle="Plain-English market interpretation from real quotes and source-backed VesselSurge events." icon={Radar} wide>
-        <AnalystBrief report={report} />
-      </Panel>
-
-      <Panel title="Live market tape" subtitle="Real index, oil, rates, dollar, gold and transport moves used by the analyst model." icon={Activity} wide>
-        <MarketSnapshotPanel report={report} />
-      </Panel>
-
-      <Panel title="Asset impact table" subtitle="Start here to see which part of the market the maritime signal could touch first." icon={TrendingUp}>
-        <AssetTable report={report} />
-      </Panel>
-
-      <Panel title="Chokepoint heat" subtitle="Use this to understand whether the risk is concentrated in one route or spreading across the map." icon={Gauge}>
-        <div className="grid gap-3">
-          {report.regions.map((region) => (
-            <div key={region.region} className="rounded-md border border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-black text-slate-950">{regionLabel(region.region)}</p>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{region.severity}</p>
-                </div>
-                <span className={`rounded-md px-2 py-1 text-sm font-black ${scorePillClass(region.score)}`}>{region.score}</span>
-              </div>
-              <div className="mt-3 h-2 rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-sky-700" style={{ width: `${region.score}%` }} />
-              </div>
-              <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
-                {region.headlines[0] || 'No strong market signal yet.'}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Panel>
-
-      <Panel title="Ranked source events" subtitle="Live VesselSurge events ranked by likely market transmission." icon={AlertTriangle} wide>
-        <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
-          {report.topStories.slice(0, 6).map((story, index) => (
-            <div key={`${story.kind}-${story.id}`} className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0 md:grid-cols-[3rem_1fr_7rem] md:items-start">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-sm font-black text-slate-600">{index + 1}</div>
-              <div>
-                <div className="mb-2 flex flex-wrap gap-2">
-                  <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${scorePillClass(story.score)}`}>{story.severity}</span>
-                  <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{story.source}</span>
-                  <span className="rounded-md bg-sky-50 px-2 py-1 text-xs font-bold text-sky-800">{story.sourceQualityLabel}</span>
-                </div>
-                <h3 className="font-black leading-snug text-slate-950">{story.title}</h3>
-                <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{story.summary}</p>
-              </div>
-              <div className="text-left md:text-right">
-                <p className="text-2xl font-black text-slate-950">{story.score}</p>
-                {story.sourceUrl ? (
-                  <Link href={story.sourceUrl} className="text-sm font-bold text-sky-700 hover:underline" target="_blank">Open source</Link>
-                ) : (
-                  <span className="text-sm font-bold text-slate-500">No source link</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Panel>
-
-      <Panel title="Methodology" subtitle="The model stays readable: gather evidence, classify the market channel, then explain the trigger." icon={ShieldCheck} wide>
-        <div className="grid gap-4 md:grid-cols-4">
-          {[
-            ['1', 'Collect', 'Trusted maritime news, official warnings and VesselSurge live-map signals enter one evidence layer.'],
-            ['2', 'Filter', 'Old, vague or unrelated finance noise is reduced so the report stays focused.'],
-            ['3', 'Map', 'The signal is mapped to oil, tankers, freight, insurance or logistics exposure.'],
-            ['4', 'Explain', 'The customer sees the score, the reason, the source trail and the next watch trigger.'],
-          ].map(([step, title, body]) => (
-            <div key={step} className="rounded-md border border-slate-200 bg-white p-4">
-              <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-md bg-sky-50 text-sm font-black text-sky-800">{step}</div>
-              <h3 className="font-black text-slate-950">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-          {report.disclaimer}
-        </div>
-      </Panel>
-    </div>
-  )
-}
-
-function AnalystBrief({ report }: { report: Report }) {
-  const leadAsset = report.assetImpacts[0]
-  const leadStory = report.topStories[0]
-  const brief = report.analysisBrief
+function LiveMarketWorkspace({ report, selectedCategory }: { report: Report; selectedCategory: AssetCategory }) {
+  const snapshot = report.marketSnapshot
+  const quotes = categoryMarketQuotes(snapshot, selectedCategory)
 
   return (
-    <div className="grid gap-5">
-      <div className="grid gap-4 lg:grid-cols-[0.42fr_0.58fr]">
-        <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Current read</p>
-          <div className="mt-3 flex items-end gap-3">
-            <p className="text-6xl font-black tracking-tight">{report.marketPressureScore}</p>
-            <div className="pb-2">
-              <p className="text-sm font-black uppercase text-white">{brief.label}</p>
-              <p className="text-xs font-bold uppercase text-slate-300">{report.confidence} confidence</p>
-            </div>
+    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">1. Live market</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">{categoryLabel(selectedCategory)} tape</h2>
           </div>
-          <p className="mt-4 text-sm leading-6 text-slate-300">
-            This is the combined score from live markets plus VesselSurge maritime evidence. It is research context, not a trade call.
+          <Activity className="h-5 w-5 text-sky-700" />
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Select a category and scan the instruments in that market. These quotes feed the AI outlook beside it.
+        </p>
+      </div>
+
+      {!snapshot ? (
+        <div className="p-5">
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-950">
+            Live market quotes are temporarily unavailable. VesselSurge still keeps the maritime AI analysis active from the news and signal layer.
+          </div>
+        </div>
+      ) : (
+        <div className="p-5">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {quotes.slice(0, 4).map((quote) => (
+              <QuoteTile key={quote.symbol} quote={quote} />
+            ))}
+          </div>
+
+          <div className="mt-5 overflow-hidden rounded-md border border-slate-200">
+            <div className="grid grid-cols-[1fr_0.7fr_0.7fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+              <span>Instrument</span>
+              <span className="text-right">Price</span>
+              <span className="text-right">Move</span>
+            </div>
+            {(quotes.length ? quotes : snapshot.quotes.slice(0, 8)).map((quote) => (
+              <div key={quote.symbol} className="grid grid-cols-[1fr_0.7fr_0.7fr] border-t border-slate-200 px-4 py-3 text-sm">
+                <div>
+                  <p className="font-black text-slate-950">{quote.label}</p>
+                  <p className="text-xs font-semibold text-slate-500">{quote.symbol}</p>
+                </div>
+                <p className="self-center text-right font-black text-slate-950">{formatMarketPrice(quote)}</p>
+                <p className={`self-center text-right font-black ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                  {formatMarketMove(quote)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-4 text-xs font-semibold text-slate-500">
+            Source: <Link href={snapshot.sourceUrl} target="_blank" className="text-sky-700 hover:underline">{snapshot.source}</Link>. Updated {formatDateTime(snapshot.generatedAt)}.
           </p>
         </div>
+      )}
+    </section>
+  )
+}
 
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">What it says</p>
-          <h3 className="mt-2 text-xl font-black text-slate-950">{brief.signal}</h3>
-          <p className="mt-3 text-sm leading-6 text-slate-700">{brief.meaning}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-md bg-white px-2.5 py-1.5 text-xs font-black uppercase text-slate-700 ring-1 ring-slate-200">
-              {leadAsset?.asset || 'No lead asset'}
-            </span>
-            <span className="rounded-md bg-white px-2.5 py-1.5 text-xs font-black uppercase text-slate-700 ring-1 ring-slate-200">
-              {leadStory?.sourceQualityLabel || 'Monitoring'}
-            </span>
+function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selectedCategory: AssetCategory }) {
+  const outlook = buildCategoryOutlook(report, selectedCategory)
+
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">What the AI expects next</h2>
+          </div>
+          <Radar className="h-5 w-5 text-sky-700" />
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          This is a source-backed research outlook, not a buy/sell signal. It explains direction, confidence and the exact news behind the view.
+        </p>
+      </div>
+
+      <div className="grid gap-5 p-5">
+        <div className="grid gap-4 lg:grid-cols-[0.44fr_0.56fr]">
+          <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">AI outlook</p>
+            <h3 className="mt-3 text-2xl font-black leading-tight">{outlook.direction}</h3>
+            <div className="mt-5 flex items-end gap-3">
+              <p className="text-6xl font-black">{outlook.score}</p>
+              <p className="pb-2 text-xs font-bold uppercase text-slate-300">{outlook.confidence}</p>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-slate-300">{outlook.summary}</p>
+          </div>
+
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Why the AI thinks this</p>
+            <div className="mt-4 grid gap-3">
+              {outlook.why.map((reason) => (
+                <div key={reason} className="flex gap-3 rounded-md border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-700">
+                  <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>{reason}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
-        <BriefPoint label="Market read" body={brief.marketRead} />
-        <BriefPoint label="Evidence" body={brief.evidence} />
-        <BriefPoint label="Watch next" body={brief.watch} />
-      </div>
+        <div className="overflow-hidden rounded-md border border-slate-200">
+          <div className="grid grid-cols-[1fr_7rem] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+            <span>News behind the analysis</span>
+            <span className="text-right">Score</span>
+          </div>
+          {outlook.news.length ? (
+            outlook.news.map((story) => (
+              <div key={`${story.kind}-${story.id}`} className="grid grid-cols-[1fr_7rem] gap-4 border-t border-slate-200 px-4 py-4 text-sm">
+                <div>
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{story.source}</span>
+                    <span className="rounded-md bg-sky-50 px-2 py-1 text-xs font-bold text-sky-800">{story.sourceQualityLabel}</span>
+                    <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">{formatDateTime(story.timestamp || report.generatedAt)}</span>
+                  </div>
+                  <h3 className="font-black leading-snug text-slate-950">{story.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{story.summary}</p>
+                  {story.sourceUrl && (
+                    <Link href={story.sourceUrl} target="_blank" className="mt-2 inline-flex text-sm font-bold text-sky-700 hover:underline">
+                      Open source
+                    </Link>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className={`inline-flex min-w-12 justify-center rounded-md px-2 py-1 font-black ${scorePillClass(story.score)}`}>{story.score}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="border-t border-slate-200 px-4 py-6 text-sm font-semibold text-slate-600">
+              The AI is waiting for stronger source-backed maritime news before raising a directional market view.
+            </div>
+          )}
+        </div>
 
-      <div className="rounded-md border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">
-        <span className="font-black text-slate-950">Data basis:</span> {brief.dataBasis}
+        <div className="grid gap-3 md:grid-cols-3">
+          <BriefPoint label="Market tape" body={outlook.marketTape} />
+          <BriefPoint label="Maritime trigger" body={outlook.trigger} />
+          <BriefPoint label="Watch next" body={outlook.watchNext} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function QuoteTile({ quote }: { quote: MarketQuoteReport }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{quote.symbol}</p>
+      <h3 className="mt-1 font-black text-slate-950">{quote.label}</h3>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <p className="text-xl font-black text-slate-950">{formatMarketPrice(quote)}</p>
+        <p className={`font-black ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{formatMarketMove(quote)}</p>
       </div>
     </div>
   )
@@ -566,231 +463,189 @@ function BriefPoint({ label, body }: { label: string; body: string }) {
   )
 }
 
-function LockedAnalysisSection({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const lockedItems = ['AI analyst brief', 'Live market tape', 'Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
+function LockedAnalysisSection({ isLoggedIn, selectedCategory }: { isLoggedIn: boolean; selectedCategory: AssetCategory }) {
+  const signUpHref = proMarketSignUpHref(selectedCategory)
 
   return (
-    <div className="mx-auto max-w-7xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Paid access required</p>
-          <h2 className="mt-2 text-2xl font-black text-slate-950">The live Market Pro report is locked until payment is active.</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            Public visitors can read what Market Pro does, but the real-time market-impact report, scores, source links and watch triggers are only rendered for paid subscribers.
-          </p>
-        </div>
-        {isLoggedIn ? (
-          <form action="/api/stripe/checkout" method="post">
-            <Button type="submit" className="min-h-11 bg-slate-950 text-white hover:bg-slate-800">
-              Unlock full report
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </form>
-        ) : (
-          <Link href="/auth/sign-up?next=/pro-market">
-            <Button className="min-h-11 bg-slate-950 text-white hover:bg-slate-800">
-              Create account
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        )}
-      </div>
+    <div className="mx-auto max-w-7xl">
+      <MarketCategorySelector selectedCategory={selectedCategory} />
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {lockedItems.map((item) => (
-          <div key={item} className="flex min-h-24 flex-col justify-between rounded-md border border-slate-200 bg-slate-50 p-4">
-            <LockKeyhole className="h-5 w-5 text-slate-500" />
-            <p className="text-sm font-black text-slate-950">{item}</p>
+      <div className="mt-5 grid gap-5 xl:grid-cols-[0.96fr_1.04fr]">
+        <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">1. Live market</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">{categoryLabel(selectedCategory)} tape</h2>
           </div>
-        ))}
+          <div className="grid gap-3 p-5 sm:grid-cols-2">
+            {['Live quotes', 'Price move', 'Market time', 'Category table'].map((item) => (
+              <div key={item} className="flex min-h-24 flex-col justify-between rounded-md border border-slate-200 bg-slate-50 p-4">
+                <LockKeyhole className="h-5 w-5 text-slate-500" />
+                <p className="text-sm font-black text-slate-950">{item}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">AI outlook locked</h2>
+          </div>
+          <div className="p-5">
+            <p className="text-sm leading-6 text-slate-600">
+              Paid accounts see the live quote tape beside the AI explanation of how source-backed maritime news may move {categoryLabel(selectedCategory).toLowerCase()}.
+            </p>
+            <div className="mt-5">
+              {isLoggedIn ? (
+                <form action="/api/stripe/checkout" method="post">
+                  <Button type="submit" className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
+                    Unlock Market Pro
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </form>
+              ) : (
+                <Link href={signUpHref}>
+                  <Button className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
+                    Create account to unlock
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )
 }
 
-function MarketSnapshotPanel({ report }: { report: Report }) {
-  const snapshot = report.marketSnapshot
+function normalizeAssetCategory(value: string | null | undefined): AssetCategory {
+  if (value === 'crypto' || value === 'fx' || value === 'stocks') return value
+  return 'stocks'
+}
 
-  if (!snapshot) {
-    return (
-      <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-950">
-        Live market quotes are temporarily unavailable. Maritime source analysis is still active, and the model will reconnect to the market tape on the next refresh.
-      </div>
-    )
+function proMarketSignUpHref(category: AssetCategory) {
+  return `/auth/sign-up?next=${encodeURIComponent(`/pro-market?asset=${category}`)}`
+}
+
+function categoryLabel(category: AssetCategory) {
+  if (category === 'crypto') return 'Crypto'
+  if (category === 'fx') return 'Currencies'
+  return 'Stocks'
+}
+
+function categoryMarketQuotes(snapshot: MarketSnapshotReport | null | undefined, category: AssetCategory) {
+  if (!snapshot) return []
+
+  return snapshot.quotes.filter((quote) => {
+    if (category === 'stocks') return quote.group === 'Equities' || quote.group === 'Transport'
+    if (category === 'crypto') return quote.group === 'Crypto'
+    return quote.group === 'FX' || quote.group === 'Currencies'
+  })
+}
+
+function averageQuoteMove(quotes: MarketQuoteReport[]) {
+  const clean = quotes
+    .map((quote) => quote.changePercent)
+    .filter((value) => Number.isFinite(value))
+
+  if (!clean.length) return 0
+  return clean.reduce((sum, value) => sum + value, 0) / clean.length
+}
+
+function categoryAssetImpacts(report: Report, category: AssetCategory) {
+  return report.assetImpacts.filter((asset) => {
+    if (category === 'stocks') {
+      return /equity|tanker|container|logistics|airlines|industrial/i.test(asset.asset)
+    }
+
+    if (category === 'crypto') {
+      return /equity|dollar|rates|oil|fuel/i.test(`${asset.asset} ${asset.bias} ${asset.drivers.join(' ')}`)
+    }
+
+    return /equity|oil|fuel|insurance/i.test(`${asset.asset} ${asset.bias} ${asset.drivers.join(' ')}`)
+  })
+}
+
+function categoryAverageAssetScore(report: Report, category: AssetCategory) {
+  const impacts = categoryAssetImpacts(report, category)
+  if (!impacts.length) return report.marketPressureScore
+  return Math.round(impacts.reduce((sum, impact) => sum + impact.score, 0) / impacts.length)
+}
+
+function buildCategoryOutlook(report: Report, category: AssetCategory) {
+  const quotes = categoryMarketQuotes(report.marketSnapshot, category)
+  const quoteMove = averageQuoteMove(quotes)
+  const categoryScore = categoryAverageAssetScore(report, category)
+  const score = Math.max(0, Math.min(100, Math.round(categoryScore * 0.72 + report.marketTapeScore * 0.28)))
+  const leadStory = report.topStories[0]
+  const leadAsset = categoryAssetImpacts(report, category)[0] || report.assetImpacts[0]
+  const moveText = `${quoteMove >= 0 ? '+' : ''}${formatNumber(quoteMove, 2)}%`
+  const pressureText = `${report.marketPressureScore}/100 Market Pro pressure`
+  const leadSourceText = leadStory
+    ? `${leadStory.source} is driving the top source signal: ${leadStory.title}`
+    : 'No single source-backed maritime story is dominating the model right now'
+  const assetText = leadAsset
+    ? `${leadAsset.asset}: ${leadAsset.bias.toLowerCase()} (${leadAsset.score}/100)`
+    : 'No strong asset-channel pressure is confirmed yet'
+
+  let direction = 'Mixed / wait for confirmation'
+  let summary = 'The live tape and maritime news are not aligned strongly enough for a high-conviction market-impact view yet.'
+
+  if (category === 'stocks') {
+    if (score >= 65 && quoteMove < 0) {
+      direction = 'Downside pressure is active'
+      summary = 'Stocks are already trading defensively while VesselSurge maritime pressure is elevated.'
+    } else if (score >= 65) {
+      direction = 'Upside may be capped by headline risk'
+      summary = 'Stocks can still rise, but the model expects maritime headlines to matter if oil, freight or insurance pressure accelerates.'
+    } else if (quoteMove > 0.4) {
+      direction = 'Constructive but headline-sensitive'
+      summary = 'The equity tape is positive, so the AI is watching whether shipping-risk headlines interrupt risk appetite.'
+    }
+  } else if (category === 'crypto') {
+    if (score >= 62) {
+      direction = 'Crypto risk appetite looks fragile'
+      summary = 'Crypto is treated as a high-beta risk asset here; elevated oil, dollar or rates pressure can reduce appetite quickly.'
+    } else if (quoteMove > 1) {
+      direction = 'Crypto bid is absorbing macro risk'
+      summary = 'Crypto momentum is positive, but the AI keeps the signal conditional on dollar, rates and escalation news.'
+    } else {
+      direction = 'Crypto is in watch mode'
+      summary = 'The model does not see a clean maritime-to-crypto signal yet, so it watches broader risk appetite first.'
+    }
+  } else {
+    const dollar = report.marketSnapshot?.quotes.find((quote) => quote.symbol === 'DX-Y.NYB')
+    if ((dollar?.changePercent || 0) > 0.25 || score >= 62) {
+      direction = 'Dollar pressure is the main FX risk'
+      summary = 'The AI expects FX impact to show first through USD strength and SEK sensitivity if energy or route-risk pressure rises.'
+    } else if (quoteMove < -0.25) {
+      direction = 'Dollar pressure is easing'
+      summary = 'The selected currency tape is less defensive, so the AI needs fresh escalation news before raising the FX risk view.'
+    } else {
+      direction = 'FX read is balanced'
+      summary = 'Currencies are mixed; the AI is waiting for a clearer oil, rates or dollar impulse.'
+    }
   }
 
-  return (
-    <div className="grid gap-5">
-      <div className="grid gap-4 lg:grid-cols-[1fr_0.72fr]">
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Analyst read</p>
-          <h3 className="mt-2 text-xl font-black text-slate-950">{snapshot.regime}</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{snapshot.summary}</p>
-          <p className="mt-3 text-xs font-semibold text-slate-500">
-            Source: <Link href={snapshot.sourceUrl} target="_blank" className="text-sky-700 hover:underline">{snapshot.source}</Link>. Updated {formatDateTime(snapshot.generatedAt)}.
-          </p>
-        </div>
-
-        <div className="rounded-md border border-slate-200 bg-slate-950 p-4 text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Market tape score</p>
-          <div className="mt-3 flex items-end gap-3">
-            <p className="text-5xl font-black">{report.marketTapeScore}</p>
-            <p className="pb-2 text-xs font-bold uppercase text-slate-300">{snapshot.riskTone}</p>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            {riskToneMeaning(snapshot.riskTone)} This score is blended into the wider Market Pro pressure score.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {report.marketDrivers.map((driver) => (
-          <div key={driver.label} className="rounded-md border border-slate-200 bg-white p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-black text-slate-950">{driver.label}</p>
-              <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${driverToneClass(driver.tone)}`}>{driver.tone}</span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{driver.detail}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {primaryMarketQuotes(snapshot).map((quote) => (
-          <div key={quote.symbol} className="rounded-md border border-slate-200 bg-white p-3">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{quote.label}</p>
-            <div className="mt-2 flex items-end justify-between gap-3">
-              <p className="font-black text-slate-950">{formatMarketPrice(quote)}</p>
-              <p className={`text-sm font-black ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                {formatMarketMove(quote)}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <details className="overflow-hidden rounded-md border border-slate-200 bg-white">
-        <summary className="cursor-pointer bg-slate-50 px-4 py-3 text-sm font-black text-slate-950">
-          Show full live quote table
-        </summary>
-        <div className="grid grid-cols-[1fr_0.75fr_0.65fr] border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 md:grid-cols-[1.1fr_0.8fr_0.7fr_0.7fr]">
-          <span>Instrument</span>
-          <span>Group</span>
-          <span className="text-right">Price</span>
-          <span className="hidden text-right md:block">Move</span>
-        </div>
-        {snapshot.quotes.map((quote) => (
-          <div key={quote.symbol} className="grid grid-cols-[1fr_0.75fr_0.65fr] border-t border-slate-200 px-4 py-3 text-sm md:grid-cols-[1.1fr_0.8fr_0.7fr_0.7fr]">
-            <div>
-              <p className="font-black text-slate-950">{quote.label}</p>
-              <p className="text-xs font-semibold text-slate-500">{quote.symbol}</p>
-            </div>
-            <p className="self-center text-slate-600">{quote.group}</p>
-            <p className="self-center text-right font-black text-slate-950">{formatMarketPrice(quote)}</p>
-            <p className={`hidden self-center text-right font-black md:block ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-              {formatMarketMove(quote)}
-            </p>
-          </div>
-        ))}
-      </details>
-    </div>
-  )
-}
-
-function ReportRow({ label, value, detail }: { label: string; value: string; detail: string }) {
-  return (
-    <div className="p-5">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="mt-2 font-black text-slate-950">{value}</p>
-      <p className="mt-1 text-sm text-slate-600">{detail}</p>
-    </div>
-  )
-}
-
-function QuestionCard({ text }: { text: string }) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-sm font-bold leading-6 text-slate-800">{text}</p>
-    </div>
-  )
-}
-
-function AgentPanel({ title, subtitle, points }: { title: string; subtitle: string; points: string[] }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-sky-50 text-sky-800">
-          <Radar className="h-5 w-5" />
-        </div>
-        <div>
-          <h2 className="text-xl font-black text-slate-950">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600">{subtitle}</p>
-        </div>
-      </div>
-      <div className="mt-5 grid gap-2">
-        {points.map((point) => (
-          <div key={point} className="flex items-center gap-2 text-sm font-medium text-slate-700">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-            {point}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function Panel({
-  title,
-  subtitle,
-  icon: Icon,
-  wide = false,
-  children,
-}: {
-  title: string
-  subtitle: string
-  icon: ComponentType<{ className?: string }>
-  wide?: boolean
-  children: ReactNode
-}) {
-  return (
-    <section className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm ${wide ? 'xl:col-span-2' : ''}`}>
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-black text-slate-950">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600">{subtitle}</p>
-        </div>
-        <Icon className="h-5 w-5 shrink-0 text-sky-700" />
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function AssetTable({ report }: { report: Report }) {
-  return (
-    <div className="overflow-hidden rounded-md border border-slate-200">
-      <div className="grid grid-cols-[1.15fr_0.85fr_5rem] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-        <span>Asset channel</span>
-        <span>Market bias</span>
-        <span className="text-right">Score</span>
-      </div>
-      {report.assetImpacts.map((asset) => (
-        <div key={asset.asset} className="grid grid-cols-[1.15fr_0.85fr_5rem] border-t border-slate-200 px-4 py-4 text-sm">
-          <div>
-            <p className="font-black text-slate-950">{asset.asset}</p>
-            <p className="mt-1 text-xs text-slate-500">{asset.evidenceCount} evidence links</p>
-          </div>
-          <div>
-            <p className="text-slate-700">{asset.bias}</p>
-            <p className="mt-1 text-xs font-semibold text-sky-800">{asset.drivers[0] || 'No confirmed driver'}</p>
-          </div>
-          <div className="text-right">
-            <span className={`inline-flex min-w-12 justify-center rounded-md px-2 py-1 font-black ${scorePillClass(asset.score)}`}>{asset.score}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+  return {
+    direction,
+    score,
+    confidence: report.confidence,
+    summary,
+    marketTape: report.marketSnapshot
+      ? `${categoryLabel(category)} basket average ${moveText}. ${report.marketSnapshot.summary}`
+      : 'Live market tape unavailable on this refresh.',
+    trigger: leadSourceText,
+    watchNext: report.watchTriggers[0],
+    why: [
+      `${categoryLabel(category)} basket average is ${moveText} on the live tape.`,
+      `${pressureText}; AI confidence is ${report.confidence}.`,
+      leadSourceText,
+      assetText,
+    ],
+    news: report.topStories.slice(0, 4),
+  }
 }
 
 function formatNumber(value: number, digits = 2) {
@@ -820,26 +675,6 @@ function formatDateTime(value: string) {
     timeStyle: 'short',
     timeZone: 'Europe/Stockholm',
   }).format(new Date(value))
-}
-
-function driverToneClass(tone: string) {
-  if (tone === 'risk-on') return 'bg-emerald-50 text-emerald-800'
-  if (tone === 'risk-off') return 'bg-red-50 text-red-800'
-  if (tone === 'watch') return 'bg-amber-50 text-amber-800'
-  return 'bg-slate-100 text-slate-600'
-}
-
-function riskToneMeaning(tone: string) {
-  if (tone === 'risk-on') return 'The live tape is showing risk appetite.'
-  if (tone === 'risk-off') return 'The live tape is showing defensive pressure.'
-  return 'The live tape is mixed, so the model keeps the interpretation cautious.'
-}
-
-function primaryMarketQuotes(snapshot: MarketSnapshotReport) {
-  const symbols = ['^GSPC', 'BZ=F', '^TNX', 'DX-Y.NYB']
-  return symbols
-    .map((symbol) => snapshot.quotes.find((quote) => quote.symbol === symbol))
-    .filter((quote): quote is MarketQuoteReport => Boolean(quote))
 }
 
 async function loadAuthState() {
@@ -891,7 +726,7 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
 
   const [marketSnapshot, cached] = await Promise.all([
     withTimeout(getMarketSnapshot(), 4200, 'live market quotes').catch((error) => {
-      console.error('[pro-market] live market quotes unavailable:', error)
+      console.warn('[pro-market] live market quotes fallback:', error)
       return null
     }),
     withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache')
@@ -901,7 +736,7 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   if (cached?.data) {
     const report = buildReportFromDashboardData(cached.data, marketSnapshot)
     await upsertMarketProAnalysisCache(admin, report, 'live-fallback').catch((error) => {
-      console.error('[pro-market] market pro cache write skipped:', error)
+      console.warn('[pro-market] market pro cache write skipped:', error)
     })
     return report
   }
@@ -909,7 +744,7 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   const publicLiveReport = await loadPublicLiveMarketReport(marketSnapshot)
   if (!isEmptyReport(publicLiveReport)) {
     await upsertMarketProAnalysisCache(admin, publicLiveReport, 'live-fallback').catch((error) => {
-      console.error('[pro-market] market pro public fallback cache write skipped:', error)
+      console.warn('[pro-market] market pro public fallback cache write skipped:', error)
     })
     return publicLiveReport
   }
@@ -948,18 +783,18 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
     newsError = newsResult.error
     signalsError = signalsResult.error
   } catch (error) {
-    console.error('[pro-market] market report data timeout:', error)
+    console.warn('[pro-market] market report data fallback:', error)
   }
 
   if (newsError || signalsError) {
-    console.error('[pro-market] failed to load live report data:', newsError || signalsError)
+    console.warn('[pro-market] failed to load live report data; using stale cache if available:', newsError || signalsError)
     const stale = await getLastMarketProAnalysisCache(admin, 'fresh Market Pro database query failed; serving last saved analysis').catch(() => null)
     if (stale?.report) return stale.report
   }
 
   const report = buildMarketImpactReport(news || [], signals || [], marketSnapshot)
   await upsertMarketProAnalysisCache(admin, report, 'live-fallback').catch((error) => {
-    console.error('[pro-market] market pro direct cache write skipped:', error)
+    console.warn('[pro-market] market pro direct cache write skipped:', error)
   })
   return report
 }
@@ -977,7 +812,7 @@ async function loadPublicLiveMarketReport(marketSnapshot: Report['marketSnapshot
     if (!dashboard?.data) return buildMarketImpactReport([], [], marketSnapshot)
     return buildReportFromDashboardData(dashboard.data, marketSnapshot)
   } catch (error) {
-    console.error('[pro-market] public live report fallback failed:', error)
+    console.warn('[pro-market] public live report fallback failed:', error)
     return buildMarketImpactReport([], [], marketSnapshot)
   }
 }
@@ -1027,15 +862,4 @@ function scorePillClass(score: number) {
   if (score >= 45) return 'bg-amber-50 text-amber-800'
   if (score > 0) return 'bg-sky-50 text-sky-800'
   return 'bg-slate-100 text-slate-600'
-}
-
-function regionLabel(region: string) {
-  const labels: Record<string, string> = {
-    hormuz: 'Strait of Hormuz',
-    bab: 'Bab el-Mandeb',
-    suez: 'Suez Canal',
-    malacca: 'Malacca Strait',
-  }
-
-  return labels[region] || region
 }
