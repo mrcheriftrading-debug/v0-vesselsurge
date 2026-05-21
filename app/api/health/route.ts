@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getLastMarketProAnalysisCache } from '@/lib/market-pro-cache'
 import { getMaritimeDashboardCacheRow } from '@/lib/maritime-dashboard-cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -168,7 +169,11 @@ async function liveSurfaceHealthResponse(_request: Request, warning: string) {
 
 export async function GET(request: Request) {
   try {
-    const cacheRow = await getMaritimeDashboardCacheRow(createAdminClient(), HEALTH_CACHE_QUERY_TIMEOUT_MS)
+    const admin = createAdminClient()
+    const [cacheRow, marketProCache] = await Promise.all([
+      getMaritimeDashboardCacheRow(admin, HEALTH_CACHE_QUERY_TIMEOUT_MS),
+      getLastMarketProAnalysisCache(admin, 'health check reads last saved Market Pro analysis').catch(() => null),
+    ])
 
     if (!cacheRow) {
       return liveSurfaceHealthResponse(request, `health cache query unavailable after ${HEALTH_CACHE_QUERY_TIMEOUT_MS}ms`)
@@ -206,6 +211,7 @@ export async function GET(request: Request) {
     const aisAge = ageMs(aisLatestAt)
     const watchLatestAt = cacheRow.generated_at || null
     const watchAge = ageMs(watchLatestAt)
+    const marketProAge = ageMs(marketProCache?.generatedAt)
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
       const visibleArticles = newsRows.filter((row) => row.region === hotspot)
@@ -282,6 +288,17 @@ export async function GET(request: Request) {
             sourceMix: qualityAudit?.sourceMix || null,
             coverageGaps: qualityAudit?.coverageGaps || [],
             recommendations: qualityAudit?.recommendations || ['Dashboard cache is missing quality audit metadata; rebuild maritime dashboard cache.'],
+          },
+          marketPro: {
+            status: marketProCache ? statusFromAge(marketProAge, 15 * 60 * 1000, 60 * 60 * 1000) : 'degraded',
+            generatedAt: marketProCache?.generatedAt || null,
+            ageSeconds: Number.isFinite(marketProAge) ? Math.round(marketProAge / 1000) : null,
+            marketPressureScore: marketProCache?.report?.marketPressureScore || null,
+            confidence: marketProCache?.report?.confidence || null,
+            analystSignal: marketProCache?.report?.analysisBrief?.signal || null,
+            note: marketProCache
+              ? 'Market Pro background analysis cache is available.'
+              : 'Market Pro background analysis cache has not been written yet.',
           },
         },
       },

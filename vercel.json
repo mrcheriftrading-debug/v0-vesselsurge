@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/watch",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/market-pro",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

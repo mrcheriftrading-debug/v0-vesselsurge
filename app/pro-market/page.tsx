@@ -19,6 +19,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFallbackUser } from '@/lib/fallback-auth'
 import { buildMarketImpactReport } from '@/lib/market-impact'
+import { getFreshMarketProAnalysisCache, getLastMarketProAnalysisCache, upsertMarketProAnalysisCache } from '@/lib/market-pro-cache'
 import { getMarketSnapshot } from '@/lib/market-snapshot'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subscription'
@@ -885,6 +886,9 @@ function CheckoutStatus({ status }: { status?: string }) {
 
 async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabaseFallback: boolean }): Promise<Report> {
   const admin = createAdminClient()
+  const cachedMarketPro = await withTimeout(getFreshMarketProAnalysisCache(admin), 1000, 'market pro cache').catch(() => null)
+  if (cachedMarketPro?.report) return cachedMarketPro.report
+
   const [marketSnapshot, cached] = await Promise.all([
     withTimeout(getMarketSnapshot(), 4200, 'live market quotes').catch((error) => {
       console.error('[pro-market] live market quotes unavailable:', error)
@@ -895,16 +899,24 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   ])
 
   if (cached?.data) {
-    return buildReportFromDashboardData(cached.data, marketSnapshot)
+    const report = buildReportFromDashboardData(cached.data, marketSnapshot)
+    await upsertMarketProAnalysisCache(admin, report, 'live-fallback').catch((error) => {
+      console.error('[pro-market] market pro cache write skipped:', error)
+    })
+    return report
   }
 
   const publicLiveReport = await loadPublicLiveMarketReport(marketSnapshot)
   if (!isEmptyReport(publicLiveReport)) {
+    await upsertMarketProAnalysisCache(admin, publicLiveReport, 'live-fallback').catch((error) => {
+      console.error('[pro-market] market pro public fallback cache write skipped:', error)
+    })
     return publicLiveReport
   }
 
   if (!allowDirectDatabaseFallback) {
-    return buildMarketImpactReport([], [], marketSnapshot)
+    const stale = await getLastMarketProAnalysisCache(admin, 'fresh Market Pro sources unavailable; serving last saved analysis').catch(() => null)
+    return stale?.report || buildMarketImpactReport([], [], marketSnapshot)
   }
 
   let news = null
@@ -941,9 +953,15 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
 
   if (newsError || signalsError) {
     console.error('[pro-market] failed to load live report data:', newsError || signalsError)
+    const stale = await getLastMarketProAnalysisCache(admin, 'fresh Market Pro database query failed; serving last saved analysis').catch(() => null)
+    if (stale?.report) return stale.report
   }
 
-  return buildMarketImpactReport(news || [], signals || [], marketSnapshot)
+  const report = buildMarketImpactReport(news || [], signals || [], marketSnapshot)
+  await upsertMarketProAnalysisCache(admin, report, 'live-fallback').catch((error) => {
+    console.error('[pro-market] market pro direct cache write skipped:', error)
+  })
+  return report
 }
 
 async function loadPublicLiveMarketReport(marketSnapshot: Report['marketSnapshot']) {
