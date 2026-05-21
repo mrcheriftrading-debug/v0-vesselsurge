@@ -18,6 +18,8 @@ const CHROME_CANDIDATES = [
 ].filter(Boolean)
 
 const IGNORED_BROWSER_LOG = /favicon|preload|apple-mobile-web-app-capable|third-party cookie|privacy sandbox|_vercel\/(speed-)?insights\/script\.js|MIME type \('text\/html'\)/i
+const SIGNUP_SETTLE_MS = 18000
+const LOGIN_SETTLE_MS = 14000
 
 function loadLocalEnv(file = '.env.local') {
   if (!existsSync(file)) return
@@ -273,7 +275,7 @@ async function main() {
     await fillInput(client, '#email', email)
     await fillInput(client, '#password', password)
     await click(client, 'form button[type="submit"]')
-    await sleep(18000)
+    await sleep(SIGNUP_SETTLE_MS)
     state = await getPageState(client)
     if (state.path !== '/dashboard' || !state.body.includes('Welcome, Codex Smoke Test')) {
       if (reuseSmokeUser && state.body.includes('An account already exists')) {
@@ -281,7 +283,7 @@ async function main() {
         await fillInput(client, '#email', email)
         await fillInput(client, '#password', password)
         await click(client, 'form button[type="submit"]')
-        await sleep(8000)
+        await sleep(LOGIN_SETTLE_MS)
         state = await getPageState(client)
       } else {
         throw new Error(`Sign-up did not reach dashboard: ${state.href}`)
@@ -306,7 +308,7 @@ async function main() {
     await fillInput(client, '#email', email)
     await fillInput(client, '#password', password)
     await click(client, 'form button[type="submit"]')
-    await sleep(8000)
+    await sleep(LOGIN_SETTLE_MS)
     state = await getPageState(client)
     if (state.path !== '/dashboard' || !state.body.includes('Welcome, Codex Smoke Test')) {
       throw new Error(`Login did not reach dashboard: ${state.href}`)

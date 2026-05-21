@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Zap, Ship, Package, Loader2, ShieldCheck, TrendingUp } from "lucide-react"
 
 const SESSION_CHECK_TIMEOUT_MS = 3500
+const AUTH_SUBMIT_TIMEOUT_MS = 5500
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -88,7 +89,7 @@ export default function SignUpPage() {
         email: normalizedEmail,
         password: formData.password,
       }),
-      8000,
+      AUTH_SUBMIT_TIMEOUT_MS,
     ).catch(() => ({ error: { message: "Login service timed out." } }))
 
     if (signInError) {
