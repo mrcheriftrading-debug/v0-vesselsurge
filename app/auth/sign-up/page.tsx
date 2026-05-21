@@ -83,13 +83,16 @@ export default function SignUpPage() {
       return
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password: formData.password,
-    })
+    const { error: signInError } = await withTimeout(
+      supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: formData.password,
+      }),
+      8000,
+    ).catch(() => ({ error: { message: "Login service timed out." } }))
 
     if (signInError) {
-      router.replace(withNext("/auth/login", getNextPath(formData.serviceType)))
+      router.replace(getNextPath(formData.serviceType))
       return
     }
 
@@ -295,4 +298,15 @@ function withCurrentNext(path: string) {
   const safeNextPath = getSafeNextPath(nextPath, "")
   if (!safeNextPath) return path
   return withNext(path, safeNextPath)
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`Timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
 }

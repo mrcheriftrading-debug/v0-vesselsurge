@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { setFallbackSessionCookie } from "@/lib/fallback-auth"
+import { setFallbackAccountCookie, setFallbackSessionCookie } from "@/lib/fallback-auth"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { assertSameOrigin } from "@/lib/security"
 
@@ -13,7 +13,7 @@ type SignUpPayload = {
   serviceType?: string
 }
 
-function fallbackSignUpResponse(email: string, companyName: string, serviceType: string, reason: string) {
+function fallbackSignUpResponse(email: string, password: string, companyName: string, serviceType: string, reason: string) {
   try {
     const response = NextResponse.json({
       success: true,
@@ -27,6 +27,12 @@ function fallbackSignUpResponse(email: string, companyName: string, serviceType:
       serviceType,
       createdAt: new Date().toISOString(),
     })
+    setFallbackAccountCookie(response, {
+      email,
+      companyName,
+      serviceType,
+      createdAt: new Date().toISOString(),
+    }, password)
     return response
   } catch (fallbackError) {
     console.error("[auth/sign-up] fallback session failed:", fallbackError)
@@ -109,9 +115,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Could not create the account right now." }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, userId: data.user?.id })
+    const response = NextResponse.json({ success: true, userId: data.user?.id })
+    const backupSession = {
+      email,
+      companyName,
+      serviceType,
+      createdAt: data.user?.created_at || new Date().toISOString(),
+    }
+    setFallbackSessionCookie(response, backupSession)
+    setFallbackAccountCookie(response, backupSession, password)
+    return response
   } catch (error) {
     console.error("[auth/sign-up] account creation failed:", error)
-    return fallbackSignUpResponse(email, companyName, serviceType, error instanceof Error ? error.message : "Supabase Auth unavailable")
+    return fallbackSignUpResponse(email, password, companyName, serviceType, error instanceof Error ? error.message : "Supabase Auth unavailable")
   }
 }

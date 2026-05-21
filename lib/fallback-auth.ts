@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import type { NextResponse } from 'next/server'
 
 const COOKIE_NAME = 'vesselsurge_fallback_session'
+const ACCOUNT_COOKIE_NAME = 'vesselsurge_fallback_account'
 const MAX_AGE_SECONDS = 14 * 24 * 60 * 60
 
 type FallbackSessionPayload = {
@@ -12,6 +13,10 @@ type FallbackSessionPayload = {
   companyName: string
   serviceType: string
   createdAt: string
+}
+
+type FallbackAccountPayload = FallbackSessionPayload & {
+  passwordHash: string
 }
 
 function fallbackSecret() {
@@ -45,6 +50,27 @@ export function createFallbackSessionToken(payload: FallbackSessionPayload) {
 
 export function setFallbackSessionCookie(response: NextResponse, payload: FallbackSessionPayload) {
   response.cookies.set(COOKIE_NAME, createFallbackSessionToken(payload), {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: '/',
+    maxAge: MAX_AGE_SECONDS,
+  })
+}
+
+function passwordHash(email: string, password: string) {
+  const secret = fallbackSecret()
+  if (!secret) throw new Error('Fallback auth secret is not configured')
+  return crypto.createHmac('sha256', secret).update(`${email.trim().toLowerCase()}:${password}`).digest('base64url')
+}
+
+export function setFallbackAccountCookie(response: NextResponse, payload: FallbackSessionPayload, password: string) {
+  const accountPayload: FallbackAccountPayload = {
+    ...payload,
+    passwordHash: passwordHash(payload.email, password),
+  }
+  const encoded = encodePayload(accountPayload)
+  response.cookies.set(ACCOUNT_COOKIE_NAME, `${encoded}.${sign(encoded)}`, {
     httpOnly: true,
     sameSite: 'lax',
     secure: true,
@@ -90,5 +116,32 @@ export async function getFallbackUser() {
       service_type: payload.serviceType,
       auth_mode: 'fallback',
     },
+  }
+}
+
+export async function verifyFallbackAccount(email: string, password: string) {
+  const normalizedEmail = email.trim().toLowerCase()
+  const cookieStore = await cookies()
+  const token = cookieStore.get(ACCOUNT_COOKIE_NAME)?.value
+  if (!token) return null
+
+  const [encoded, signature] = token.split('.')
+  if (!encoded || !signature) return null
+
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(sign(encoded)))) return null
+  } catch {
+    return null
+  }
+
+  const payload = decodePayload(encoded) as FallbackAccountPayload | null
+  if (!payload || payload.email !== normalizedEmail) return null
+  if (payload.passwordHash !== passwordHash(normalizedEmail, password)) return null
+
+  return {
+    email: payload.email,
+    companyName: payload.companyName,
+    serviceType: payload.serviceType,
+    createdAt: payload.createdAt,
   }
 }

@@ -59,15 +59,26 @@ export default function LoginPage() {
     const supabase = createClient()
     const email = formData.email.trim().toLowerCase()
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password: formData.password,
-    })
+    const { error: signInError } = await withTimeout(
+      supabase.auth.signInWithPassword({
+        email,
+        password: formData.password,
+      }),
+      8000,
+    ).catch(() => ({ error: { message: "Login service timed out." } }))
 
     if (signInError) {
-      setError(getFriendlyAuthError(signInError.message))
-      setIsLoading(false)
-      return
+      const fallbackResponse = await fetch("/api/auth/fallback-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: formData.password }),
+      }).catch(() => null)
+
+      if (!fallbackResponse?.ok) {
+        setError(getFriendlyAuthError(signInError.message))
+        setIsLoading(false)
+        return
+      }
     }
 
     router.replace(getNextPath())
@@ -189,6 +200,17 @@ function getNextPath() {
   if (typeof window === "undefined") return "/dashboard"
   const nextPath = new URLSearchParams(window.location.search).get("next")
   return getSafeNextPath(nextPath)
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`Timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
 }
 
 function getFriendlyAuthError(message: string) {
