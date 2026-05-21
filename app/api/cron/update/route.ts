@@ -919,20 +919,33 @@ export async function GET(request: Request) {
     })
   }
 
-  let stage = 'clearing old news'
+  let stage = 'pruning stale news'
+  let maintenanceWarning: string | null = null
 
   try {
-    const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
-    if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
+    const staleNewsCutoff = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
+    try {
+      const deleteNews = await supabaseRequest(`news_articles?published_at=lt.${encodeURIComponent(staleNewsCutoff)}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(2500),
+      })
+      if (!deleteNews.ok) {
+        maintenanceWarning = `stale news prune skipped: ${deleteNews.status}`
+        console.warn('[trusted-update]', maintenanceWarning, await deleteNews.text())
+      }
+    } catch (error) {
+      maintenanceWarning = `stale news prune skipped: ${errorMessage(error)}`
+      console.warn('[trusted-update] stale news prune skipped:', error)
+    }
 
     if (articles.length > 0) {
-      stage = 'inserting trusted news'
-      const insertNews = await supabaseRequest('news_articles', {
+      stage = 'upserting trusted news'
+      const insertNews = await supabaseRequest('news_articles?on_conflict=url', {
         method: 'POST',
-        headers: { prefer: 'return=minimal' },
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
         body: JSON.stringify(articles),
       })
-      if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
+      if (!insertNews.ok) throw new Error(`Failed to upsert trusted news: ${insertNews.status} ${await insertNews.text()}`)
     }
 
     stage = 'collecting AIS and marine conditions'
@@ -1069,6 +1082,7 @@ export async function GET(request: Request) {
       dashboard_cache_updated: dashboardCacheUpdated,
       ais_status: ais.reason,
       verified: articles.length,
+      warning: maintenanceWarning,
       window: {
         from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
         to: timestamp,
