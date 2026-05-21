@@ -304,6 +304,26 @@ export async function GET(request: Request) {
   const topic = searchParams.get('topic') || null
   const region = searchParams.get('region') || null
   const limit = parseInt(searchParams.get('limit') || '20')
+  const directOnly = searchParams.get('source') === 'direct' || searchParams.get('direct') === '1'
+
+  if (directOnly) {
+    const directNews = await fetchDirectLiveNews(region, topic, limit).catch((directError) => {
+      console.error('[live-news] Direct-only source sweep failed:', directError)
+      return []
+    })
+    const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
+
+    return NextResponse.json({
+      success: true,
+      articles: fallback,
+      count: fallback.length,
+      fallbackCount: 0,
+      watchCount: directNews.length > 0 ? 0 : fallback.length,
+      directNewsCount: directNews.length,
+      sourceMode: 'direct',
+      warning: directNews.length > 0 ? null : 'direct source sweep empty; showing live watch context',
+    }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
+  }
 
   try {
     const supabase = createAdminClient()
