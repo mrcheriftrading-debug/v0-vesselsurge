@@ -275,6 +275,7 @@ function MarketCategorySelector({ selectedCategory }: { selectedCategory: AssetC
               <Link
                 key={category.id}
                 href={`/pro-market?asset=${category.id}`}
+                aria-current={active ? 'page' : undefined}
                 className={`rounded-md border px-4 py-3 text-sm transition ${
                   active
                     ? 'border-slate-950 bg-slate-950 text-white'
