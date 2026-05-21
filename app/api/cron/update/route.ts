@@ -991,12 +991,38 @@ export async function GET(request: Request) {
     const stats = buildStatsFromSignals(articles, signals)
 
     stage = 'deleting old maritime signals'
-    const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, { method: 'DELETE' })
-    if (!deleteOldSignals.ok) throw new Error(`Failed to delete old maritime signals: ${deleteOldSignals.status} ${await deleteOldSignals.text()}`)
+    try {
+      const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(2500),
+      })
+      if (!deleteOldSignals.ok) {
+        maintenanceWarning ||= `old signal prune skipped: ${deleteOldSignals.status}`
+        console.warn('[trusted-update] old signal prune skipped:', deleteOldSignals.status, await deleteOldSignals.text())
+      }
+    } catch (error) {
+      maintenanceWarning ||= `old signal prune skipped: ${errorMessage(error)}`
+      console.warn('[trusted-update] old signal prune skipped:', error)
+    }
 
     stage = 'refreshing transient maritime signals'
-    const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly,weather_constraint)', { method: 'DELETE' })
-    if (!deleteTransientSignals.ok) throw new Error(`Failed to refresh transient maritime signals: ${deleteTransientSignals.status} ${await deleteTransientSignals.text()}`)
+    try {
+      const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly,weather_constraint)', {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(2500),
+      })
+      if (!deleteTransientSignals.ok) {
+        maintenanceWarning ||= `transient signal refresh skipped: ${deleteTransientSignals.status}`
+        console.warn(
+          '[trusted-update] transient signal refresh skipped:',
+          deleteTransientSignals.status,
+          await deleteTransientSignals.text(),
+        )
+      }
+    } catch (error) {
+      maintenanceWarning ||= `transient signal refresh skipped: ${errorMessage(error)}`
+      console.warn('[trusted-update] transient signal refresh skipped:', error)
+    }
 
     if (signals.length > 0) {
       stage = 'upserting maritime signals'
