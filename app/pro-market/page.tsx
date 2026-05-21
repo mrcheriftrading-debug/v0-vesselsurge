@@ -25,10 +25,12 @@ export const dynamic = 'force-dynamic'
 const BASE_URL = 'https://www.vesselsurge.com'
 
 export const metadata: Metadata = {
-  title: 'AI Market Watchlist From Shipping News | VesselSurge Market Pro',
-  description: 'Choose stocks, crypto or currencies and compare live prices with an AI watchlist of instruments worth researching from VesselSurge maritime news.',
+  title: 'AI Investment Tips From Shipping News | VesselSurge Market Pro',
+  description: 'Choose stocks, crypto or currencies and compare live prices with AI investment tips generated from VesselSurge maritime news and market signals.',
   keywords: [
-    'AI market watchlist',
+    'AI investment tips',
+    'AI buy setup',
+    'AI market tips',
     'AI stock market analysis',
     'crypto market news analysis',
     'currency market outlook',
@@ -116,7 +118,7 @@ export default async function ProMarketPage({
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                Pick stocks, crypto or currencies. The left panel shows the live market tape; the right panel explains the AI scenario, expected move range, and which VesselSurge news is driving the view. No invented breaking news. Clear scenarios, not personal financial advice.
+                Pick stocks, crypto or currencies. The left panel shows the live market tape; the right panel gives AI investment tips, expected move range, and which VesselSurge news is driving the call. No invented breaking news. Clear scenarios, not personal financial advice.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -179,7 +181,7 @@ function ProductJsonLd() {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: 'VesselSurge Market Impact Pro',
-          description: 'Live stocks, crypto and currency market tape paired with a source-backed AI watchlist of instruments worth researching from maritime news.',
+          description: 'Live stocks, crypto and currency market tape paired with source-backed AI investment tips generated from maritime news.',
           brand: { '@type': 'Brand', name: 'VesselSurge' },
           offers: {
             '@type': 'Offer',
@@ -252,7 +254,7 @@ function PricingCard({
         </div>
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-          Source-backed AI forecast trail
+          Source-backed AI investment tips
         </div>
       </div>
     </div>
@@ -380,18 +382,18 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">AI forecast watchlist</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">AI investment tips</h2>
           </div>
           <Radar className="h-5 w-5 text-sky-700" />
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          The AI checks VesselSurge news, compares it with the live tape, and turns it into a simple market scenario for the selected category.
+          The AI checks VesselSurge news, compares it with the live tape, and turns it into simple investment tips for the selected category.
         </p>
       </div>
 
       <div className="p-5">
         <div className="rounded-md border border-slate-200 bg-slate-950 p-6 text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">AI strongest scenario</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">AI strongest investment tip</p>
           <h3 className="mt-3 text-3xl font-black leading-tight">{outlook.recommendation}</h3>
           <p className="mt-4 text-base leading-7 text-slate-200">{outlook.summary}</p>
           <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-300">
@@ -410,7 +412,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         <div className="mt-5 overflow-hidden rounded-md border border-slate-200">
           <div className="grid grid-cols-[1fr_0.7fr_0.7fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
             <span>Instrument</span>
-            <span className="text-right">AI forecast</span>
+            <span className="text-right">AI investment tip</span>
             <span className="text-right">Score</span>
           </div>
           {outlook.instruments.map((instrument) => (
@@ -430,7 +432,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         </div>
 
         <p className="mt-4 text-xs font-semibold leading-5 text-slate-500">
-          AI watchlist is source-backed research context. It is not personal financial advice or an instruction to buy.
+          AI investment tips are source-backed market research for general information. They are not personal financial advice and do not account for your portfolio, risk level or time horizon.
         </p>
       </div>
     </section>
@@ -490,11 +492,11 @@ function LockedAnalysisSection({ isLoggedIn, selectedCategory }: { isLoggedIn: b
         <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-5">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">AI watchlist locked</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">AI investment tips locked</h2>
           </div>
           <div className="p-5">
             <p className="text-sm leading-6 text-slate-600">
-              Paid accounts see the AI scenario, expected move range and source trigger for {categoryLabel(selectedCategory).toLowerCase()}, based on live VesselSurge news.
+              Paid accounts see AI investment tips, expected move range and source trigger for {categoryLabel(selectedCategory).toLowerCase()}, based on live VesselSurge news.
             </p>
             <div className="mt-5">
               {isLoggedIn ? (
@@ -589,8 +591,8 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
   let direction = 'No clear signal yet'
   let summary = 'Prices and shipping news do not point in one clear direction yet. The safer read is to wait for stronger confirmation.'
   const recommendation = instruments[0]
-    ? `${instruments[0].label}: ${instruments[0].view} (${instruments[0].expectedMoveLabel.replace('AI scenario ', '')})`
-    : 'No clear investment watchlist yet'
+    ? `AI tip: ${instruments[0].label} - ${instruments[0].view} (${instruments[0].expectedMoveLabel.replace('AI scenario ', '')})`
+    : 'No clear investment tip yet'
 
   if (category === 'stocks') {
     if (score >= 65 && quoteMove < 0) {
@@ -683,40 +685,40 @@ function instrumentViewForQuote(quote: MarketQuoteReport, category: AssetCategor
 
   if (category === 'stocks') {
     if (quote.group === 'Transport' && pressure >= 60) {
-      return { view: 'Bullish freight setup', tone: 'positive', reason: 'Shipping pressure can lift freight and tanker exposure.' }
+      return { view: 'Buy setup', tone: 'positive', reason: 'Shipping pressure can lift freight and tanker exposure.' }
     }
     if (quote.group === 'Transport') {
-      return { view: 'Route-sensitive watch', tone: 'neutral', reason: 'Transport names react directly to route and freight changes.' }
+      return { view: 'Wait for route trigger', tone: 'neutral', reason: 'Transport names react directly to route and freight changes.' }
     }
     if (pressure >= 65) {
-      return { view: 'Downside risk', tone: 'caution', reason: 'High shipping risk can cap broad equity upside.' }
+      return { view: 'Avoid for now', tone: 'caution', reason: 'High shipping risk can cap broad equity upside.' }
     }
     if (momentum > 0.3) {
-      return { view: 'Bullish tape setup', tone: 'positive', reason: 'Live price action is positive and risk pressure is controlled.' }
+      return { view: 'Buy setup', tone: 'positive', reason: 'Live price action is positive and risk pressure is controlled.' }
     }
   }
 
   if (category === 'crypto') {
     if (pressure >= 62) {
-      return { view: 'Risk-off downside', tone: 'wait', reason: 'Shipping stress can reduce risk appetite and hurt crypto.' }
+      return { view: 'Avoid for now', tone: 'wait', reason: 'Shipping stress can reduce risk appetite and hurt crypto.' }
     }
     if (momentum > 0.8) {
-      return { view: 'Bullish momentum setup', tone: 'positive', reason: 'Crypto momentum is positive while shipping pressure is manageable.' }
+      return { view: 'Buy setup', tone: 'positive', reason: 'Crypto momentum is positive while shipping pressure is manageable.' }
     }
-    return { view: 'No clear edge yet', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
+    return { view: 'Wait', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
   }
 
   if (/USDSEK|DX-Y|USDJPY/.test(quote.symbol) && pressure >= 60) {
-    return { view: 'Bullish USD setup', tone: 'positive', reason: 'Shipping stress often supports USD demand.' }
+    return { view: 'Long USD setup', tone: 'positive', reason: 'Shipping stress often supports USD demand.' }
   }
   if (/EURUSD|GBPUSD/.test(quote.symbol) && pressure >= 60) {
-    return { view: 'Downside USD pressure', tone: 'caution', reason: 'Dollar strength can pressure non-USD pairs.' }
+    return { view: 'Avoid for now', tone: 'caution', reason: 'Dollar strength can pressure non-USD pairs.' }
   }
   if (momentum > 0.2) {
-    return { view: 'Bullish tape setup', tone: 'positive', reason: 'Currency momentum is positive on the live tape.' }
+    return { view: 'Buy setup', tone: 'positive', reason: 'Currency momentum is positive on the live tape.' }
   }
 
-  return { view: 'No clear edge yet', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
+  return { view: 'Wait', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
 }
 
 function sourceCatalyst(report: Report) {
@@ -763,21 +765,21 @@ function expectedMoveForInstrument({
 function fallbackInstrumentOutlooks(category: AssetCategory, score: number, reason: string): InstrumentOutlook[] {
   if (category === 'crypto') {
     return [
-      { symbol: 'BTC', label: 'Bitcoin', view: 'No clear edge yet', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score, tone: 'neutral' },
-      { symbol: 'ETH', label: 'Ethereum', view: 'No clear edge yet', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+      { symbol: 'BTC', label: 'Bitcoin', view: 'Wait', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score, tone: 'neutral' },
+      { symbol: 'ETH', label: 'Ethereum', view: 'Wait', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
     ]
   }
 
   if (category === 'fx') {
     return [
-      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'No clear edge yet', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score, tone: 'neutral' },
-      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'No clear edge yet', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'Wait', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score, tone: 'neutral' },
+      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'Wait', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
     ]
   }
 
   return [
-    { symbol: 'FRO', label: 'Frontline', view: 'No clear edge yet', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score, tone: 'neutral' },
-    { symbol: 'IYT', label: 'US transports ETF', view: 'No clear edge yet', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+    { symbol: 'FRO', label: 'Frontline', view: 'Wait', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score, tone: 'neutral' },
+    { symbol: 'IYT', label: 'US transports ETF', view: 'Wait', reason, expectedMoveLabel: 'No clear edge', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
   ]
 }
 

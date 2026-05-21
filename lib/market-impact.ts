@@ -59,14 +59,14 @@ type AssetImpact = {
 
 const PRO_INVESTOR_SKILL = {
   name: 'Pro Investor Impact Skill',
-  mandate: 'Translate maritime disruption into tradable macro pressure without making investment advice.',
+  mandate: 'Translate maritime disruption into general AI investment tips without making personalized financial advice.',
   outputs: ['oil beta', 'freight pressure', 'insurance pressure', 'equity risk-on/risk-off', 'confidence bands'],
 }
 
 const PRO_MARKET_ANALYST_SKILL = {
   name: 'Pro Market Analyst Skill',
   mandate: 'Score each source event by severity, recency, chokepoint exposure, and cross-market transmission.',
-  outputs: ['market narrative', 'asset class table', 'watchlist triggers', 'source-backed evidence'],
+  outputs: ['market narrative', 'asset class table', 'investment triggers', 'source-backed evidence'],
 }
 
 const MARKET_TERMS: WeightedTerm[] = [
@@ -462,6 +462,6 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     regions,
     topStories,
     watchTriggers,
-    disclaimer: 'Research and market context only. Not financial advice, investment advice, or a recommendation to buy or sell securities.',
+    disclaimer: 'General AI investment tips and market context only. Not personalized financial advice or a recommendation based on your portfolio, risk level or time horizon.',
   }
 }
