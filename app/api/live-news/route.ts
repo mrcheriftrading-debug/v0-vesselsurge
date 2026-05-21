@@ -308,7 +308,7 @@ export async function GET(request: Request) {
 
   if (directOnly) {
     const directNews = await fetchDirectLiveNews(region, topic, limit).catch((directError) => {
-      console.error('[live-news] Direct-only source sweep failed:', directError)
+      console.warn('[live-news] Direct-only source sweep fallback:', directError)
       return []
     })
     const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
@@ -379,9 +379,9 @@ export async function GET(request: Request) {
     try {
       newsResult = await withTimeout(query, 900, 'news query')
     } catch (error) {
-      console.error('[live-news] News query timeout:', error)
+      console.warn('[live-news] News query fallback:', error)
       const directNews = await fetchDirectLiveNews(region, topic, limit).catch((directError) => {
-        console.error('[live-news] Direct news fallback failed:', directError)
+        console.warn('[live-news] Direct news fallback unavailable:', directError)
         return []
       })
       const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
@@ -399,7 +399,7 @@ export async function GET(request: Request) {
     const { data, error } = newsResult
 
     if (error) {
-      console.error('[live-news] Supabase error:', error)
+      console.warn('[live-news] Supabase news fallback:', error)
       const directNews = await fetchDirectLiveNews(region, topic, limit).catch(() => [])
       const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
       return NextResponse.json({
@@ -448,13 +448,13 @@ export async function GET(request: Request) {
       try {
         signalResult = await withTimeout(signalQuery, 800, 'signal query')
       } catch (error) {
-        console.error('[live-news] Signal query timeout:', error)
+        console.warn('[live-news] Signal query fallback:', error)
         signalResult = { data: [], error: null }
       }
 
       const { data: signalData, error: signalError } = signalResult
       if (signalError) {
-        console.error('[live-news] Signal fallback error:', signalError)
+        console.warn('[live-news] Signal fallback unavailable:', signalError)
       } else {
         signalFallback = (signalData || [])
           .filter((signal: any) => !signal.source_url || !articleUrls.has(signal.source_url))
