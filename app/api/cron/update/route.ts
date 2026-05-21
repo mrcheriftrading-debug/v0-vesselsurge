@@ -123,8 +123,8 @@ const REGION_KEYWORDS: Record<string, string[]> = {
 
 const SEVERITY_KEYWORDS = {
   critical: ['attack', 'seized', 'sunk', 'missile', 'strike', 'closure', 'closed', 'blocked', 'blockade', 'war', 'explosion', 'hijack'],
-  high: ['warning', 'advisory', 'threat', 'incident', 'disrupt', 'divert', 'reroute', 'avoid', 'piracy', 'armed robbery', 'tension'],
-  medium: ['delay', 'congestion', 'monitor', 'caution', 'security', 'risk', 'alert'],
+  high: ['warning', 'advisory', 'incident', 'disrupt', 'divert', 'reroute', 'avoid', 'piracy', 'armed robbery', 'tension'],
+  medium: ['delay', 'congestion', 'monitor', 'caution', 'security', 'risk', 'alert', 'threat'],
 }
 
 const GOOGLE_NEWS_NOISE_KEYWORDS = [
@@ -301,6 +301,7 @@ function classifyRisk(text: string): RiskLevel {
   const lower = text.toLowerCase()
   if (SEVERITY_KEYWORDS.critical.some((keyword) => lower.includes(keyword))) return 'critical'
   if (SEVERITY_KEYWORDS.high.some((keyword) => lower.includes(keyword))) return 'high'
+  if (/\bthreat\b/i.test(lower) && /\b(attack|missile|strike|seized|hijack|naval|security|houthi|war[-\s]?risk|shipping|vessel|tanker|maritime)\b/i.test(lower)) return 'high'
   if (SEVERITY_KEYWORDS.medium.some((keyword) => lower.includes(keyword))) return 'medium'
   return 'low'
 }
@@ -889,12 +890,16 @@ function buildStatsFromSignals(articles: TrustedArticle[], signals: MaritimeSign
   const base = buildStats(articles)
   return base.map((row) => {
     const hotspotSignals = signals.filter((signal) => signal.region === row.hotspot)
-    const operationalSignals = hotspotSignals.filter((signal) => signal.signal_type !== 'news_corroboration')
+    const actionableSignals = hotspotSignals.filter((signal) => signal.signal_type !== 'source_sweep')
+    const operationalSignals = actionableSignals.filter((signal) => signal.signal_type !== 'news_corroboration')
     const strongestSignal = operationalSignals.reduce((max, signal) => Math.max(max, riskScore(signal.severity)), 0)
     const officialSignalCount = hotspotSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
     const aisSignalCount = hotspotSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
     const confidenceBoost = officialSignalCount ? 1 : aisSignalCount && row.risk_level === 'low' ? 1 : 0
-    const risk_level = riskFromScore(Math.max(riskScore(row.risk_level), strongestSignal, confidenceBoost))
+    const baseRiskScore = hotspotSignals.some((signal) => signal.signal_type === 'source_sweep') && actionableSignals.length === 0
+      ? riskScore('low')
+      : riskScore(row.risk_level)
+    const risk_level = riskFromScore(Math.max(baseRiskScore, strongestSignal, confidenceBoost))
 
     return {
       ...row,

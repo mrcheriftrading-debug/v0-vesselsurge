@@ -666,7 +666,9 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       ? 'high'
       : reports > 0 || actionableSignals.length > 0
         ? 'medium'
-        : hotspot.risk_level
+        : regionSignals.some((signal) => signal.signal_type === 'source_sweep')
+          ? 'low'
+          : hotspot.risk_level
     const confidenceScore = confidenceForHotspot({
       reports,
       sources: articleStats[hotspot.hotspot]?.sources || new Set(),

@@ -101,7 +101,7 @@ const ROUTE_LABELS: Record<string, { name: string; url: string }> = {
 
 function directRiskLevel(articles: MaritimeDashboardResponse['data']['articles']) {
   const highSignalCount = articles.filter((article) =>
-    /\b(attack|missile|strike|seized|hijack|warning|advisory|incident|threat|war[-\s]?risk|rerout|divert|disruption|closure|blocked)\b/i
+    /\b(attack|missile|strike|seized|hijack|warning|advisory|incident|war[-\s]?risk|rerout|divert|disruption|closure|blocked|security threat|shipping threat|vessel threat|tanker threat|houthi threat|naval threat)\b/i
       .test(`${article.title} ${article.summary}`),
   ).length
 
