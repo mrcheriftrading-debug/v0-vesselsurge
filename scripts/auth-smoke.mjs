@@ -273,7 +273,7 @@ async function main() {
     await fillInput(client, '#email', email)
     await fillInput(client, '#password', password)
     await click(client, 'form button[type="submit"]')
-    await sleep(9000)
+    await sleep(18000)
     state = await getPageState(client)
     if (state.path !== '/dashboard' || !state.body.includes('Welcome, Codex Smoke Test')) {
       if (reuseSmokeUser && state.body.includes('An account already exists')) {

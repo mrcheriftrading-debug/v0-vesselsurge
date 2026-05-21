@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSafeNextPath } from '@/lib/auth-next'
 
+const FALLBACK_SESSION_COOKIE = 'vesselsurge_fallback_session'
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -41,7 +43,11 @@ export async function updateSession(request: NextRequest) {
     pathname === '/auth/sign-up' ||
     pathname === '/auth/sign-up-success'
 
-  if (isProtected && !user) {
+  const hasFallbackDashboardSession =
+    pathname.startsWith('/dashboard') &&
+    Boolean(request.cookies.get(FALLBACK_SESSION_COOKIE)?.value)
+
+  if (isProtected && !user && !hasFallbackDashboardSession) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     url.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`)
