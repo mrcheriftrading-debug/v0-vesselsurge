@@ -73,8 +73,11 @@ async function getDashboardCacheRowViaClient(supabase: SupabaseClient, timeoutMs
   }
 }
 
-export async function getMaritimeDashboardCacheRow(timeoutMs = 1400) {
-  return getDashboardCacheRowViaRest(timeoutMs)
+export async function getMaritimeDashboardCacheRow(supabase?: SupabaseClient, timeoutMs = 1400) {
+  return (
+    await getDashboardCacheRowViaRest(timeoutMs) ||
+    (supabase ? await getDashboardCacheRowViaClient(supabase, timeoutMs, 'maritime dashboard cache row') : null)
+  )
 }
 
 export type MaritimeDashboardResponse = {

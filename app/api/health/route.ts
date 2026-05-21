@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getMaritimeDashboardCacheRow } from '@/lib/maritime-dashboard-cache'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 export const preferredRegion = 'fra1'
@@ -166,7 +167,7 @@ async function liveSurfaceHealthResponse(_request: Request, warning: string) {
 
 export async function GET(request: Request) {
   try {
-    const cacheRow = await getMaritimeDashboardCacheRow(HEALTH_CACHE_QUERY_TIMEOUT_MS)
+    const cacheRow = await getMaritimeDashboardCacheRow(createAdminClient(), HEALTH_CACHE_QUERY_TIMEOUT_MS)
 
     if (!cacheRow) {
       return liveSurfaceHealthResponse(request, `health cache query unavailable after ${HEALTH_CACHE_QUERY_TIMEOUT_MS}ms`)
