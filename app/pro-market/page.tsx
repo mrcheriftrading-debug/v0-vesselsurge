@@ -25,9 +25,13 @@ export const dynamic = 'force-dynamic'
 const BASE_URL = 'https://www.vesselsurge.com'
 
 export const metadata: Metadata = {
-  title: 'Live Markets and AI Shipping Risk Analysis | VesselSurge Market Pro',
-  description: 'Choose stocks, crypto or currencies and compare the live market tape with AI analysis of how maritime news may move markets.',
+  title: 'AI Market Watchlist From Shipping News | VesselSurge Market Pro',
+  description: 'Choose stocks, crypto or currencies and compare live prices with an AI watchlist of instruments worth researching from VesselSurge maritime news.',
   keywords: [
+    'AI market watchlist',
+    'AI stock market analysis',
+    'crypto market news analysis',
+    'currency market outlook',
     'shipping risk stock market impact',
     'maritime market intelligence',
     'oil market shipping risk',
@@ -173,7 +177,7 @@ function ProductJsonLd() {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: 'VesselSurge Market Impact Pro',
-          description: 'Live stocks, crypto and currency market tape paired with source-backed AI analysis of maritime news and shipping-risk market impact.',
+          description: 'Live stocks, crypto and currency market tape paired with a source-backed AI watchlist of instruments worth researching from maritime news.',
           brand: { '@type': 'Brand', name: 'VesselSurge' },
           offers: {
             '@type': 'Offer',
