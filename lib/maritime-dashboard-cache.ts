@@ -210,7 +210,8 @@ function confidenceForHotspot(stats: {
   return 0
 }
 
-function confidenceLabelForHotspot(score: number, stats: { officialSignalCount: number; aisSignalCount: number }) {
+function confidenceLabelForHotspot(score: number, stats: { officialSignalCount: number; aisSignalCount: number; sourceSweepOnly?: boolean }) {
+  if (stats.sourceSweepOnly) return 'Source sweep'
   if (score >= 80 && (stats.officialSignalCount > 0 || stats.aisSignalCount > 0)) return 'Verified'
   if (score >= 65) return 'Corroborated'
   if (score >= 45) return 'Watchlist'
@@ -660,6 +661,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     const officialSignalCount = regionSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
     const aisSignalCount = regionSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
     const reports = articleStats[hotspot.hotspot]?.reports || 0
+    const sourceSweepOnly = regionSignals.some((signal) => signal.signal_type === 'source_sweep') && actionableSignals.length === 0 && reports === 0
     const sourceCount = articleStats[hotspot.hotspot]?.sources.size || 0
     const latestSource = articleStats[hotspot.hotspot]?.latestSource || null
     const derivedRiskLevel = actionableSignals.some((signal) => signal.severity === 'critical' || signal.severity === 'high')
@@ -700,7 +702,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       officialSignalCount,
       aisSignalCount,
       confidenceScore,
-      confidenceLabel: confidenceLabelForHotspot(confidenceScore, { officialSignalCount, aisSignalCount }),
+      confidenceLabel: confidenceLabelForHotspot(confidenceScore, { officialSignalCount, aisSignalCount, sourceSweepOnly }),
       riskSummary: riskEvidence.riskSummary,
       riskDrivers: riskEvidence.riskDrivers,
     }

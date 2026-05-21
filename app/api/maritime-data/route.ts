@@ -210,6 +210,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     const confidenceScore = hotspotArticles.length
       ? Math.min(88, 40 + Math.min(20, sourceCount * 6) + Math.min(24, hotspotArticles.length * 4))
       : 35
+    const sourceSweepOnly = hotspotArticles.length === 0 && hotspotSignals.some((signal) => signal.signalType === 'source_sweep')
     const latestSource = hotspotArticles[0]?.source || 'OpenClaw standing watch'
     const riskDrivers = hotspotArticles.length
       ? hotspotArticles.slice(0, 3).map((article) => `${article.source}: ${article.title}`)
@@ -231,7 +232,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       officialSignalCount: 0,
       aisSignalCount: 0,
       confidenceScore,
-      confidenceLabel: confidenceScore >= 70 ? 'Corroborated' : hotspotArticles.length ? 'Watchlist' : 'Thin signal',
+      confidenceLabel: sourceSweepOnly ? 'Source sweep' : confidenceScore >= 70 ? 'Corroborated' : hotspotArticles.length ? 'Watchlist' : 'Thin signal',
       riskSummary: hotspotArticles.length
         ? `${riskLevel.toUpperCase()} from ${hotspotArticles.length} live source-linked report${hotspotArticles.length === 1 ? '' : 's'}; latest source: ${latestSource}.`
         : 'LOW because the direct source sweep found no current source-backed disruption.',
