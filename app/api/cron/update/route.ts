@@ -783,6 +783,10 @@ function riskFromScore(score: number): RiskLevel {
   return 'low'
 }
 
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error)
+}
+
 function buildStatsFromSignals(articles: TrustedArticle[], signals: MaritimeSignal[]) {
   const base = buildStats(articles)
   return base.map((row) => {
@@ -915,147 +919,179 @@ export async function GET(request: Request) {
     })
   }
 
-  const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
-  if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
+  let stage = 'clearing old news'
 
-  if (articles.length > 0) {
-    const insertNews = await supabaseRequest('news_articles', {
-      method: 'POST',
-      headers: { prefer: 'return=minimal' },
-      body: JSON.stringify(articles),
-    })
-    if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
-  }
+  try {
+    const deleteNews = await supabaseRequest('news_articles?created_at=gte.2000-01-01', { method: 'DELETE' })
+    if (!deleteNews.ok) throw new Error(`Failed to clear old news: ${deleteNews.status}`)
 
-  const aisPromise = collectAisStreamVessels({ timeoutMs: 10000, maxVessels: 80 })
-  const marineConditionsPromise = fetchAllMarineConditions()
-  const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])
-  const articleSignals = buildArticleSignals(articles)
-  const aisSignals = buildAisSignals(ais.vessels, timestamp)
-  const marineSignals = marineConditions.map((condition) => ({
-    signal_key: stableSignalKey(['marine-conditions', condition.hotspot, condition.observedAt.slice(0, 13)]),
-    source: condition.source,
-    source_url: condition.sourceUrl,
-    title: condition.title,
-    summary: condition.summary,
-    region: condition.hotspot,
-    signal_type: 'weather_constraint' as const,
-    severity: condition.severity,
-    confidence: condition.confidence,
-    observed_at: condition.observedAt,
-    metadata: {
-      waveHeightM: condition.waveHeightM,
-      wavePeriodS: condition.wavePeriodS,
-      seaLevelM: condition.seaLevelM,
-      seaSurfaceTemperatureC: condition.seaSurfaceTemperatureC,
-      oceanCurrentVelocityKmh: condition.oceanCurrentVelocityKmh,
-      oceanCurrentDirectionDeg: condition.oceanCurrentDirectionDeg,
-      note: 'Modeled marine context only. Not a navigation warning.',
-    },
-  }))
-  const signals = [...articleSignals, ...aisSignals, ...marineSignals]
-  const stats = buildStatsFromSignals(articles, signals)
+    if (articles.length > 0) {
+      stage = 'inserting trusted news'
+      const insertNews = await supabaseRequest('news_articles', {
+        method: 'POST',
+        headers: { prefer: 'return=minimal' },
+        body: JSON.stringify(articles),
+      })
+      if (!insertNews.ok) throw new Error(`Failed to insert trusted news: ${insertNews.status} ${await insertNews.text()}`)
+    }
 
-  const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, { method: 'DELETE' })
-  if (!deleteOldSignals.ok) throw new Error(`Failed to delete old maritime signals: ${deleteOldSignals.status} ${await deleteOldSignals.text()}`)
-
-  const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly,weather_constraint)', { method: 'DELETE' })
-  if (!deleteTransientSignals.ok) throw new Error(`Failed to refresh transient maritime signals: ${deleteTransientSignals.status} ${await deleteTransientSignals.text()}`)
-
-  if (signals.length > 0) {
-    const upsertSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
-      method: 'POST',
-      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify(signals.map((signal) => ({ ...signal, updated_at: timestamp }))),
-    })
-    if (!upsertSignals.ok) throw new Error(`Failed to upsert maritime signals: ${upsertSignals.status} ${await upsertSignals.text()}`)
-  }
-
-  const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
-    method: 'POST',
-    headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-    body: JSON.stringify(stats),
-  })
-  if (!upsertStats.ok) throw new Error(`Failed to update hotspot stats: ${upsertStats.status} ${await upsertStats.text()}`)
-
-  let vesselsUpdated = 0
-  if (ais.vessels.length > 0) {
-    const staleCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-    const deleteStaleVessels = await supabaseRequest(`vessels?updated_at=lt.${encodeURIComponent(staleCutoff)}`, { method: 'DELETE' })
-    if (!deleteStaleVessels.ok) throw new Error(`Failed to delete stale AIS vessels: ${deleteStaleVessels.status} ${await deleteStaleVessels.text()}`)
-
-    const upsertVessels = await supabaseRequest('vessels?on_conflict=mmsi', {
-      method: 'POST',
-      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify(ais.vessels),
-    })
-    if (!upsertVessels.ok) throw new Error(`Failed to update AIS vessels: ${upsertVessels.status} ${await upsertVessels.text()}`)
-    vesselsUpdated = ais.vessels.length
-
-    const historyRows = ais.vessels.map((vessel) => ({
-      mmsi: vessel.mmsi,
-      name: vessel.name,
-      lat: vessel.lat,
-      lng: vessel.lng,
-      speed: vessel.speed,
-      heading: vessel.heading,
-      ship_type: vessel.ship_type,
-      destination: vessel.destination,
-      hotspot: vessel.hotspot,
-      captured_at: timestamp,
+    stage = 'collecting AIS and marine conditions'
+    const aisPromise = collectAisStreamVessels({ timeoutMs: 10000, maxVessels: 80 })
+    const marineConditionsPromise = fetchAllMarineConditions()
+    const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])
+    const articleSignals = buildArticleSignals(articles)
+    const aisSignals = buildAisSignals(ais.vessels, timestamp)
+    const marineSignals = marineConditions.map((condition) => ({
+      signal_key: stableSignalKey(['marine-conditions', condition.hotspot, condition.observedAt.slice(0, 13)]),
+      source: condition.source,
+      source_url: condition.sourceUrl,
+      title: condition.title,
+      summary: condition.summary,
+      region: condition.hotspot,
+      signal_type: 'weather_constraint' as const,
+      severity: condition.severity,
+      confidence: condition.confidence,
+      observed_at: condition.observedAt,
+      metadata: {
+        waveHeightM: condition.waveHeightM,
+        wavePeriodS: condition.wavePeriodS,
+        seaLevelM: condition.seaLevelM,
+        seaSurfaceTemperatureC: condition.seaSurfaceTemperatureC,
+        oceanCurrentVelocityKmh: condition.oceanCurrentVelocityKmh,
+        oceanCurrentDirectionDeg: condition.oceanCurrentDirectionDeg,
+        note: 'Modeled marine context only. Not a navigation warning.',
+      },
     }))
-    const insertHistory = await supabaseRequest('ais_position_history', {
-      method: 'POST',
-      headers: { prefer: 'return=minimal' },
-      body: JSON.stringify(historyRows),
-    })
-    if (!insertHistory.ok) throw new Error(`Failed to insert AIS history: ${insertHistory.status} ${await insertHistory.text()}`)
+    const signals = [...articleSignals, ...aisSignals, ...marineSignals]
+    const stats = buildStatsFromSignals(articles, signals)
 
-    const staleHistoryCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
-    const deleteOldHistory = await supabaseRequest(`ais_position_history?captured_at=lt.${encodeURIComponent(staleHistoryCutoff)}`, { method: 'DELETE' })
-    if (!deleteOldHistory.ok) throw new Error(`Failed to delete old AIS history: ${deleteOldHistory.status} ${await deleteOldHistory.text()}`)
+    stage = 'deleting old maritime signals'
+    const deleteOldSignals = await supabaseRequest(`maritime_signals?observed_at=lt.${encodeURIComponent(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())}`, { method: 'DELETE' })
+    if (!deleteOldSignals.ok) throw new Error(`Failed to delete old maritime signals: ${deleteOldSignals.status} ${await deleteOldSignals.text()}`)
 
-    const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
-      acc[vessel.hotspot] = (acc[vessel.hotspot] || 0) + 1
-      return acc
-    }, {})
+    stage = 'refreshing transient maritime signals'
+    const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly,weather_constraint)', { method: 'DELETE' })
+    if (!deleteTransientSignals.ok) throw new Error(`Failed to refresh transient maritime signals: ${deleteTransientSignals.status} ${await deleteTransientSignals.text()}`)
 
-    const statsWithAis = stats.map((row) => ({
-      ...row,
-      active_vessels: vesselCounts[row.hotspot] || 0,
-    }))
-    const upsertAisStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
+    if (signals.length > 0) {
+      stage = 'upserting maritime signals'
+      const upsertSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
+        method: 'POST',
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(signals.map((signal) => ({ ...signal, updated_at: timestamp }))),
+      })
+      if (!upsertSignals.ok) throw new Error(`Failed to upsert maritime signals: ${upsertSignals.status} ${await upsertSignals.text()}`)
+    }
+
+    stage = 'upserting hotspot stats'
+    const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
       method: 'POST',
       headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify(statsWithAis),
+      body: JSON.stringify(stats),
     })
-    if (!upsertAisStats.ok) throw new Error(`Failed to update AIS stats: ${upsertAisStats.status} ${await upsertAisStats.text()}`)
+    if (!upsertStats.ok) throw new Error(`Failed to update hotspot stats: ${upsertStats.status} ${await upsertStats.text()}`)
+
+    let vesselsUpdated = 0
+    if (ais.vessels.length > 0) {
+      stage = 'deleting stale vessels'
+      const staleCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+      const deleteStaleVessels = await supabaseRequest(`vessels?updated_at=lt.${encodeURIComponent(staleCutoff)}`, { method: 'DELETE' })
+      if (!deleteStaleVessels.ok) throw new Error(`Failed to delete stale AIS vessels: ${deleteStaleVessels.status} ${await deleteStaleVessels.text()}`)
+
+      stage = 'upserting vessels'
+      const upsertVessels = await supabaseRequest('vessels?on_conflict=mmsi', {
+        method: 'POST',
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(ais.vessels),
+      })
+      if (!upsertVessels.ok) throw new Error(`Failed to update AIS vessels: ${upsertVessels.status} ${await upsertVessels.text()}`)
+      vesselsUpdated = ais.vessels.length
+
+      const historyRows = ais.vessels.map((vessel) => ({
+        mmsi: vessel.mmsi,
+        name: vessel.name,
+        lat: vessel.lat,
+        lng: vessel.lng,
+        speed: vessel.speed,
+        heading: vessel.heading,
+        ship_type: vessel.ship_type,
+        destination: vessel.destination,
+        hotspot: vessel.hotspot,
+        captured_at: timestamp,
+      }))
+      stage = 'inserting AIS history'
+      const insertHistory = await supabaseRequest('ais_position_history', {
+        method: 'POST',
+        headers: { prefer: 'return=minimal' },
+        body: JSON.stringify(historyRows),
+      })
+      if (!insertHistory.ok) throw new Error(`Failed to insert AIS history: ${insertHistory.status} ${await insertHistory.text()}`)
+
+      stage = 'deleting old AIS history'
+      const staleHistoryCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+      const deleteOldHistory = await supabaseRequest(`ais_position_history?captured_at=lt.${encodeURIComponent(staleHistoryCutoff)}`, { method: 'DELETE' })
+      if (!deleteOldHistory.ok) throw new Error(`Failed to delete old AIS history: ${deleteOldHistory.status} ${await deleteOldHistory.text()}`)
+
+      const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
+        acc[vessel.hotspot] = (acc[vessel.hotspot] || 0) + 1
+        return acc
+      }, {})
+
+      const statsWithAis = stats.map((row) => ({
+        ...row,
+        active_vessels: vesselCounts[row.hotspot] || 0,
+      }))
+      stage = 'upserting AIS stats'
+      const upsertAisStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
+        method: 'POST',
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(statsWithAis),
+      })
+      if (!upsertAisStats.ok) throw new Error(`Failed to update AIS stats: ${upsertAisStats.status} ${await upsertAisStats.text()}`)
+    }
+
+    stage = 'upserting dashboard cache'
+    const dashboardCacheUpdated = await upsertMaritimeDashboardCache(createAdminClient())
+
+    return NextResponse.json({
+      success: true,
+      timestamp,
+      source: 'openclaw-trusted-web',
+      articles_fetched: articles.length,
+      articles_inserted: articles.length,
+      stats_updated: stats.length,
+      signals_found: signals.length,
+      official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
+      ais_signals: signals.filter((signal) => signal.signal_type === 'ais_anomaly').length,
+      marine_conditions: marineConditions.length,
+      vessels_found: ais.vessels.length,
+      vessels_updated: vesselsUpdated,
+      dashboard_cache_updated: dashboardCacheUpdated,
+      ais_status: ais.reason,
+      verified: articles.length,
+      window: {
+        from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+        to: timestamp,
+        policy: 'Only source-published articles from the latest 24 hours are written.',
+      },
+      sources: [...new Set(articles.map((article) => article.source))],
+      note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted sources from the latest 24 hours are written.',
+    })
+  } catch (error) {
+    const message = errorMessage(error)
+    console.error('[trusted-update] full update failed:', { stage, message })
+    return NextResponse.json(
+      {
+        success: false,
+        timestamp,
+        scope: 'all',
+        stage,
+        error: message,
+        articles_fetched: articles.length,
+        source: 'openclaw-trusted-web',
+        nextAction: 'Fix the reported full-update stage, then rerun `npm run maritime:update:full`.',
+      },
+      { status: 500 },
+    )
   }
-
-  const dashboardCacheUpdated = await upsertMaritimeDashboardCache(createAdminClient())
-
-  return NextResponse.json({
-    success: true,
-    timestamp,
-    source: 'openclaw-trusted-web',
-    articles_fetched: articles.length,
-    articles_inserted: articles.length,
-    stats_updated: stats.length,
-    signals_found: signals.length,
-    official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
-    ais_signals: signals.filter((signal) => signal.signal_type === 'ais_anomaly').length,
-    marine_conditions: marineConditions.length,
-    vessels_found: ais.vessels.length,
-    vessels_updated: vesselsUpdated,
-    dashboard_cache_updated: dashboardCacheUpdated,
-    ais_status: ais.reason,
-    verified: articles.length,
-    window: {
-      from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
-      to: timestamp,
-      policy: 'Only source-published articles from the latest 24 hours are written.',
-    },
-    sources: [...new Set(articles.map((article) => article.source))],
-    note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted sources from the latest 24 hours are written.',
-  })
 }
