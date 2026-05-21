@@ -49,6 +49,15 @@ type Report = ReturnType<typeof buildMarketImpactReport>
 type MarketSnapshotReport = NonNullable<Report['marketSnapshot']>
 type MarketQuoteReport = MarketSnapshotReport['quotes'][number]
 type AssetCategory = 'stocks' | 'crypto' | 'fx'
+type OutlookTone = 'positive' | 'caution' | 'wait' | 'neutral'
+type InstrumentOutlook = {
+  symbol: string
+  label: string
+  view: string
+  reason: string
+  score: number
+  tone: OutlookTone
+}
 
 const assetCategories: Array<{ id: AssetCategory; label: string; description: string }> = [
   {
@@ -385,8 +394,49 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
             <span className="rounded-md bg-white/10 px-3 py-2">{outlook.confidence} confidence</span>
           </div>
         </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {outlook.instruments.slice(0, 4).map((instrument) => (
+            <OutlookTile key={instrument.symbol} instrument={instrument} />
+          ))}
+        </div>
+
+        <div className="mt-5 overflow-hidden rounded-md border border-slate-200">
+          <div className="grid grid-cols-[1fr_0.7fr_0.7fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+            <span>Instrument</span>
+            <span className="text-right">AI view</span>
+            <span className="text-right">Score</span>
+          </div>
+          {outlook.instruments.map((instrument) => (
+            <div key={instrument.symbol} className="grid grid-cols-[1fr_0.7fr_0.7fr] border-t border-slate-200 px-4 py-3 text-sm">
+              <div>
+                <p className="font-black text-slate-950">{instrument.label}</p>
+                <p className="text-xs font-semibold text-slate-500">{instrument.reason}</p>
+              </div>
+              <p className={`self-center text-right font-black ${outlookToneClass(instrument.tone)}`}>{instrument.view}</p>
+              <p className="self-center text-right font-black text-slate-950">{instrument.score}/100</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-4 text-xs font-semibold leading-5 text-slate-500">
+          AI watchlist is source-backed research context. It is not personal financial advice or an instruction to buy.
+        </p>
       </div>
     </section>
+  )
+}
+
+function OutlookTile({ instrument }: { instrument: InstrumentOutlook }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{instrument.symbol}</p>
+      <h3 className="mt-1 font-black text-slate-950">{instrument.label}</h3>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <p className={`font-black ${outlookToneClass(instrument.tone)}`}>{instrument.view}</p>
+        <p className="text-sm font-black text-slate-700">{instrument.score}/100</p>
+      </div>
+    </div>
   )
 }
 
@@ -523,53 +573,47 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
   const quoteMove = averageQuoteMove(quotes)
   const categoryScore = categoryAverageAssetScore(report, category)
   const score = Math.max(0, Math.min(100, Math.round(categoryScore * 0.72 + report.marketTapeScore * 0.28)))
+  const instruments = buildInstrumentOutlooks(report, category, score)
 
   let direction = 'No clear signal yet'
   let summary = 'Prices and shipping news do not point in one clear direction yet. The safer read is to wait for stronger confirmation.'
-  let recommendation = 'No clear buy-watch idea yet'
+  const recommendation = instruments[0]
+    ? `${instruments[0].label}: ${instruments[0].view}`
+    : 'No clear investment watchlist yet'
 
   if (category === 'stocks') {
     if (score >= 65 && quoteMove < 0) {
       direction = 'Stocks look under pressure'
       summary = 'Stock prices are already weak while shipping-risk pressure is elevated. That means bad route or oil news could matter more than usual.'
-      recommendation = 'Research tanker and energy exposure first; avoid chasing broad stocks.'
     } else if (score >= 65) {
       direction = 'Stocks can rise, but risk headlines may cap the move'
       summary = 'Stocks are not breaking down, but shipping news is strong enough that oil, freight or insurance headlines could slow the upside.'
-      recommendation = 'Research oil, tanker and freight-linked stocks first.'
     } else if (quoteMove > 0.4) {
       direction = 'Stocks look positive, but watch the headlines'
       summary = 'The stock tape is positive. The main risk is whether fresh shipping disruption news hurts confidence.'
-      recommendation = 'Research broad equity strength, with shipping-risk names on watch.'
     }
   } else if (category === 'crypto') {
     if (score >= 62) {
       direction = 'Crypto risk appetite looks fragile'
       summary = 'Crypto often reacts when investors reduce risk. If shipping news lifts oil, the dollar or rates pressure, crypto can weaken quickly.'
-      recommendation = 'Do not chase crypto yet; wait for risk appetite to improve.'
     } else if (quoteMove > 1) {
       direction = 'Crypto is holding up for now'
       summary = 'Crypto momentum is positive. The AI is watching whether dollar, rates or escalation news starts to overpower that strength.'
-      recommendation = 'Research Bitcoin and Ethereum first.'
     } else {
       direction = 'Crypto is in watch mode'
       summary = 'There is no clean shipping-to-crypto signal yet. The important thing to watch is broader risk appetite.'
-      recommendation = 'No clear crypto buy-watch idea yet.'
     }
   } else {
     const dollar = report.marketSnapshot?.quotes.find((quote) => quote.symbol === 'DX-Y.NYB')
     if ((dollar?.changePercent || 0) > 0.25 || score >= 62) {
       direction = 'Dollar pressure is the main FX risk'
       summary = 'If energy or route risk rises, the first currency move to watch is often USD strength and SEK sensitivity.'
-      recommendation = 'Research USD strength first, especially USD/SEK.'
     } else if (quoteMove < -0.25) {
       direction = 'Dollar pressure is easing'
       summary = 'The currency tape looks less defensive. The AI needs fresh escalation news before raising the FX risk view.'
-      recommendation = 'Research EUR/USD or SEK recovery setups.'
     } else {
       direction = 'Currencies are balanced'
       summary = 'Currencies are mixed. The next clear signal would likely come from oil, rates or the dollar.'
-      recommendation = 'No clear FX buy-watch idea yet.'
     }
   }
 
@@ -579,7 +623,114 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
     score,
     confidence: report.confidence,
     summary,
+    instruments,
   }
+}
+
+function buildInstrumentOutlooks(report: Report, category: AssetCategory, categoryScore: number): InstrumentOutlook[] {
+  const quotes = categoryMarketQuotes(report.marketSnapshot, category)
+  const sourceSignal = report.topStories[0]?.title || report.analysisBrief.signal
+
+  if (!quotes.length) {
+    return fallbackInstrumentOutlooks(category, categoryScore, sourceSignal)
+  }
+
+  return quotes
+    .map((quote) => {
+      const momentum = quote.changePercent
+      const score = Math.max(0, Math.min(100, Math.round(categoryScore + Math.abs(momentum) * 4 + instrumentScoreAdjustment(quote, category, report))))
+      const { view, tone, reason } = instrumentViewForQuote(quote, category, report, momentum)
+
+      return {
+        symbol: quote.symbol,
+        label: quote.label,
+        view,
+        reason: reason || sourceSignal,
+        score,
+        tone,
+      }
+    })
+    .sort((a, b) => b.score - a.score)
+}
+
+function instrumentScoreAdjustment(quote: MarketQuoteReport, category: AssetCategory, report: Report) {
+  if (category === 'stocks' && quote.group === 'Transport') return report.marketPressureScore >= 60 ? 8 : 3
+  if (category === 'crypto' && report.marketPressureScore >= 62) return -4
+  if (category === 'fx' && /USD|DX-Y/.test(quote.symbol)) return report.marketPressureScore >= 60 ? 7 : 2
+  return 0
+}
+
+function instrumentViewForQuote(quote: MarketQuoteReport, category: AssetCategory, report: Report, momentum: number): {
+  view: string
+  tone: OutlookTone
+  reason: string
+} {
+  const pressure = report.marketPressureScore
+
+  if (category === 'stocks') {
+    if (quote.group === 'Transport' && pressure >= 60) {
+      return { view: 'Research first', tone: 'positive', reason: 'Shipping disruption can lift freight and tanker exposure.' }
+    }
+    if (quote.group === 'Transport') {
+      return { view: 'Watch closely', tone: 'neutral', reason: 'Transport names react directly to route and freight changes.' }
+    }
+    if (pressure >= 65) {
+      return { view: 'Be careful', tone: 'caution', reason: 'High shipping risk can cap broad equity upside.' }
+    }
+    if (momentum > 0.3) {
+      return { view: 'Bullish watch', tone: 'positive', reason: 'Live price action is positive and risk pressure is controlled.' }
+    }
+  }
+
+  if (category === 'crypto') {
+    if (pressure >= 62) {
+      return { view: 'Wait', tone: 'wait', reason: 'Shipping stress can reduce risk appetite and hurt crypto.' }
+    }
+    if (momentum > 0.8) {
+      return { view: 'Research first', tone: 'positive', reason: 'Crypto momentum is positive while shipping pressure is manageable.' }
+    }
+    return { view: 'Watch only', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
+  }
+
+  if (/USDSEK|DX-Y|USDJPY/.test(quote.symbol) && pressure >= 60) {
+    return { view: 'Research first', tone: 'positive', reason: 'Shipping stress often supports USD demand.' }
+  }
+  if (/EURUSD|GBPUSD/.test(quote.symbol) && pressure >= 60) {
+    return { view: 'Be careful', tone: 'caution', reason: 'Dollar strength can pressure non-USD pairs.' }
+  }
+  if (momentum > 0.2) {
+    return { view: 'Bullish watch', tone: 'positive', reason: 'Currency momentum is positive on the live tape.' }
+  }
+
+  return { view: 'Watch only', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
+}
+
+function fallbackInstrumentOutlooks(category: AssetCategory, score: number, reason: string): InstrumentOutlook[] {
+  if (category === 'crypto') {
+    return [
+      { symbol: 'BTC', label: 'Bitcoin', view: 'Watch only', reason, score, tone: 'neutral' },
+      { symbol: 'ETH', label: 'Ethereum', view: 'Watch only', reason, score: Math.max(0, score - 4), tone: 'neutral' },
+    ]
+  }
+
+  if (category === 'fx') {
+    return [
+      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'Watch only', reason, score, tone: 'neutral' },
+      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'Watch only', reason, score: Math.max(0, score - 4), tone: 'neutral' },
+    ]
+  }
+
+  return [
+    { symbol: 'FRO', label: 'Frontline', view: 'Watch only', reason, score, tone: 'neutral' },
+    { symbol: 'IYT', label: 'US transports ETF', view: 'Watch only', reason, score: Math.max(0, score - 4), tone: 'neutral' },
+  ]
+}
+
+function outlookToneClass(tone: OutlookTone) {
+  if (tone === 'positive') return 'text-emerald-700'
+  if (tone === 'caution') return 'text-amber-700'
+  if (tone === 'wait') return 'text-red-700'
+  return 'text-slate-700'
 }
 
 function formatNumber(value: number, digits = 2) {
