@@ -350,7 +350,7 @@ function ReportPreview({ report }: { report: Report }) {
           <div className="mt-4 h-2 rounded-full bg-slate-100">
             <div className="h-full rounded-full bg-sky-700" style={{ width: `${report.marketPressureScore}%` }} />
           </div>
-          <p className="mt-4 text-sm leading-6 text-slate-600">{report.narrative}</p>
+          <p className="mt-4 text-sm leading-6 text-slate-600">{report.analysisBrief.meaning}</p>
         </div>
 
         <div className="divide-y divide-slate-200">
@@ -421,6 +421,10 @@ function LockedReportPreview({ isLoggedIn }: { isLoggedIn: boolean }) {
 function UnlockedReport({ report }: { report: Report }) {
   return (
     <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+      <Panel title="AI analyst brief" subtitle="Plain-English market interpretation from real quotes and source-backed VesselSurge events." icon={Radar} wide>
+        <AnalystBrief report={report} />
+      </Panel>
+
       <Panel title="Live market tape" subtitle="Real index, oil, rates, dollar, gold and transport moves used by the analyst model." icon={Activity} wide>
         <MarketSnapshotPanel report={report} />
       </Panel>
@@ -501,6 +505,65 @@ function UnlockedReport({ report }: { report: Report }) {
   )
 }
 
+function AnalystBrief({ report }: { report: Report }) {
+  const leadAsset = report.assetImpacts[0]
+  const leadStory = report.topStories[0]
+  const brief = report.analysisBrief
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-4 lg:grid-cols-[0.42fr_0.58fr]">
+        <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Current read</p>
+          <div className="mt-3 flex items-end gap-3">
+            <p className="text-6xl font-black tracking-tight">{report.marketPressureScore}</p>
+            <div className="pb-2">
+              <p className="text-sm font-black uppercase text-white">{brief.label}</p>
+              <p className="text-xs font-bold uppercase text-slate-300">{report.confidence} confidence</p>
+            </div>
+          </div>
+          <p className="mt-4 text-sm leading-6 text-slate-300">
+            This is the combined score from live markets plus VesselSurge maritime evidence. It is research context, not a trade call.
+          </p>
+        </div>
+
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">What it says</p>
+          <h3 className="mt-2 text-xl font-black text-slate-950">{brief.signal}</h3>
+          <p className="mt-3 text-sm leading-6 text-slate-700">{brief.meaning}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="rounded-md bg-white px-2.5 py-1.5 text-xs font-black uppercase text-slate-700 ring-1 ring-slate-200">
+              {leadAsset?.asset || 'No lead asset'}
+            </span>
+            <span className="rounded-md bg-white px-2.5 py-1.5 text-xs font-black uppercase text-slate-700 ring-1 ring-slate-200">
+              {leadStory?.sourceQualityLabel || 'Monitoring'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <BriefPoint label="Market read" body={brief.marketRead} />
+        <BriefPoint label="Evidence" body={brief.evidence} />
+        <BriefPoint label="Watch next" body={brief.watch} />
+      </div>
+
+      <div className="rounded-md border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">
+        <span className="font-black text-slate-950">Data basis:</span> {brief.dataBasis}
+      </div>
+    </div>
+  )
+}
+
+function BriefPoint({ label, body }: { label: string; body: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">{body}</p>
+    </div>
+  )
+}
+
 function LockedAnalysisSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   const lockedItems = ['Live market tape', 'Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
 
@@ -562,7 +625,7 @@ function MarketSnapshotPanel({ report }: { report: Report }) {
           <h3 className="mt-2 text-xl font-black text-slate-950">{snapshot.regime}</h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">{snapshot.summary}</p>
           <p className="mt-3 text-xs font-semibold text-slate-500">
-            Source: {snapshot.source}. Updated {formatDateTime(snapshot.generatedAt)}.
+            Source: <Link href={snapshot.sourceUrl} target="_blank" className="text-sky-700 hover:underline">{snapshot.source}</Link>. Updated {formatDateTime(snapshot.generatedAt)}.
           </p>
         </div>
 
@@ -573,7 +636,7 @@ function MarketSnapshotPanel({ report }: { report: Report }) {
             <p className="pb-2 text-xs font-bold uppercase text-slate-300">{snapshot.riskTone}</p>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            This score uses live moves in equities, crude oil, rates and the dollar before blending with maritime source risk.
+            {riskToneMeaning(snapshot.riskTone)} This score is blended into the wider Market Pro pressure score.
           </p>
         </div>
       </div>
@@ -590,8 +653,25 @@ function MarketSnapshotPanel({ report }: { report: Report }) {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-md border border-slate-200">
-        <div className="grid grid-cols-[1fr_0.75fr_0.65fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 md:grid-cols-[1.1fr_0.8fr_0.7fr_0.7fr]">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {primaryMarketQuotes(snapshot).map((quote) => (
+          <div key={quote.symbol} className="rounded-md border border-slate-200 bg-white p-3">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{quote.label}</p>
+            <div className="mt-2 flex items-end justify-between gap-3">
+              <p className="font-black text-slate-950">{formatMarketPrice(quote)}</p>
+              <p className={`text-sm font-black ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                {formatMarketMove(quote)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <details className="overflow-hidden rounded-md border border-slate-200 bg-white">
+        <summary className="cursor-pointer bg-slate-50 px-4 py-3 text-sm font-black text-slate-950">
+          Show full live quote table
+        </summary>
+        <div className="grid grid-cols-[1fr_0.75fr_0.65fr] border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 md:grid-cols-[1.1fr_0.8fr_0.7fr_0.7fr]">
           <span>Instrument</span>
           <span>Group</span>
           <span className="text-right">Price</span>
@@ -610,7 +690,7 @@ function MarketSnapshotPanel({ report }: { report: Report }) {
             </p>
           </div>
         ))}
-      </div>
+      </details>
     </div>
   )
 }
@@ -745,6 +825,19 @@ function driverToneClass(tone: string) {
   if (tone === 'risk-off') return 'bg-red-50 text-red-800'
   if (tone === 'watch') return 'bg-amber-50 text-amber-800'
   return 'bg-slate-100 text-slate-600'
+}
+
+function riskToneMeaning(tone: string) {
+  if (tone === 'risk-on') return 'The live tape is showing risk appetite.'
+  if (tone === 'risk-off') return 'The live tape is showing defensive pressure.'
+  return 'The live tape is mixed, so the model keeps the interpretation cautious.'
+}
+
+function primaryMarketQuotes(snapshot: MarketSnapshotReport) {
+  const symbols = ['^GSPC', 'BZ=F', '^TNX', 'DX-Y.NYB']
+  return symbols
+    .map((symbol) => snapshot.quotes.find((quote) => quote.symbol === symbol))
+    .filter((quote): quote is MarketQuoteReport => Boolean(quote))
 }
 
 async function loadAuthState() {

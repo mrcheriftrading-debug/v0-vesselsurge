@@ -32,6 +32,31 @@ type WeightedTerm = {
   reason: string
 }
 
+type RankedMarketStory = {
+  id: string
+  kind: 'news' | 'signal'
+  title: string
+  summary: string
+  source: string
+  sourceUrl: string | null
+  sourceQualityLabel: string
+  sourceQualityScore: number
+  region: string
+  timestamp: string | null
+  score: number
+  severity: string
+  reasons: string[]
+}
+
+type AssetImpact = {
+  asset: string
+  bias: string
+  score: number
+  evidenceCount: number
+  drivers: string[]
+  marketMove: string | null
+}
+
 const PRO_INVESTOR_SKILL = {
   name: 'Pro Investor Impact Skill',
   mandate: 'Translate maritime disruption into tradable macro pressure without making investment advice.',
@@ -266,6 +291,71 @@ function marketScoreAdjustment(asset: string, snapshot: MarketSnapshot | null) {
   return 0
 }
 
+function pressureLabel(score: number) {
+  if (score >= 72) return 'High pressure'
+  if (score >= 48) return 'Developing pressure'
+  if (score >= 24) return 'Early watch'
+  return 'Quiet'
+}
+
+function pressureMeaning(score: number) {
+  if (score >= 72) {
+    return 'The maritime signal and the live market tape are strong enough to deserve active monitoring now.'
+  }
+
+  if (score >= 48) {
+    return 'There is a usable signal, but it still needs stronger confirmation before treating it as a broad market event.'
+  }
+
+  if (score >= 24) {
+    return 'The model sees early risk, but the market impact is still limited or not yet confirmed.'
+  }
+
+  return 'The current evidence does not support a strong market-impact call.'
+}
+
+function buildAnalysisBrief({
+  leadStory,
+  leadAsset,
+  marketSnapshot,
+  blendedPressureScore,
+  tapeScore,
+  topStoryCount,
+  watchTrigger,
+}: {
+  leadStory: RankedMarketStory | undefined
+  leadAsset: AssetImpact | undefined
+  marketSnapshot: MarketSnapshot | null
+  blendedPressureScore: number
+  tapeScore: number
+  topStoryCount: number
+  watchTrigger: string
+}) {
+  const leadDriver = leadAsset?.drivers?.[0] || marketSnapshot?.drivers?.[0]?.detail || 'No single market driver is dominant yet.'
+  const sourceLabel = leadStory
+    ? `${leadStory.sourceQualityLabel} source evidence from ${leadStory.source}`
+    : 'No ranked maritime source event is dominant yet'
+  const liveTapeLabel = marketSnapshot
+    ? `${marketSnapshot.source}: ${marketSnapshot.summary}`
+    : 'Live market tape unavailable; maritime source analysis remains active'
+
+  return {
+    label: pressureLabel(blendedPressureScore),
+    signal: leadStory
+      ? `${leadStory.region.toUpperCase()} is the main source-backed maritime signal.`
+      : 'No single maritime hotspot is dominating the market-impact model right now.',
+    meaning: leadAsset
+      ? `${pressureMeaning(blendedPressureScore)} The first channel to watch is ${leadAsset.asset.toLowerCase()} because ${leadAsset.bias.toLowerCase()}.`
+      : pressureMeaning(blendedPressureScore),
+    marketRead: marketSnapshot
+      ? `The live tape score is ${tapeScore}/100. ${leadDriver}`
+      : 'The model could not load live quote data on this refresh, so the score is based on maritime evidence only.',
+    evidence: `${sourceLabel}. ${topStoryCount} ranked VesselSurge events are included in the report.`,
+    watch: watchTrigger,
+    dataBasis: liveTapeLabel,
+  }
+}
+
 export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[], marketSnapshot: MarketSnapshot | null = null) {
   const merged = [
     ...news.map((item) => ({ kind: 'news' as const, item })),
@@ -340,6 +430,14 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     : marketSnapshot
       ? `No major maritime event is strong enough for a high-conviction alert, but the live market tape still matters: ${marketSnapshot.summary}`
       : 'No major market-impact signal is currently strong enough for a high-conviction alert.'
+  const watchTriggers = [
+    'New verified incident near Hormuz, Bab el-Mandeb, Suez or Malacca',
+    'Brent/WTI crude moves more than 2% while maritime risk headlines accelerate',
+    'US 10Y yield or dollar strength tightens financial conditions during an oil move',
+    'Insurance or war-risk premium language appears in trusted sources',
+    'Tanker, LNG, crude or container rerouting language accelerates',
+    'Multiple independent sources confirm the same maritime disruption',
+  ]
 
   return {
     generatedAt: new Date().toISOString(),
@@ -349,19 +447,21 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     marketTapeScore: tapeScore,
     confidence: confidenceLabel(topStories.length + (marketSnapshot ? 4 : 0), blendedPressureScore),
     narrative,
+    analysisBrief: buildAnalysisBrief({
+      leadStory,
+      leadAsset,
+      marketSnapshot,
+      blendedPressureScore,
+      tapeScore,
+      topStoryCount: topStories.length,
+      watchTrigger: watchTriggers[0],
+    }),
     marketSnapshot,
     marketDrivers: marketSnapshot?.drivers || [],
     assetImpacts,
     regions,
     topStories,
-    watchTriggers: [
-      'New verified incident near Hormuz, Bab el-Mandeb, Suez or Malacca',
-      'Brent/WTI crude moves more than 2% while maritime risk headlines accelerate',
-      'US 10Y yield or dollar strength tightens financial conditions during an oil move',
-      'Insurance or war-risk premium language appears in trusted sources',
-      'Tanker, LNG, crude or container rerouting language accelerates',
-      'Multiple independent sources confirm the same maritime disruption',
-    ],
+    watchTriggers,
     disclaimer: 'Research and market context only. Not financial advice, investment advice, or a recommendation to buy or sell securities.',
   }
 }
