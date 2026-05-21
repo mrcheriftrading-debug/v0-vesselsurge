@@ -771,9 +771,26 @@ function buildArticleSignals(articles: TrustedArticle[]): MaritimeSignal[] {
   })
 }
 
-function buildSourceSweepSignals(articles: TrustedArticle[], observedAt: string): MaritimeSignal[] {
+function isWithinHours(value: string | null | undefined, now: Date, hours: number) {
+  if (!value) return false
+  const timestamp = Date.parse(value)
+  if (!Number.isFinite(timestamp)) return false
+  const ageMs = now.getTime() - timestamp
+  return ageMs >= 0 && ageMs <= hours * 60 * 60 * 1000
+}
+
+function buildSourceSweepSignals(articles: TrustedArticle[], currentSignals: MaritimeSignal[], observedAt: string): MaritimeSignal[] {
+  const sweepTime = new Date(observedAt)
   return LIVE_REGIONS
-    .filter((region) => !articles.some((article) => article.region === region))
+    .filter((region) => {
+      const hasFreshArticle = articles.some((article) => article.region === region && isWithinLatest24Hours(article, sweepTime))
+      const hasFreshActionableSignal = currentSignals.some((signal) =>
+        signal.region === region &&
+        signal.signal_type !== 'source_sweep' &&
+        isWithinHours(signal.observed_at, sweepTime, 24),
+      )
+      return !hasFreshArticle && !hasFreshActionableSignal
+    })
     .map((region) => {
       const route = ROUTE_LABELS[region]
       return {
@@ -789,7 +806,7 @@ function buildSourceSweepSignals(articles: TrustedArticle[], observedAt: string)
         observed_at: observedAt,
         metadata: {
           derivedFrom: 'vesselsurge-source-sweep',
-          policy: 'No invented incidents: source sweep signals are used only when trusted current news is absent.',
+          policy: 'No invented incidents: source sweep signals are used only when trusted current news and actionable route signals are absent.',
         },
       }
     })
@@ -995,7 +1012,7 @@ export async function GET(request: Request) {
     }
 
     const articleSignals = buildArticleSignals(articles)
-    const sourceSweepSignals = buildSourceSweepSignals(articles, timestamp)
+    const sourceSweepSignals = buildSourceSweepSignals(articles, articleSignals, timestamp)
     let signalsWritten = 0
 
     if (articleSignals.length > 0 || sourceSweepSignals.length > 0) {
@@ -1086,7 +1103,7 @@ export async function GET(request: Request) {
     const marineConditionsPromise = fetchAllMarineConditions()
     const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])
     const articleSignals = buildArticleSignals(articles)
-    const sourceSweepSignals = buildSourceSweepSignals(articles, timestamp)
+    const sourceSweepSignals = buildSourceSweepSignals(articles, articleSignals, timestamp)
     const aisSignals = buildAisSignals(ais.vessels, timestamp)
     const marineSignals = marineConditions.map((condition) => ({
       signal_key: stableSignalKey(['marine-conditions', condition.hotspot, condition.observedAt.slice(0, 13)]),
