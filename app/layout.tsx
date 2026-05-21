@@ -264,6 +264,7 @@ const schemaSoftwareApp = {
     'Chokepoint risk assessment',
     'Maritime security alerts',
     'Source-reviewed shipping news feed',
+    'Public source trust and freshness dashboard',
     'Market Pro shipping-to-market analysis',
     'Freshness-gated live map reports',
     'Regional intelligence pages',

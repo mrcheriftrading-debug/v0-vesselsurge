@@ -30,6 +30,7 @@ export function SiteFooter() {
             <div className="mt-4 grid gap-3 text-sm text-muted-foreground">
               <Link href="/map-dashboard" className="transition-colors hover:text-foreground">Live map</Link>
               <Link href="/latest" className="transition-colors hover:text-foreground">News & Risk</Link>
+              <Link href="/source-trust" className="transition-colors hover:text-foreground">Source trust</Link>
               <Link href="/pro-market" className="transition-colors hover:text-foreground">Market Pro</Link>
               <Link href="/network" className="transition-colors hover:text-foreground">Network intake</Link>
             </div>

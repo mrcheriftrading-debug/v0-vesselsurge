@@ -16,6 +16,13 @@ export const publicFeaturePages = [
     keywords: ["latest maritime news", "shipping news today", "chokepoint news", "maritime intelligence", "shipping risk reports"],
   },
   {
+    name: "Source Trust",
+    url: `${BASE_URL}/source-trust`,
+    description:
+      "Public data quality dashboard showing VesselSurge source review, freshness gates, AI guardrails and maritime intelligence trust status.",
+    keywords: ["source reviewed maritime news", "maritime data quality", "AI maritime intelligence", "shipping risk source trust"],
+  },
+  {
     name: "Market Pro",
     url: `${BASE_URL}/pro-market`,
     description:

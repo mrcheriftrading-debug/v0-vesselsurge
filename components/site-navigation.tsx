@@ -3,12 +3,13 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, Ship, TrendingUp, UserPlus, X } from "lucide-react"
+import { BarChart3, Home, Info, LogIn, Map, Menu, Network, Newspaper, ShieldCheck, Ship, TrendingUp, UserPlus, X } from "lucide-react"
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/map-dashboard", label: "Live Map", icon: Map },
   { href: "/latest", label: "News & Risk", icon: Newspaper },
+  { href: "/source-trust", label: "Trust", icon: ShieldCheck },
   { href: "/pro-market", label: "Market Pro", icon: TrendingUp },
   { href: "/network", label: "Network", icon: Network },
   { href: "/about", label: "Company", icon: Info },
@@ -41,7 +42,7 @@ export function SiteNavigation() {
             <span className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">VesselSurge</span>
           </Link>
 
-          <div className="hidden items-center gap-1 md:flex">
+          <div className="hidden items-center gap-1 lg:flex">
             {navItems.map(({ href, label, icon: Icon }) => {
               const active = isActive(pathname, href)
               return (
@@ -61,7 +62,7 @@ export function SiteNavigation() {
             })}
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          <div className="hidden shrink-0 items-center gap-2 xl:flex">
             <Link href="/auth/login" className="inline-flex min-h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-foreground">
               <LogIn className="h-4 w-4" />
               Sign in
@@ -75,7 +76,7 @@ export function SiteNavigation() {
           <button
             type="button"
             onClick={() => setMobileOpen((open) => !open)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:text-foreground md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/60 text-muted-foreground transition-colors hover:text-foreground lg:hidden"
             aria-label="Open navigation menu"
             aria-expanded={mobileOpen}
           >
@@ -85,7 +86,7 @@ export function SiteNavigation() {
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 pt-16 backdrop-blur-md md:hidden" onClick={() => setMobileOpen(false)}>
+        <div className="fixed inset-0 z-40 bg-background/80 pt-16 backdrop-blur-md lg:hidden" onClick={() => setMobileOpen(false)}>
           <div className="border-b border-border bg-card px-4 py-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">VesselSurge navigation</p>
             <div className="grid gap-2">

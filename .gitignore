@@ -17,6 +17,7 @@ next.user-config.*
 .buffer-post-state.json
 .buffer-approved-feed-cache.json
 automation-runs/
+.superpowers/
 
 # Common ignores
 node_modules
