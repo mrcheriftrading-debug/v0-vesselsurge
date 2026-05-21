@@ -241,8 +241,9 @@ async function main() {
   }
 
   const stamp = Date.now()
-  const email = `codex-auth-smoke-${stamp}@example.com`
-  const password = `Smoke${stamp}!`
+  const reuseSmokeUser = process.env.VESSELSURGE_AUTH_SMOKE_REUSE !== '0'
+  const email = process.env.VESSELSURGE_AUTH_SMOKE_EMAIL || (reuseSmokeUser ? 'codex-auth-smoke@example.com' : `codex-auth-smoke-${stamp}@example.com`)
+  const password = process.env.VESSELSURGE_AUTH_SMOKE_PASSWORD || (reuseSmokeUser ? 'VesselSurgeSmoke2026!' : `Smoke${stamp}!`)
   const userDataDir = mkdtempSync(path.join(os.tmpdir(), 'vesselsurge-auth-smoke-'))
   const port = 9600 + Math.floor(Math.random() * 3000)
   const chromeProcess = spawn(chrome, [
@@ -274,9 +275,23 @@ async function main() {
     await click(client, 'form button[type="submit"]')
     await sleep(9000)
     state = await getPageState(client)
-    createdUser = true
     if (state.path !== '/dashboard' || !state.body.includes('Welcome, Codex Smoke Test')) {
-      throw new Error(`Sign-up did not reach dashboard: ${state.href}`)
+      if (reuseSmokeUser && state.body.includes('An account already exists')) {
+        await navigate(client, '/auth/login?next=/dashboard')
+        await fillInput(client, '#email', email)
+        await fillInput(client, '#password', password)
+        await click(client, 'form button[type="submit"]')
+        await sleep(8000)
+        state = await getPageState(client)
+      } else {
+        throw new Error(`Sign-up did not reach dashboard: ${state.href}`)
+      }
+    } else {
+      createdUser = !reuseSmokeUser
+    }
+
+    if (state.path !== '/dashboard' || !state.body.includes('Welcome, Codex Smoke Test')) {
+      throw new Error(`Reusable smoke login did not reach dashboard: ${state.href}`)
     }
     assertNoBrowserErrors(client, 'sign-up')
 
