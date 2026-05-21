@@ -452,7 +452,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     throw new Error('Failed to fetch maritime data')
   }
 
-  const articles = balanceDashboardArticles(dedupeArticles((articlesData || []).map((article: any) => {
+  const rawArticles = (articlesData || []).map((article: any) => {
     const articleTimestamp = article.published_at || article.created_at || timestamp
     const source = article.source || 'VesselSurge source layer'
     const summary = article.summary || article.description || article.snippet || ''
@@ -479,16 +479,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
         region: article.region || 'global',
       }),
     }
-  })))
-
-  const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
-    const region = article.region || 'global'
-    if (!acc[region]) acc[region] = { reports: 0, sources: new Set(), latestSource: null }
-    acc[region].reports += 1
-    if (article.source) acc[region].sources.add(article.source)
-    if (!acc[region].latestSource && article.source) acc[region].latestSource = article.source
-    return acc
-  }, {})
+  })
 
   const signals = (signalsData || []).map((signal: any) => ({
     signalKey: signal.signal_key,
@@ -502,6 +493,46 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     confidence: signal.confidence,
     observedAt: signal.observed_at,
   }))
+  const signalBackedArticles = signals
+    .filter((signal) => signal.signalType === 'news_corroboration' && signal.region && signal.title)
+    .map((signal) => {
+      const articleTimestamp = signal.observedAt || timestamp
+      const source = signal.source || 'VesselSurge source signal'
+      const summary = signal.summary || ''
+
+      return {
+        id: `signal-${signal.signalKey}`,
+        title: signal.title,
+        summary,
+        source,
+        sourceUrl: signal.sourceUrl || '',
+        category: 'source_signal',
+        region: signal.region || 'global',
+        timestamp: articleTimestamp,
+        isBreaking: false,
+        sourceQualityLabel: maritimeSourceQualityLabel(source),
+        sourceQualityScore: maritimeSourceQualityScore(source),
+        sourceQualityTier: maritimeSourceQualityTier(source),
+        freshnessScore: maritimeFreshnessScore(articleTimestamp),
+        intelligenceScore: maritimeArticleIntelligenceScore({
+          source,
+          timestamp: articleTimestamp,
+          title: signal.title,
+          summary,
+          region: signal.region || 'global',
+        }),
+      }
+    })
+  const articles = balanceDashboardArticles(dedupeArticles([...rawArticles, ...signalBackedArticles]))
+
+  const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
+    const region = article.region || 'global'
+    if (!acc[region]) acc[region] = { reports: 0, sources: new Set(), latestSource: null }
+    acc[region].reports += 1
+    if (article.source) acc[region].sources.add(article.source)
+    if (!acc[region].latestSource && article.source) acc[region].latestSource = article.source
+    return acc
+  }, {})
 
   const signalStats = (signalsData || []).reduce((acc: Record<string, { signals: any[] }>, signal: any) => {
     const region = signal.region || 'global'
