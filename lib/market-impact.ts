@@ -450,7 +450,7 @@ function investmentViewForQuote(quote: MarketQuote, category: InvestmentCategory
 }
 
 function factsFromStories(stories: RankedMarketStory[]): FactEvidence[] {
-  return stories
+  return uniqueRankedMarketStories(stories)
     .filter((story) => story.source && story.title && story.timestamp)
     .slice(0, 3)
     .map((story) => ({
@@ -460,6 +460,32 @@ function factsFromStories(stories: RankedMarketStory[]): FactEvidence[] {
       publishedAt: story.timestamp,
       region: story.region,
     }))
+}
+
+function normalizedMarketStoryTitle(story: RankedMarketStory) {
+  return story.title
+    .toLowerCase()
+    .replace(/\s+-\s+[^-]+$/g, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+}
+
+function marketStoryDedupeKey(story: RankedMarketStory) {
+  const sourceUrl = story.sourceUrl
+    ? story.sourceUrl.split('?')[0].replace(/\/$/, '').toLowerCase()
+    : ''
+  if (sourceUrl) return `${story.region}:${sourceUrl}`
+  return `${story.region}:${story.source.toLowerCase()}:${normalizedMarketStoryTitle(story)}`
+}
+
+function uniqueRankedMarketStories(stories: RankedMarketStory[]) {
+  const seen = new Set<string>()
+  return stories.filter((story) => {
+    const key = marketStoryDedupeKey(story)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 function factGateForStories(stories: RankedMarketStory[], marketSnapshot: MarketSnapshot | null): InvestmentTip['factGate'] {
@@ -740,7 +766,7 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     .filter((item) => item.score >= 18)
     .sort((a, b) => b.score - a.score)
 
-  const topStories = scored.slice(0, 12)
+  const topStories = uniqueRankedMarketStories(scored).slice(0, 12)
   const averageScore = topStories.length
     ? Math.round(topStories.reduce((sum, item) => sum + item.score, 0) / topStories.length)
     : 0
