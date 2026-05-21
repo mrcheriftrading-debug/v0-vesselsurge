@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import {
   AlertTriangle,
   ArrowRight,
+  Activity,
   CheckCircle2,
   Gauge,
   LockKeyhole,
@@ -18,6 +19,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFallbackUser } from '@/lib/fallback-auth'
 import { buildMarketImpactReport } from '@/lib/market-impact'
+import { getMarketSnapshot } from '@/lib/market-snapshot'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subscription'
 
@@ -47,6 +49,8 @@ export const metadata: Metadata = {
 }
 
 type Report = ReturnType<typeof buildMarketImpactReport>
+type MarketSnapshotReport = NonNullable<Report['marketSnapshot']>
+type MarketQuoteReport = MarketSnapshotReport['quotes'][number]
 
 const customerProfiles = [
   {
@@ -64,6 +68,7 @@ const customerProfiles = [
 ]
 
 const reportIncludes = [
+  'Live market tape',
   'Market pressure score',
   'Lead asset channel',
   'Ranked source events',
@@ -416,6 +421,10 @@ function LockedReportPreview({ isLoggedIn }: { isLoggedIn: boolean }) {
 function UnlockedReport({ report }: { report: Report }) {
   return (
     <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+      <Panel title="Live market tape" subtitle="Real index, oil, rates, dollar, gold and transport moves used by the analyst model." icon={Activity} wide>
+        <MarketSnapshotPanel report={report} />
+      </Panel>
+
       <Panel title="Asset impact table" subtitle="Start here to see which part of the market the maritime signal could touch first." icon={TrendingUp}>
         <AssetTable report={report} />
       </Panel>
@@ -493,7 +502,7 @@ function UnlockedReport({ report }: { report: Report }) {
 }
 
 function LockedAnalysisSection({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const lockedItems = ['Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
+  const lockedItems = ['Live market tape', 'Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
 
   return (
     <div className="mx-auto max-w-7xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -527,6 +536,78 @@ function LockedAnalysisSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           <div key={item} className="flex min-h-24 flex-col justify-between rounded-md border border-slate-200 bg-slate-50 p-4">
             <LockKeyhole className="h-5 w-5 text-slate-500" />
             <p className="text-sm font-black text-slate-950">{item}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MarketSnapshotPanel({ report }: { report: Report }) {
+  const snapshot = report.marketSnapshot
+
+  if (!snapshot) {
+    return (
+      <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-medium leading-6 text-amber-950">
+        Live market quotes are temporarily unavailable. Maritime source analysis is still active, and the model will reconnect to the market tape on the next refresh.
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-5">
+      <div className="grid gap-4 lg:grid-cols-[1fr_0.72fr]">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Analyst read</p>
+          <h3 className="mt-2 text-xl font-black text-slate-950">{snapshot.regime}</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{snapshot.summary}</p>
+          <p className="mt-3 text-xs font-semibold text-slate-500">
+            Source: {snapshot.source}. Updated {formatDateTime(snapshot.generatedAt)}.
+          </p>
+        </div>
+
+        <div className="rounded-md border border-slate-200 bg-slate-950 p-4 text-white">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Market tape score</p>
+          <div className="mt-3 flex items-end gap-3">
+            <p className="text-5xl font-black">{report.marketTapeScore}</p>
+            <p className="pb-2 text-xs font-bold uppercase text-slate-300">{snapshot.riskTone}</p>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-300">
+            This score uses live moves in equities, crude oil, rates and the dollar before blending with maritime source risk.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {report.marketDrivers.map((driver) => (
+          <div key={driver.label} className="rounded-md border border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-black text-slate-950">{driver.label}</p>
+              <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${driverToneClass(driver.tone)}`}>{driver.tone}</span>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{driver.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-hidden rounded-md border border-slate-200">
+        <div className="grid grid-cols-[1fr_0.75fr_0.65fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 md:grid-cols-[1.1fr_0.8fr_0.7fr_0.7fr]">
+          <span>Instrument</span>
+          <span>Group</span>
+          <span className="text-right">Price</span>
+          <span className="hidden text-right md:block">Move</span>
+        </div>
+        {snapshot.quotes.map((quote) => (
+          <div key={quote.symbol} className="grid grid-cols-[1fr_0.75fr_0.65fr] border-t border-slate-200 px-4 py-3 text-sm md:grid-cols-[1.1fr_0.8fr_0.7fr_0.7fr]">
+            <div>
+              <p className="font-black text-slate-950">{quote.label}</p>
+              <p className="text-xs font-semibold text-slate-500">{quote.symbol}</p>
+            </div>
+            <p className="self-center text-slate-600">{quote.group}</p>
+            <p className="self-center text-right font-black text-slate-950">{formatMarketPrice(quote)}</p>
+            <p className={`hidden self-center text-right font-black md:block ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+              {formatMarketMove(quote)}
+            </p>
           </div>
         ))}
       </div>
@@ -630,6 +711,42 @@ function AssetTable({ report }: { report: Report }) {
   )
 }
 
+function formatNumber(value: number, digits = 2) {
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: digits,
+    minimumFractionDigits: digits,
+  }).format(value)
+}
+
+function formatMarketPrice(quote: MarketQuoteReport) {
+  if (quote.valueType === 'yield') return `${formatNumber(quote.price, 2)}%`
+  return `${formatNumber(quote.price, quote.price >= 1000 ? 1 : 2)} ${quote.currency}`.trim()
+}
+
+function formatMarketMove(quote: MarketQuoteReport) {
+  if (quote.valueType === 'yield') {
+    const move = quote.change * 100
+    return `${move >= 0 ? '+' : ''}${formatNumber(move, 1)} bps`
+  }
+
+  return `${quote.changePercent >= 0 ? '+' : ''}${formatNumber(quote.changePercent, 2)}%`
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Europe/Stockholm',
+  }).format(new Date(value))
+}
+
+function driverToneClass(tone: string) {
+  if (tone === 'risk-on') return 'bg-emerald-50 text-emerald-800'
+  if (tone === 'risk-off') return 'bg-red-50 text-red-800'
+  if (tone === 'watch') return 'bg-amber-50 text-amber-800'
+  return 'bg-slate-100 text-slate-600'
+}
+
 async function loadAuthState() {
   const supabase = await createClient()
   const { data: { user: supabaseUser } } = await withTimeout(
@@ -674,19 +791,26 @@ function CheckoutStatus({ status }: { status?: string }) {
 
 async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabaseFallback: boolean }): Promise<Report> {
   const admin = createAdminClient()
-  const cached = await withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache')
-    .catch(() => withTimeout(getLastMaritimeDashboardCache(admin, 'fresh market cache unavailable; serving last known source-backed market context'), 1500, 'stale market cache').catch(() => null))
+  const [marketSnapshot, cached] = await Promise.all([
+    withTimeout(getMarketSnapshot(), 4200, 'live market quotes').catch((error) => {
+      console.error('[pro-market] live market quotes unavailable:', error)
+      return null
+    }),
+    withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache')
+      .catch(() => withTimeout(getLastMaritimeDashboardCache(admin, 'fresh market cache unavailable; serving last known source-backed market context'), 1500, 'stale market cache').catch(() => null)),
+  ])
+
   if (cached?.data) {
-    return buildReportFromDashboardData(cached.data)
+    return buildReportFromDashboardData(cached.data, marketSnapshot)
   }
 
-  const publicLiveReport = await loadPublicLiveMarketReport()
+  const publicLiveReport = await loadPublicLiveMarketReport(marketSnapshot)
   if (!isEmptyReport(publicLiveReport)) {
     return publicLiveReport
   }
 
   if (!allowDirectDatabaseFallback) {
-    return buildMarketImpactReport([], [])
+    return buildMarketImpactReport([], [], marketSnapshot)
   }
 
   let news = null
@@ -725,10 +849,10 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
     console.error('[pro-market] failed to load live report data:', newsError || signalsError)
   }
 
-  return buildMarketImpactReport(news || [], signals || [])
+  return buildMarketImpactReport(news || [], signals || [], marketSnapshot)
 }
 
-async function loadPublicLiveMarketReport() {
+async function loadPublicLiveMarketReport(marketSnapshot: Report['marketSnapshot']) {
   try {
     const response = await fetch(`${BASE_URL}/api/maritime-data`, {
       headers: { accept: 'application/json' },
@@ -736,17 +860,17 @@ async function loadPublicLiveMarketReport() {
       signal: AbortSignal.timeout(6500),
     })
 
-    if (!response.ok) return buildMarketImpactReport([], [])
+    if (!response.ok) return buildMarketImpactReport([], [], marketSnapshot)
     const dashboard = (await response.json()) as MaritimeDashboardResponse
-    if (!dashboard?.data) return buildMarketImpactReport([], [])
-    return buildReportFromDashboardData(dashboard.data)
+    if (!dashboard?.data) return buildMarketImpactReport([], [], marketSnapshot)
+    return buildReportFromDashboardData(dashboard.data, marketSnapshot)
   } catch (error) {
     console.error('[pro-market] public live report fallback failed:', error)
-    return buildMarketImpactReport([], [])
+    return buildMarketImpactReport([], [], marketSnapshot)
   }
 }
 
-function buildReportFromDashboardData(data: MaritimeDashboardResponse['data']) {
+function buildReportFromDashboardData(data: MaritimeDashboardResponse['data'], marketSnapshot: Report['marketSnapshot']) {
   return buildMarketImpactReport(
     data.articles.map((article) => ({
       id: article.id,
@@ -769,11 +893,12 @@ function buildReportFromDashboardData(data: MaritimeDashboardResponse['data']) {
       observed_at: signal.observedAt,
       confidence: signal.confidence,
     })),
+    marketSnapshot,
   )
 }
 
 function isEmptyReport(report: Report) {
-  return report.topStories.length === 0 && report.assetImpacts.every((asset) => asset.score === 0)
+  return report.topStories.length === 0
 }
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
