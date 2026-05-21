@@ -71,6 +71,41 @@ export const publicFeaturePages = [
       "Malacca and Singapore Strait vessel density, congestion and piracy alert context.",
     keywords: ["Strait of Malacca vessel traffic", "Singapore Strait risk", "Malacca piracy alerts"],
   },
+  {
+    name: "Panama Canal Intelligence",
+    url: `${BASE_URL}/regions/panama`,
+    description:
+      "Panama Canal transit risk, queue pressure, water constraints and Atlantic-Pacific route intelligence.",
+    keywords: ["Panama Canal shipping risk", "Panama Canal queue tracker", "canal transit risk"],
+  },
+  {
+    name: "Taiwan Strait Intelligence",
+    url: `${BASE_URL}/regions/taiwan`,
+    description:
+      "Taiwan Strait shipping risk, Asia trade lane exposure, port continuity and maritime alert context.",
+    keywords: ["Taiwan Strait shipping risk", "Asia trade lane risk", "Taiwan maritime alerts"],
+  },
+  {
+    name: "Turkish Straits Intelligence",
+    url: `${BASE_URL}/regions/turkish`,
+    description:
+      "Turkish Straits, Bosporus and Dardanelles shipping risk, tanker transit and Black Sea route context.",
+    keywords: ["Turkish Straits shipping risk", "Bosporus vessel traffic", "Black Sea tanker route"],
+  },
+  {
+    name: "Strait of Gibraltar Intelligence",
+    url: `${BASE_URL}/regions/gibraltar`,
+    description:
+      "Strait of Gibraltar vessel traffic, Atlantic-Mediterranean route flow, port context and congestion signals.",
+    keywords: ["Strait of Gibraltar vessel traffic", "Gibraltar shipping risk", "Atlantic Mediterranean vessel flow"],
+  },
+  {
+    name: "Cape of Good Hope Intelligence",
+    url: `${BASE_URL}/regions/cape`,
+    description:
+      "Cape of Good Hope rerouting pressure, Red Sea bypass decisions, voyage time impact and maritime risk context.",
+    keywords: ["Cape of Good Hope rerouting", "Red Sea rerouting", "Cape route shipping"],
+  },
 ] as const
 
 export const trafficTopicPages = [
@@ -143,15 +178,15 @@ export const trafficTopicPages = [
     name: "Maritime Risk Intelligence",
     title: "Maritime Risk Intelligence for Chokepoints, Vessel Tracking and Shipping Disruption",
     description:
-      "Use VesselSurge for maritime risk intelligence across Hormuz, Bab el-Mandeb, Suez and Malacca with live map context and source-reviewed reports.",
+      "Use VesselSurge for maritime risk intelligence across Hormuz, Bab el-Mandeb, Suez, Malacca, Panama, Taiwan Strait, Turkish Straits, Gibraltar and Cape routes with live map context and source-reviewed reports.",
     keywords: ["maritime risk intelligence", "shipping disruption tracker", "chokepoint monitoring"],
     regionHref: "/latest",
-    primaryHref: "/latest",
+    primaryHref: "/map-dashboard",
     intent: "researchers and operators comparing shipping risk across chokepoints",
     questions: [
       "What is maritime risk intelligence?",
       "How can I monitor multiple shipping chokepoints?",
-      "Where can I compare Hormuz, Red Sea, Suez and Malacca risk?",
+      "Where can I compare Hormuz, Red Sea, Suez, Malacca, Panama, Taiwan, Turkish Straits, Gibraltar and Cape risk?",
     ],
   },
   {
@@ -193,8 +228,8 @@ export const trafficTopicPages = [
     description:
       "Monitor port congestion context, vessel queue signals, canal flow pressure, route delays and maritime disruption indicators connected to VesselSurge live map intelligence.",
     keywords: ["port congestion tracker", "vessel queue tracker", "shipping delay intelligence"],
-    regionHref: "/latest",
-    primaryHref: "/latest",
+    regionHref: "/regions/cape",
+    primaryHref: "/map-dashboard?hotspot=cape",
     intent: "logistics teams monitoring port congestion, vessel queues and shipping delay signals",
     questions: [
       "Where can I monitor port congestion signals?",
@@ -401,8 +436,8 @@ export const trafficTopicPages = [
     description:
       "Monitor Panama Canal shipping risk context, queue pressure, water constraint reports, route delays, container flow exposure and global maritime disruption signals.",
     keywords: ["Panama Canal shipping risk", "Panama Canal queue tracker", "Atlantic Pacific shipping route"],
-    regionHref: "/latest",
-    primaryHref: "/topics/global-shipping-route-risk",
+    regionHref: "/regions/panama",
+    primaryHref: "/map-dashboard?hotspot=panama",
     intent: "cargo teams and analysts tracking Atlantic-Pacific canal capacity, queue pressure and route alternatives",
     questions: [
       "How can I monitor Panama Canal shipping risk?",
@@ -417,8 +452,8 @@ export const trafficTopicPages = [
     description:
       "Track Taiwan Strait shipping risk context, Asia trade lane exposure, maritime alert signals, rerouting pressure and source-reviewed route intelligence.",
     keywords: ["Taiwan Strait shipping risk", "Asia trade lane risk", "Taiwan Strait maritime alerts"],
-    regionHref: "/latest",
-    primaryHref: "/topics/global-shipping-route-risk",
+    regionHref: "/regions/taiwan",
+    primaryHref: "/map-dashboard?hotspot=taiwan",
     intent: "operators, market watchers and logistics teams monitoring Asia trade lane exposure",
     questions: [
       "How can I monitor Taiwan Strait shipping risk?",
@@ -433,8 +468,8 @@ export const trafficTopicPages = [
     description:
       "Monitor Turkish Straits shipping risk context, Bosporus transit flow, Black Sea route exposure, tanker constraints and source-reviewed maritime signals.",
     keywords: ["Turkish Straits shipping risk", "Bosporus vessel traffic", "Black Sea tanker route"],
-    regionHref: "/latest",
-    primaryHref: "/topics/global-shipping-route-risk",
+    regionHref: "/regions/turkish",
+    primaryHref: "/map-dashboard?hotspot=turkish",
     intent: "energy, tanker and logistics teams watching Bosporus and Black Sea route exposure",
     questions: [
       "Where can I monitor Turkish Straits shipping risk?",
@@ -449,8 +484,8 @@ export const trafficTopicPages = [
     description:
       "Track Strait of Gibraltar vessel traffic context, Atlantic-Mediterranean route flow, congestion signals, security exposure and maritime intelligence updates.",
     keywords: ["Strait of Gibraltar vessel traffic", "Gibraltar shipping risk", "Atlantic Mediterranean vessel flow"],
-    regionHref: "/latest",
-    primaryHref: "/topics/global-shipping-route-risk",
+    regionHref: "/regions/gibraltar",
+    primaryHref: "/map-dashboard?hotspot=gibraltar",
     intent: "operators comparing Atlantic-Mediterranean vessel flow, congestion and route risk",
     questions: [
       "Where can I track Strait of Gibraltar vessel traffic?",

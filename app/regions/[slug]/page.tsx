@@ -96,6 +96,116 @@ const regions = {
     mapHref: "/map-dashboard?hotspot=malacca",
     priorityKeyword: "Strait of Malacca vessel traffic tracker",
   },
+  panama: {
+    name: "Panama Canal",
+    title: "Panama Canal Shipping Risk, Queue Pressure and Transit Intelligence",
+    description:
+      "Monitor Panama Canal transit risk, queue pressure, water constraint reports, draft limits, container flow exposure and live maritime route intelligence with VesselSurge.",
+    eyebrow: "Atlantic-Pacific canal route",
+    statusFocus: "canal transits, water constraints, reservation slots, vessel queues and container route exposure",
+    riskDrivers: ["water level and draft constraints", "reservation slot and transit queue pressure", "container and LNG route exposure", "Atlantic-Pacific route alternatives"],
+    searchQuestions: [
+      "How can I monitor Panama Canal shipping risk today?",
+      "Are Panama Canal queues or draft limits affecting vessels?",
+      "What signals matter for Panama Canal transit pressure?",
+      "Where can I compare Panama Canal risk with other chokepoints?",
+    ],
+    summary:
+      "The Panama Canal is a key Atlantic-Pacific shortcut. VesselSurge tracks source-reviewed transit context, queue pressure and water-constraint signals so operators can understand route risk without relying on scattered headlines.",
+    coordinates: "9.0800 N, 79.6800 W",
+    latitude: 9.08,
+    longitude: -79.68,
+    mapHref: "/map-dashboard?hotspot=panama",
+    priorityKeyword: "Panama Canal shipping risk tracker",
+  },
+  taiwan: {
+    name: "Taiwan Strait",
+    title: "Taiwan Strait Shipping Risk, Asia Trade Lane Exposure and Maritime Alerts",
+    description:
+      "Track Taiwan Strait shipping risk, Asia trade lane exposure, port continuity, naval alert context and live maritime intelligence with VesselSurge.",
+    eyebrow: "Asia trade lane exposure",
+    statusFocus: "Asia cargo continuity, maritime alerts, port exposure, naval activity and rerouting context",
+    riskDrivers: ["Asia trade lane continuity", "naval exercise and maritime alert language", "Taiwan port exposure", "container and electronics supply-chain sensitivity"],
+    searchQuestions: [
+      "How can I monitor Taiwan Strait shipping risk?",
+      "What maritime signals matter around Taiwan trade lanes?",
+      "Are Asia cargo routes exposed to Taiwan Strait disruption?",
+      "Where can I compare Taiwan Strait risk with other routes?",
+    ],
+    summary:
+      "The Taiwan Strait matters for Asia cargo continuity and market-sensitive supply chains. VesselSurge keeps source-reviewed maritime signals separate from broad political noise and shows when no fresh source-backed disruption is found.",
+    coordinates: "24.4000 N, 120.8000 E",
+    latitude: 24.4,
+    longitude: 120.8,
+    mapHref: "/map-dashboard?hotspot=taiwan",
+    priorityKeyword: "Taiwan Strait shipping risk tracker",
+  },
+  turkish: {
+    name: "Turkish Straits",
+    title: "Turkish Straits Shipping Risk, Bosporus Transit and Black Sea Route Context",
+    description:
+      "Monitor Turkish Straits, Bosporus and Dardanelles shipping risk, tanker transit constraints, Black Sea route exposure and live maritime intelligence.",
+    eyebrow: "Black Sea transit gateway",
+    statusFocus: "Bosporus transit flow, Dardanelles traffic, tanker constraints, weather delays and Black Sea route exposure",
+    riskDrivers: ["Bosporus and Dardanelles transit constraints", "Black Sea tanker route exposure", "weather-related closures or delays", "grain, oil and cargo flow sensitivity"],
+    searchQuestions: [
+      "Where can I monitor Turkish Straits shipping risk?",
+      "Are Bosporus or Dardanelles transits delayed today?",
+      "How do Turkish Straits constraints affect tanker routes?",
+      "What signals matter for Black Sea shipping exposure?",
+    ],
+    summary:
+      "The Turkish Straits connect the Black Sea with global maritime markets. VesselSurge tracks transit, traffic and source-reviewed route context for teams watching tanker, grain and cargo exposure.",
+    coordinates: "41.0800 N, 29.0500 E",
+    latitude: 41.08,
+    longitude: 29.05,
+    mapHref: "/map-dashboard?hotspot=turkish",
+    priorityKeyword: "Turkish Straits shipping risk tracker",
+  },
+  gibraltar: {
+    name: "Strait of Gibraltar",
+    title: "Strait of Gibraltar Vessel Traffic, Port Flow and Shipping Risk Intelligence",
+    description:
+      "Track Strait of Gibraltar vessel traffic, Atlantic-Mediterranean flow, port context, congestion signals, security exposure and live maritime intelligence.",
+    eyebrow: "Atlantic-Mediterranean gateway",
+    statusFocus: "vessel density, Atlantic-Mediterranean flow, Gibraltar and Algeciras port context, congestion and security signals",
+    riskDrivers: ["Atlantic-Mediterranean vessel flow", "Gibraltar and Algeciras port exposure", "bunker and port congestion context", "security or traffic incident signals"],
+    searchQuestions: [
+      "Where can I track Strait of Gibraltar vessel traffic?",
+      "What signals matter for Atlantic-Mediterranean shipping flow?",
+      "Is Gibraltar vessel flow congested today?",
+      "How can I compare Gibraltar with other maritime chokepoints?",
+    ],
+    summary:
+      "The Strait of Gibraltar is a dense gateway between the Atlantic and Mediterranean. VesselSurge organizes vessel-flow context, port exposure and source-reviewed maritime risk for fast operational scanning.",
+    coordinates: "35.9600 N, 5.6000 W",
+    latitude: 35.96,
+    longitude: -5.6,
+    mapHref: "/map-dashboard?hotspot=gibraltar",
+    priorityKeyword: "Strait of Gibraltar vessel traffic tracker",
+  },
+  cape: {
+    name: "Cape of Good Hope",
+    title: "Cape of Good Hope Rerouting, Red Sea Bypass Pressure and Maritime Intelligence",
+    description:
+      "Monitor Cape of Good Hope rerouting pressure, Red Sea bypass decisions, voyage time impact, fuel cost exposure and live maritime risk intelligence.",
+    eyebrow: "Red Sea bypass route",
+    statusFocus: "rerouting pressure, longer voyage times, fuel exposure, container and tanker route alternatives",
+    riskDrivers: ["Red Sea bypass and rerouting pressure", "longer voyage time and bunker cost exposure", "container and tanker route alternatives", "Cape weather and sailing context"],
+    searchQuestions: [
+      "When do ships reroute around the Cape of Good Hope?",
+      "How does Red Sea risk affect voyage time and fuel costs?",
+      "Where can I monitor Cape of Good Hope rerouting pressure?",
+      "How can I compare Cape rerouting with Suez and Bab el-Mandeb risk?",
+    ],
+    summary:
+      "The Cape of Good Hope becomes more important when Red Sea or Suez risk pushes vessels onto longer routes. VesselSurge tracks rerouting pressure, source-reviewed news and live map context for the bypass lane.",
+    coordinates: "34.3600 S, 18.4700 E",
+    latitude: -34.36,
+    longitude: 18.47,
+    mapHref: "/map-dashboard?hotspot=cape",
+    priorityKeyword: "Cape of Good Hope rerouting tracker",
+  },
 } as const
 
 type RegionSlug = keyof typeof regions

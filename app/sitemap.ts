@@ -83,6 +83,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       priority: 0.8,
     },
+    {
+      url: `${BASE_URL}/regions/panama`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.78,
+    },
+    {
+      url: `${BASE_URL}/regions/taiwan`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.78,
+    },
+    {
+      url: `${BASE_URL}/regions/turkish`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.76,
+    },
+    {
+      url: `${BASE_URL}/regions/gibraltar`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.76,
+    },
+    {
+      url: `${BASE_URL}/regions/cape`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.76,
+    },
     ...trafficTopicPages.map((topic) => ({
       url: `${BASE_URL}/topics/${topic.slug}`,
       lastModified: now,
