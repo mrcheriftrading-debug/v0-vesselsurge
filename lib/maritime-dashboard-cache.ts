@@ -333,8 +333,12 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   const intelligenceScore = article.intelligenceScore ?? 0
   const ageHours = hoursOld(article.timestamp)
   const text = `${article.title || ''} ${article.summary || ''} ${article.region || ''}`
+  const region = article.region || ''
+  const expansionRouteNeedsOperationalContext = ['panama', 'taiwan', 'turkish', 'gibraltar', 'cape'].includes(region)
+  const expansionOperationalContext = !expansionRouteNeedsOperationalContext ||
+    /\b(ship|shipping|vessel|tanker|cargo|container|maritime|port|transit|queue|draft|water|drought|delay|congestion|closure|traffic|rerout|re-rout|divert|freight|bunker|voyage|security|incident|naval|exercise|warning|alert)\b/i.test(text)
   const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
-    .test(text)
+    .test(text) && expansionOperationalContext
   const reviewScore = Math.round((intelligenceScore * 0.46) + (sourceScore * 0.28) + (freshnessScore * 0.18) + (routeEvidence ? 8 : 0))
   const sourceLabel = maritimeSourceQualityLabel(article.source)
 
@@ -652,14 +656,15 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     }
     const activeVessels = vesselCounts ? (vesselCounts[hotspot.hotspot] || 0) : (hotspot.active_vessels || 0)
     const regionSignals = signalStats[hotspot.hotspot]?.signals || []
+    const actionableSignals = regionSignals.filter((signal) => signal.signal_type !== 'source_sweep')
     const officialSignalCount = regionSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
     const aisSignalCount = regionSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
     const reports = articleStats[hotspot.hotspot]?.reports || 0
     const sourceCount = articleStats[hotspot.hotspot]?.sources.size || 0
     const latestSource = articleStats[hotspot.hotspot]?.latestSource || null
-    const derivedRiskLevel = regionSignals.some((signal) => signal.severity === 'critical' || signal.severity === 'high')
+    const derivedRiskLevel = actionableSignals.some((signal) => signal.severity === 'critical' || signal.severity === 'high')
       ? 'high'
-      : reports > 0 || regionSignals.length > 0
+      : reports > 0 || actionableSignals.length > 0
         ? 'medium'
         : hotspot.risk_level
     const confidenceScore = confidenceForHotspot({

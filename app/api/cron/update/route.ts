@@ -461,6 +461,10 @@ function hasRouteSpilloverSignal(article: TrustedArticle) {
 }
 
 function hasRegionOrRouteSignal(article: TrustedArticle) {
+  if (['panama', 'taiwan', 'turkish', 'gibraltar', 'cape'].includes(article.region)) {
+    return hasRouteSpilloverSignal(article)
+  }
+
   return hasDirectRegionSignal(article) || hasRouteSpilloverSignal(article)
 }
 
