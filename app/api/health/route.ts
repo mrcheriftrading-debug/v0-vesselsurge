@@ -208,6 +208,7 @@ export async function GET(request: Request) {
     const watchAge = ageMs(watchLatestAt)
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
+      const visibleArticles = newsRows.filter((row) => row.region === hotspot)
       const latestNews = newsRows.find((row) => row.region === hotspot)
       const latestSignal = signalRows.find((row) => row.region === hotspot)
       const hasRecentNews = ageMs(latestNews?.timestamp) < 7 * 24 * 60 * 60 * 1000
@@ -217,6 +218,7 @@ export async function GET(request: Request) {
         hotspot,
         riskLevel: stats?.riskLevel || 'unknown',
         statsUpdatedAt: stats?.updatedAt || null,
+        visibleArticleCount: visibleArticles.length,
         latestNewsAt: latestNews?.timestamp || null,
         latestSignalAt: latestSignal?.observedAt || null,
         latestSignalType: latestSignal?.signalType || null,
@@ -226,7 +228,7 @@ export async function GET(request: Request) {
       }
     })
 
-    const coverageStatus: Status = hotspotSummary.every((row) => row.hasRecentCoverage) ? 'ok' : 'degraded'
+    const coverageStatus: Status = hotspotSummary.every((row) => row.hasRecentCoverage && row.visibleArticleCount > 0) ? 'ok' : 'degraded'
     const componentStatuses = {
       database: 'ok' as Status,
       cache: statusFromAge(cacheAge, CACHE_DEGRADED_MS, CACHE_UNHEALTHY_MS),
