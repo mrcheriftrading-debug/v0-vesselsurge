@@ -36,7 +36,7 @@ type MaritimeSignal = {
   title: string
   summary: string
   region: string
-  signal_type: 'official_alert' | 'navigation_warning' | 'ais_anomaly' | 'weather_constraint' | 'news_corroboration'
+  signal_type: 'official_alert' | 'navigation_warning' | 'ais_anomaly' | 'weather_constraint' | 'news_corroboration' | 'source_sweep'
   severity: RiskLevel
   confidence: number
   observed_at: string
@@ -82,6 +82,19 @@ const TRUSTED_PAGES = [
 ]
 
 const FAST_NEWS_SEARCH_PREFIXES = ['Google News Search:', 'Bing News Search:']
+const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
+
+const ROUTE_LABELS: Record<string, { name: string; url: string }> = {
+  hormuz: { name: 'Strait of Hormuz', url: 'https://www.vesselsurge.com/topics/strait-of-hormuz-oil-risk' },
+  bab: { name: 'Bab el-Mandeb', url: 'https://www.vesselsurge.com/topics/red-sea-shipping-risk' },
+  suez: { name: 'Suez Canal', url: 'https://www.vesselsurge.com/topics/suez-canal-traffic-delays' },
+  malacca: { name: 'Strait of Malacca', url: 'https://www.vesselsurge.com/topics/malacca-strait-vessel-traffic' },
+  panama: { name: 'Panama Canal', url: 'https://www.vesselsurge.com/topics/panama-canal-shipping-risk' },
+  taiwan: { name: 'Taiwan Strait', url: 'https://www.vesselsurge.com/topics/taiwan-strait-shipping-risk' },
+  turkish: { name: 'Turkish Straits', url: 'https://www.vesselsurge.com/topics/turkish-straits-shipping-risk' },
+  gibraltar: { name: 'Strait of Gibraltar', url: 'https://www.vesselsurge.com/topics/strait-of-gibraltar-vessel-traffic' },
+  cape: { name: 'Cape of Good Hope', url: 'https://www.vesselsurge.com/topics/cape-of-good-hope-rerouting' },
+}
 
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'oman', 'iran', 'uae'],
@@ -101,6 +114,11 @@ const REGION_KEYWORDS: Record<string, string[]> = {
     'armed robbery',
     'sea robbery',
   ],
+  panama: ['panama canal', 'panama canal authority', 'pancanal', 'atlantic-pacific', 'atlantic pacific', 'gatun lake', 'neopanamax', 'miraflores', 'cocoli'],
+  taiwan: ['taiwan strait', 'taiwan shipping', 'taiwan trade lane', 'taiwan port', 'kaohsiung', 'keelung', 'taiwan maritime'],
+  turkish: ['turkish straits', 'bosporus', 'bosphorus', 'dardanelles', 'black sea', 'istanbul strait', 'canakkale strait', 'turkiye straits'],
+  gibraltar: ['strait of gibraltar', 'gibraltar', 'algeciras', 'atlantic-mediterranean', 'atlantic mediterranean', 'mediterranean entry'],
+  cape: ['cape of good hope', 'cape route', 'red sea rerouting', 'cape town', 'south africa shipping', 'red sea bypass'],
 }
 
 const SEVERITY_KEYWORDS = {
@@ -315,6 +333,14 @@ function isRelevant(text: string) {
     'supply chain',
     'trade',
     'freight',
+    'panama canal',
+    'taiwan strait',
+    'turkish straits',
+    'bosporus',
+    'bosphorus',
+    'dardanelles',
+    'gibraltar',
+    'cape of good hope',
     'naval',
     'navy',
     'geopolitics',
@@ -331,11 +357,12 @@ function hasRegionEnergySignal(article: TrustedArticle) {
 
 function hasOperationalChokepointSignal(article: TrustedArticle) {
   const text = `${article.title} ${article.snippet}`.toLowerCase()
-  const hasVesselOrRoute = /\b(ship|shipping|vessel|tanker|maritime|ais|cargo|freight|transit|route|reroute|divert|port|canal|convoy|queue|delay|congestion|piracy|armed robbery)\b/i.test(text)
+  const hasVesselOrRoute = /\b(ship|shipping|vessel|tanker|maritime|ais|cargo|freight|transit|route|reroute|re-rout|divert|port|canal|convoy|queue|draft|water constraint|delay|congestion|piracy|armed robbery|voyage|fuel|bunker)\b/i.test(text)
   const hasSecurityIncident = /\b(attack|missile|strike|seized|hijack|warning|advisory|incident|threat|houthi|naval|navy|war risk|insurance)\b/i.test(text)
+  const hasNamedExpansionRoute = /\b(panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|strait of gibraltar|cape of good hope|red sea rerouting|cape route)\b/i.test(text)
   const hasEnergyRoute = article.region === 'hormuz' && hasRegionEnergySignal(article)
 
-  return hasEnergyRoute || hasVesselOrRoute || hasSecurityIncident
+  return hasEnergyRoute || hasVesselOrRoute || hasSecurityIncident || hasNamedExpansionRoute
 }
 
 function isNoisyGoogleNewsArticle(article: TrustedArticle) {
@@ -367,7 +394,7 @@ function isFinancialMarketNoise(article: TrustedArticle) {
   if (titleFinancialNoise) return true
 
   const financialNoise = /\b(carry trade|emerging carry|rand|real|equities|stocks|shares|dividend|earnings|bonds|treasury yields|forex|currency traders|market rebound|favorites)\b/i.test(text)
-  const titleHasOperationalSignal = /\b(ship|shipping|vessel|tanker|maritime|cargo|freight|transit|route|reroute|divert|port|canal|convoy|queue|delay|congestion|piracy|armed robbery|hormuz|suez|malacca|red sea|bab el)\b/i.test(title)
+  const titleHasOperationalSignal = /\b(ship|shipping|vessel|tanker|maritime|cargo|freight|transit|route|reroute|divert|port|canal|convoy|queue|delay|congestion|piracy|armed robbery|hormuz|suez|malacca|red sea|bab el|panama canal|taiwan strait|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope)\b/i.test(title)
   if (financialNoise && !titleHasOperationalSignal) return true
   return financialNoise && !hasOperationalChokepointSignal(article)
 }
@@ -377,7 +404,7 @@ function isGlobalSupplyChainNoise(article: TrustedArticle) {
   const broadIndustryStory = /\b(global supply|covid|pandemic|container manufacturer|container manufacturers|antitrust|price fixing|conspiracy|shipyard order|offshore wind|ctv)\b/i.test(text)
   if (!broadIndustryStory) return false
 
-  return !/\b(strait of malacca|malacca strait|singapore strait|port of singapore|suez canal|bab el-mandeb|red sea|strait of hormuz|gulf of aden|gulf of oman)\b/i.test(text)
+  return !/\b(strait of malacca|malacca strait|singapore strait|port of singapore|suez canal|bab el-mandeb|red sea|strait of hormuz|gulf of aden|gulf of oman|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|strait of gibraltar|cape of good hope)\b/i.test(text)
 }
 
 function hasDirectRegionSignal(article: TrustedArticle) {
@@ -403,6 +430,31 @@ function hasRouteSpilloverSignal(article: TrustedArticle) {
 
   if (article.region === 'malacca') {
     return hasReroutePressure && /\b(malacca|singapore strait|port of singapore|singapore port|singapore shipping|nicobar|land bridge|recaap|piracy)\b/i.test(text)
+  }
+
+  if (article.region === 'panama') {
+    return /\b(ship|shipping|vessel|tanker|cargo|container|transit|queue|draft|water|drought|delay|maintenance|reservation|slot|locks?)\b/i.test(text)
+      && /\b(panama canal|panama canal authority|pancanal|gatun lake|neopanamax|miraflores|cocoli)\b/i.test(text)
+  }
+
+  if (article.region === 'taiwan') {
+    return /\b(ship|shipping|vessel|cargo|container|maritime|port|naval|exercise|warning|alert|trade lane|route|disruption)\b/i.test(text)
+      && /\b(taiwan strait|taiwan shipping|taiwan trade lane|kaohsiung|keelung|taiwan maritime)\b/i.test(text)
+  }
+
+  if (article.region === 'turkish') {
+    return /\b(ship|shipping|vessel|tanker|transit|traffic|closure|delay|weather|black sea|grain|oil|cargo)\b/i.test(text)
+      && /\b(turkish straits|bosporus|bosphorus|dardanelles|istanbul strait|canakkale strait|black sea)\b/i.test(text)
+  }
+
+  if (article.region === 'gibraltar') {
+    return /\b(ship|shipping|vessel|tanker|cargo|traffic|port|bunker|congestion|incident|security|flow)\b/i.test(text)
+      && /\b(strait of gibraltar|gibraltar|algeciras|atlantic-mediterranean|atlantic mediterranean)\b/i.test(text)
+  }
+
+  if (article.region === 'cape') {
+    return /\b(ship|shipping|vessel|container|tanker|freight|rerout|re-rout|divert|delay|voyage|fuel|bunker|sailing|route)\b/i.test(text)
+      && /\b(cape of good hope|cape route|red sea rerouting|red sea bypass|south africa shipping)\b/i.test(text)
   }
 
   return false
@@ -488,7 +540,7 @@ function balanceByHotspot(articles: TrustedArticle[]) {
   const selected: TrustedArticle[] = []
   const selectedUrls = new Set<string>()
 
-  for (const hotspot of ['hormuz', 'bab', 'suez', 'malacca']) {
+  for (const hotspot of LIVE_REGIONS) {
     const hotspotArticles = articles
       .filter((article) => article.region === hotspot)
       .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
@@ -619,7 +671,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => isWithinLatestDays(article, now, 7))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
 
-  const fallback = ['hormuz', 'bab', 'suez', 'malacca'].flatMap((region) => {
+  const fallback = LIVE_REGIONS.flatMap((region) => {
     const currentCount = latest.filter((article) => article.region === region).length
     if (currentCount >= regionMinimum) return []
 
@@ -634,7 +686,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
 
 function buildStats(articles: TrustedArticle[]) {
   const now = new Date().toISOString()
-  return ['hormuz', 'bab', 'suez', 'malacca'].map((hotspot) => {
+  return LIVE_REGIONS.map((hotspot) => {
     const relevant = articles.filter((article) => article.region === hotspot)
     const riskCounts = relevant.reduce(
       (counts, article) => {
@@ -717,6 +769,30 @@ function buildArticleSignals(articles: TrustedArticle[]): MaritimeSignal[] {
       },
     }
   })
+}
+
+function buildSourceSweepSignals(articles: TrustedArticle[], observedAt: string): MaritimeSignal[] {
+  return LIVE_REGIONS
+    .filter((region) => !articles.some((article) => article.region === region))
+    .map((region) => {
+      const route = ROUTE_LABELS[region]
+      return {
+        signal_key: stableSignalKey(['source-sweep', region, observedAt.slice(0, 13)]),
+        source: 'VesselSurge Source Sweep',
+        source_url: route.url,
+        title: `${route.name}: no fresh source-backed disruption found`,
+        summary: `The latest VesselSurge sweep found no current source-backed disruption for ${route.name}. The route remains live and will update when trusted sources match.`,
+        region,
+        signal_type: 'source_sweep' as const,
+        severity: 'low' as const,
+        confidence: 68,
+        observed_at: observedAt,
+        metadata: {
+          derivedFrom: 'vesselsurge-source-sweep',
+          policy: 'No invented incidents: source sweep signals are used only when trusted current news is absent.',
+        },
+      }
+    })
 }
 
 function buildAisSignals(vessels: Awaited<ReturnType<typeof collectAisStreamVessels>>['vessels'], capturedAt: string): MaritimeSignal[] {
@@ -900,9 +976,9 @@ export async function GET(request: Request) {
     let fastWriteWarning: string | null = null
     if (articles.length > 0) {
       try {
-        const insertNews = await supabaseRequest('news_articles', {
+        const insertNews = await supabaseRequest('news_articles?on_conflict=url', {
           method: 'POST',
-          headers: { prefer: 'return=minimal' },
+          headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
           signal: AbortSignal.timeout(3500),
           body: JSON.stringify(articles),
         })
@@ -919,18 +995,19 @@ export async function GET(request: Request) {
     }
 
     const articleSignals = buildArticleSignals(articles)
+    const sourceSweepSignals = buildSourceSweepSignals(articles, timestamp)
     let signalsWritten = 0
 
-    if (articleSignals.length > 0) {
+    if (articleSignals.length > 0 || sourceSweepSignals.length > 0) {
       try {
         const upsertArticleSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
           method: 'POST',
           headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
           signal: AbortSignal.timeout(3500),
-          body: JSON.stringify(articleSignals.map((signal) => ({ ...signal, updated_at: timestamp }))),
+          body: JSON.stringify([...articleSignals, ...sourceSweepSignals].map((signal) => ({ ...signal, updated_at: timestamp }))),
         })
         if (upsertArticleSignals.ok) {
-          signalsWritten = articleSignals.length
+          signalsWritten = articleSignals.length + sourceSweepSignals.length
         } else {
           fastWriteWarning ||= `fast news signal upsert skipped: ${upsertArticleSignals.status}`
           console.warn('[trusted-update] fast news signal upsert skipped:', upsertArticleSignals.status, await upsertArticleSignals.text())
@@ -948,7 +1025,7 @@ export async function GET(request: Request) {
       source: 'openclaw-trusted-web',
       articles_fetched: articles.length,
       articles_inserted: articlesInserted,
-      signals_found: articleSignals.length,
+      signals_found: articleSignals.length + sourceSweepSignals.length,
       signals_written: signalsWritten,
       verified: articles.length,
       dashboard_cache_updated: false,
@@ -1009,6 +1086,7 @@ export async function GET(request: Request) {
     const marineConditionsPromise = fetchAllMarineConditions()
     const [ais, marineConditions] = await Promise.all([aisPromise, marineConditionsPromise])
     const articleSignals = buildArticleSignals(articles)
+    const sourceSweepSignals = buildSourceSweepSignals(articles, timestamp)
     const aisSignals = buildAisSignals(ais.vessels, timestamp)
     const marineSignals = marineConditions.map((condition) => ({
       signal_key: stableSignalKey(['marine-conditions', condition.hotspot, condition.observedAt.slice(0, 13)]),
@@ -1031,7 +1109,7 @@ export async function GET(request: Request) {
         note: 'Modeled marine context only. Not a navigation warning.',
       },
     }))
-    const signals = [...articleSignals, ...aisSignals, ...marineSignals]
+    const signals = [...articleSignals, ...sourceSweepSignals, ...aisSignals, ...marineSignals]
     const stats = buildStatsFromSignals(articles, signals)
 
     stage = 'deleting old maritime signals'
@@ -1051,7 +1129,7 @@ export async function GET(request: Request) {
 
     stage = 'refreshing transient maritime signals'
     try {
-      const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,ais_anomaly,weather_constraint)', {
+      const deleteTransientSignals = await supabaseRequest('maritime_signals?signal_type=in.(news_corroboration,source_sweep,ais_anomaly,weather_constraint)', {
         method: 'DELETE',
         signal: AbortSignal.timeout(2500),
       })

@@ -1,10 +1,11 @@
 import { MARITIME_SEARCH_FEEDS } from './maritime-search-feeds'
+import type { MaritimeSearchRegion } from './maritime-search-feeds'
 
 export type MaritimeWatchSource = {
   source: string
   url: string
   kind: 'rss' | 'html'
-  regionHint?: 'hormuz' | 'bab' | 'suez' | 'malacca'
+  regionHint?: MaritimeSearchRegion
 }
 
 export const MARITIME_WATCH_SOURCES: MaritimeWatchSource[] = [

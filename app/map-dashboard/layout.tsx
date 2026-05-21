@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import { BASE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Live Maritime Map — Real-Time Vessel Tracking at Strait of Hormuz, Red Sea & Suez',
+  title: 'Live Maritime Map — Hormuz, Red Sea, Suez, Panama, Taiwan & Cape Routes',
   description:
-    'Free live maritime map for critical shipping chokepoints. Monitor Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca Strait with vessel context, risk labels and source-reviewed security reports.',
+    'Free live maritime map for critical shipping chokepoints. Monitor Hormuz, Bab el-Mandeb, Suez, Malacca, Panama Canal, Taiwan Strait, Turkish Straits, Gibraltar and Cape of Good Hope with source-reviewed risk reports.',
   keywords: [
     'strait of hormuz live map',
     'hormuz strait vessel tracking',
@@ -12,6 +12,11 @@ export const metadata: Metadata = {
     'suez canal live traffic',
     'bab el-mandeb tracking',
     'malacca strait vessels',
+    'panama canal shipping risk',
+    'taiwan strait shipping risk',
+    'turkish straits vessel traffic',
+    'strait of gibraltar shipping',
+    'cape of good hope rerouting',
     'live vessel map',
     'real-time ship tracking',
     'maritime chokepoint monitor',
@@ -23,9 +28,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: `${BASE_URL}/map-dashboard`,
-    title: 'VesselSurge Live Map — Track Vessels at Hormuz, Red Sea & Suez in Real-Time',
+    title: 'VesselSurge Live Map — Track Global Shipping Chokepoints in Real-Time',
     description:
-      'Free live satellite map of global shipping chokepoints. Track vessel context at Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca with risk labels and source-reviewed reports.',
+      'Free live satellite map of global shipping chokepoints. Track Hormuz, Red Sea, Suez, Malacca, Panama Canal, Taiwan Strait, Turkish Straits, Gibraltar and Cape route context with source-reviewed reports.',
     images: [
       {
         url: `${BASE_URL}/og-image.jpg`,
@@ -37,9 +42,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Live Vessel Tracking: Hormuz, Red Sea, Suez | VesselSurge',
+    title: 'Live Vessel Tracking: Global Chokepoints | VesselSurge',
     description:
-      'Free live maritime map for Hormuz, Red Sea, Suez Canal and Malacca. Risk labels, vessel context and source-reviewed reports.',
+      'Free live maritime map for Hormuz, Red Sea, Suez, Malacca, Panama, Taiwan Strait, Turkish Straits, Gibraltar and Cape route context.',
     images: [`${BASE_URL}/og-image.jpg`],
   },
   other: {
@@ -54,7 +59,7 @@ const schemaMapPage = {
   '@type': 'WebPage',
   '@id': `${BASE_URL}/map-dashboard#webpage`,
   name: 'VesselSurge Live Maritime Map',
-  description: 'Live maritime map context for Strait of Hormuz, Bab el-Mandeb, Suez Canal, and Malacca Strait with risk assessments and source-reviewed reports.',
+  description: 'Live maritime map context for Strait of Hormuz, Bab el-Mandeb, Suez Canal, Malacca Strait, Panama Canal, Taiwan Strait, Turkish Straits, Strait of Gibraltar and Cape of Good Hope with risk assessments and source-reviewed reports.',
   url: `${BASE_URL}/map-dashboard`,
   isPartOf: {
     '@type': 'WebSite',
@@ -85,6 +90,36 @@ const schemaMapPage = {
       name: 'Strait of Malacca',
       description: 'Strait between Malaysia and Indonesia. Asia\'s busiest shipping lane.',
       geo: { '@type': 'GeoCoordinates', latitude: 2.5, longitude: 101.0 },
+    },
+    {
+      '@type': 'Place',
+      name: 'Panama Canal',
+      description: 'Atlantic-Pacific canal route monitored for queue pressure, water constraints and transit context.',
+      geo: { '@type': 'GeoCoordinates', latitude: 9.08, longitude: -79.68 },
+    },
+    {
+      '@type': 'Place',
+      name: 'Taiwan Strait',
+      description: 'Asia trade-lane corridor monitored for maritime alerts, port context and cargo continuity.',
+      geo: { '@type': 'GeoCoordinates', latitude: 24.4, longitude: 120.8 },
+    },
+    {
+      '@type': 'Place',
+      name: 'Turkish Straits',
+      description: 'Bosporus and Dardanelles route monitored for Black Sea tanker, transit and weather constraints.',
+      geo: { '@type': 'GeoCoordinates', latitude: 41.08, longitude: 29.05 },
+    },
+    {
+      '@type': 'Place',
+      name: 'Strait of Gibraltar',
+      description: 'Atlantic-Mediterranean entry route monitored for vessel flow, congestion and port context.',
+      geo: { '@type': 'GeoCoordinates', latitude: 35.96, longitude: -5.6 },
+    },
+    {
+      '@type': 'Place',
+      name: 'Cape of Good Hope',
+      description: 'Red Sea bypass and Cape route monitored for rerouting pressure, voyage time and freight cost signals.',
+      geo: { '@type': 'GeoCoordinates', latitude: -34.36, longitude: 18.47 },
     },
   ],
   mainEntity: {

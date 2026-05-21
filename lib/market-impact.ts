@@ -760,7 +760,7 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     }
   }).sort((a, b) => b.score - a.score)
 
-  const regions = ['hormuz', 'bab', 'suez', 'malacca'].map((region) => {
+  const regions = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'].map((region) => {
     const regionStories = topStories.filter((story) => story.region === region)
     const score = regionStories.length
       ? Math.round(regionStories.reduce((sum, story) => sum + story.score, 0) / regionStories.length)
@@ -787,7 +787,7 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
   const sourceSummary = buildSourceSummary(freshNews, freshSignals, marketSnapshot, topStories, staleExcludedCount)
   const investmentTips = buildInvestmentTips(marketSnapshot, blendedPressureScore, topStories)
   const watchTriggers = [
-    'New verified incident near Hormuz, Bab el-Mandeb, Suez or Malacca',
+    'New verified incident near Hormuz, Bab el-Mandeb, Suez, Malacca, Panama, Taiwan Strait, Turkish Straits, Gibraltar or Cape of Good Hope',
     'Brent/WTI crude moves more than 2% while maritime risk headlines accelerate',
     'US 10Y yield or dollar strength tightens financial conditions during an oil move',
     'Insurance or war-risk premium language appears in trusted sources',

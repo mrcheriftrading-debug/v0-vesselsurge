@@ -50,7 +50,7 @@ export interface MaritimeSignal {
   title: string
   summary: string | null
   region: string
-  signalType: 'official_alert' | 'navigation_warning' | 'ais_anomaly' | 'weather_constraint' | 'news_corroboration'
+  signalType: 'official_alert' | 'navigation_warning' | 'ais_anomaly' | 'weather_constraint' | 'news_corroboration' | 'source_sweep'
   severity: 'low' | 'medium' | 'high' | 'critical'
   confidence: number
   observedAt: string

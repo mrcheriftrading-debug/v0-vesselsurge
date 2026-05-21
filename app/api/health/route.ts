@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export const dynamic = 'force-dynamic'
 export const preferredRegion = 'fra1'
 
-const HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca'] as const
+const HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
 const CACHE_DEGRADED_MS = 10 * 60 * 1000
 const CACHE_UNHEALTHY_MS = 30 * 60 * 1000
 const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
@@ -294,7 +294,9 @@ export async function GET(request: Request) {
       }
     })
 
-    const coverageStatus: Status = hotspotSummary.every((row) => row.hasRecentCoverage && row.visibleArticleCount > 0) ? 'ok' : 'degraded'
+    const coverageStatus: Status = hotspotSummary.every((row) =>
+      row.hasRecentCoverage && (row.visibleArticleCount > 0 || row.latestSignalType === 'source_sweep'),
+    ) ? 'ok' : 'degraded'
     const componentStatuses = {
       database: 'ok' as Status,
       cache: statusFromAge(cacheAge, CACHE_DEGRADED_MS, CACHE_UNHEALTHY_MS),

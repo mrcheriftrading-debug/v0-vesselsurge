@@ -41,12 +41,17 @@ type AdminUser = {
   source?: string
 }
  
-const HOTSPOTS = ["hormuz", "bab", "malacca", "suez"]
+const HOTSPOTS = ["hormuz", "bab", "malacca", "suez", "panama", "taiwan", "turkish", "gibraltar", "cape"]
 const HOTSPOT_LABELS: Record<string, string> = {
   hormuz: "Strait of Hormuz",
   bab: "Bab el-Mandeb",
   malacca: "Malacca Strait",
   suez: "Suez Canal",
+  panama: "Panama Canal",
+  taiwan: "Taiwan Strait",
+  turkish: "Turkish Straits",
+  gibraltar: "Strait of Gibraltar",
+  cape: "Cape of Good Hope",
   global: "Global",
 }
  

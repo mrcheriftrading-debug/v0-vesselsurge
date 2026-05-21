@@ -10,7 +10,7 @@ import {
 const CACHE_KEY = 'live-map'
 const CACHE_TTL_MS = 5 * 60 * 1000
 const STALE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
-const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca']
+const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
 export const LIVE_MAP_NEWS_MAX_AGE_HOURS = 96
 
 type DashboardCacheRow = {
@@ -229,6 +229,8 @@ function signalTypeLabel(type?: string | null) {
       return 'Marine condition'
     case 'news_corroboration':
       return 'News corroboration'
+    case 'source_sweep':
+      return 'Source sweep'
     default:
       return 'Watch signal'
   }
@@ -331,7 +333,7 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   const intelligenceScore = article.intelligenceScore ?? 0
   const ageHours = hoursOld(article.timestamp)
   const text = `${article.title || ''} ${article.summary || ''} ${article.region || ''}`
-  const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
+  const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
     .test(text)
   const reviewScore = Math.round((intelligenceScore * 0.46) + (sourceScore * 0.28) + (freshnessScore * 0.18) + (routeEvidence ? 8 : 0))
   const sourceLabel = maritimeSourceQualityLabel(article.source)
@@ -437,6 +439,9 @@ function buildQualityAudit(
       .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))
     const latestNewsAt = hotspotArticles[0]?.timestamp || null
     const latestSignalAt = hotspotSignals[0]?.observedAt || null
+    const hasFreshSourceSweep = hotspotSignals.some((signal) => signal.signalType === 'source_sweep') &&
+      hoursOld(latestSignalAt) !== null &&
+      (hoursOld(latestSignalAt) || 999) <= 12
     const sourceCount = Math.max(
       hotspot.sourceCount || 0,
       new Set([
@@ -444,16 +449,16 @@ function buildQualityAudit(
         ...hotspotSignals.map((signal) => signal.source),
       ].filter(Boolean)).size,
     )
-    const score = qualityCoverageScore({
+    const score = Math.max(hasFreshSourceSweep && !latestNewsAt ? 68 : 0, qualityCoverageScore({
       latestNewsAt,
       latestSignalAt,
       sourceCount,
       riskDrivers: hotspot.riskDrivers || [],
-    })
+    }))
     const missing = [
-      hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : 'fresh news under 24h',
+      hasFreshSourceSweep && !latestNewsAt ? null : hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : 'fresh news under 24h',
       hoursOld(latestSignalAt) !== null && (hoursOld(latestSignalAt) || 999) <= 12 ? null : 'fresh signal under 12h',
-      sourceCount >= 2 ? null : 'second independent source',
+      hasFreshSourceSweep ? null : sourceCount >= 2 ? null : 'second independent source',
     ].filter(Boolean) as string[]
 
     return {
@@ -633,7 +638,18 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     return acc
   }, {})
 
-  const hotspots = (hotspotsData || []).map((hotspot: any) => {
+  const statsByHotspot = new Map((hotspotsData || []).map((hotspot: any) => [hotspot.hotspot, hotspot]))
+  const hotspots = LIVE_HOTSPOTS.map((hotspotId) => {
+    const hotspot = statsByHotspot.get(hotspotId) || {
+      id: `derived-${hotspotId}`,
+      hotspot: hotspotId,
+      active_vessels: 0,
+      daily_transits: 0,
+      avg_wait_time: 'Source review',
+      market_volume: 0,
+      risk_level: 'low',
+      updated_at: timestamp,
+    }
     const activeVessels = vesselCounts ? (vesselCounts[hotspot.hotspot] || 0) : (hotspot.active_vessels || 0)
     const regionSignals = signalStats[hotspot.hotspot]?.signals || []
     const officialSignalCount = regionSignals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length
@@ -641,6 +657,11 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     const reports = articleStats[hotspot.hotspot]?.reports || 0
     const sourceCount = articleStats[hotspot.hotspot]?.sources.size || 0
     const latestSource = articleStats[hotspot.hotspot]?.latestSource || null
+    const derivedRiskLevel = regionSignals.some((signal) => signal.severity === 'critical' || signal.severity === 'high')
+      ? 'high'
+      : reports > 0 || regionSignals.length > 0
+        ? 'medium'
+        : hotspot.risk_level
     const confidenceScore = confidenceForHotspot({
       reports,
       sources: articleStats[hotspot.hotspot]?.sources || new Set(),
@@ -648,7 +669,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       activeVessels,
     })
     const riskEvidence = riskSummaryForHotspot({
-      riskLevel: hotspot.risk_level,
+      riskLevel: derivedRiskLevel,
       reports,
       sourceCount,
       signals: regionSignals,
@@ -663,7 +684,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       dailyTransits: hotspot.daily_transits,
       avgWaitTime: hotspot.avg_wait_time,
       marketVolume: hotspot.market_volume,
-      riskLevel: hotspot.risk_level,
+      riskLevel: derivedRiskLevel,
       updatedAt: hotspot.updated_at || timestamp,
       verifiedReports: reports,
       sourceCount,

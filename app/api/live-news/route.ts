@@ -35,6 +35,7 @@ const TRUSTED_SOURCES = [
 
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
+const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
 
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'iran', 'oman', 'uae'],
@@ -53,9 +54,14 @@ const REGION_KEYWORDS: Record<string, string[]> = {
     'piracy',
     'armed robbery',
   ],
+  panama: ['panama canal', 'panama canal authority', 'pancanal', 'gatun lake', 'neopanamax', 'miraflores', 'cocoli'],
+  taiwan: ['taiwan strait', 'taiwan shipping', 'taiwan trade lane', 'kaohsiung', 'keelung', 'taiwan maritime'],
+  turkish: ['turkish straits', 'bosporus', 'bosphorus', 'dardanelles', 'black sea', 'istanbul strait', 'canakkale strait'],
+  gibraltar: ['strait of gibraltar', 'gibraltar', 'algeciras', 'atlantic-mediterranean', 'atlantic mediterranean'],
+  cape: ['cape of good hope', 'cape route', 'red sea rerouting', 'red sea bypass', 'south africa shipping'],
 }
 
-const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng)\b/i
+const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|draft|water|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng|naval|voyage|fuel|bunker)\b/i
 const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|crypto|bitcoin|railway|football|cricket|tourism|movie|celebrity)\b/i
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
 const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|coinmarketcap|coin republic|unchained|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment|msn|aol|barron|discovery alert|etv bharat|wlns|latteluxury|nomad lawyer|greek city times|korea herald|chosun|nation thailand|cgtn|okdiario)\b|조선일보|아시아경제/i
@@ -100,6 +106,46 @@ const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string;
       topic: 'ais_density_watch',
     },
   ],
+  panama: [
+    {
+      title: 'Panama Canal source sweep active',
+      summary: 'VesselSurge is monitoring Panama Canal transit, queue pressure, water constraints and Atlantic-Pacific route exposure.',
+      source: 'OpenClaw Panama Canal Source Sweep',
+      topic: 'canal_transit_context',
+    },
+  ],
+  taiwan: [
+    {
+      title: 'Taiwan Strait source sweep active',
+      summary: 'VesselSurge is monitoring Taiwan Strait maritime alerts, naval activity, ports and Asia cargo continuity signals.',
+      source: 'OpenClaw Taiwan Strait Source Sweep',
+      topic: 'asia_trade_lane_context',
+    },
+  ],
+  turkish: [
+    {
+      title: 'Turkish Straits source sweep active',
+      summary: 'VesselSurge is monitoring Bosporus, Dardanelles, Black Sea tanker flow, weather holds and transit interruptions.',
+      source: 'OpenClaw Turkish Straits Source Sweep',
+      topic: 'black_sea_route_context',
+    },
+  ],
+  gibraltar: [
+    {
+      title: 'Strait of Gibraltar source sweep active',
+      summary: 'VesselSurge is monitoring Atlantic-Mediterranean vessel flow, Gibraltar port context, congestion and security signals.',
+      source: 'OpenClaw Gibraltar Source Sweep',
+      topic: 'mediterranean_entry_context',
+    },
+  ],
+  cape: [
+    {
+      title: 'Cape of Good Hope source sweep active',
+      summary: 'VesselSurge is monitoring Red Sea bypass routing, Cape voyage time, fuel cost pressure and freight disruption signals.',
+      source: 'OpenClaw Cape Route Source Sweep',
+      topic: 'rerouting_context',
+    },
+  ],
 }
 
 function isTrustedSource(source: string) {
@@ -119,7 +165,7 @@ function isOperationalMaritimeNews(article: any) {
   const text = `${article.title || ''} ${article.snippet || ''}`.toLowerCase()
   if (FINANCIAL_TITLE_PATTERN.test(article.title || '')) return false
   if (!OPERATIONAL_NEWS_PATTERN.test(text)) return false
-  if (NOISE_PATTERN.test(text) && !/\b(ship|shipping|vessel|tanker|cargo|freight|maritime|canal|port|transit|route|suez|malacca|hormuz|red sea|bab el)\b/i.test(text)) {
+  if (NOISE_PATTERN.test(text) && !/\b(ship|shipping|vessel|tanker|cargo|freight|maritime|canal|port|transit|route|suez|malacca|hormuz|red sea|bab el|panama canal|taiwan strait|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope)\b/i.test(text)) {
     return false
   }
   return hasRegionSignal(article)
@@ -242,7 +288,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
 
   const max = Math.min(limit, 50)
   const sorted = filtered.sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
-  const balancedRegions = ['hormuz', 'bab', 'suez', 'malacca']
+  const balancedRegions = LIVE_REGIONS
   const byRegion = new Map(balancedRegions.map((itemRegion) => [
     itemRegion,
     sorted.filter((article) => article.region === itemRegion),
@@ -272,7 +318,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
 }
 
 function buildWatchFallback(region: string | null) {
-  const regions = region && region !== 'all' ? [region] : ['hormuz', 'bab', 'suez', 'malacca']
+  const regions = region && region !== 'all' ? [region] : [...LIVE_REGIONS]
   return regions.flatMap((itemRegion) => (WATCH_NEWS_CONTEXT[itemRegion] || []).map((item, index) => ({
     id: `openclaw-watch-${itemRegion}-${index}`,
     title: item.title,
@@ -436,7 +482,7 @@ export async function GET(request: Request) {
       let signalQuery = supabase
         .from('maritime_signals')
         .select('signal_key, title, summary, source, source_url, region, signal_type, observed_at, confidence')
-        .in('signal_type', ['official_alert', 'navigation_warning', 'news_corroboration'])
+        .in('signal_type', ['official_alert', 'navigation_warning', 'news_corroboration', 'source_sweep'])
         .order('observed_at', { ascending: false })
         .limit(Math.min(signalLimit * 4, 40))
 

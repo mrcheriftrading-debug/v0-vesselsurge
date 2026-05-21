@@ -26,6 +26,11 @@ const HOTSPOT_META: Record<string, { lat: number; lng: number; name: string; fla
   bab:     { lat: 12.65,  lng: 43.32,  name: 'Bab el-Mandeb',     flag: '🇾🇪' },
   malacca: { lat: 2.45,   lng: 102.15, name: 'Strait of Malacca', flag: '🇲🇾' },
   suez:    { lat: 29.95,  lng: 32.58,  name: 'Suez Canal',        flag: '🇪🇬' },
+  panama:  { lat: 9.08,   lng: -79.68, name: 'Panama Canal',      flag: '🇵🇦' },
+  taiwan:  { lat: 24.4,   lng: 120.8,  name: 'Taiwan Strait',     flag: '🇹🇼' },
+  turkish: { lat: 41.08,  lng: 29.05,  name: 'Turkish Straits',   flag: '🇹🇷' },
+  gibraltar: { lat: 35.96, lng: -5.6,  name: 'Strait of Gibraltar', flag: '🇬🇮' },
+  cape:    { lat: -34.36, lng: 18.47,  name: 'Cape of Good Hope', flag: '🇿🇦' },
 }
 
 const RISK_COLOR: Record<string, string> = {
@@ -115,54 +120,56 @@ const WATCH_COVERAGE: Record<string, Array<{ source: string; signalType: string;
       summary: 'VesselSurge keeps Southeast Asia chokepoint context visible for matching and route planning.',
     },
   ],
+  panama: [
+    {
+      source: 'OpenClaw Panama Canal Source Sweep',
+      signalType: 'canal transit context',
+      title: 'Source sweep on Panama Canal transit and queue pressure',
+      summary: 'Coverage tracks canal transit, water constraints, queues, maintenance windows and Atlantic-Pacific routing exposure.',
+    },
+  ],
+  taiwan: [
+    {
+      source: 'OpenClaw Taiwan Strait Source Sweep',
+      signalType: 'asia trade lane context',
+      title: 'Source sweep on Taiwan Strait maritime and cargo continuity',
+      summary: 'Coverage tracks maritime alerts, naval activity, port context and source-backed Asia cargo continuity signals.',
+    },
+  ],
+  turkish: [
+    {
+      source: 'OpenClaw Turkish Straits Source Sweep',
+      signalType: 'black sea route context',
+      title: 'Source sweep on Bosporus, Dardanelles and Black Sea route risk',
+      summary: 'Coverage tracks transit interruptions, weather holds, tanker constraints and Black Sea route exposure.',
+    },
+  ],
+  gibraltar: [
+    {
+      source: 'OpenClaw Gibraltar Source Sweep',
+      signalType: 'mediterranean entry context',
+      title: 'Source sweep on Strait of Gibraltar vessel flow',
+      summary: 'Coverage tracks Atlantic-Mediterranean entry flow, port approach pressure, congestion and security context.',
+    },
+  ],
+  cape: [
+    {
+      source: 'OpenClaw Cape Route Source Sweep',
+      signalType: 'rerouting context',
+      title: 'Source sweep on Cape of Good Hope rerouting pressure',
+      summary: 'Coverage tracks Red Sea bypass routing, voyage time, fuel burn and freight cost impact.',
+    },
+  ],
 }
-
-const EXPANSION_WATCHLIST = [
-  {
-    name: 'Panama Canal',
-    lane: 'Atlantic-Pacific capacity',
-    href: '/topics/panama-canal-shipping-risk',
-    focus: 'Queue pressure, water constraints and container flow exposure',
-    signals: ['Canal restrictions', 'Queue pressure', 'Rerouting economics'],
-  },
-  {
-    name: 'Taiwan Strait',
-    lane: 'Asia trade lane exposure',
-    href: '/topics/taiwan-strait-shipping-risk',
-    focus: 'Maritime alerts, geopolitical tension and Asia cargo continuity',
-    signals: ['Security notices', 'Trade lane exposure', 'Rerouting pressure'],
-  },
-  {
-    name: 'Turkish Straits',
-    lane: 'Black Sea tanker route',
-    href: '/topics/turkish-straits-shipping-risk',
-    focus: 'Bosporus transit, tanker constraints and Black Sea route risk',
-    signals: ['Bosporus flow', 'Tanker constraints', 'Weather holds'],
-  },
-  {
-    name: 'Strait of Gibraltar',
-    lane: 'Atlantic-Mediterranean flow',
-    href: '/topics/strait-of-gibraltar-vessel-traffic',
-    focus: 'Vessel density, Mediterranean entry flow and congestion context',
-    signals: ['Traffic density', 'Port approach pressure', 'Security context'],
-  },
-  {
-    name: 'Cape of Good Hope',
-    lane: 'Red Sea bypass route',
-    href: '/topics/cape-of-good-hope-rerouting',
-    focus: 'Rerouting pressure, voyage time, fuel burn and freight cost impact',
-    signals: ['Bypass pressure', 'Voyage time', 'Fuel cost'],
-  },
-] as const
 
 const STANDING_WATCH_TIMESTAMP = '2026-05-20T00:00:00.000Z'
 
 function watchCoverageFor(region: string) {
   return WATCH_COVERAGE[region] || [{
-    source: 'OpenClaw Watch',
-    signalType: 'standing watch',
-    title: 'Standing maritime watch active',
-    summary: 'VesselSurge keeps this hotspot covered with source reports, operational signals and watch context.',
+    source: 'OpenClaw Source Sweep',
+    signalType: 'source sweep',
+    title: 'Maritime source sweep active',
+    summary: 'VesselSurge keeps this route covered with source reports, operational signals and route context.',
   }]
 }
 
@@ -348,7 +355,7 @@ export default function MapDashboard() {
           timestamp: watchTimestamp,
           type: 'signal' as const,
           label: item.signalType.toUpperCase(),
-          sourceQualityLabel: 'Standing watch',
+          sourceQualityLabel: 'Source sweep',
           intelligenceScore: 45,
         }))
       : []),
@@ -388,8 +395,8 @@ export default function MapDashboard() {
       ? `${selected.confidenceLabel} · ${selected.confidenceScore ?? 0}/100`
       : selected.verifiedReports && selected.sourceCount
         ? 'Verified source review'
-        : 'Standing watch active'
-    : 'Standing watch active'
+        : 'Source sweep active'
+    : 'Source sweep active'
   const fallbackRiskDrivers = [
     ...(latestSignal ? [`${readableSignalType(latestSignal.signalType)} from ${latestSignal.source} · ${latestSignal.confidence}/100`] : []),
     ...(latestArticle ? [`Latest report from ${latestArticle.source}`] : []),
@@ -397,7 +404,7 @@ export default function MapDashboard() {
   ]
   const selectedRiskDrivers = (selected?.riskDrivers?.length ? selected.riskDrivers : fallbackRiskDrivers).slice(0, 4)
   const selectedRiskSummary = selected?.riskSummary ||
-    `${riskLevel.toUpperCase()} based on ${selectedRiskDrivers[0] || 'standing VesselSurge watch coverage'}.`
+    `${riskLevel.toUpperCase()} based on ${selectedRiskDrivers[0] || 'VesselSurge source sweep coverage'}.`
   const coverageQualityRows = Object.entries(HOTSPOT_META)
     .map(([id, hotspotMeta]) => {
       const data = hotspots[id]
@@ -528,7 +535,7 @@ export default function MapDashboard() {
                 : 'border-green-500/20 bg-green-500/10 text-green-400'
             }`}>
               {isStaleData ? <WifiOff className="h-3.5 w-3.5" /> : <Radio className="h-3.5 w-3.5 animate-pulse" />}
-              {isStaleData ? 'OFFLINE-SAFE DATA' : vessels.length > 0 ? `${vessels.length} AIS VESSELS` : 'WATCH ACTIVE'}
+              {isStaleData ? 'OFFLINE-SAFE DATA' : vessels.length > 0 ? `${vessels.length} AIS VESSELS` : 'SOURCE SWEEP'}
             </div>
             <div className="rounded-full border border-border bg-card/60 px-3 py-1.5 text-xs font-mono text-muted-foreground">
               {lastUpdated ? `${isStaleData ? 'Last known' : 'Updated'} ${formatDashboardClock(lastUpdated)}` : 'Loading data'}
@@ -665,7 +672,7 @@ export default function MapDashboard() {
               <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/85 px-3 py-2 text-xs backdrop-blur">
                 <span className="font-semibold text-foreground">Live route focus</span>
                 <span className="font-mono text-muted-foreground">
-                  {selectedUpdatedAt ? `Updated ${formatDashboardDateTime(selectedUpdatedAt)}` : 'Standing watch active'}
+                  {selectedUpdatedAt ? `Updated ${formatDashboardDateTime(selectedUpdatedAt)}` : 'Source sweep active'}
                 </span>
               </div>
             </div>
@@ -719,7 +726,7 @@ export default function MapDashboard() {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Latest intelligence</p>
                   <h2 className="mt-1 text-sm font-black text-foreground">Latest intelligence</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Source-backed news, signals and standing watch items for {meta?.name}.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Source-backed news, signals and source-sweep items for {meta?.name}.</p>
                 </div>
                 <span className="rounded-full border border-border px-2 py-1 text-[11px] font-mono text-muted-foreground">
                   {feedItems.length} items
@@ -783,7 +790,7 @@ export default function MapDashboard() {
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="h-4 w-4 flex-shrink-0 text-green-400 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">OpenClaw watch is active for {meta?.name}.</p>
+                      <p className="text-sm font-medium text-foreground">OpenClaw source sweep is active for {meta?.name}.</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         VesselSurge is monitoring this hotspot and will promote fresh source reports or signals as soon as they arrive.
                       </p>
@@ -857,7 +864,7 @@ export default function MapDashboard() {
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">AIS context</p>
-                  <h2 className="mt-1 text-sm font-black text-foreground">AIS / watch context</h2>
+                  <h2 className="mt-1 text-sm font-black text-foreground">AIS / source context</h2>
                 </div>
                 <span className="text-xs font-mono text-muted-foreground">{selectedVessels.length} verified</span>
               </div>
@@ -951,7 +958,7 @@ export default function MapDashboard() {
                       </p>
                       <p className="truncate">
                         <span className="font-mono uppercase">Signal</span>
-                        {' '}· {row.latestRouteSignal ? `${formatQualityAge(row.latestRouteSignal.observedAt)} from ${row.latestRouteSignal.source}` : 'Standing watch'}
+                        {' '}· {row.latestRouteSignal ? `${formatQualityAge(row.latestRouteSignal.observedAt)} from ${row.latestRouteSignal.source}` : 'Source sweep'}
                       </p>
                       <p className="truncate">
                         <span className="font-mono uppercase">Needs</span>
@@ -1002,20 +1009,18 @@ export default function MapDashboard() {
                 <span className="font-black text-red-300">{reviewGate.blocked}</span> blocked before map.
               </p>
 
-              <div className="mt-3 space-y-2">
-                {EXPANSION_WATCHLIST.map((route) => (
-                  <Link
-                    key={route.name}
-                    href={route.href}
-                    className="block rounded-lg border border-border/70 bg-background/35 p-2.5 transition-colors hover:border-primary/35 hover:bg-card"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-xs font-black text-foreground">{route.name}</span>
-                      <span className="shrink-0 text-[10px] font-black uppercase text-primary">Watch</span>
-                    </div>
-                    <p className="mt-1 line-clamp-1 text-[11px] text-muted-foreground">{route.focus}</p>
-                  </Link>
-                ))}
+              <div className="mt-3 rounded-xl border border-primary/20 bg-primary/10 p-3">
+                <p className="text-xs font-black text-foreground">Nine live routes are now in the same source sweep.</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Panama Canal, Taiwan Strait, Turkish Straits, Gibraltar and Cape of Good Hope are treated as live route coverage,
+                  not secondary placeholder cards.
+                </p>
+                <Link
+                  href="/source-trust"
+                  className="mt-3 inline-flex rounded-md border border-border bg-background/45 px-2.5 py-1.5 text-[11px] font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  View source trust
+                </Link>
               </div>
             </div>
           </section>

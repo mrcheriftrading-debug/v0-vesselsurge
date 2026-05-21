@@ -78,9 +78,26 @@ const HOTSPOT_MARKET_VOLUME: Record<string, number> = {
   bab: 280000000,
   suez: 150000000,
   malacca: 500000000,
+  panama: 0,
+  taiwan: 0,
+  turkish: 0,
+  gibraltar: 0,
+  cape: 0,
 }
 
-const HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca']
+const HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
+
+const ROUTE_LABELS: Record<string, { name: string; url: string }> = {
+  hormuz: { name: 'Strait of Hormuz', url: 'https://www.vesselsurge.com/topics/strait-of-hormuz-oil-risk' },
+  bab: { name: 'Bab el-Mandeb', url: 'https://www.vesselsurge.com/topics/red-sea-shipping-risk' },
+  suez: { name: 'Suez Canal', url: 'https://www.vesselsurge.com/topics/suez-canal-traffic-delays' },
+  malacca: { name: 'Strait of Malacca', url: 'https://www.vesselsurge.com/topics/malacca-strait-vessel-traffic' },
+  panama: { name: 'Panama Canal', url: 'https://www.vesselsurge.com/topics/panama-canal-shipping-risk' },
+  taiwan: { name: 'Taiwan Strait', url: 'https://www.vesselsurge.com/topics/taiwan-strait-shipping-risk' },
+  turkish: { name: 'Turkish Straits', url: 'https://www.vesselsurge.com/topics/turkish-straits-shipping-risk' },
+  gibraltar: { name: 'Strait of Gibraltar', url: 'https://www.vesselsurge.com/topics/strait-of-gibraltar-vessel-traffic' },
+  cape: { name: 'Cape of Good Hope', url: 'https://www.vesselsurge.com/topics/cape-of-good-hope-rerouting' },
+}
 
 function directRiskLevel(articles: MaritimeDashboardResponse['data']['articles']) {
   const highSignalCount = articles.filter((article) =>
@@ -161,19 +178,42 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     confidence: Math.max(45, Math.min(82, Math.round((article.sourceQualityScore || 55) * 0.65 + (article.freshnessScore || 0) * 0.35))),
     observedAt: article.timestamp,
   }))
+  const sourceSweepSignals = HOTSPOTS
+    .filter((hotspot) => !normalizedArticles.some((article) => article.region === hotspot))
+    .map((hotspot) => {
+      const route = ROUTE_LABELS[hotspot]
+      return {
+        signalKey: `direct-source-sweep-${hotspot}-${timestamp.slice(0, 13)}`,
+        source: 'VesselSurge Source Sweep',
+        sourceUrl: route.url,
+        title: `${route.name}: no fresh source-backed disruption found`,
+        summary: `The latest VesselSurge direct source sweep found no current source-backed disruption for ${route.name}.`,
+        region: hotspot,
+        signalType: 'source_sweep',
+        severity: 'low',
+        confidence: 68,
+        observedAt: timestamp,
+      }
+    })
+  const allSignals = [...signals, ...sourceSweepSignals]
 
   const hotspots = HOTSPOTS.map((hotspot) => {
     const hotspotArticles = normalizedArticles
       .filter((article) => article.region === hotspot)
       .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
-    const hotspotSignals = signals.filter((signal) => signal.region === hotspot)
-    const sourceCount = new Set(hotspotArticles.map((article) => article.source)).size
+    const hotspotSignals = allSignals.filter((signal) => signal.region === hotspot)
+    const sourceCount = new Set([
+      ...hotspotArticles.map((article) => article.source),
+      ...hotspotSignals.map((signal) => signal.source),
+    ].filter(Boolean)).size
     const riskLevel = directRiskLevel(hotspotArticles)
     const confidenceScore = hotspotArticles.length
       ? Math.min(88, 40 + Math.min(20, sourceCount * 6) + Math.min(24, hotspotArticles.length * 4))
       : 35
     const latestSource = hotspotArticles[0]?.source || 'OpenClaw standing watch'
-    const riskDrivers = hotspotArticles.slice(0, 3).map((article) => `${article.source}: ${article.title}`)
+    const riskDrivers = hotspotArticles.length
+      ? hotspotArticles.slice(0, 3).map((article) => `${article.source}: ${article.title}`)
+      : hotspotSignals.slice(0, 2).map((signal) => `${signal.source}: ${signal.title}`)
 
     return {
       id: `direct-live-${hotspot}`,
@@ -194,7 +234,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       confidenceLabel: confidenceScore >= 70 ? 'Corroborated' : hotspotArticles.length ? 'Watchlist' : 'Thin signal',
       riskSummary: hotspotArticles.length
         ? `${riskLevel.toUpperCase()} from ${hotspotArticles.length} live source-linked report${hotspotArticles.length === 1 ? '' : 's'}; latest source: ${latestSource}.`
-        : 'LOW from standing watch coverage while the direct source sweep found no current report.',
+        : 'LOW because the direct source sweep found no current source-backed disruption.',
       riskDrivers: riskDrivers.length ? riskDrivers : ['Standing watch coverage active'],
     }
   })
@@ -203,18 +243,22 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     const latestArticle = normalizedArticles
       .filter((article) => article.region === hotspot.hotspot)
       .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))[0]
-    const latestSignal = signals
+    const latestSignal = allSignals
       .filter((signal) => signal.region === hotspot.hotspot)
       .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))[0]
-    const score = Math.min(100, (hotspot.verifiedReports > 0 ? 42 : 0) + Math.min(24, hotspot.sourceCount * 8) + (latestSignal ? 28 : 0))
+    const hasSourceSweepSignal = latestSignal?.signalType === 'source_sweep'
+    const score = Math.max(
+      hasSourceSweepSignal && hotspot.verifiedReports === 0 ? 72 : 0,
+      Math.min(100, (hotspot.verifiedReports > 0 ? 42 : 0) + Math.min(24, hotspot.sourceCount * 8) + (latestSignal ? 28 : 0)),
+    )
 
     return {
       hotspot: hotspot.hotspot,
       score,
       status: qualityStatus(score),
       missing: [
-        latestArticle ? null : 'fresh source-linked news',
-        hotspot.sourceCount >= 2 ? null : 'second independent source',
+        hasSourceSweepSignal && !latestArticle ? null : latestArticle ? null : 'fresh source-linked news',
+        hasSourceSweepSignal ? null : hotspot.sourceCount >= 2 ? null : 'second independent source',
         latestSignal ? null : 'fresh signal under 12h',
       ].filter(Boolean) as string[],
       sourceCount: hotspot.sourceCount,
@@ -240,15 +284,15 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
 
   return {
     success: true,
-    data: {
+      data: {
       articles: normalizedArticles,
       hotspots,
-      signals,
+      signals: allSignals,
       timestamp,
       count: {
         articles: normalizedArticles.length,
         hotspots: hotspots.length,
-        signals: signals.length,
+        signals: allSignals.length,
       },
       qualityAudit: {
         status: watchRows.length > 1 ? 'degraded' : watchRows.length === 1 ? 'watch' : 'healthy',

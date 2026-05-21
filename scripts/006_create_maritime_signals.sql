@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS public.maritime_signals (
   source_url TEXT,
   title TEXT NOT NULL,
   summary TEXT,
-  region TEXT NOT NULL CHECK (region IN ('hormuz', 'bab', 'suez', 'malacca')),
-  signal_type TEXT NOT NULL CHECK (signal_type IN ('official_alert', 'navigation_warning', 'ais_anomaly', 'weather_constraint', 'news_corroboration')),
+  region TEXT NOT NULL CHECK (region IN ('hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape')),
+  signal_type TEXT NOT NULL CHECK (signal_type IN ('official_alert', 'navigation_warning', 'ais_anomaly', 'weather_constraint', 'news_corroboration', 'source_sweep')),
   severity TEXT NOT NULL DEFAULT 'medium' CHECK (severity IN ('low', 'medium', 'high', 'critical')),
   confidence INTEGER NOT NULL DEFAULT 50 CHECK (confidence >= 0 AND confidence <= 100),
   observed_at TIMESTAMPTZ NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public.ais_position_history (
   heading DOUBLE PRECISION NOT NULL DEFAULT 0,
   ship_type INTEGER NOT NULL DEFAULT 0,
   destination TEXT,
-  hotspot TEXT NOT NULL CHECK (hotspot IN ('hormuz', 'bab', 'suez', 'malacca')),
+  hotspot TEXT NOT NULL CHECK (hotspot IN ('hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape')),
   captured_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

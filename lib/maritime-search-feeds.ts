@@ -1,4 +1,13 @@
-export type MaritimeSearchRegion = 'hormuz' | 'bab' | 'suez' | 'malacca'
+export type MaritimeSearchRegion =
+  | 'hormuz'
+  | 'bab'
+  | 'suez'
+  | 'malacca'
+  | 'panama'
+  | 'taiwan'
+  | 'turkish'
+  | 'gibraltar'
+  | 'cape'
 
 export type MaritimeSearchFeed = {
   source: string
@@ -141,6 +150,56 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Tier-1 Malacca newsroom sweep',
     region: 'malacca',
     query: `("Strait of Malacca" OR "Singapore Strait" OR "Port of Singapore" OR ReCAAP) (shipping OR vessel OR tanker OR maritime OR cargo OR congestion OR piracy OR "armed robbery" OR port) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
+    label: 'Panama Canal transit pressure',
+    region: 'panama',
+    query: '("Panama Canal" OR "Panama Canal Authority") (ship OR vessel OR shipping OR maritime OR transit OR queue OR draft OR water OR drought OR delay OR maintenance)',
+  },
+  {
+    label: 'Tier-1 Panama Canal newsroom sweep',
+    region: 'panama',
+    query: `("Panama Canal" OR "Panama Canal Authority") (shipping OR vessel OR transit OR queue OR water OR drought OR canal OR maintenance OR delay) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
+    label: 'Taiwan Strait trade lane risk',
+    region: 'taiwan',
+    query: '("Taiwan Strait" OR "Taiwan shipping" OR "Taiwan trade lane") (shipping OR vessel OR maritime OR cargo OR port OR naval OR alert OR exercise OR disruption OR risk)',
+  },
+  {
+    label: 'Tier-1 Taiwan Strait newsroom sweep',
+    region: 'taiwan',
+    query: `("Taiwan Strait" OR Taiwan) (shipping OR vessel OR maritime OR cargo OR port OR naval OR trade lane OR alert OR disruption OR risk) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
+    label: 'Turkish Straits transit flow',
+    region: 'turkish',
+    query: '("Turkish Straits" OR Bosporus OR Bosphorus OR Dardanelles) (shipping OR vessel OR tanker OR maritime OR transit OR Black Sea OR delay OR closure OR traffic OR weather)',
+  },
+  {
+    label: 'Tier-1 Turkish Straits newsroom sweep',
+    region: 'turkish',
+    query: `("Turkish Straits" OR Bosporus OR Bosphorus OR Dardanelles) (shipping OR vessel OR tanker OR maritime OR transit OR Black Sea OR delay OR closure OR traffic) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
+    label: 'Strait of Gibraltar vessel flow',
+    region: 'gibraltar',
+    query: '("Strait of Gibraltar" OR Gibraltar) (shipping OR vessel traffic OR tanker OR maritime OR port OR congestion OR security OR flow OR incident)',
+  },
+  {
+    label: 'Tier-1 Gibraltar newsroom sweep',
+    region: 'gibraltar',
+    query: `("Strait of Gibraltar" OR Gibraltar) (shipping OR vessel OR tanker OR maritime OR port OR congestion OR security OR traffic OR incident) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
+    label: 'Cape of Good Hope rerouting pressure',
+    region: 'cape',
+    query: '("Cape of Good Hope" OR "Cape route" OR "Red Sea rerouting") (shipping OR vessel OR container OR tanker OR freight OR rerouting OR delay OR fuel OR voyage)',
+  },
+  {
+    label: 'Tier-1 Cape of Good Hope newsroom sweep',
+    region: 'cape',
+    query: `("Cape of Good Hope" OR "Cape route" OR "Red Sea rerouting") (shipping OR vessel OR container OR tanker OR freight OR rerouting OR delay OR fuel OR voyage) ${TIER_ONE_SOURCE_SITES}`,
   },
 ]
 

@@ -31,6 +31,9 @@ const OFFICIAL_SOURCE_PATTERNS = [
   /\bmscio\b/i,
   /\brecaap\b/i,
   /\bsuez canal authority\b/i,
+  /\bpanama canal authority\b|\bpancanal\b/i,
+  /\bgibraltar port authority\b/i,
+  /\bdirectorate general of coastal safety\b|\bturkish coastal safety\b/i,
   /\bnorwegian maritime authority\b/i,
 ]
 
@@ -120,7 +123,7 @@ export function maritimeArticleIntelligenceScore(input: {
   const sourceScore = maritimeSourceQualityScore(input.source)
   const freshnessScore = maritimeFreshnessScore(input.timestamp)
   const marketRelevance =
-    /\b(hormuz|red sea|bab el|suez|malacca|tanker|oil|crude|lng|freight|rerout|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal)\b/i
+    /\b(hormuz|red sea|bab el|suez|malacca|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope|tanker|oil|crude|lng|freight|rerout|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal)\b/i
       .test(text)
       ? 100
       : 45

@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const HOTSPOT_IDS = ['hormuz', 'bab', 'malacca', 'suez']
+const HOTSPOT_IDS = ['hormuz', 'bab', 'malacca', 'suez', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
 
 function unavailableStats() {
   return {

@@ -8,6 +8,11 @@ const HOTSPOT_NAMES: Record<string, string> = {
   bab: "Bab el-Mandeb",
   malacca: "Strait of Malacca",
   suez: "Suez Canal",
+  panama: "Panama Canal",
+  taiwan: "Taiwan Strait",
+  turkish: "Turkish Straits",
+  gibraltar: "Strait of Gibraltar",
+  cape: "Cape of Good Hope",
 }
 
 function unavailableStats(hotspotId: string) {
