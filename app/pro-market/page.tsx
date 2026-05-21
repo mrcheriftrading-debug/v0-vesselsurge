@@ -18,10 +18,12 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFallbackUser } from '@/lib/fallback-auth'
 import { buildMarketImpactReport } from '@/lib/market-impact'
-import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subscription'
 
 export const dynamic = 'force-dynamic'
+
+const BASE_URL = 'https://www.vesselsurge.com'
 
 export const metadata: Metadata = {
   title: 'Stock Market Impact From Shipping Risk | VesselSurge Market Pro',
@@ -575,29 +577,12 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   const cached = await withTimeout(getFreshMaritimeDashboardCache(admin), 1500, 'market cache')
     .catch(() => withTimeout(getLastMaritimeDashboardCache(admin, 'fresh market cache unavailable; serving last known source-backed market context'), 1500, 'stale market cache').catch(() => null))
   if (cached?.data) {
-    return buildMarketImpactReport(
-      cached.data.articles.map((article) => ({
-        id: article.id,
-        title: article.title,
-        snippet: article.summary,
-        source: article.source,
-        url: article.sourceUrl,
-        topic: article.category,
-        region: article.region,
-        published_at: article.timestamp,
-      })),
-      cached.data.signals.map((signal) => ({
-        signal_key: signal.signalKey,
-        title: signal.title,
-        summary: signal.summary,
-        source: signal.source,
-        source_url: signal.sourceUrl,
-        region: signal.region,
-        signal_type: signal.signalType,
-        observed_at: signal.observedAt,
-        confidence: signal.confidence,
-      })),
-    )
+    return buildReportFromDashboardData(cached.data)
+  }
+
+  const publicLiveReport = await loadPublicLiveMarketReport()
+  if (!isEmptyReport(publicLiveReport)) {
+    return publicLiveReport
   }
 
   if (!allowDirectDatabaseFallback) {
@@ -641,6 +626,50 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   }
 
   return buildMarketImpactReport(news || [], signals || [])
+}
+
+async function loadPublicLiveMarketReport() {
+  try {
+    const response = await fetch(`${BASE_URL}/api/maritime-data`, {
+      headers: { accept: 'application/json' },
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(6500),
+    })
+
+    if (!response.ok) return buildMarketImpactReport([], [])
+    const dashboard = (await response.json()) as MaritimeDashboardResponse
+    if (!dashboard?.data) return buildMarketImpactReport([], [])
+    return buildReportFromDashboardData(dashboard.data)
+  } catch (error) {
+    console.error('[pro-market] public live report fallback failed:', error)
+    return buildMarketImpactReport([], [])
+  }
+}
+
+function buildReportFromDashboardData(data: MaritimeDashboardResponse['data']) {
+  return buildMarketImpactReport(
+    data.articles.map((article) => ({
+      id: article.id,
+      title: article.title,
+      snippet: article.summary,
+      source: article.source,
+      url: article.sourceUrl,
+      topic: article.category,
+      region: article.region,
+      published_at: article.timestamp,
+    })),
+    data.signals.map((signal) => ({
+      signal_key: signal.signalKey,
+      title: signal.title,
+      summary: signal.summary,
+      source: signal.source,
+      source_url: signal.sourceUrl,
+      region: signal.region,
+      signal_type: signal.signalType,
+      observed_at: signal.observedAt,
+      confidence: signal.confidence,
+    })),
+  )
 }
 
 const loadCachedPreviewReport = unstable_cache(
