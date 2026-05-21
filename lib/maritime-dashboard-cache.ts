@@ -152,6 +152,12 @@ export type MaritimeDashboardResponse = {
         general: number
         watch: number
       }
+      reviewGate?: {
+        approved: number
+        watch: number
+        blocked: number
+        visible: number
+      }
       coverageGaps: Array<{
         hotspot: string
         score: number
@@ -353,13 +359,19 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   }
 }
 
-function reviewedLiveMapArticles<T extends LiveMapReviewInput>(articles: T[]) {
-  return articles
-    .map((article) => ({
-      ...article,
-      ...reviewArticleForLiveMap(article),
-    }))
-    .filter((article) => article.reviewStatus !== 'blocked')
+function reviewGateSummary(articles: Array<{ reviewStatus?: 'approved' | 'watch' | 'blocked' }>) {
+  const summary = articles.reduce(
+    (acc, article) => {
+      if (article.reviewStatus === 'approved') acc.approved += 1
+      else if (article.reviewStatus === 'watch') acc.watch += 1
+      else if (article.reviewStatus === 'blocked') acc.blocked += 1
+      return acc
+    },
+    { approved: 0, watch: 0, blocked: 0, visible: 0 },
+  )
+
+  summary.visible = summary.approved + summary.watch
+  return summary
 }
 
 function hoursOld(value?: string | null) {
@@ -388,6 +400,7 @@ function buildQualityAudit(
   hotspots: MaritimeDashboardResponse['data']['hotspots'],
   articles: MaritimeDashboardResponse['data']['articles'],
   signals: MaritimeDashboardResponse['data']['signals'],
+  reviewGate = reviewGateSummary(articles),
 ) {
   const sourceMix = {
     official: 0,
@@ -448,11 +461,13 @@ function buildQualityAudit(
     sourceMix.official + sourceMix.tierOne < 4 ? 'Increase official and Tier-1 confirmation density.' : null,
     coverageGaps.some((gap) => gap.missing.includes('fresh signal under 12h')) ? 'Refresh operational signals for routes with stale signal context.' : null,
     articles.some((article) => article.reviewStatus === 'watch') ? 'Some live-map reports are watch-listed and should be replaced when stronger confirmation arrives.' : null,
+    reviewGate.blocked ? `${reviewGate.blocked} low-evidence reports were blocked before the live map.` : null,
   ].filter(Boolean) as string[]
 
   return {
     status: watchRows.length > 1 ? 'degraded' as const : watchRows.length === 1 ? 'watch' as const : 'healthy' as const,
     sourceMix,
+    reviewGate,
     coverageGaps,
     recommendations: recommendations.length ? recommendations : ['Coverage, source mix and freshness are within current operating targets.'],
   }
@@ -583,7 +598,12 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
         }),
       }
     })
-  const articles = balanceDashboardArticles(reviewedLiveMapArticles(dedupeArticles([...rawArticles, ...signalBackedArticles])))
+  const reviewedCandidates = dedupeArticles([...rawArticles, ...signalBackedArticles]).map((article) => ({
+    ...article,
+    ...reviewArticleForLiveMap(article),
+  }))
+  const reviewGate = reviewGateSummary(reviewedCandidates)
+  const articles = balanceDashboardArticles(reviewedCandidates.filter((article) => article.reviewStatus !== 'blocked'))
 
   const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
     const region = article.region || 'global'
@@ -645,7 +665,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       riskDrivers: riskEvidence.riskDrivers,
     }
   })
-  const qualityAudit = buildQualityAudit(hotspots, articles, signals)
+  const qualityAudit = buildQualityAudit(hotspots, articles, signals, reviewGate)
 
   return {
     success: true,
@@ -658,7 +678,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       qualityAudit,
     },
     meta: {
-      version: '3.4.0-reviewed-live-map',
+      version: '3.4.1-reviewed-live-map',
       source: 'VesselSurge Maritime Data API',
       cacheControl: 'public, s-maxage=30, stale-while-revalidate=120',
       cached: false,

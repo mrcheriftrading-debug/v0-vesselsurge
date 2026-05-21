@@ -101,7 +101,7 @@ function qualityStatus(score: number) {
 
 function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): MaritimeDashboardResponse | null {
   const timestamp = new Date().toISOString()
-  const normalizedArticles = articles
+  const reviewCandidates = articles
     .filter((article) => article.title && article.region && HOTSPOTS.includes(article.region))
     .map((article, index) => {
       const articleTimestamp = article.timestamp || timestamp
@@ -135,7 +135,17 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       ...article,
       ...reviewArticleForLiveMap(article),
     }))
-    .filter((article) => article.reviewStatus !== 'blocked')
+  const reviewGate = reviewCandidates.reduce(
+    (acc, article) => {
+      if (article.reviewStatus === 'approved') acc.approved += 1
+      else if (article.reviewStatus === 'watch') acc.watch += 1
+      else if (article.reviewStatus === 'blocked') acc.blocked += 1
+      return acc
+    },
+    { approved: 0, watch: 0, blocked: 0, visible: 0 },
+  )
+  reviewGate.visible = reviewGate.approved + reviewGate.watch
+  const normalizedArticles = reviewCandidates.filter((article) => article.reviewStatus !== 'blocked')
 
   if (normalizedArticles.length === 0) return null
 
@@ -222,6 +232,11 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     },
     { official: 0, tierOne: 0, trade: 0, search: 0, general: 0, watch: 0 },
   )
+  const recommendations = [
+    watchRows.length ? `Prioritize ${watchRows.map((gap) => gap.hotspot).join(', ')} for the next source sweep.` : null,
+    reviewGate.blocked ? `${reviewGate.blocked} low-evidence direct reports were blocked before the live map.` : null,
+    reviewGate.watch ? `${reviewGate.watch} direct reports are watch-listed until stronger confirmation arrives.` : null,
+  ].filter(Boolean) as string[]
 
   return {
     success: true,
@@ -238,14 +253,13 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       qualityAudit: {
         status: watchRows.length > 1 ? 'degraded' : watchRows.length === 1 ? 'watch' : 'healthy',
         sourceMix,
+        reviewGate,
         coverageGaps,
-        recommendations: watchRows.length
-          ? [`Prioritize ${watchRows.map((gap) => gap.hotspot).join(', ')} for the next source sweep.`]
-          : ['Direct source sweep coverage is active across all live map hotspots.'],
+        recommendations: recommendations.length ? recommendations : ['Direct source sweep coverage is active across all live map hotspots.'],
       },
     },
     meta: {
-      version: '3.4.0-direct-live-reviewed',
+      version: '3.4.1-direct-live-reviewed',
       source: 'VesselSurge direct source sweep',
       cacheControl: 'public, s-maxage=120, stale-while-revalidate=300',
       cached: false,

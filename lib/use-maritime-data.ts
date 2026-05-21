@@ -15,6 +15,12 @@ type QualityAudit = {
     general: number
     watch: number
   }
+  reviewGate?: {
+    approved: number
+    watch: number
+    blocked: number
+    visible: number
+  }
   coverageGaps: Array<{
     hotspot: string
     score: number

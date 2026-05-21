@@ -470,9 +470,19 @@ export default function MapDashboard() {
     general: 0,
     watch: 0,
   })
+  const derivedReviewGate = articles.reduce(
+    (gate, article) => {
+      if (article.reviewStatus === 'approved') gate.approved += 1
+      else if (article.reviewStatus === 'watch') gate.watch += 1
+      gate.visible += 1
+      return gate
+    },
+    { approved: 0, watch: 0, blocked: 0, visible: 0 },
+  )
   const effectiveQualityAudit = qualityAudit || {
     status: coverageQualityRows.every((row) => row.score >= 85) ? 'healthy' as const : coverageQualityRows.some((row) => row.score < 68) ? 'degraded' as const : 'watch' as const,
     sourceMix: derivedSourceMix,
+    reviewGate: derivedReviewGate,
     coverageGaps: coverageQualityRows.map((row) => ({
       hotspot: row.id,
       score: row.score,
@@ -486,6 +496,7 @@ export default function MapDashboard() {
   }
   const selectedAudit = effectiveQualityAudit.coverageGaps.find((gap) => gap.hotspot === selectedId)
   const sourceMix = effectiveQualityAudit.sourceMix
+  const reviewGate = effectiveQualityAudit.reviewGate || derivedReviewGate
   const totalQualitySources = sourceMix
     ? sourceMix.official + sourceMix.tierOne + sourceMix.trade + sourceMix.search + sourceMix.general + sourceMix.watch
     : 0
@@ -983,6 +994,12 @@ export default function MapDashboard() {
 
               <p className="mt-3 rounded-xl border border-border/70 bg-background/35 p-3 text-xs leading-5 text-muted-foreground">
                 {effectiveQualityAudit.recommendations[0] || 'Keep current live-map monitoring active.'}
+              </p>
+
+              <p className="mt-2 rounded-xl border border-border/70 bg-background/35 p-3 text-xs leading-5 text-muted-foreground">
+                Review gate: <span className="font-black text-green-300">{reviewGate.approved}</span> approved ·{' '}
+                <span className="font-black text-amber-300">{reviewGate.watch}</span> watch ·{' '}
+                <span className="font-black text-red-300">{reviewGate.blocked}</span> blocked before map.
               </p>
 
               <div className="mt-3 space-y-2">
