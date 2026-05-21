@@ -9,7 +9,7 @@ export type ProSubscription = {
   stripe_subscription_id: string | null
 }
 
-const ACTIVE_STATUSES = new Set(['active', 'trialing'])
+const PAID_STATUSES = new Set(['active'])
 
 export async function getUserProSubscription(userId: string): Promise<ProSubscription | null> {
   const supabase = createAdminClient()
@@ -30,9 +30,11 @@ export async function getUserProSubscription(userId: string): Promise<ProSubscri
 }
 
 export function isActiveProSubscription(subscription: ProSubscription | null) {
-  if (!subscription || !ACTIVE_STATUSES.has(subscription.status)) return false
-  if (!subscription.current_period_end) return true
-  return Date.parse(subscription.current_period_end) > Date.now()
+  if (!subscription || !PAID_STATUSES.has(subscription.status)) return false
+  if (!subscription.stripe_subscription_id || !subscription.current_period_end) return false
+
+  const periodEnd = Date.parse(subscription.current_period_end)
+  return Number.isFinite(periodEnd) && periodEnd > Date.now()
 }
 
 export async function userHasProAccess(userId: string) {

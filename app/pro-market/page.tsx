@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import type { ComponentType, ReactNode } from 'react'
 import type { Metadata } from 'next'
-import { unstable_cache } from 'next/cache'
 import {
   AlertTriangle,
   ArrowRight,
@@ -78,15 +77,12 @@ export default async function ProMarketPage({
   searchParams?: Promise<{ checkout?: string }>
 }) {
   const paramsPromise: Promise<{ checkout?: string }> = searchParams ?? Promise.resolve({})
-  const [params, authState, previewReport] = await Promise.all([
+  const [params, authState] = await Promise.all([
     paramsPromise,
     loadAuthState(),
-    loadCachedPreviewReport(),
   ])
   const { user, hasAccess } = authState
-  const report = hasAccess && isEmptyReport(previewReport)
-    ? await loadReport({ allowDirectDatabaseFallback: true })
-    : previewReport
+  const report = hasAccess ? await loadReport({ allowDirectDatabaseFallback: true }) : null
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -143,7 +139,11 @@ export default async function ProMarketPage({
 
             <div className="space-y-4">
               <PricingCard hasAccess={hasAccess} isLoggedIn={Boolean(user)} />
-              <ReportPreview report={report} hasAccess={hasAccess} />
+              {report ? (
+                <ReportPreview report={report} />
+              ) : (
+                <LockedReportPreview isLoggedIn={Boolean(user)} />
+              )}
             </div>
           </div>
         </div>
@@ -231,83 +231,7 @@ export default async function ProMarketPage({
       </section>
 
       <section className="px-4 pb-12">
-        <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-          <Panel title="Asset impact table" subtitle="Start here to see which part of the market the maritime signal could touch first." icon={TrendingUp}>
-            <AssetTable report={report} />
-          </Panel>
-
-          <Panel title="Chokepoint heat" subtitle="Use this to understand whether the risk is concentrated in one route or spreading across the map." icon={Gauge}>
-            <div className="grid gap-3">
-              {report.regions.map((region) => (
-                <div key={region.region} className="rounded-md border border-slate-200 bg-white p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-black text-slate-950">{regionLabel(region.region)}</p>
-                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{region.severity}</p>
-                    </div>
-                    <span className={`rounded-md px-2 py-1 text-sm font-black ${scorePillClass(region.score)}`}>{region.score}</span>
-                  </div>
-                  <div className="mt-3 h-2 rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-sky-700" style={{ width: `${region.score}%` }} />
-                  </div>
-                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
-                    {region.headlines[0] || 'No strong market signal yet.'}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Panel>
-
-          <Panel title="Ranked source events" subtitle={hasAccess ? 'Live VesselSurge events ranked by likely market transmission.' : 'Live VesselSurge events are visible here. Source links and full trail unlock with Pro.'} icon={AlertTriangle} wide>
-            <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
-              {report.topStories.slice(0, 6).map((story, index) => (
-                <div key={`${story.kind}-${story.id}`} className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0 md:grid-cols-[3rem_1fr_7rem] md:items-start">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-sm font-black text-slate-600">{index + 1}</div>
-                  <div>
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${scorePillClass(story.score)}`}>{story.severity}</span>
-                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{story.source}</span>
-                      <span className="rounded-md bg-sky-50 px-2 py-1 text-xs font-bold text-sky-800">{story.sourceQualityLabel}</span>
-                    </div>
-                    <h3 className="font-black leading-snug text-slate-950">{story.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{story.summary}</p>
-                  </div>
-                  <div className="text-left md:text-right">
-                    <p className="text-2xl font-black text-slate-950">{story.score}</p>
-                    {hasAccess && story.sourceUrl ? (
-                      <Link href={story.sourceUrl} className="text-sm font-bold text-sky-700 hover:underline" target="_blank">Open source</Link>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-sm font-bold text-slate-500">
-                        <LockKeyhole className="h-3.5 w-3.5" />
-                        Locked
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Panel>
-
-          <Panel title="Methodology" subtitle="The model stays readable: gather evidence, classify the market channel, then explain the trigger." icon={ShieldCheck} wide>
-            <div className="grid gap-4 md:grid-cols-4">
-              {[
-                ['1', 'Collect', 'Trusted maritime news, official warnings and VesselSurge live-map signals enter one evidence layer.'],
-                ['2', 'Filter', 'Old, vague or unrelated finance noise is reduced so the report stays focused.'],
-                ['3', 'Map', 'The signal is mapped to oil, tankers, freight, insurance or logistics exposure.'],
-                ['4', 'Explain', 'The customer sees the score, the reason, the source trail and the next watch trigger.'],
-              ].map(([step, title, body]) => (
-                <div key={step} className="rounded-md border border-slate-200 bg-white p-4">
-                  <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-md bg-sky-50 text-sm font-black text-sky-800">{step}</div>
-                  <h3 className="font-black text-slate-950">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-              {report.disclaimer}
-            </div>
-          </Panel>
-        </div>
+        {report ? <UnlockedReport report={report} /> : <LockedAnalysisSection isLoggedIn={Boolean(user)} />}
       </section>
     </main>
   )
@@ -393,7 +317,7 @@ function PricingCard({ hasAccess, isLoggedIn }: { hasAccess: boolean; isLoggedIn
   )
 }
 
-function ReportPreview({ report, hasAccess }: { report: Report; hasAccess: boolean }) {
+function ReportPreview({ report }: { report: Report }) {
   const leadAsset = report.assetImpacts[0]
 
   return (
@@ -401,11 +325,11 @@ function ReportPreview({ report, hasAccess }: { report: Report; hasAccess: boole
       <div className="border-b border-slate-200 px-5 py-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Report preview</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Subscriber report</p>
             <h2 className="mt-1 text-2xl font-black text-slate-950">Market impact report</h2>
           </div>
-          <span className={`rounded-md px-2.5 py-1.5 text-xs font-black uppercase ${hasAccess ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
-            {hasAccess ? 'Live' : 'Preview'}
+          <span className="rounded-md bg-emerald-50 px-2.5 py-1.5 text-xs font-black uppercase text-emerald-800">
+            Live
           </span>
         </div>
       </div>
@@ -428,8 +352,182 @@ function ReportPreview({ report, hasAccess }: { report: Report; hasAccess: boole
           <ReportRow label="Strongest driver" value={leadAsset?.drivers?.[0] || 'No confirmed driver'} detail={leadAsset ? `${leadAsset.score}/100 pressure` : 'Preview'} />
           <ReportRow label="Evidence quality" value={report.topStories[0]?.sourceQualityLabel || 'No ranked source'} detail={report.topStories[0] ? `${report.topStories[0].sourceQualityScore}/100 source score` : 'Waiting for live evidence'} />
           <ReportRow label="Next watch trigger" value={report.watchTriggers[0]} detail="Raises score if confirmed by trusted sources" />
-          <ReportRow label="Customer access" value={hasAccess ? 'Full report unlocked' : 'Preview only'} detail={hasAccess ? 'Live source trail visible' : 'Subscription required'} />
+          <ReportRow label="Customer access" value="Full report unlocked" detail="Live source trail visible" />
         </div>
+      </div>
+    </div>
+  )
+}
+
+function LockedReportPreview({ isLoggedIn }: { isLoggedIn: boolean }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 px-5 py-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Paid subscriber area</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">Market impact report</h2>
+          </div>
+          <span className="rounded-md bg-slate-100 px-2.5 py-1.5 text-xs font-black uppercase text-slate-600">
+            Locked
+          </span>
+        </div>
+      </div>
+
+      <div className="grid gap-0 md:grid-cols-[0.45fr_0.55fr]">
+        <div className="border-b border-slate-200 p-5 md:border-b-0 md:border-r">
+          <div className="flex h-24 items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50">
+            <LockKeyhole className="h-8 w-8 text-slate-500" />
+          </div>
+          <p className="mt-4 text-sm leading-6 text-slate-600">
+            Live market scores, ranked source events, asset pressure and watch triggers open only after Stripe confirms an active paid Market Pro subscription.
+          </p>
+          <div className="mt-5">
+            {isLoggedIn ? (
+              <form action="/api/stripe/checkout" method="post">
+                <Button type="submit" className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
+                  Start subscription
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
+            ) : (
+              <Link href="/auth/sign-up?next=/pro-market">
+                <Button className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
+                  Create account to unlock
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <div className="divide-y divide-slate-200">
+          <ReportRow label="Pressure score" value="Subscription required" detail="No live score is shown before payment" />
+          <ReportRow label="Lead asset channel" value="Locked" detail="Oil, freight, tanker, insurance and logistics channels" />
+          <ReportRow label="Ranked source events" value="Locked" detail="Source trail is available to paid users only" />
+          <ReportRow label="Watch triggers" value="Locked" detail="Subscriber-only market monitoring context" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function UnlockedReport({ report }: { report: Report }) {
+  return (
+    <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+      <Panel title="Asset impact table" subtitle="Start here to see which part of the market the maritime signal could touch first." icon={TrendingUp}>
+        <AssetTable report={report} />
+      </Panel>
+
+      <Panel title="Chokepoint heat" subtitle="Use this to understand whether the risk is concentrated in one route or spreading across the map." icon={Gauge}>
+        <div className="grid gap-3">
+          {report.regions.map((region) => (
+            <div key={region.region} className="rounded-md border border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-black text-slate-950">{regionLabel(region.region)}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{region.severity}</p>
+                </div>
+                <span className={`rounded-md px-2 py-1 text-sm font-black ${scorePillClass(region.score)}`}>{region.score}</span>
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-slate-100">
+                <div className="h-full rounded-full bg-sky-700" style={{ width: `${region.score}%` }} />
+              </div>
+              <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
+                {region.headlines[0] || 'No strong market signal yet.'}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Ranked source events" subtitle="Live VesselSurge events ranked by likely market transmission." icon={AlertTriangle} wide>
+        <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
+          {report.topStories.slice(0, 6).map((story, index) => (
+            <div key={`${story.kind}-${story.id}`} className="grid gap-4 border-b border-slate-200 p-4 last:border-b-0 md:grid-cols-[3rem_1fr_7rem] md:items-start">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-sm font-black text-slate-600">{index + 1}</div>
+              <div>
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <span className={`rounded-md px-2 py-1 text-xs font-black uppercase ${scorePillClass(story.score)}`}>{story.severity}</span>
+                  <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{story.source}</span>
+                  <span className="rounded-md bg-sky-50 px-2 py-1 text-xs font-bold text-sky-800">{story.sourceQualityLabel}</span>
+                </div>
+                <h3 className="font-black leading-snug text-slate-950">{story.title}</h3>
+                <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{story.summary}</p>
+              </div>
+              <div className="text-left md:text-right">
+                <p className="text-2xl font-black text-slate-950">{story.score}</p>
+                {story.sourceUrl ? (
+                  <Link href={story.sourceUrl} className="text-sm font-bold text-sky-700 hover:underline" target="_blank">Open source</Link>
+                ) : (
+                  <span className="text-sm font-bold text-slate-500">No source link</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Methodology" subtitle="The model stays readable: gather evidence, classify the market channel, then explain the trigger." icon={ShieldCheck} wide>
+        <div className="grid gap-4 md:grid-cols-4">
+          {[
+            ['1', 'Collect', 'Trusted maritime news, official warnings and VesselSurge live-map signals enter one evidence layer.'],
+            ['2', 'Filter', 'Old, vague or unrelated finance noise is reduced so the report stays focused.'],
+            ['3', 'Map', 'The signal is mapped to oil, tankers, freight, insurance or logistics exposure.'],
+            ['4', 'Explain', 'The customer sees the score, the reason, the source trail and the next watch trigger.'],
+          ].map(([step, title, body]) => (
+            <div key={step} className="rounded-md border border-slate-200 bg-white p-4">
+              <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-md bg-sky-50 text-sm font-black text-sky-800">{step}</div>
+              <h3 className="font-black text-slate-950">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+          {report.disclaimer}
+        </div>
+      </Panel>
+    </div>
+  )
+}
+
+function LockedAnalysisSection({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const lockedItems = ['Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
+
+  return (
+    <div className="mx-auto max-w-7xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">Paid access required</p>
+          <h2 className="mt-2 text-2xl font-black text-slate-950">The live Market Pro report is locked until payment is active.</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+            Public visitors can read what Market Pro does, but the real-time market-impact report, scores, source links and watch triggers are only rendered for paid subscribers.
+          </p>
+        </div>
+        {isLoggedIn ? (
+          <form action="/api/stripe/checkout" method="post">
+            <Button type="submit" className="min-h-11 bg-slate-950 text-white hover:bg-slate-800">
+              Unlock full report
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <Link href="/auth/sign-up?next=/pro-market">
+            <Button className="min-h-11 bg-slate-950 text-white hover:bg-slate-800">
+              Create account
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {lockedItems.map((item) => (
+          <div key={item} className="flex min-h-24 flex-col justify-between rounded-md border border-slate-200 bg-slate-50 p-4">
+            <LockKeyhole className="h-5 w-5 text-slate-500" />
+            <p className="text-sm font-black text-slate-950">{item}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -671,12 +769,6 @@ function buildReportFromDashboardData(data: MaritimeDashboardResponse['data']) {
     })),
   )
 }
-
-const loadCachedPreviewReport = unstable_cache(
-  async () => loadReport({ allowDirectDatabaseFallback: false }),
-  ['vesselsurge-market-pro-preview-report-v2-live-maritime'],
-  { revalidate: 60 },
-)
 
 function isEmptyReport(report: Report) {
   return report.topStories.length === 0 && report.assetImpacts.every((asset) => asset.score === 0)
