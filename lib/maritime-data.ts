@@ -16,6 +16,10 @@ export interface Article {
   sourceQualityTier?: string
   freshnessScore?: number
   intelligenceScore?: number
+  reviewStatus?: 'approved' | 'watch' | 'blocked'
+  reviewReason?: string
+  reviewScore?: number
+  reviewedAt?: string
 }
 
 export interface Hotspot {

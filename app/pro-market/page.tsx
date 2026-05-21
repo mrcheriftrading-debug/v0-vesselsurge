@@ -62,6 +62,8 @@ type InstrumentOutlook = {
   view: string
   reason: string
   expectedMoveLabel: string
+  sellSignal: string
+  sellReason: string
   catalyst: string
   score: number
   tone: OutlookTone
@@ -425,6 +427,11 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">AI strongest market tip</p>
           <h3 className="mt-3 text-3xl font-black leading-tight">{outlook.recommendation}</h3>
           <p className="mt-4 text-base leading-7 text-slate-200">{outlook.summary}</p>
+          {outlook.instruments[0]?.sellSignal ? (
+            <p className="mt-4 rounded-md bg-white/10 px-3 py-2 text-sm font-bold leading-6 text-slate-100">
+              When to sell: {outlook.instruments[0].sellSignal}
+            </p>
+          ) : null}
           <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-300">
             <span className="rounded-md bg-white/10 px-3 py-2">{categoryLabel(selectedCategory)}</span>
             <span className="rounded-md bg-white/10 px-3 py-2">{outlook.score}/100 impact</span>
@@ -450,6 +457,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
                 <p className="font-black text-slate-950">{instrument.label}</p>
                 <p className="text-xs font-semibold text-slate-500">{instrument.reason}</p>
                 <p className="mt-1 text-[11px] font-semibold text-slate-400">News reason: {instrument.catalyst}</p>
+                <p className="mt-1 text-[11px] font-black text-rose-700">When to sell: {instrument.sellSignal}</p>
               </div>
               <div className="self-center text-right">
                 <p className={`font-black ${outlookToneClass(instrument.tone)}`}>{instrument.view}</p>
@@ -478,6 +486,7 @@ function OutlookTile({ instrument }: { instrument: InstrumentOutlook }) {
         <p className="text-sm font-black text-slate-700">{instrument.score}/100</p>
       </div>
       <p className="mt-2 text-xs font-black text-slate-500">{instrument.expectedMoveLabel}</p>
+      <p className="mt-2 text-xs font-semibold leading-5 text-rose-700">Sell: {instrument.sellSignal}</p>
     </div>
   )
 }
@@ -672,16 +681,22 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
 function buildInstrumentOutlooks(report: Report, category: AssetCategory, categoryScore: number): InstrumentOutlook[] {
   const reportTips = report.investmentTips?.[category]
   if (reportTips?.length) {
-    return reportTips.map((tip) => ({
-      symbol: tip.symbol,
-      label: tip.label,
-      view: tip.tip,
-      reason: tip.reason,
-      expectedMoveLabel: tip.expectedMoveLabel,
-      catalyst: tip.catalyst,
-      score: tip.score,
-      tone: tip.tone,
-    }))
+    return reportTips.map((tip) => {
+      const fallbackSell = sellSignalForInstrument(tip.tone, category, tip.expectedMoveLabel)
+
+      return {
+        symbol: tip.symbol,
+        label: tip.label,
+        view: tip.tip,
+        reason: tip.reason,
+        expectedMoveLabel: tip.expectedMoveLabel,
+        sellSignal: tip.sellSignal || fallbackSell.sellSignal,
+        sellReason: tip.sellReason || fallbackSell.sellReason,
+        catalyst: tip.catalyst,
+        score: tip.score,
+        tone: tip.tone,
+      }
+    })
   }
 
   const quotes = categoryMarketQuotes(report.marketSnapshot, category)
@@ -697,6 +712,7 @@ function buildInstrumentOutlooks(report: Report, category: AssetCategory, catego
       const score = Math.max(0, Math.min(100, Math.round(categoryScore + Math.abs(momentum) * 4 + instrumentScoreAdjustment(quote, category, report))))
       const { view, tone, reason } = instrumentViewForQuote(quote, category, report, momentum)
       const expectedMoveLabel = expectedMoveForInstrument({ quote, category, score, tone, momentum })
+      const { sellSignal, sellReason } = sellSignalForInstrument(tone, category, expectedMoveLabel)
 
       return {
         symbol: quote.symbol,
@@ -704,6 +720,8 @@ function buildInstrumentOutlooks(report: Report, category: AssetCategory, catego
         view,
         reason: reason || sourceSignal,
         expectedMoveLabel,
+        sellSignal,
+        sellReason,
         catalyst: sourceSignal,
         score,
         tone,
@@ -805,24 +823,47 @@ function expectedMoveForInstrument({
   return `AI expects ${sign > 0 ? '+' : '-'}${formatNumber(projectedMove, 1)}%`
 }
 
+function sellSignalForInstrument(tone: OutlookTone, category: AssetCategory, expectedMoveLabel: string) {
+  if (tone === 'positive' && expectedMoveLabel.startsWith('AI expects ')) {
+    const target = expectedMoveLabel.replace('AI expects ', '')
+    const stopLoss = category === 'crypto' ? '-1.2%' : category === 'fx' ? '-0.3%' : '-0.8%'
+    return {
+      sellSignal: `Sell near ${target} or if price moves ${stopLoss} against the idea.`,
+      sellReason: 'Take profit if the AI move is reached. Exit if the news effect fades.',
+    }
+  }
+
+  if (tone === 'caution' || tone === 'wait') {
+    return {
+      sellSignal: 'Sell or stay out until the signal improves.',
+      sellReason: 'The news and price signal are not strong enough yet.',
+    }
+  }
+
+  return {
+    sellSignal: 'No sell signal yet.',
+    sellReason: 'Wait for clearer news and price confirmation first.',
+  }
+}
+
 function fallbackInstrumentOutlooks(category: AssetCategory, score: number, reason: string): InstrumentOutlook[] {
   if (category === 'crypto') {
     return [
-      { symbol: 'BTC', label: 'Bitcoin', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', catalyst: reason, score, tone: 'neutral' },
-      { symbol: 'ETH', label: 'Ethereum', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+      { symbol: 'BTC', label: 'Bitcoin', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score, tone: 'neutral' },
+      { symbol: 'ETH', label: 'Ethereum', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
     ]
   }
 
   if (category === 'fx') {
     return [
-      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', catalyst: reason, score, tone: 'neutral' },
-      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score, tone: 'neutral' },
+      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
     ]
   }
 
   return [
-    { symbol: 'FRO', label: 'Frontline', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', catalyst: reason, score, tone: 'neutral' },
-    { symbol: 'IYT', label: 'US transports ETF', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+    { symbol: 'FRO', label: 'Frontline', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score, tone: 'neutral' },
+    { symbol: 'IYT', label: 'US transports ETF', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
   ]
 }
 

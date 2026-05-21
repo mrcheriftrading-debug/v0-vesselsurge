@@ -53,6 +53,9 @@ type FeedItem = {
   label: string
   sourceQualityLabel?: string
   intelligenceScore?: number
+  reviewStatus?: 'approved' | 'watch' | 'blocked'
+  reviewReason?: string
+  reviewScore?: number
 }
 
 const WATCH_COVERAGE: Record<string, Array<{ source: string; signalType: string; title: string; summary: string }>> = {
@@ -319,6 +322,9 @@ export default function MapDashboard() {
       label: 'SOURCE REPORT',
       sourceQualityLabel: article.sourceQualityLabel || maritimeSourceQualityLabel(article.source),
       intelligenceScore: article.intelligenceScore,
+      reviewStatus: article.reviewStatus,
+      reviewReason: article.reviewReason,
+      reviewScore: article.reviewScore,
     })),
     ...selectedSignals.map((signal) => ({
       id: signal.signalKey,
@@ -805,6 +811,19 @@ export default function MapDashboard() {
                             {typeof item.intelligenceScore === 'number' ? (
                               <span className="rounded border border-cyan-300/20 bg-cyan-300/10 px-1.5 py-0.5 text-[10px] font-black text-cyan-200">
                                 IQ {item.intelligenceScore}
+                              </span>
+                            ) : null}
+                            {item.reviewStatus ? (
+                              <span
+                                className="rounded border px-1.5 py-0.5 text-[10px] font-black"
+                                title={item.reviewReason}
+                                style={{
+                                  borderColor: item.reviewStatus === 'approved' ? '#22c55e55' : '#eab30855',
+                                  background: item.reviewStatus === 'approved' ? '#22c55e18' : '#eab30818',
+                                  color: item.reviewStatus === 'approved' ? '#86efac' : '#fde68a',
+                                }}
+                              >
+                                {item.reviewStatus === 'approved' ? 'REVIEWED' : 'WATCH REVIEW'} {item.reviewScore ?? ''}
                               </span>
                             ) : null}
                             <span className="text-xs text-muted-foreground" title={`Published ${formatExactPublishedTime(item.timestamp)}`}>

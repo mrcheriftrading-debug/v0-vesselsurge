@@ -99,6 +99,10 @@ export type MaritimeDashboardResponse = {
       sourceQualityTier?: string
       freshnessScore?: number
       intelligenceScore?: number
+      reviewStatus?: 'approved' | 'watch' | 'blocked'
+      reviewReason?: string
+      reviewScore?: number
+      reviewedAt?: string
     }>
     hotspots: Array<{
       id: string
@@ -303,6 +307,61 @@ function balanceDashboardArticles<T extends { region?: string | null; timestamp?
   return selected.sort((a, b) => Date.parse(b.timestamp || '') - Date.parse(a.timestamp || ''))
 }
 
+type LiveMapReviewInput = {
+  source?: string | null
+  title?: string | null
+  summary?: string | null
+  region?: string | null
+  sourceQualityScore?: number | null
+  freshnessScore?: number | null
+  intelligenceScore?: number | null
+}
+
+export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
+  const sourceScore = article.sourceQualityScore ?? maritimeSourceQualityScore(article.source)
+  const freshnessScore = article.freshnessScore ?? 0
+  const intelligenceScore = article.intelligenceScore ?? 0
+  const text = `${article.title || ''} ${article.summary || ''} ${article.region || ''}`
+  const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
+    .test(text)
+  const reviewScore = Math.round((intelligenceScore * 0.46) + (sourceScore * 0.28) + (freshnessScore * 0.18) + (routeEvidence ? 8 : 0))
+  const sourceLabel = maritimeSourceQualityLabel(article.source)
+
+  if (reviewScore >= 68 && sourceScore >= 55 && routeEvidence) {
+    return {
+      reviewStatus: 'approved' as const,
+      reviewReason: `Approved for live map: ${reviewScore}/100 review score, ${sourceLabel}, route evidence confirmed.`,
+      reviewScore,
+      reviewedAt: new Date().toISOString(),
+    }
+  }
+
+  if (reviewScore >= 56 && sourceScore >= 55 && routeEvidence) {
+    return {
+      reviewStatus: 'watch' as const,
+      reviewReason: `Watch-listed for live map: ${reviewScore}/100 review score; keep until fresher or stronger confirmation arrives.`,
+      reviewScore,
+      reviewedAt: new Date().toISOString(),
+    }
+  }
+
+  return {
+    reviewStatus: 'blocked' as const,
+    reviewReason: `Blocked before live map: ${reviewScore}/100 review score lacks enough source, freshness or route evidence.`,
+    reviewScore,
+    reviewedAt: new Date().toISOString(),
+  }
+}
+
+function reviewedLiveMapArticles<T extends LiveMapReviewInput>(articles: T[]) {
+  return articles
+    .map((article) => ({
+      ...article,
+      ...reviewArticleForLiveMap(article),
+    }))
+    .filter((article) => article.reviewStatus !== 'blocked')
+}
+
 function hoursOld(value?: string | null) {
   if (!value) return null
   const parsed = Date.parse(value)
@@ -388,6 +447,7 @@ function buildQualityAudit(
     watchRows.length ? `Prioritize ${watchRows.map((gap) => gap.hotspot).join(', ')} for the next source sweep.` : null,
     sourceMix.official + sourceMix.tierOne < 4 ? 'Increase official and Tier-1 confirmation density.' : null,
     coverageGaps.some((gap) => gap.missing.includes('fresh signal under 12h')) ? 'Refresh operational signals for routes with stale signal context.' : null,
+    articles.some((article) => article.reviewStatus === 'watch') ? 'Some live-map reports are watch-listed and should be replaced when stronger confirmation arrives.' : null,
   ].filter(Boolean) as string[]
 
   return {
@@ -523,7 +583,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
         }),
       }
     })
-  const articles = balanceDashboardArticles(dedupeArticles([...rawArticles, ...signalBackedArticles]))
+  const articles = balanceDashboardArticles(reviewedLiveMapArticles(dedupeArticles([...rawArticles, ...signalBackedArticles])))
 
   const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
     const region = article.region || 'global'
@@ -598,7 +658,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       qualityAudit,
     },
     meta: {
-      version: '3.1.0',
+      version: '3.4.0-reviewed-live-map',
       source: 'VesselSurge Maritime Data API',
       cacheControl: 'public, s-maxage=30, stale-while-revalidate=120',
       cached: false,

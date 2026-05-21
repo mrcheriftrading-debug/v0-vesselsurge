@@ -3,6 +3,7 @@ import {
   buildMaritimeDashboardPayload,
   getFreshMaritimeDashboardCache,
   getLastMaritimeDashboardCache,
+  reviewArticleForLiveMap,
   type MaritimeDashboardResponse,
 } from '@/lib/maritime-dashboard-cache'
 import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
@@ -130,6 +131,11 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
         }),
       }
     })
+    .map((article) => ({
+      ...article,
+      ...reviewArticleForLiveMap(article),
+    }))
+    .filter((article) => article.reviewStatus !== 'blocked')
 
   if (normalizedArticles.length === 0) return null
 
@@ -239,7 +245,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       },
     },
     meta: {
-      version: '3.3.0-direct-live',
+      version: '3.4.0-direct-live-reviewed',
       source: 'VesselSurge direct source sweep',
       cacheControl: 'public, s-maxage=120, stale-while-revalidate=300',
       cached: false,

@@ -72,6 +72,8 @@ type InvestmentTip = {
   catalystPublishedAt: string | null
   expectedMovePct: number | null
   expectedMoveLabel: string
+  sellSignal: string
+  sellReason: string
   score: number
   confidence: 'high' | 'medium' | 'developing'
   tone: InvestmentTone
@@ -451,6 +453,36 @@ function investmentExpectedMove({
   }
 }
 
+function investmentSellSignal({
+  category,
+  tone,
+  expectedMovePct,
+}: {
+  category: InvestmentCategory
+  tone: InvestmentTone
+  expectedMovePct: number | null
+}) {
+  if (tone === 'positive' && expectedMovePct !== null) {
+    const stopLoss = category === 'crypto' ? '-1.2%' : category === 'fx' ? '-0.3%' : '-0.8%'
+    return {
+      sellSignal: `Sell near ${formatPercent(expectedMovePct, 1)} or if price moves ${stopLoss} against the idea.`,
+      sellReason: 'Take profit if the AI move is reached. Exit early if the news effect fades.',
+    }
+  }
+
+  if (tone === 'caution' || tone === 'wait') {
+    return {
+      sellSignal: 'Sell or stay out until the signal improves.',
+      sellReason: 'The news and live price do not support a clean buy idea yet.',
+    }
+  }
+
+  return {
+    sellSignal: 'No sell signal yet.',
+    sellReason: 'Wait for clearer news and price confirmation first.',
+  }
+}
+
 function buildInvestmentTips(
   marketSnapshot: MarketSnapshot | null,
   marketPressureScore: number,
@@ -480,6 +512,7 @@ function buildInvestmentTips(
     ))
     const { tip, tone, reason } = investmentViewForQuote(quote, category, marketPressureScore)
     const { expectedMovePct, expectedMoveLabel } = investmentExpectedMove({ quote, category, score, tone })
+    const { sellSignal, sellReason } = investmentSellSignal({ category, tone, expectedMovePct })
 
     board[category].push({
       category,
@@ -493,6 +526,8 @@ function buildInvestmentTips(
       catalystPublishedAt: catalystStory?.timestamp || marketSnapshot.generatedAt,
       expectedMovePct,
       expectedMoveLabel,
+      sellSignal,
+      sellReason,
       score,
       confidence: investmentConfidence(score),
       tone,
