@@ -36,9 +36,11 @@ export async function updateSession(request: NextRequest) {
   // Protect private routes and skip auth entry pages for users who already have a session.
   const pathname = request.nextUrl.pathname
   const isAdminRoute = pathname.startsWith('/admin')
+  const isPasswordUpdatePage = pathname === '/auth/update-password'
   const isProtected = 
     pathname.startsWith('/dashboard') ||
-    isAdminRoute
+    isAdminRoute ||
+    isPasswordUpdatePage
   const isAuthEntryPage =
     pathname === '/auth/login' ||
     pathname === '/auth/sign-up' ||

@@ -17,7 +17,8 @@ const authRecoveryRedirectScript = `
     const queryParams = new URLSearchParams(search.replace(/^\\?/, ''));
     const isRecovery =
       hashParams.get('type') === 'recovery' ||
-      queryParams.get('type') === 'recovery';
+      queryParams.get('type') === 'recovery' ||
+      queryParams.get('next') === '/auth/reset-password';
     const hasHashSession = hashParams.get('access_token') && hashParams.get('refresh_token');
     const hasCode = queryParams.get('code');
 

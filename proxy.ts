@@ -7,14 +7,14 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Only run proxy on auth-protected routes — NOT on public pages
-    // This prevents vs_work Vercel auth wall from blocking the whole site
-    '/dashboard/:path*',
-    '/admin/:path*',
-    '/auth/login',
-    '/auth/sign-up',
-    '/auth/sign-up-success',
-    '/auth/callback',
-    '/auth/sign-out',
+    /*
+     * Refresh Supabase auth cookies on real page navigations so users stay
+     * signed in while moving between public, dashboard, and Market Pro pages.
+     * Static assets and high-volume public API routes stay out of this path.
+     */
+    '/((?!api/|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|feed.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|txt|xml|json|webmanifest)$).*)',
+    '/api/auth/:path*',
+    '/api/pro/:path*',
+    '/api/stripe/checkout',
   ],
 }

@@ -14,6 +14,7 @@ type PasswordResetFormProps = {
 
 export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: PasswordResetFormProps) {
   const router = useRouter()
+  const isAccountPasswordPage = cleanPath === "/auth/update-password"
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isCheckingSession, setIsCheckingSession] = useState(true)
@@ -23,10 +24,10 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
   useEffect(() => {
     const supabase = createClient()
     let active = true
-    const markInvalid = () => {
+    const markInvalid = (message = "This reset link is invalid or expired. Request a new password reset link.") => {
       if (!active) return
       setIsCheckingSession(false)
-      setError("This reset link is invalid or expired. Request a new password reset link.")
+      setError(message)
     }
 
     const cleanRecoveryUrl = () => {
@@ -42,10 +43,10 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
       const recoveryType = hash.get("type") || params.get("type")
 
       if (code) {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
         if (!active) return
 
-        if (exchangeError) {
+        if (exchangeError || !data.session) {
           markInvalid()
           return
         }
@@ -76,6 +77,11 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
       if (!active) return
 
       if (!user) {
+        if (isAccountPasswordPage) {
+          markInvalid("Log in again before changing your password.")
+          return
+        }
+
         markInvalid()
         return
       }
@@ -98,7 +104,7 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
       active = false
       listener.subscription.unsubscribe()
     }
-  }, [cleanPath])
+  }, [cleanPath, isAccountPasswordPage])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -116,14 +122,23 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
 
     setIsLoading(true)
     const supabase = createClient()
-    const { error: updateError } = await supabase.auth.updateUser({ password })
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (updateError) {
-      setError(updateError.message)
+    if (!user) {
+      setError("Your session expired. Log in again before changing your password.")
       setIsLoading(false)
       return
     }
 
+    const { error: updateError } = await supabase.auth.updateUser({ password })
+
+    if (updateError) {
+      setError(getFriendlyPasswordError(updateError.message))
+      setIsLoading(false)
+      return
+    }
+
+    await supabase.auth.refreshSession().catch(() => null)
     router.replace("/dashboard")
     router.refresh()
   }
@@ -148,7 +163,9 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
               </div>
               <h1 className="text-2xl font-bold text-foreground">Reset Your Password</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Enter a new password for your VesselSurge account.
+                {isAccountPasswordPage
+                  ? "Set a new password for this signed-in VesselSurge account."
+                  : "Enter a new password for your VesselSurge account."}
               </p>
             </div>
 
@@ -195,7 +212,7 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={isLoading || isCheckingSession || !!error?.includes("expired")}>
+              <Button type="submit" className="w-full" disabled={isLoading || isCheckingSession || isFatalResetError(error)}>
                 {isCheckingSession ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -223,4 +240,23 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
       </main>
     </div>
   )
+}
+
+function isFatalResetError(error: string | null) {
+  if (!error) return false
+  return error.includes("expired") || error.includes("Log in again")
+}
+
+function getFriendlyPasswordError(message: string) {
+  const lower = message.toLowerCase()
+  if (lower.includes("auth session missing") || lower.includes("jwt") || lower.includes("session")) {
+    return "Your session expired. Log in again before changing your password."
+  }
+  if (lower.includes("weak") || lower.includes("password")) {
+    return message
+  }
+  if (lower.includes("rate limit")) {
+    return "Too many password attempts. Wait a minute and try again."
+  }
+  return message
 }

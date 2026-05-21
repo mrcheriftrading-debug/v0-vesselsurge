@@ -3,7 +3,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getFallbackUser } from "@/lib/fallback-auth"
 import { Button } from "@/components/ui/button"
-import { Zap, Ship, Package, MapPin, User, LogOut, TrendingUp } from "lucide-react"
+import { Zap, Ship, Package, MapPin, User, LogOut, TrendingUp, KeyRound } from "lucide-react"
 import type { Metadata } from 'next'
 
 const BASE_URL = 'https://www.vesselsurge.com'
@@ -214,6 +214,16 @@ export default async function DashboardPage() {
                   {new Date(user.created_at).toLocaleDateString()}
                 </span>
               </div>
+              {supabaseUser && (
+                <div className="pt-2">
+                  <Link href="/auth/update-password">
+                    <Button className="w-full justify-start" variant="outline">
+                      <KeyRound className="mr-2 h-4 w-4" />
+                      Change password
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
