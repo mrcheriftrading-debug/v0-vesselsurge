@@ -202,6 +202,27 @@ function createSupabaseAdmin() {
 }
 
 async function deleteSmokeUser(email, password) {
+  loadLocalEnv()
+  const cronSecret = process.env.CRON_SECRET
+  if (cronSecret) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/smoke-cleanup`, {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${cronSecret}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+        signal: AbortSignal.timeout(10000),
+      })
+
+      if (response.ok) return true
+      console.warn('[auth-smoke] App cleanup endpoint skipped:', response.status, (await response.text()).slice(0, 240))
+    } catch (error) {
+      console.warn('[auth-smoke] App cleanup endpoint failed:', error instanceof Error ? error.message : String(error))
+    }
+  }
+
   const { userClient, adminClient } = createSupabaseAdmin()
   const { data, error } = await userClient.auth.signInWithPassword({ email, password })
   if (error || !data.user) return false

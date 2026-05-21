@@ -134,15 +134,19 @@ async function verifyPage(client, route, expectedText, viewport) {
     expression: `(() => ({
       ready: document.readyState,
       title: document.title,
-      textOk: document.body.innerText.includes(${JSON.stringify(expectedText)}),
-      scrollWidth: document.documentElement.scrollWidth,
+      textOk: (document.body?.innerText || '').includes(${JSON.stringify(expectedText)}),
+      scrollWidth: document.documentElement?.scrollWidth || window.innerWidth,
       innerWidth: window.innerWidth,
-      bodyText: document.body.innerText.slice(0, 220)
+      bodyText: (document.body?.innerText || '').slice(0, 220)
     }))()`,
     returnByValue: true,
   })
 
-  const value = evaluated.result.value
+  if (evaluated.exceptionDetails) {
+    throw new Error(evaluated.exceptionDetails.exception?.description || evaluated.exceptionDetails.text || `Evaluation failed for ${route}`)
+  }
+
+  const value = evaluated.result?.value || {}
   const overflow = value.scrollWidth > value.innerWidth + 3
   const ok = value.ready === 'complete' && value.textOk && !overflow && client.events.length === 0
 
