@@ -57,6 +57,14 @@ type AssetImpact = {
   marketMove: string | null
 }
 
+type FactEvidence = {
+  label: string
+  source: string
+  sourceUrl: string | null
+  publishedAt: string | null
+  region: string
+}
+
 type InvestmentCategory = 'stocks' | 'crypto' | 'fx'
 type InvestmentTone = 'positive' | 'caution' | 'wait' | 'neutral'
 
@@ -70,6 +78,8 @@ type InvestmentTip = {
   catalystSource: string | null
   catalystUrl: string | null
   catalystPublishedAt: string | null
+  facts: FactEvidence[]
+  factGate: 'source-backed' | 'price-only' | 'insufficient-evidence'
   expectedMovePct: number | null
   expectedMoveLabel: string
   sellSignal: string
@@ -94,6 +104,8 @@ type SourceSummary = {
   latestEvidenceAt: string | null
   leadSource: string | null
   leadSourceUrl: string | null
+  factBasisCount: number
+  factGate: 'source-backed' | 'price-only' | 'insufficient-evidence'
 }
 
 const PRO_INVESTOR_SKILL = {
@@ -437,6 +449,53 @@ function investmentViewForQuote(quote: MarketQuote, category: InvestmentCategory
   return { tip: 'Wait', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
 }
 
+function factsFromStories(stories: RankedMarketStory[]): FactEvidence[] {
+  return stories
+    .filter((story) => story.source && story.title && story.timestamp)
+    .slice(0, 3)
+    .map((story) => ({
+      label: `${story.region.toUpperCase()}: ${story.title}`,
+      source: story.source,
+      sourceUrl: story.sourceUrl,
+      publishedAt: story.timestamp,
+      region: story.region,
+    }))
+}
+
+function factGateForStories(stories: RankedMarketStory[], marketSnapshot: MarketSnapshot | null): InvestmentTip['factGate'] {
+  if (stories.length > 0) return 'source-backed'
+  if (marketSnapshot?.quotes?.length) return 'price-only'
+  return 'insufficient-evidence'
+}
+
+function applyFactGateToInvestmentView({
+  tip,
+  tone,
+  reason,
+  factGate,
+}: {
+  tip: string
+  tone: InvestmentTone
+  reason: string
+  factGate: InvestmentTip['factGate']
+}) {
+  if (factGate === 'source-backed') return { tip, tone, reason }
+
+  if (factGate === 'price-only') {
+    return {
+      tip: 'Watch only',
+      tone: 'neutral' as const,
+      reason: 'Live prices are available, but no fresh source-backed maritime event is strong enough for an AI trade view.',
+    }
+  }
+
+  return {
+    tip: 'Insufficient evidence',
+    tone: 'neutral' as const,
+    reason: 'The AI does not have enough fresh source evidence to produce a market tip.',
+  }
+}
+
 function investmentExpectedMove({
   quote,
   category,
@@ -469,7 +528,7 @@ function investmentExpectedMove({
 
   return {
     expectedMovePct,
-    expectedMoveLabel: `AI expects ${formatPercent(expectedMovePct, 1)}`,
+    expectedMoveLabel: `Fact scenario ${formatPercent(expectedMovePct, 1)}`,
   }
 }
 
@@ -486,7 +545,7 @@ function investmentSellSignal({
     const stopLoss = category === 'crypto' ? '-1.2%' : category === 'fx' ? '-0.3%' : '-0.8%'
     return {
       sellSignal: `Sell near ${formatPercent(expectedMovePct, 1)} or if price moves ${stopLoss} against the idea.`,
-      sellReason: 'Take profit if the AI move is reached. Exit early if the news effect fades.',
+      sellReason: 'Take profit if the fact scenario is reached. Exit early if the source evidence fades.',
     }
   }
 
@@ -517,6 +576,8 @@ function buildInvestmentTips(
   if (!marketSnapshot) return board
 
   const catalystStory = topStories[0]
+  const facts = factsFromStories(topStories)
+  const factGate = factGateForStories(topStories, marketSnapshot)
   const catalyst = catalystStory
     ? `${catalystStory.region.toUpperCase()}: ${catalystStory.title}`
     : marketSnapshot.summary
@@ -530,7 +591,8 @@ function buildInvestmentTips(
       Math.abs(quote.changePercent) * 4 +
       investmentScoreAdjustment(quote, category, marketPressureScore),
     ))
-    const { tip, tone, reason } = investmentViewForQuote(quote, category, marketPressureScore)
+    const rawView = investmentViewForQuote(quote, category, marketPressureScore)
+    const { tip, tone, reason } = applyFactGateToInvestmentView({ ...rawView, factGate })
     const { expectedMovePct, expectedMoveLabel } = investmentExpectedMove({ quote, category, score, tone })
     const { sellSignal, sellReason } = investmentSellSignal({ category, tone, expectedMovePct })
 
@@ -544,6 +606,8 @@ function buildInvestmentTips(
       catalystSource: catalystStory?.source || marketSnapshot.source,
       catalystUrl: catalystStory?.sourceUrl || marketSnapshot.sourceUrl,
       catalystPublishedAt: catalystStory?.timestamp || marketSnapshot.generatedAt,
+      facts,
+      factGate,
       expectedMovePct,
       expectedMoveLabel,
       sellSignal,
@@ -595,6 +659,8 @@ function buildSourceSummary(
     ]),
     leadSource: leadStory?.source || null,
     leadSourceUrl: leadStory?.sourceUrl || null,
+    factBasisCount: topStories.length,
+    factGate: topStories.length > 0 ? 'source-backed' : marketSnapshot?.quotes.length ? 'price-only' : 'insufficient-evidence',
   }
 }
 

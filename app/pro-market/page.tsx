@@ -65,6 +65,14 @@ type InstrumentOutlook = {
   sellSignal: string
   sellReason: string
   catalyst: string
+  facts: Array<{
+    label: string
+    source: string
+    sourceUrl: string | null
+    publishedAt: string | null
+    region: string
+  }>
+  factGate: 'source-backed' | 'price-only' | 'insufficient-evidence'
   score: number
   tone: OutlookTone
 }
@@ -285,6 +293,11 @@ function MarketProDataStatus({ report }: { report: Report }) {
   const summary = report.sourceSummary
   const newsAndSignals = (summary?.newsCount || 0) + (summary?.signalCount || 0)
   const staleExcluded = summary?.staleExcludedCount || 0
+  const factGateLabel = summary?.factGate === 'source-backed'
+    ? `${summary.factBasisCount} source-backed facts`
+    : summary?.factGate === 'price-only'
+      ? 'Live prices only'
+      : 'Insufficient evidence'
 
   return (
     <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-sm">
@@ -298,8 +311,8 @@ function MarketProDataStatus({ report }: { report: Report }) {
           <p className="mt-1 font-black text-emerald-950">{summary?.marketQuoteCount || report.marketSnapshot?.quotes.length || 0} instruments</p>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">News + signals</p>
-          <p className="mt-1 font-black text-emerald-950">{newsAndSignals || report.topStories.length} news/signals</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Fact gate</p>
+          <p className="mt-1 font-black text-emerald-950">{factGateLabel}</p>
         </div>
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Updated</p>
@@ -308,6 +321,7 @@ function MarketProDataStatus({ report }: { report: Report }) {
       </div>
       <p className="mt-3 text-xs font-semibold leading-5 text-emerald-800">
         Freshness gate: news under {summary?.freshnessWindowHours?.news || MARKET_PRO_NEWS_MAX_AGE_HOURS}h, signals under {summary?.freshnessWindowHours?.signals || MARKET_PRO_SIGNAL_MAX_AGE_HOURS}h.
+        {' '}Source inputs: {newsAndSignals || report.topStories.length} news/signals.
         {staleExcluded ? ` ${staleExcluded} stale items excluded from AI analysis.` : ' No stale items used in AI analysis.'}
       </p>
     </div>
@@ -411,6 +425,7 @@ function LiveMarketWorkspace({ report, selectedCategory }: { report: Report; sel
 
 function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selectedCategory: AssetCategory }) {
   const outlook = buildCategoryOutlook(report, selectedCategory)
+  const leadingFacts = outlook.instruments[0]?.facts || []
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -423,7 +438,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
           <Radar className="h-5 w-5 text-sky-700" />
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          The AI checks VesselSurge news, compares it with live stock-market prices, and turns it into simple market tips.
+          The AI can only use facts from VesselSurge sources and live prices. If facts are weak, it must say wait.
         </p>
       </div>
 
@@ -441,7 +456,33 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
             <span className="rounded-md bg-white/10 px-3 py-2">{categoryLabel(selectedCategory)}</span>
             <span className="rounded-md bg-white/10 px-3 py-2">{outlook.score}/100 impact</span>
             <span className="rounded-md bg-white/10 px-3 py-2">{outlook.confidence} confidence</span>
+            <span className="rounded-md bg-white/10 px-3 py-2">{factGateText(outlook.instruments[0]?.factGate)}</span>
           </div>
+        </div>
+
+        <div className="mt-5 rounded-md border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Facts used by AI</p>
+          {leadingFacts.length ? (
+            <div className="mt-3 grid gap-2">
+              {leadingFacts.map((fact) => (
+                <Link
+                  key={`${fact.source}-${fact.label}`}
+                  href={fact.sourceUrl || '#'}
+                  target={fact.sourceUrl ? '_blank' : undefined}
+                  className="rounded-md border border-slate-200 bg-white p-3 text-sm transition hover:border-sky-300"
+                >
+                  <span className="block font-black text-slate-950">{fact.label}</span>
+                  <span className="mt-1 block text-xs font-semibold text-slate-500">
+                    {fact.source}{fact.publishedAt ? ` · ${formatDateTime(fact.publishedAt)}` : ''}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+              No fresh source-backed maritime fact is strong enough. The AI is forced to show wait/watch instead of inventing a market call.
+            </p>
+          )}
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -461,7 +502,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
               <div>
                 <p className="font-black text-slate-950">{instrument.label}</p>
                 <p className="text-xs font-semibold text-slate-500">{instrument.reason}</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-400">News reason: {instrument.catalyst}</p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">Fact reason: {instrument.catalyst}</p>
                 <p className="mt-1 text-[11px] font-black text-rose-700">When to sell: {instrument.sellSignal}</p>
               </div>
               <div className="self-center text-right">
@@ -474,7 +515,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         </div>
 
         <p className="mt-4 text-xs font-semibold leading-5 text-slate-500">
-          AI market tips use live prices and VesselSurge news. They are general market research, not personal advice for your portfolio.
+          Fact rule: no source-backed facts means no AI buy/sell call. These are general market research notes, not personal advice for your portfolio.
         </p>
       </div>
     </section>
@@ -492,6 +533,7 @@ function OutlookTile({ instrument }: { instrument: InstrumentOutlook }) {
       </div>
       <p className="mt-2 text-xs font-black text-slate-500">{instrument.expectedMoveLabel}</p>
       <p className="mt-2 text-xs font-semibold leading-5 text-rose-700">Sell: {instrument.sellSignal}</p>
+      <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">{factGateText(instrument.factGate)}</p>
     </div>
   )
 }
@@ -634,7 +676,7 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
   let direction = 'No clear signal yet'
   let summary = 'Prices and shipping news do not point in one clear direction yet. The safer read is to wait for stronger confirmation.'
   const recommendation = instruments[0]
-    ? `AI tip: ${instruments[0].label} - ${instruments[0].view} (${instruments[0].expectedMoveLabel.replace('AI expects ', '')})`
+    ? `AI tip: ${instruments[0].label} - ${instruments[0].view} (${plainMoveLabel(instruments[0].expectedMoveLabel)})`
     : 'No clear market tip yet'
 
   if (category === 'stocks') {
@@ -686,29 +728,49 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
 function buildInstrumentOutlooks(report: Report, category: AssetCategory, categoryScore: number): InstrumentOutlook[] {
   const reportTips = report.investmentTips?.[category]
   if (reportTips?.length) {
+    const fallbackFacts = sourceFacts(report)
+    const fallbackFactGate = report.sourceSummary?.factGate || (fallbackFacts.length ? 'source-backed' : 'insufficient-evidence')
     return reportTips.map((tip) => {
-      const fallbackSell = sellSignalForInstrument(tip.tone, category, tip.expectedMoveLabel)
+      const facts = tip.facts?.length ? tip.facts : fallbackFacts
+      const factGate = tip.factGate || fallbackFactGate
+      const gatedTone = factGate === 'source-backed' ? tip.tone : 'neutral'
+      const gatedView = factGate === 'source-backed'
+        ? tip.tip
+        : factGate === 'price-only'
+          ? 'Watch only'
+          : 'Insufficient evidence'
+      const gatedReason = factGate === 'source-backed'
+        ? tip.reason
+        : factGate === 'price-only'
+          ? 'Live prices are available, but no fresh source-backed maritime fact supports a trade call.'
+          : 'The AI does not have enough fresh facts to make a market call.'
+      const expectedMoveLabel = factGate === 'source-backed' ? tip.expectedMoveLabel : 'No clear market signal'
+      const fallbackSell = sellSignalForInstrument(gatedTone, category, expectedMoveLabel)
 
       return {
         symbol: tip.symbol,
         label: tip.label,
-        view: tip.tip,
-        reason: tip.reason,
-        expectedMoveLabel: tip.expectedMoveLabel,
-        sellSignal: tip.sellSignal || fallbackSell.sellSignal,
-        sellReason: tip.sellReason || fallbackSell.sellReason,
+        view: gatedView,
+        reason: gatedReason,
+        expectedMoveLabel,
+        sellSignal: factGate === 'source-backed' ? tip.sellSignal || fallbackSell.sellSignal : fallbackSell.sellSignal,
+        sellReason: factGate === 'source-backed' ? tip.sellReason || fallbackSell.sellReason : fallbackSell.sellReason,
         catalyst: tip.catalyst,
+        facts,
+        factGate,
         score: tip.score,
-        tone: tip.tone,
+        tone: gatedTone,
       }
     })
   }
 
   const quotes = categoryMarketQuotes(report.marketSnapshot, category)
   const sourceSignal = sourceCatalyst(report)
+  const facts = sourceFacts(report)
+  const factGate = report.sourceSummary?.factGate || (facts.length ? 'source-backed' : 'insufficient-evidence')
 
   if (!quotes.length) {
-    return fallbackInstrumentOutlooks(category, categoryScore, sourceSignal)
+    return fallbackInstrumentOutlooks(category, categoryScore, sourceSignal, facts, factGate)
   }
 
   return quotes
@@ -728,6 +790,8 @@ function buildInstrumentOutlooks(report: Report, category: AssetCategory, catego
         sellSignal,
         sellReason,
         catalyst: sourceSignal,
+        facts,
+        factGate,
         score,
         tone,
       }
@@ -748,6 +812,17 @@ function instrumentViewForQuote(quote: MarketQuoteReport, category: AssetCategor
   reason: string
 } {
   const pressure = report.marketPressureScore
+  const factGate = report.sourceSummary?.factGate
+
+  if (factGate !== 'source-backed') {
+    return {
+      view: factGate === 'price-only' ? 'Watch only' : 'Insufficient evidence',
+      tone: 'neutral',
+      reason: factGate === 'price-only'
+        ? 'Live prices are available, but no fresh source-backed maritime fact supports a trade call.'
+        : 'The AI does not have enough fresh facts to make a market call.',
+    }
+  }
 
   if (category === 'stocks') {
     if (quote.group === 'Transport' && pressure >= 60) {
@@ -794,6 +869,30 @@ function sourceCatalyst(report: Report) {
   return `${story.region.toUpperCase()}: ${story.title}`
 }
 
+function sourceFacts(report: Report): InstrumentOutlook['facts'] {
+  return report.topStories
+    .slice(0, 3)
+    .map((story) => ({
+      label: `${story.region.toUpperCase()}: ${story.title}`,
+      source: story.source,
+      sourceUrl: story.sourceUrl,
+      publishedAt: story.timestamp,
+      region: story.region,
+    }))
+}
+
+function factGateText(gate?: InstrumentOutlook['factGate']) {
+  if (gate === 'source-backed') return 'Source-backed facts'
+  if (gate === 'price-only') return 'Price-only: watch'
+  return 'Insufficient evidence'
+}
+
+function plainMoveLabel(value: string) {
+  return value
+    .replace('AI expects ', '')
+    .replace('Fact scenario ', '')
+}
+
 function expectedMoveForInstrument({
   quote,
   category,
@@ -825,16 +924,16 @@ function expectedMoveForInstrument({
     Math.min(cap, (0.38 + Math.abs(momentum) * 0.28 + conviction * 1.08) * categoryMultiplier),
   )
 
-  return `AI expects ${sign > 0 ? '+' : '-'}${formatNumber(projectedMove, 1)}%`
+  return `Fact scenario ${sign > 0 ? '+' : '-'}${formatNumber(projectedMove, 1)}%`
 }
 
 function sellSignalForInstrument(tone: OutlookTone, category: AssetCategory, expectedMoveLabel: string) {
-  if (tone === 'positive' && expectedMoveLabel.startsWith('AI expects ')) {
-    const target = expectedMoveLabel.replace('AI expects ', '')
+  if (tone === 'positive' && (expectedMoveLabel.startsWith('AI expects ') || expectedMoveLabel.startsWith('Fact scenario '))) {
+    const target = plainMoveLabel(expectedMoveLabel)
     const stopLoss = category === 'crypto' ? '-1.2%' : category === 'fx' ? '-0.3%' : '-0.8%'
     return {
       sellSignal: `Sell near ${target} or if price moves ${stopLoss} against the idea.`,
-      sellReason: 'Take profit if the AI move is reached. Exit if the news effect fades.',
+      sellReason: 'Take profit if the fact scenario is reached. Exit if the news evidence fades.',
     }
   }
 
@@ -851,24 +950,30 @@ function sellSignalForInstrument(tone: OutlookTone, category: AssetCategory, exp
   }
 }
 
-function fallbackInstrumentOutlooks(category: AssetCategory, score: number, reason: string): InstrumentOutlook[] {
+function fallbackInstrumentOutlooks(
+  category: AssetCategory,
+  score: number,
+  reason: string,
+  facts: InstrumentOutlook['facts'] = [],
+  factGate: InstrumentOutlook['factGate'] = facts.length ? 'source-backed' : 'insufficient-evidence',
+): InstrumentOutlook[] {
   if (category === 'crypto') {
     return [
-      { symbol: 'BTC', label: 'Bitcoin', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score, tone: 'neutral' },
-      { symbol: 'ETH', label: 'Ethereum', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+      { symbol: 'BTC', label: 'Bitcoin', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, facts, factGate, score, tone: 'neutral' },
+      { symbol: 'ETH', label: 'Ethereum', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, facts, factGate, score: Math.max(0, score - 4), tone: 'neutral' },
     ]
   }
 
   if (category === 'fx') {
     return [
-      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score, tone: 'neutral' },
-      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+      { symbol: 'USD/SEK', label: 'USD/SEK', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, facts, factGate, score, tone: 'neutral' },
+      { symbol: 'EUR/USD', label: 'EUR/USD', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, facts, factGate, score: Math.max(0, score - 4), tone: 'neutral' },
     ]
   }
 
   return [
-    { symbol: 'FRO', label: 'Frontline', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score, tone: 'neutral' },
-    { symbol: 'IYT', label: 'US transports ETF', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, score: Math.max(0, score - 4), tone: 'neutral' },
+    { symbol: 'FRO', label: 'Frontline', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, facts, factGate, score, tone: 'neutral' },
+    { symbol: 'IYT', label: 'US transports ETF', view: 'Wait', reason, expectedMoveLabel: 'No clear market signal', sellSignal: 'No sell signal yet.', sellReason: 'Wait for clearer news and price confirmation first.', catalyst: reason, facts, factGate, score: Math.max(0, score - 4), tone: 'neutral' },
   ]
 }
 
