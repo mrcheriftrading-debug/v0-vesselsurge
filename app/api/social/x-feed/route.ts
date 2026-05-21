@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
 import { TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
 import { buildMarketingPost, getMarketingApproval } from '@/scripts/lib/x-marketing-post.mjs'
 
@@ -9,6 +10,8 @@ export const revalidate = 0
 const FEED_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300'
 const DEFAULT_VARIANT_SEED = 'vesselsurge-stable-social-feed-v1'
 const FEED_SETTLE_MS = 2 * 60 * 1000
+const HOTSPOT_QUERY_TIMEOUT_MS = 1200
+const ARTICLE_QUERY_TIMEOUT_MS = 2500
 const STABLE_FALLBACK_TIMESTAMP = '2026-05-20T00:00:00.000Z'
 
 const TRUSTED_SOURCES = [
@@ -67,6 +70,62 @@ function shouldReturnRss(request: Request) {
   return format === 'rss' || accept.includes('application/rss+xml')
 }
 
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
+function buildReviewedItems(articles: any[], riskByRegion: Map<string, string>, requestVariantSeed: string) {
+  return articles
+    .filter((article: any) => isTrustedSource(article.source || ''))
+    .map((article: any) => {
+      const item = {
+        id: article.id,
+        title: article.title,
+        summary: article.snippet || article.summary || '',
+        source: article.source,
+        sourceUrl: article.url || article.sourceUrl || null,
+        region: article.region || 'global',
+        topic: article.topic || article.category || 'global',
+        riskLevel: riskByRegion.get(article.region) || 'medium',
+        timestamp: article.published_at || article.timestamp || article.created_at || STABLE_FALLBACK_TIMESTAMP,
+      }
+      const agentApproval = getMarketingApproval(item)
+
+      return {
+        ...item,
+        postText: buildMarketingPost(item, { variantSeed: `${requestVariantSeed}:${item.id}` }),
+        variantSeed: `${requestVariantSeed}:${item.id}`,
+        liveMapUrl: 'https://www.vesselsurge.com/map-dashboard',
+        approval: agentApproval,
+      }
+    })
+    .sort((a: any, b: any) => {
+      if (a.approval.approved !== b.approval.approved) return a.approval.approved ? -1 : 1
+      if (a.approval.score !== b.approval.score) return b.approval.score - a.approval.score
+      const timestampDiff = Date.parse(b.timestamp) - Date.parse(a.timestamp)
+      if (timestampDiff !== 0) return timestampDiff
+      const sourceDiff = `${a.source}`.localeCompare(`${b.source}`)
+      if (sourceDiff !== 0) return sourceDiff
+      const titleDiff = `${a.title}`.localeCompare(`${b.title}`)
+      if (titleDiff !== 0) return titleDiff
+      return `${a.id}`.localeCompare(`${b.id}`)
+    })
+}
+
+function selectFeedItems(reviewedItems: any[], approval: string, outputLimit: number) {
+  return (approval === 'all' ? reviewedItems : reviewedItems.filter((item: any) => item.approval.approved)).slice(
+    0,
+    outputLimit,
+  )
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const region = url.searchParams.get('region')
@@ -78,9 +137,13 @@ export async function GET(request: Request) {
   try {
     const supabase = await createClient()
 
-    const { data: hotspotsData, error: hotspotsError } = await supabase
-      .from('hotspot_stats')
-      .select('hotspot, risk_level')
+    const { data: hotspotsData, error: hotspotsError } = await withTimeout(
+      supabase
+        .from('hotspot_stats')
+        .select('hotspot, risk_level'),
+      HOTSPOT_QUERY_TIMEOUT_MS,
+      'x-feed hotspot query',
+    )
 
     if (hotspotsError) {
       console.error('[x-feed] Hotspot fetch error:', hotspotsError)
@@ -106,51 +169,15 @@ export async function GET(request: Request) {
       query = query.eq('region', region)
     }
 
-    const { data, error } = await query
+    const { data, error } = await withTimeout(query, ARTICLE_QUERY_TIMEOUT_MS, 'x-feed article query')
 
     if (error) {
       console.error('[x-feed] Article fetch error:', error)
       return NextResponse.json({ success: false, error: error.message, items: [] }, { status: 500 })
     }
 
-    const reviewedItems = (data || []).filter((article: any) => isTrustedSource(article.source || '')).map((article: any) => {
-        const item = {
-          id: article.id,
-          title: article.title,
-          summary: article.snippet || '',
-          source: article.source,
-          sourceUrl: article.url || null,
-          region: article.region || 'global',
-          topic: article.topic || 'global',
-          riskLevel: riskByRegion.get(article.region) || 'medium',
-          timestamp: article.published_at || article.created_at || STABLE_FALLBACK_TIMESTAMP,
-        }
-        const agentApproval = getMarketingApproval(item)
-
-        return {
-          ...item,
-          postText: buildMarketingPost(item, { variantSeed: `${requestVariantSeed}:${item.id}` }),
-          variantSeed: `${requestVariantSeed}:${item.id}`,
-          liveMapUrl: 'https://www.vesselsurge.com/map-dashboard',
-          approval: agentApproval,
-        }
-      })
-      .sort((a: any, b: any) => {
-        if (a.approval.approved !== b.approval.approved) return a.approval.approved ? -1 : 1
-        if (a.approval.score !== b.approval.score) return b.approval.score - a.approval.score
-        const timestampDiff = Date.parse(b.timestamp) - Date.parse(a.timestamp)
-        if (timestampDiff !== 0) return timestampDiff
-        const sourceDiff = `${a.source}`.localeCompare(`${b.source}`)
-        if (sourceDiff !== 0) return sourceDiff
-        const titleDiff = `${a.title}`.localeCompare(`${b.title}`)
-        if (titleDiff !== 0) return titleDiff
-        return `${a.id}`.localeCompare(`${b.id}`)
-      })
-
-    const items = (approval === 'all' ? reviewedItems : reviewedItems.filter((item: any) => item.approval.approved)).slice(
-      0,
-      outputLimit,
-    )
+    const reviewedItems = buildReviewedItems(data || [], riskByRegion, requestVariantSeed)
+    const items = selectFeedItems(reviewedItems, approval, outputLimit)
 
     if (shouldReturnRss(request)) {
       const feedUrl = absoluteUrl(request, '/api/social/x-feed?format=rss')
@@ -215,6 +242,43 @@ export async function GET(request: Request) {
     )
   } catch (err: any) {
     console.error('[x-feed] Unexpected error:', err)
-    return NextResponse.json({ success: false, error: err.message, items: [] }, { status: 500 })
+    const fallback = buildOfflineMaritimeDashboardSnapshot('x-feed database unavailable; serving bundled source-reviewed marketing queue')
+    const riskByRegion = new Map(fallback.data.hotspots.map((hotspot: any) => [hotspot.hotspot, hotspot.riskLevel || 'medium']))
+    const reviewedItems = buildReviewedItems(
+      region && region !== 'all'
+        ? fallback.data.articles.filter((article: any) => article.region === region)
+        : fallback.data.articles,
+      riskByRegion,
+      requestVariantSeed,
+    )
+    const items = selectFeedItems(reviewedItems, approval, outputLimit)
+
+    return NextResponse.json(
+      {
+        success: true,
+        fallback: true,
+        fallbackReason: err?.message || 'x-feed database unavailable',
+        items,
+        count: items.length,
+        review: {
+          mode: approval,
+          approved: reviewedItems.filter((item: any) => item.approval.approved).length,
+          rejected: reviewedItems.filter((item: any) => !item.approval.approved).length,
+          approvedBy: 'VesselSurge marketing approval agent',
+        },
+        usage: {
+          zapierMakeN8nRss: absoluteUrl(request, '/api/social/x-feed?format=rss'),
+          reviewAllJson: absoluteUrl(request, '/api/social/x-feed?approval=all'),
+          json: absoluteUrl(request, '/api/social/x-feed'),
+        },
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+          'X-Content-Type-Options': 'nosniff',
+          'X-VesselSurge-Fallback': 'offline-social-feed',
+        },
+      },
+    )
   }
 }
