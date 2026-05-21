@@ -226,6 +226,7 @@ export async function GET(request: Request) {
 
     const coverageStatus: Status = hotspotSummary.every((row) => row.hasRecentCoverage) ? 'ok' : 'degraded'
     const componentStatuses = {
+      database: 'ok' as Status,
       cache: statusFromAge(cacheAge, CACHE_DEGRADED_MS, CACHE_UNHEALTHY_MS),
       ais: statusFromAge(aisAge, AIS_DEGRADED_MS, 6 * 60 * 60 * 1000),
       watch: statusFromAge(watchAge, WATCH_DEGRADED_MS, WATCH_UNHEALTHY_MS),
@@ -241,6 +242,11 @@ export async function GET(request: Request) {
         status,
         checkedAt: new Date().toISOString(),
         components: {
+          database: {
+            status: componentStatuses.database,
+            mode: 'supabase-rest-cache',
+            note: 'Dashboard cache row was read successfully from Supabase REST.',
+          },
           cache: {
             status: componentStatuses.cache,
             generatedAt: cacheRow.generated_at,
