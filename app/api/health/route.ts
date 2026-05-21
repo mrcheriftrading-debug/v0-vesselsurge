@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
+export const preferredRegion = 'fra1'
 
 const HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca'] as const
 const CACHE_DEGRADED_MS = 10 * 60 * 1000

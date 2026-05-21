@@ -10,6 +10,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export const runtime = 'nodejs'
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
+export const preferredRegion = 'fra1'
 
 type RiskLevel = 'low' | 'medium' | 'high' | 'critical'
 

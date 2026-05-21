@@ -3,12 +3,24 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { assertSameOrigin } from "@/lib/security"
 
 export const runtime = "nodejs"
+export const preferredRegion = "fra1"
 
 type SignUpPayload = {
   email?: string
   password?: string
   companyName?: string
   serviceType?: string
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
 }
 
 export async function POST(request: Request) {
@@ -49,15 +61,19 @@ export async function POST(request: Request) {
 
   try {
     const supabaseAdmin = createAdminClient()
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        company_name: companyName,
-        service_type: serviceType,
-      },
-    })
+    const { data, error } = await withTimeout(
+      supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          company_name: companyName,
+          service_type: serviceType,
+        },
+      }),
+      12000,
+      "Supabase Auth account creation",
+    )
 
     if (error) {
       const message = error.message.toLowerCase()
@@ -72,7 +88,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, userId: data.user?.id })
-  } catch {
-    return NextResponse.json({ error: "Account creation is not configured correctly." }, { status: 500 })
+  } catch (error) {
+    console.error("[auth/sign-up] account creation failed:", error)
+    return NextResponse.json({ error: "Account creation is temporarily unavailable. Please try again." }, { status: 503 })
   }
 }

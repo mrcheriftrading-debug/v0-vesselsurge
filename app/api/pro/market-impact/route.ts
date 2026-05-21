@@ -5,6 +5,7 @@ import { buildMarketImpactReport } from '@/lib/market-impact'
 import { userHasProAccess } from '@/lib/pro-subscription'
 
 export const dynamic = 'force-dynamic'
+export const preferredRegion = 'fra1'
 
 export async function GET() {
   const supabase = await createClient()
