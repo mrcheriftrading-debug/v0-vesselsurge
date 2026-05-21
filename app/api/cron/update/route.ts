@@ -921,6 +921,7 @@ export async function GET(request: Request) {
 
   let stage = 'pruning stale news'
   let maintenanceWarning: string | null = null
+  let articlesWritten = 0
 
   try {
     const staleNewsCutoff = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
@@ -940,12 +941,23 @@ export async function GET(request: Request) {
 
     if (articles.length > 0) {
       stage = 'upserting trusted news'
-      const insertNews = await supabaseRequest('news_articles?on_conflict=url', {
-        method: 'POST',
-        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(articles),
-      })
-      if (!insertNews.ok) throw new Error(`Failed to upsert trusted news: ${insertNews.status} ${await insertNews.text()}`)
+      try {
+        const insertNews = await supabaseRequest('news_articles?on_conflict=url', {
+          method: 'POST',
+          headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+          signal: AbortSignal.timeout(3500),
+          body: JSON.stringify(articles),
+        })
+        if (insertNews.ok) {
+          articlesWritten = articles.length
+        } else {
+          maintenanceWarning ||= `trusted news upsert skipped: ${insertNews.status}`
+          console.warn('[trusted-update] trusted news upsert skipped:', insertNews.status, await insertNews.text())
+        }
+      } catch (error) {
+        maintenanceWarning ||= `trusted news upsert skipped: ${errorMessage(error)}`
+        console.warn('[trusted-update] trusted news upsert skipped:', error)
+      }
     }
 
     stage = 'collecting AIS and marine conditions'
@@ -1071,7 +1083,7 @@ export async function GET(request: Request) {
       timestamp,
       source: 'openclaw-trusted-web',
       articles_fetched: articles.length,
-      articles_inserted: articles.length,
+      articles_inserted: articlesWritten,
       stats_updated: stats.length,
       signals_found: signals.length,
       official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
