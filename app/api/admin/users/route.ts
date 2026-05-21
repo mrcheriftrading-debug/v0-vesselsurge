@@ -1,13 +1,12 @@
 import pg from "pg"
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
+import { isAdminEmail } from "@/lib/admin-access"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "mrcheriftrading@gmail.com").toLowerCase()
 
 type AuthUserRow = {
   id: string
@@ -38,7 +37,7 @@ async function assertAdmin(request: Request) {
       data: { user },
     } = await supabase.auth.getUser(bearerToken)
 
-    if (user?.email?.toLowerCase() === ADMIN_EMAIL) {
+    if (isAdminEmail(user?.email)) {
       return true
     }
   }
@@ -48,7 +47,7 @@ async function assertAdmin(request: Request) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  return user?.email?.toLowerCase() === ADMIN_EMAIL
+  return isAdminEmail(user?.email)
 }
 
 function getDatabaseUrl() {

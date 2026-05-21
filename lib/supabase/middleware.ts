@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isAdminEmail } from '@/lib/admin-access'
 import { getSafeNextPath } from '@/lib/auth-next'
 
 const FALLBACK_SESSION_COOKIE = 'vesselsurge_fallback_session'
@@ -55,10 +56,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAdminRoute && user) {
-    const adminEmail = (process.env.ADMIN_EMAIL || 'mrcheriftrading@gmail.com').toLowerCase()
-    const userEmail = user.email?.toLowerCase()
-
-    if (userEmail !== adminEmail) {
+    if (!isAdminEmail(user.email)) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       url.search = ''

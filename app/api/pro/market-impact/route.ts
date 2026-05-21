@@ -17,7 +17,7 @@ export async function GET() {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401, headers: PRIVATE_NO_STORE })
   }
 
-  const hasAccess = await userHasProAccess(user.id)
+  const hasAccess = await userHasProAccess(user.id, user.email)
   if (!hasAccess) {
     return NextResponse.json({ success: false, error: 'Subscription required' }, { status: 402, headers: PRIVATE_NO_STORE })
   }

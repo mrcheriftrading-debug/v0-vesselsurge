@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { SiteNavigation } from '@/components/site-navigation'
 import { Button } from '@/components/ui/button'
+import { isAdminEmail } from '@/lib/admin-access'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFallbackUser } from '@/lib/fallback-auth'
@@ -637,11 +638,12 @@ async function loadAuthState() {
     'market auth',
   ).catch(() => ({ data: { user: null } }))
   const user = supabaseUser || await getFallbackUser()
-  const subscription = user ? await getUserProSubscription(user.id) : null
+  const hasAdminAccess = isAdminEmail(supabaseUser?.email)
+  const subscription = supabaseUser && !hasAdminAccess ? await getUserProSubscription(supabaseUser.id) : null
 
   return {
     user,
-    hasAccess: isActiveProSubscription(subscription),
+    hasAccess: hasAdminAccess || isActiveProSubscription(subscription),
   }
 }
 

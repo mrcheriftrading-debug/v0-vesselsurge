@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server"
+import { isAdminEmail } from "@/lib/admin-access"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { assertSameOrigin } from "@/lib/security"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "mrcheriftrading@gmail.com").toLowerCase()
 
 type AdminResource = "article" | "alert" | "stat"
 type AdminAction = "create" | "update" | "delete" | "toggle"
@@ -21,7 +20,7 @@ async function assertAdmin() {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
   }
 
-  if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
+  if (!isAdminEmail(user.email)) {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) }
   }
 

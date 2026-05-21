@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { isAdminEmail } from '@/lib/admin-access'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export type ProSubscription = {
@@ -37,6 +38,7 @@ export function isActiveProSubscription(subscription: ProSubscription | null) {
   return Number.isFinite(periodEnd) && periodEnd > Date.now()
 }
 
-export async function userHasProAccess(userId: string) {
+export async function userHasProAccess(userId: string, verifiedEmail?: string | null) {
+  if (isAdminEmail(verifiedEmail)) return true
   return isActiveProSubscription(await getUserProSubscription(userId))
 }
