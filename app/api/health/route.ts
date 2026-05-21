@@ -10,6 +10,7 @@ const CACHE_UNHEALTHY_MS = 30 * 60 * 1000
 const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
 const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
+const HEALTH_CACHE_QUERY_TIMEOUT_MS = 700
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
@@ -81,6 +82,28 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Pro
 function offlineHealthResponse(error: string) {
   const snapshot = buildOfflineMaritimeDashboardSnapshot('health check could not reach live data; bundled archive remains available')
   const qualityAudit = snapshot.data.qualityAudit
+  const generatedAt = snapshot.meta.generatedAt || snapshot.data.timestamp
+  const archiveAge = ageMs(generatedAt)
+  const hotspotSummary = HOTSPOTS.map((hotspot) => {
+    const stats = snapshot.data.hotspots.find((row) => row.hotspot === hotspot)
+    const latestNews = snapshot.data.articles.find((row) => row.region === hotspot)
+    const latestSignal = snapshot.data.signals.find((row) => row.region === hotspot)
+    const hasRecentNews = ageMs(latestNews?.timestamp) < 7 * 24 * 60 * 60 * 1000
+    const hasRecentSignal = ageMs(latestSignal?.observedAt) < 6 * 60 * 60 * 1000
+
+    return {
+      hotspot,
+      riskLevel: stats?.riskLevel || 'unknown',
+      statsUpdatedAt: stats?.updatedAt || generatedAt || null,
+      latestNewsAt: latestNews?.timestamp || null,
+      latestSignalAt: latestSignal?.observedAt || null,
+      latestSignalType: latestSignal?.signalType || null,
+      hasRecentNews,
+      hasRecentSignal,
+      hasRecentCoverage: hasRecentNews || hasRecentSignal,
+      fallback: true,
+    }
+  })
 
   return NextResponse.json(
     {
@@ -90,9 +113,38 @@ function offlineHealthResponse(error: string) {
       warning: error,
       components: {
         server: { status: 'ok' },
+        cache: {
+          status: 'degraded',
+          generatedAt,
+          ageSeconds: Number.isFinite(archiveAge) ? Math.round(archiveAge / 1000) : null,
+          fallback: true,
+        },
+        ais: {
+          status: 'degraded',
+          latestAt: generatedAt,
+          ageSeconds: Number.isFinite(archiveAge) ? Math.round(archiveAge / 1000) : null,
+          fallback: true,
+        },
+        watch: {
+          status: 'degraded',
+          lastRunId: null,
+          lastCompletedAt: generatedAt,
+          lastHeavyUpdateAt: generatedAt,
+          lastFailedAt: new Date().toISOString(),
+          lastError: error,
+          lastSkipReason: 'serving bundled offline archive after health cache timeout',
+          lastDurationMs: null,
+          ageSeconds: Number.isFinite(archiveAge) ? Math.round(archiveAge / 1000) : null,
+          fallback: true,
+        },
+        coverage: {
+          status: hotspotSummary.every((row) => row.hasRecentCoverage) ? 'ok' : 'degraded',
+          hotspots: hotspotSummary,
+          fallback: true,
+        },
         offlineArchive: {
           status: 'ok',
-          generatedAt: snapshot.meta.generatedAt,
+          generatedAt,
           articles: snapshot.data.count.articles,
           hotspots: snapshot.data.count.hotspots,
           signals: snapshot.data.count.signals,
@@ -127,7 +179,7 @@ export async function GET() {
         .select('payload,generated_at')
         .eq('cache_key', 'live-map')
         .maybeSingle(),
-      1800,
+      HEALTH_CACHE_QUERY_TIMEOUT_MS,
       'health cache query',
     )
 
