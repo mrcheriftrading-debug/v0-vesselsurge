@@ -319,8 +319,8 @@ async function main() {
     console.log(JSON.stringify({ ok: true, baseUrl: BASE_URL, steps: ['sign-up', 'sign-out', 'login'] }, null, 2))
   } finally {
     chromeProcess.kill('SIGTERM')
-    await sleep(200)
-    rmSync(userDataDir, { recursive: true, force: true })
+    await sleep(750)
+    rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 150 })
 
     if (createdUser) {
       const deleted = await deleteSmokeUser(email, password)
