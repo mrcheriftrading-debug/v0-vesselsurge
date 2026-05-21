@@ -365,29 +365,29 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">What the AI expects next</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">Simple market read</h2>
           </div>
           <Radar className="h-5 w-5 text-sky-700" />
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          This is a source-backed research outlook, not a buy/sell signal. It explains direction, confidence and the exact news behind the view.
+          Read this top to bottom: the plain answer, why it matters, and the source news behind it. This is research context, not a buy or sell signal.
         </p>
       </div>
 
       <div className="grid gap-5 p-5">
         <div className="grid gap-4 lg:grid-cols-[0.44fr_0.56fr]">
           <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">AI outlook</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Plain answer</p>
             <h3 className="mt-3 text-2xl font-black leading-tight">{outlook.direction}</h3>
             <div className="mt-5 flex items-end gap-3">
               <p className="text-6xl font-black">{outlook.score}</p>
-              <p className="pb-2 text-xs font-bold uppercase text-slate-300">{outlook.confidence}</p>
+              <p className="pb-2 text-xs font-bold uppercase text-slate-300">{outlook.confidence} confidence, out of 100</p>
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-300">{outlook.summary}</p>
           </div>
 
           <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Why the AI thinks this</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Why this matters</p>
             <div className="mt-4 grid gap-3">
               {outlook.why.map((reason) => (
                 <div key={reason} className="flex gap-3 rounded-md border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-700">
@@ -401,7 +401,7 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
 
         <div className="overflow-hidden rounded-md border border-slate-200">
           <div className="grid grid-cols-[1fr_7rem] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-            <span>News behind the analysis</span>
+            <span>Sources used</span>
             <span className="text-right">Score</span>
           </div>
           {outlook.news.length ? (
@@ -434,8 +434,8 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <BriefPoint label="Market tape" body={outlook.marketTape} />
-          <BriefPoint label="Maritime trigger" body={outlook.trigger} />
+          <BriefPoint label="What prices say" body={outlook.marketTape} />
+          <BriefPoint label="Main news driver" body={outlook.trigger} />
           <BriefPoint label="Watch next" body={outlook.watchNext} />
         </div>
       </div>
@@ -491,11 +491,11 @@ function LockedAnalysisSection({ isLoggedIn, selectedCategory }: { isLoggedIn: b
         <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-5">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">AI outlook locked</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">Simple AI read locked</h2>
           </div>
           <div className="p-5">
             <p className="text-sm leading-6 text-slate-600">
-              Paid accounts see the live quote tape beside the AI explanation of how source-backed maritime news may move {categoryLabel(selectedCategory).toLowerCase()}.
+              Paid accounts see the plain answer first, then the reason, the sources used and what to watch next for {categoryLabel(selectedCategory).toLowerCase()}.
             </p>
             <div className="mt-5">
               {isLoggedIn ? (
@@ -588,50 +588,50 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
   const leadStory = report.topStories[0]
   const leadAsset = categoryAssetImpacts(report, category)[0] || report.assetImpacts[0]
   const moveText = `${quoteMove >= 0 ? '+' : ''}${formatNumber(quoteMove, 2)}%`
-  const pressureText = `${report.marketPressureScore}/100 Market Pro pressure`
+  const pressureText = `${report.marketPressureScore}/100 overall risk pressure`
   const leadSourceText = leadStory
-    ? `${leadStory.source} is driving the top source signal: ${leadStory.title}`
-    : 'No single source-backed maritime story is dominating the model right now'
+    ? `Top source: ${leadStory.source} reports "${leadStory.title}"`
+    : 'No single source-backed maritime story is dominating the model right now.'
   const assetText = leadAsset
-    ? `${leadAsset.asset}: ${leadAsset.bias.toLowerCase()} (${leadAsset.score}/100)`
-    : 'No strong asset-channel pressure is confirmed yet'
+    ? `Most affected channel: ${leadAsset.asset} (${leadAsset.score}/100, ${leadAsset.bias.toLowerCase()}).`
+    : 'No one market channel is strong enough to call out yet.'
 
-  let direction = 'Mixed / wait for confirmation'
-  let summary = 'The live tape and maritime news are not aligned strongly enough for a high-conviction market-impact view yet.'
+  let direction = 'No clear signal yet'
+  let summary = 'Prices and shipping news do not point in one clear direction yet. The safer read is to wait for stronger confirmation.'
 
   if (category === 'stocks') {
     if (score >= 65 && quoteMove < 0) {
-      direction = 'Downside pressure is active'
-      summary = 'Stocks are already trading defensively while VesselSurge maritime pressure is elevated.'
+      direction = 'Stocks look under pressure'
+      summary = 'Stock prices are already weak while shipping-risk pressure is elevated. That means bad route or oil news could matter more than usual.'
     } else if (score >= 65) {
-      direction = 'Upside may be capped by headline risk'
-      summary = 'Stocks can still rise, but the model expects maritime headlines to matter if oil, freight or insurance pressure accelerates.'
+      direction = 'Stocks can rise, but risk headlines may cap the move'
+      summary = 'Stocks are not breaking down, but shipping news is strong enough that oil, freight or insurance headlines could slow the upside.'
     } else if (quoteMove > 0.4) {
-      direction = 'Constructive but headline-sensitive'
-      summary = 'The equity tape is positive, so the AI is watching whether shipping-risk headlines interrupt risk appetite.'
+      direction = 'Stocks look positive, but watch the headlines'
+      summary = 'The stock tape is positive. The main risk is whether fresh shipping disruption news hurts confidence.'
     }
   } else if (category === 'crypto') {
     if (score >= 62) {
       direction = 'Crypto risk appetite looks fragile'
-      summary = 'Crypto is treated as a high-beta risk asset here; elevated oil, dollar or rates pressure can reduce appetite quickly.'
+      summary = 'Crypto often reacts when investors reduce risk. If shipping news lifts oil, the dollar or rates pressure, crypto can weaken quickly.'
     } else if (quoteMove > 1) {
-      direction = 'Crypto bid is absorbing macro risk'
-      summary = 'Crypto momentum is positive, but the AI keeps the signal conditional on dollar, rates and escalation news.'
+      direction = 'Crypto is holding up for now'
+      summary = 'Crypto momentum is positive. The AI is watching whether dollar, rates or escalation news starts to overpower that strength.'
     } else {
       direction = 'Crypto is in watch mode'
-      summary = 'The model does not see a clean maritime-to-crypto signal yet, so it watches broader risk appetite first.'
+      summary = 'There is no clean shipping-to-crypto signal yet. The important thing to watch is broader risk appetite.'
     }
   } else {
     const dollar = report.marketSnapshot?.quotes.find((quote) => quote.symbol === 'DX-Y.NYB')
     if ((dollar?.changePercent || 0) > 0.25 || score >= 62) {
       direction = 'Dollar pressure is the main FX risk'
-      summary = 'The AI expects FX impact to show first through USD strength and SEK sensitivity if energy or route-risk pressure rises.'
+      summary = 'If energy or route risk rises, the first currency move to watch is often USD strength and SEK sensitivity.'
     } else if (quoteMove < -0.25) {
       direction = 'Dollar pressure is easing'
-      summary = 'The selected currency tape is less defensive, so the AI needs fresh escalation news before raising the FX risk view.'
+      summary = 'The currency tape looks less defensive. The AI needs fresh escalation news before raising the FX risk view.'
     } else {
-      direction = 'FX read is balanced'
-      summary = 'Currencies are mixed; the AI is waiting for a clearer oil, rates or dollar impulse.'
+      direction = 'Currencies are balanced'
+      summary = 'Currencies are mixed. The next clear signal would likely come from oil, rates or the dollar.'
     }
   }
 
@@ -641,13 +641,13 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
     confidence: report.confidence,
     summary,
     marketTape: report.marketSnapshot
-      ? `${categoryLabel(category)} basket average ${moveText}. ${report.marketSnapshot.summary}`
+      ? `${categoryLabel(category)} prices are moving ${moveText} on average. ${report.marketSnapshot.summary}`
       : 'Live market tape unavailable on this refresh.',
     trigger: leadSourceText,
     watchNext: report.watchTriggers[0],
     why: [
-      `${categoryLabel(category)} basket average is ${moveText} on the live tape.`,
-      `${pressureText}; AI confidence is ${report.confidence}.`,
+      `Live prices: ${categoryLabel(category)} are moving ${moveText} on average.`,
+      `Risk level: ${pressureText}; AI confidence is ${report.confidence}.`,
       leadSourceText,
       assetText,
     ],
