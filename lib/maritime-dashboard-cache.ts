@@ -27,6 +27,56 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Pro
   })
 }
 
+async function getDashboardCacheRowViaRest(timeoutMs: number): Promise<DashboardCacheRow | null> {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+
+  if (!supabaseUrl || !serviceRoleKey) return null
+
+  try {
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/maritime_dashboard_cache?cache_key=eq.${encodeURIComponent(CACHE_KEY)}&select=payload,generated_at&limit=1`,
+      {
+        headers: {
+          apikey: serviceRoleKey,
+          authorization: `Bearer ${serviceRoleKey}`,
+          accept: 'application/json',
+        },
+        signal: AbortSignal.timeout(timeoutMs),
+      },
+    )
+
+    if (!response.ok) return null
+    const rows = (await response.json()) as DashboardCacheRow[]
+    return rows[0] || null
+  } catch {
+    return null
+  }
+}
+
+async function getDashboardCacheRowViaClient(supabase: SupabaseClient, timeoutMs: number, label: string) {
+  try {
+    const { data, error } = await withTimeout(
+      supabase
+        .from('maritime_dashboard_cache')
+        .select('payload,generated_at')
+        .eq('cache_key', CACHE_KEY)
+        .maybeSingle(),
+      timeoutMs,
+      label,
+    )
+
+    if (error || !data) return null
+    return data as DashboardCacheRow
+  } catch {
+    return null
+  }
+}
+
+export async function getMaritimeDashboardCacheRow(timeoutMs = 1400) {
+  return getDashboardCacheRowViaRest(timeoutMs)
+}
+
 export type MaritimeDashboardResponse = {
   success: true
   data: {
@@ -498,66 +548,44 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
 }
 
 export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
-  try {
-    const { data, error } = await withTimeout(
-      supabase
-        .from('maritime_dashboard_cache')
-        .select('payload,generated_at')
-        .eq('cache_key', CACHE_KEY)
-        .maybeSingle(),
-      1200,
-      'fresh maritime dashboard cache',
-    )
+  const row =
+    await getDashboardCacheRowViaRest(1400) ||
+    await getDashboardCacheRowViaClient(supabase, 1200, 'fresh maritime dashboard cache')
 
-    if (error || !data) return null
+  if (!row) return null
 
-    const row = data as DashboardCacheRow
-    const generatedAt = new Date(row.generated_at).getTime()
-    if (!Number.isFinite(generatedAt) || Date.now() - generatedAt > CACHE_TTL_MS) return null
+  const generatedAt = new Date(row.generated_at).getTime()
+  if (!Number.isFinite(generatedAt) || Date.now() - generatedAt > CACHE_TTL_MS) return null
 
-    return {
-      ...row.payload,
-      meta: {
-        ...(row.payload.meta || {}),
-        cached: true,
-        generatedAt: row.generated_at,
-      },
-    }
-  } catch {
-    return null
+  return {
+    ...row.payload,
+    meta: {
+      ...(row.payload.meta || {}),
+      cached: true,
+      generatedAt: row.generated_at,
+    },
   }
 }
 
 export async function getLastMaritimeDashboardCache(supabase: SupabaseClient, reason = 'serving last known VesselSurge cache') {
-  try {
-    const { data, error } = await withTimeout(
-      supabase
-        .from('maritime_dashboard_cache')
-        .select('payload,generated_at')
-        .eq('cache_key', CACHE_KEY)
-        .maybeSingle(),
-      1200,
-      'last maritime dashboard cache',
-    )
+  const row =
+    await getDashboardCacheRowViaRest(1400) ||
+    await getDashboardCacheRowViaClient(supabase, 1200, 'last maritime dashboard cache')
 
-    if (error || !data) return null
+  if (!row) return null
 
-    const row = data as DashboardCacheRow
-    const generatedAt = new Date(row.generated_at).getTime()
-    if (!Number.isFinite(generatedAt) || Date.now() - generatedAt > STALE_CACHE_TTL_MS) return null
+  const generatedAt = new Date(row.generated_at).getTime()
+  if (!Number.isFinite(generatedAt) || Date.now() - generatedAt > STALE_CACHE_TTL_MS) return null
 
-    return {
-      ...row.payload,
-      meta: {
-        ...(row.payload.meta || {}),
-        cached: true,
-        generatedAt: row.generated_at,
-        stale: true,
-        staleReason: reason,
-      },
-    }
-  } catch {
-    return null
+  return {
+    ...row.payload,
+    meta: {
+      ...(row.payload.meta || {}),
+      cached: true,
+      generatedAt: row.generated_at,
+      stale: true,
+      staleReason: reason,
+    },
   }
 }
 

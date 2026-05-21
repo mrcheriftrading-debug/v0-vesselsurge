@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { getMaritimeDashboardCacheRow } from '@/lib/maritime-dashboard-cache'
 
 export const dynamic = 'force-dynamic'
 export const preferredRegion = 'fra1'
@@ -10,7 +10,7 @@ const CACHE_UNHEALTHY_MS = 30 * 60 * 1000
 const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
 const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
-const HEALTH_CACHE_QUERY_TIMEOUT_MS = 350
+const HEALTH_CACHE_QUERY_TIMEOUT_MS = 1250
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
@@ -68,17 +68,6 @@ function sourceQualityStatus(audit?: QualityAudit | null): Status {
   if (searchBackedCoverage) return 'ok'
   if (officialOrTierOne < 2) return 'degraded'
   return 'ok'
-}
-
-function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined
-  const timeout = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
-  })
-
-  return Promise.race([promise, timeout]).finally(() => {
-    if (timeoutId) clearTimeout(timeoutId)
-  })
 }
 
 function directSourceSweepHealthResponse(warning: string) {
@@ -177,28 +166,14 @@ async function liveSurfaceHealthResponse(_request: Request, warning: string) {
 
 export async function GET(request: Request) {
   try {
-    const supabase = createAdminClient()
+    const cacheRow = await getMaritimeDashboardCacheRow(HEALTH_CACHE_QUERY_TIMEOUT_MS)
 
-    const cacheResult = await withTimeout(
-      supabase
-        .from('maritime_dashboard_cache')
-        .select('payload,generated_at')
-        .eq('cache_key', 'live-map')
-        .maybeSingle(),
-      HEALTH_CACHE_QUERY_TIMEOUT_MS,
-      'health cache query',
-    )
-
-    const errors = [cacheResult.error]
-      .filter(Boolean)
-      .map((error) => error?.message || 'Unknown Supabase error')
-
-    if (errors.length > 0) {
-      return liveSurfaceHealthResponse(request, errors.join('; '))
+    if (!cacheRow) {
+      return liveSurfaceHealthResponse(request, `health cache query unavailable after ${HEALTH_CACHE_QUERY_TIMEOUT_MS}ms`)
     }
 
-    const cacheAge = ageMs(cacheResult.data?.generated_at)
-    const cachePayload = (cacheResult.data?.payload || {}) as {
+    const cacheAge = ageMs(cacheRow.generated_at)
+    const cachePayload = (cacheRow.payload || {}) as {
       data?: {
         hotspots?: Array<{
           hotspot: string
@@ -225,9 +200,9 @@ export async function GET(request: Request) {
       .filter((row) => row.signalType === 'ais_anomaly' && row.observedAt)
       .map((row) => row.observedAt as string)
       .sort((a, b) => Date.parse(b) - Date.parse(a))[0]
-    const aisLatestAt = latestAisSignalAt || cacheResult.data?.generated_at || null
+    const aisLatestAt = latestAisSignalAt || cacheRow.generated_at || null
     const aisAge = ageMs(aisLatestAt)
-    const watchLatestAt = cacheResult.data?.generated_at || null
+    const watchLatestAt = cacheRow.generated_at || null
     const watchAge = ageMs(watchLatestAt)
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
@@ -268,7 +243,7 @@ export async function GET(request: Request) {
         components: {
           cache: {
             status: componentStatuses.cache,
-            generatedAt: cacheResult.data?.generated_at || null,
+            generatedAt: cacheRow.generated_at,
             ageSeconds: Number.isFinite(cacheAge) ? Math.round(cacheAge / 1000) : null,
           },
           ais: {
