@@ -365,19 +365,19 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">How the market is affected</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">AI watchlist recommendation</h2>
           </div>
           <Radar className="h-5 w-5 text-sky-700" />
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          One simple answer for the selected market. No trade signal, only how the current VesselSurge news may affect the market.
+          The AI checks VesselSurge news and says what looks most worth researching in the selected market. Research only, not personal financial advice.
         </p>
       </div>
 
       <div className="p-5">
         <div className="rounded-md border border-slate-200 bg-slate-950 p-6 text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Market impact</p>
-          <h3 className="mt-3 text-3xl font-black leading-tight">{outlook.direction}</h3>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">AI says to research</p>
+          <h3 className="mt-3 text-3xl font-black leading-tight">{outlook.recommendation}</h3>
           <p className="mt-4 text-base leading-7 text-slate-200">{outlook.summary}</p>
           <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-300">
             <span className="rounded-md bg-white/10 px-3 py-2">{categoryLabel(selectedCategory)}</span>
@@ -429,11 +429,11 @@ function LockedAnalysisSection({ isLoggedIn, selectedCategory }: { isLoggedIn: b
         <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-5">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">Market impact locked</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">AI watchlist locked</h2>
           </div>
           <div className="p-5">
             <p className="text-sm leading-6 text-slate-600">
-              Paid accounts see one plain answer that says how current VesselSurge news may affect {categoryLabel(selectedCategory).toLowerCase()}.
+              Paid accounts see what the AI thinks is most worth researching in {categoryLabel(selectedCategory).toLowerCase()}, based on live VesselSurge news.
             </p>
             <div className="mt-5">
               {isLoggedIn ? (
@@ -523,73 +523,62 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
   const quoteMove = averageQuoteMove(quotes)
   const categoryScore = categoryAverageAssetScore(report, category)
   const score = Math.max(0, Math.min(100, Math.round(categoryScore * 0.72 + report.marketTapeScore * 0.28)))
-  const leadStory = report.topStories[0]
-  const leadAsset = categoryAssetImpacts(report, category)[0] || report.assetImpacts[0]
-  const moveText = `${quoteMove >= 0 ? '+' : ''}${formatNumber(quoteMove, 2)}%`
-  const pressureText = `${report.marketPressureScore}/100 overall risk pressure`
-  const leadSourceText = leadStory
-    ? `Top source: ${leadStory.source} reports "${leadStory.title}"`
-    : 'No single source-backed maritime story is dominating the model right now.'
-  const assetText = leadAsset
-    ? `Most affected channel: ${leadAsset.asset} (${leadAsset.score}/100, ${leadAsset.bias.toLowerCase()}).`
-    : 'No one market channel is strong enough to call out yet.'
 
   let direction = 'No clear signal yet'
   let summary = 'Prices and shipping news do not point in one clear direction yet. The safer read is to wait for stronger confirmation.'
+  let recommendation = 'No clear buy-watch idea yet'
 
   if (category === 'stocks') {
     if (score >= 65 && quoteMove < 0) {
       direction = 'Stocks look under pressure'
       summary = 'Stock prices are already weak while shipping-risk pressure is elevated. That means bad route or oil news could matter more than usual.'
+      recommendation = 'Research tanker and energy exposure first; avoid chasing broad stocks.'
     } else if (score >= 65) {
       direction = 'Stocks can rise, but risk headlines may cap the move'
       summary = 'Stocks are not breaking down, but shipping news is strong enough that oil, freight or insurance headlines could slow the upside.'
+      recommendation = 'Research oil, tanker and freight-linked stocks first.'
     } else if (quoteMove > 0.4) {
       direction = 'Stocks look positive, but watch the headlines'
       summary = 'The stock tape is positive. The main risk is whether fresh shipping disruption news hurts confidence.'
+      recommendation = 'Research broad equity strength, with shipping-risk names on watch.'
     }
   } else if (category === 'crypto') {
     if (score >= 62) {
       direction = 'Crypto risk appetite looks fragile'
       summary = 'Crypto often reacts when investors reduce risk. If shipping news lifts oil, the dollar or rates pressure, crypto can weaken quickly.'
+      recommendation = 'Do not chase crypto yet; wait for risk appetite to improve.'
     } else if (quoteMove > 1) {
       direction = 'Crypto is holding up for now'
       summary = 'Crypto momentum is positive. The AI is watching whether dollar, rates or escalation news starts to overpower that strength.'
+      recommendation = 'Research Bitcoin and Ethereum first.'
     } else {
       direction = 'Crypto is in watch mode'
       summary = 'There is no clean shipping-to-crypto signal yet. The important thing to watch is broader risk appetite.'
+      recommendation = 'No clear crypto buy-watch idea yet.'
     }
   } else {
     const dollar = report.marketSnapshot?.quotes.find((quote) => quote.symbol === 'DX-Y.NYB')
     if ((dollar?.changePercent || 0) > 0.25 || score >= 62) {
       direction = 'Dollar pressure is the main FX risk'
       summary = 'If energy or route risk rises, the first currency move to watch is often USD strength and SEK sensitivity.'
+      recommendation = 'Research USD strength first, especially USD/SEK.'
     } else if (quoteMove < -0.25) {
       direction = 'Dollar pressure is easing'
       summary = 'The currency tape looks less defensive. The AI needs fresh escalation news before raising the FX risk view.'
+      recommendation = 'Research EUR/USD or SEK recovery setups.'
     } else {
       direction = 'Currencies are balanced'
       summary = 'Currencies are mixed. The next clear signal would likely come from oil, rates or the dollar.'
+      recommendation = 'No clear FX buy-watch idea yet.'
     }
   }
 
   return {
     direction,
+    recommendation,
     score,
     confidence: report.confidence,
     summary,
-    marketTape: report.marketSnapshot
-      ? `${categoryLabel(category)} prices are moving ${moveText} on average. ${report.marketSnapshot.summary}`
-      : 'Live market tape unavailable on this refresh.',
-    trigger: leadSourceText,
-    watchNext: report.watchTriggers[0],
-    why: [
-      `Live prices: ${categoryLabel(category)} are moving ${moveText} on average.`,
-      `Risk level: ${pressureText}; AI confidence is ${report.confidence}.`,
-      leadSourceText,
-      assetText,
-    ],
-    news: report.topStories.slice(0, 4),
   }
 }
 
