@@ -954,9 +954,9 @@ export async function GET(request: Request) {
       dashboard_cache_updated: false,
       warning: fastWriteWarning,
       window: {
-        from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+        from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         to: timestamp,
-        policy: 'Only source-published articles from the latest 24 hours are written, with recent fallback by hotspot when needed.',
+        policy: 'Latest 24h source-published articles are prioritized; up to 7d fallback is allowed per hotspot when needed to prevent empty route coverage.',
       },
       sources: [...new Set(articles.map((article) => article.source))],
       note: 'Fast news-only update. AIS, weather, vessel tables, destructive news clearing and dashboard cache rebuilds are left untouched so news freshness cannot be blocked by heavier data jobs.',
@@ -1173,9 +1173,9 @@ export async function GET(request: Request) {
       verified: articles.length,
       warning: maintenanceWarning,
       window: {
-        from: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+        from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         to: timestamp,
-        policy: 'Only source-published articles from the latest 24 hours are written.',
+        policy: 'Latest 24h source-published articles are prioritized; up to 7d fallback is allowed per hotspot when needed to prevent empty route coverage.',
       },
       sources: [...new Set(articles.map((article) => article.source))],
       note: 'Old broad NewsData/RSS feed disabled. Only trusted allowlisted sources from the latest 24 hours are written.',

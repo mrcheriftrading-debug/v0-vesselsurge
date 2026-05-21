@@ -145,7 +145,7 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
 ]
 
 function googleNewsSearchUrl(query: string) {
-  return `https://news.google.com/rss/search?q=${encodeURIComponent(`${query} when:1d`)}&hl=en-US&gl=US&ceid=US:en`
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(`${query} when:7d`)}&hl=en-US&gl=US&ceid=US:en`
 }
 
 function bingNewsSearchUrl(query: string) {
