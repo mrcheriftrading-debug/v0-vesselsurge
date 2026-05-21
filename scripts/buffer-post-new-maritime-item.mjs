@@ -9,6 +9,7 @@ const SITE_URL = 'https://www.vesselsurge.com'
 const STATE_PATH = path.join(process.cwd(), '.buffer-post-state.json')
 const CACHE_PATH = path.join(process.cwd(), '.buffer-approved-feed-cache.json')
 const BUFFER_API_URL = 'https://api.buffer.com'
+const DEFAULT_FETCH_TIMEOUT_MS = 12_000
 const DEFAULT_MIN_HOURS_BETWEEN_POSTS = 8
 const DEFAULT_MAX_POSTS_PER_DAY = 2
 const DEFAULT_MAX_SCHEDULED_QUEUE = 6
@@ -80,10 +81,21 @@ function writeCachedPayload(payload, feedUrl) {
   writeJsonFile(CACHE_PATH, { updatedAt: new Date().toISOString(), feedUrl, payload })
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_FETCH_TIMEOUT_MS) {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal })
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 async function fetchApprovedFeed() {
   for (const feedUrl of FEED_URLS) {
     try {
-      const response = await fetch(feedUrl, {
+      const response = await fetchWithTimeout(feedUrl, {
         headers: { accept: 'application/json', 'cache-control': 'no-cache' },
         cache: 'no-store',
       })
@@ -143,7 +155,7 @@ function sameUtcDay(a, b) {
 }
 
 async function bufferGraphql(token, query, variables = {}) {
-  const response = await fetch(BUFFER_API_URL, {
+  const response = await fetchWithTimeout(BUFFER_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -385,6 +397,13 @@ if (!token) {
   process.exit(1)
 }
 
+const state = readState()
+const localSkipReason = shouldSkipForLocalCadence({ state, maxPostsPerDay, minHoursBetweenPosts })
+if (localSkipReason) {
+  console.log(`[buffer-agent] Skipping: ${localSkipReason}.`)
+  process.exit(0)
+}
+
 const resolved = await resolveTwitterChannel(token, preferredChannelId)
 if (!resolved) {
   console.error('[buffer-agent] No Buffer X/Twitter channel found.')
@@ -398,12 +417,6 @@ if (resolved.channel.isQueuePaused) {
 
 const channelId = resolved.channel.id
 const organizationId = resolved.organization.id
-const state = readState()
-const localSkipReason = shouldSkipForLocalCadence({ state, maxPostsPerDay, minHoursBetweenPosts })
-if (localSkipReason) {
-  console.log(`[buffer-agent] Skipping: ${localSkipReason}.`)
-  process.exit(0)
-}
 
 const [scheduledSummary, dailyPostingLimit] = await Promise.all([
   getScheduledPostsSummary({ token, organizationId, channelId }),
