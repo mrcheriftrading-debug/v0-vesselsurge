@@ -13,7 +13,7 @@ const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
 const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
 const HEALTH_CACHE_QUERY_TIMEOUT_MS = 2200
-const AUTH_HEALTH_TIMEOUT_MS = 2500
+const AUTH_HEALTH_TIMEOUT_MS = 4200
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
@@ -55,6 +55,11 @@ function worstStatus(statuses: Status[]): Status {
   if (statuses.includes('unhealthy')) return 'unhealthy'
   if (statuses.includes('degraded')) return 'degraded'
   return 'ok'
+}
+
+function cacheControlForStatus(status: Status) {
+  if (status === 'ok') return 'public, s-maxage=30, stale-while-revalidate=120'
+  return 'no-store, max-age=0'
 }
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
@@ -362,7 +367,7 @@ export async function GET(request: Request) {
       {
         status: status === 'unhealthy' ? 503 : 200,
         headers: {
-          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+          'Cache-Control': cacheControlForStatus(status),
           'X-Content-Type-Options': 'nosniff',
         },
       },
