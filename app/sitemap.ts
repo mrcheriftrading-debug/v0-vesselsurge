@@ -79,7 +79,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...trafficTopicPages.map((topic) => ({
       url: `${BASE_URL}/topics/${topic.slug}`,
       lastModified: now,
-      changeFrequency: 'weekly' as const,
+      changeFrequency: 'daily' as const,
       priority: topic.slug.includes('hormuz') || topic.slug.includes('red-sea') ? 0.82 : 0.75,
       images: [`${BASE_URL}/og-image.jpg`],
     })),

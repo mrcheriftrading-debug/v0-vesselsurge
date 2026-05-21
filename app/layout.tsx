@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: '%s | VesselSurge',
   },
   description:
-    'VesselSurge is a free global maritime intelligence platform for vessel context, source-reviewed reports, shipping route risk, and risk labels across critical trade chokepoints.',
+    'VesselSurge is a global maritime intelligence platform for fresh source-reviewed reports, live vessel context, shipping route risk, Market Pro analysis, and cargo-vessel matching across critical trade chokepoints.',
   keywords: [
     // Primary chokepoint keywords
     'strait of hormuz',
@@ -88,6 +88,13 @@ export const metadata: Metadata = {
     'container route tracking',
     'ocean freight intelligence',
     'live shipping news',
+    'fresh maritime news',
+    'source reviewed maritime news',
+    'shipping disruption tracker',
+    'freight rate signals',
+    'war risk insurance shipping',
+    'AI market impact from shipping news',
+    'shipping risk stock market analysis',
     // B2B
     'maritime B2B',
     'vessel brokerage',
@@ -116,7 +123,7 @@ export const metadata: Metadata = {
     siteName: 'VesselSurge',
     title: 'VesselSurge | Global Live Maritime Intelligence and Shipping Risk Tracker',
     description:
-      'Free global maritime intelligence for critical shipping routes and chokepoints. Source-reviewed reports, risk labels, vessel context, and cargo-vessel matching.',
+      'Fresh source-reviewed maritime intelligence for critical shipping routes and chokepoints. Live map, Market Pro analysis, risk labels, vessel context, and cargo-vessel matching.',
     images: [
       {
         url: `${BASE_URL}/og-image.jpg`,
@@ -132,7 +139,7 @@ export const metadata: Metadata = {
     creator: '@Vesselsurge',
     title: 'VesselSurge | Live Maritime Intelligence — Hormuz, Red Sea & Suez',
     description:
-      'Live maritime intelligence for critical chokepoints, vessel traffic, shipping risk and source-reviewed route signals.',
+      'Fresh maritime intelligence for critical chokepoints, vessel traffic, shipping risk, Market Pro analysis and source-reviewed route signals.',
     images: [`${BASE_URL}/og-image.jpg`],
   },
   robots: {
@@ -176,7 +183,7 @@ export const metadata: Metadata = {
     'copyright': `© ${new Date().getFullYear()} VesselSurge`,
     'DC.title': 'VesselSurge Live Maritime Intelligence',
     'DC.subject': 'maritime intelligence, vessel tracking, shipping',
-    'DC.description': 'Real-time maritime intelligence for global shipping chokepoints',
+    'DC.description': 'Fresh source-reviewed maritime intelligence for global shipping chokepoints, Market Pro and cargo-vessel matching',
   },
 }
 
@@ -196,7 +203,7 @@ const schemaWebSite = {
   alternateName: ['VesselSurge.com', 'Vessel Surge'],
   url: BASE_URL,
   description:
-    'Real-time maritime intelligence platform tracking global shipping chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca',
+    'Fresh source-reviewed maritime intelligence platform tracking global shipping chokepoints, Market Pro impact and cargo-vessel matching across Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca',
   logo: {
     '@type': 'ImageObject',
     url: `${BASE_URL}/logo-full.jpg`,
@@ -244,7 +251,7 @@ const schemaSoftwareApp = {
   name: 'VesselSurge Live Maritime Map',
   url: `${BASE_URL}/map-dashboard`,
   description:
-    'Live maritime intelligence application monitoring vessel context at Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca Strait with source-reviewed alerts.',
+    'Live maritime intelligence application monitoring fresh vessel context at Strait of Hormuz, Bab el-Mandeb, Suez Canal and Malacca Strait with source-reviewed alerts, Market Pro analysis and cargo-vessel matching.',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web Browser',
   offers: {
@@ -257,6 +264,8 @@ const schemaSoftwareApp = {
     'Chokepoint risk assessment',
     'Maritime security alerts',
     'Source-reviewed shipping news feed',
+    'Market Pro shipping-to-market analysis',
+    'Freshness-gated live map reports',
     'Regional intelligence pages',
     'Cargo and vessel network onboarding',
   ],
@@ -287,7 +296,7 @@ const schemaDataset = {
   '@id': `${BASE_URL}/#maritime-intelligence-dataset`,
   name: 'VesselSurge Maritime Chokepoint Intelligence',
   description:
-    'A live maritime intelligence dataset organizing vessel context, source-reviewed reports, risk labels and route signals for critical chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca.',
+    'A freshness-gated maritime intelligence dataset organizing vessel context, source-reviewed reports, risk labels and route signals for critical chokepoints including Strait of Hormuz, Bab el-Mandeb, Suez Canal and Strait of Malacca.',
   url: `${BASE_URL}/map-dashboard`,
   creator: { '@id': `${BASE_URL}/#organization` },
   publisher: { '@id': `${BASE_URL}/#organization` },
@@ -306,7 +315,12 @@ const schemaDataset = {
     'Bab el-Mandeb',
     'Suez Canal',
     'Strait of Malacca',
+    'Market Pro',
+    'shipping disruption tracker',
+    'freight rate signals',
+    'war-risk insurance shipping',
   ],
+  temporalCoverage: 'P4D',
   isAccessibleForFree: true,
 }
 

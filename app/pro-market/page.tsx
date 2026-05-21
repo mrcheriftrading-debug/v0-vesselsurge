@@ -14,7 +14,7 @@ import { isAdminEmail } from '@/lib/admin-access'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFallbackUser } from '@/lib/fallback-auth'
-import { buildMarketImpactReport } from '@/lib/market-impact'
+import { buildMarketImpactReport, MARKET_PRO_NEWS_MAX_AGE_HOURS, MARKET_PRO_SIGNAL_MAX_AGE_HOURS } from '@/lib/market-impact'
 import { getFreshMarketProAnalysisCache, getLastMarketProAnalysisCache, upsertMarketProAnalysisCache } from '@/lib/market-pro-cache'
 import { getMarketSnapshot } from '@/lib/market-snapshot'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
@@ -284,6 +284,7 @@ function UnlockedReport({ report, selectedCategory }: { report: Report; selected
 function MarketProDataStatus({ report }: { report: Report }) {
   const summary = report.sourceSummary
   const newsAndSignals = (summary?.newsCount || 0) + (summary?.signalCount || 0)
+  const staleExcluded = summary?.staleExcludedCount || 0
 
   return (
     <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-sm">
@@ -305,6 +306,10 @@ function MarketProDataStatus({ report }: { report: Report }) {
           <p className="mt-1 font-black text-emerald-950">{formatDateTime(summary?.latestEvidenceAt || report.generatedAt)}</p>
         </div>
       </div>
+      <p className="mt-3 text-xs font-semibold leading-5 text-emerald-800">
+        Freshness gate: news under {summary?.freshnessWindowHours?.news || MARKET_PRO_NEWS_MAX_AGE_HOURS}h, signals under {summary?.freshnessWindowHours?.signals || MARKET_PRO_SIGNAL_MAX_AGE_HOURS}h.
+        {staleExcluded ? ` ${staleExcluded} stale items excluded from AI analysis.` : ' No stale items used in AI analysis.'}
+      </p>
     </div>
   )
 }
@@ -984,6 +989,8 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
   let signals = null
   let newsError = null
   let signalsError = null
+  const newsCutoff = new Date(Date.now() - MARKET_PRO_NEWS_MAX_AGE_HOURS * 60 * 60 * 1000).toISOString()
+  const signalCutoff = new Date(Date.now() - MARKET_PRO_SIGNAL_MAX_AGE_HOURS * 60 * 60 * 1000).toISOString()
 
   try {
     const [newsResult, signalsResult] = await withTimeout(
@@ -992,11 +999,13 @@ async function loadReport({ allowDirectDatabaseFallback }: { allowDirectDatabase
           .from('news_articles')
           .select('id, title, snippet, source, url, topic, region, published_at, created_at')
           .eq('is_active', true)
+          .gte('published_at', newsCutoff)
           .order('published_at', { ascending: false })
           .limit(90),
         admin
           .from('maritime_signals')
           .select('signal_key, title, summary, source, source_url, region, signal_type, observed_at, confidence')
+          .gte('observed_at', signalCutoff)
           .order('observed_at', { ascending: false })
           .limit(70),
       ]),

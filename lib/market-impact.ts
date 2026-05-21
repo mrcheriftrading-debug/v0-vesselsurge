@@ -84,6 +84,11 @@ type SourceSummary = {
   signalCount: number
   rankedEventCount: number
   marketQuoteCount: number
+  staleExcludedCount: number
+  freshnessWindowHours: {
+    news: number
+    signals: number
+  }
   liveMarketSource: string | null
   liveMarketGeneratedAt: string | null
   latestEvidenceAt: string | null
@@ -102,6 +107,9 @@ const PRO_MARKET_ANALYST_SKILL = {
   mandate: 'Score each source event by severity, recency, chokepoint exposure, and cross-market transmission.',
   outputs: ['market narrative', 'asset class table', 'investment triggers', 'source-backed evidence'],
 }
+
+export const MARKET_PRO_NEWS_MAX_AGE_HOURS = 72
+export const MARKET_PRO_SIGNAL_MAX_AGE_HOURS = 48
 
 const MARKET_TERMS: WeightedTerm[] = [
   { pattern: /\b(hormuz|persian gulf|gulf of oman|iran)\b/i, weight: 18, reason: 'Gulf energy chokepoint exposure' },
@@ -217,6 +225,18 @@ function itemUrl(item: NewsInput | SignalInput) {
 
 function itemSummary(item: NewsInput | SignalInput) {
   return isSignalInput(item) ? item.summary || '' : item.snippet || ''
+}
+
+function itemAgeHours(item: NewsInput | SignalInput) {
+  const timestamp = itemTime(item)
+  const parsed = Date.parse(timestamp || '')
+  if (!Number.isFinite(parsed)) return Number.POSITIVE_INFINITY
+  return Math.max(0, (Date.now() - parsed) / 36e5)
+}
+
+function isFreshMarketInput(item: NewsInput | SignalInput) {
+  const maxAgeHours = isSignalInput(item) ? MARKET_PRO_SIGNAL_MAX_AGE_HOURS : MARKET_PRO_NEWS_MAX_AGE_HOURS
+  return itemAgeHours(item) <= maxAgeHours
 }
 
 function quotePct(snapshot: MarketSnapshot | null, symbol: string) {
@@ -553,6 +573,7 @@ function buildSourceSummary(
   signals: SignalInput[],
   marketSnapshot: MarketSnapshot | null,
   topStories: RankedMarketStory[],
+  staleExcludedCount: number,
 ): SourceSummary {
   const leadStory = topStories[0]
 
@@ -561,6 +582,11 @@ function buildSourceSummary(
     signalCount: signals.length,
     rankedEventCount: topStories.length,
     marketQuoteCount: marketSnapshot?.quotes.length || 0,
+    staleExcludedCount,
+    freshnessWindowHours: {
+      news: MARKET_PRO_NEWS_MAX_AGE_HOURS,
+      signals: MARKET_PRO_SIGNAL_MAX_AGE_HOURS,
+    },
     liveMarketSource: marketSnapshot?.source || null,
     liveMarketGeneratedAt: marketSnapshot?.generatedAt || null,
     latestEvidenceAt: latestTimestamp([
@@ -615,10 +641,14 @@ function buildAnalysisBrief({
 }
 
 export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[], marketSnapshot: MarketSnapshot | null = null) {
-  const merged = [
+  const rawMerged = [
     ...news.map((item) => ({ kind: 'news' as const, item })),
     ...signals.map((item) => ({ kind: 'signal' as const, item })),
   ]
+  const merged = rawMerged.filter(({ item }) => isFreshMarketInput(item))
+  const staleExcludedCount = rawMerged.length - merged.length
+  const freshNews = news.filter(isFreshMarketInput)
+  const freshSignals = signals.filter(isFreshMarketInput)
 
   const scored = merged
     .map(({ kind, item }) => {
@@ -688,7 +718,7 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     : marketSnapshot
       ? `No major maritime event is strong enough for a high-conviction market alert, but live prices still matter: ${marketSnapshot.summary}`
       : 'No major market-impact signal is currently strong enough for a high-conviction alert.'
-  const sourceSummary = buildSourceSummary(news, signals, marketSnapshot, topStories)
+  const sourceSummary = buildSourceSummary(freshNews, freshSignals, marketSnapshot, topStories, staleExcludedCount)
   const investmentTips = buildInvestmentTips(marketSnapshot, blendedPressureScore, topStories)
   const watchTriggers = [
     'New verified incident near Hormuz, Bab el-Mandeb, Suez or Malacca',

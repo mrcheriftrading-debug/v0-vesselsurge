@@ -11,6 +11,7 @@ const CACHE_KEY = 'live-map'
 const CACHE_TTL_MS = 5 * 60 * 1000
 const STALE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca']
+export const LIVE_MAP_NEWS_MAX_AGE_HOURS = 96
 
 type DashboardCacheRow = {
   payload: MaritimeDashboardResponse
@@ -318,6 +319,7 @@ type LiveMapReviewInput = {
   title?: string | null
   summary?: string | null
   region?: string | null
+  timestamp?: string | null
   sourceQualityScore?: number | null
   freshnessScore?: number | null
   intelligenceScore?: number | null
@@ -327,11 +329,21 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   const sourceScore = article.sourceQualityScore ?? maritimeSourceQualityScore(article.source)
   const freshnessScore = article.freshnessScore ?? 0
   const intelligenceScore = article.intelligenceScore ?? 0
+  const ageHours = hoursOld(article.timestamp)
   const text = `${article.title || ''} ${article.summary || ''} ${article.region || ''}`
   const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
     .test(text)
   const reviewScore = Math.round((intelligenceScore * 0.46) + (sourceScore * 0.28) + (freshnessScore * 0.18) + (routeEvidence ? 8 : 0))
   const sourceLabel = maritimeSourceQualityLabel(article.source)
+
+  if (ageHours === null || ageHours > LIVE_MAP_NEWS_MAX_AGE_HOURS) {
+    return {
+      reviewStatus: 'blocked' as const,
+      reviewReason: `Blocked before live map: event is ${ageHours === null ? 'missing a valid timestamp' : `${Math.round(ageHours)}h old`}; live reports must be under ${LIVE_MAP_NEWS_MAX_AGE_HOURS}h.`,
+      reviewScore,
+      reviewedAt: new Date().toISOString(),
+    }
+  }
 
   if (reviewScore >= 68 && sourceScore >= 55 && routeEvidence) {
     return {
