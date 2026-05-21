@@ -674,7 +674,7 @@ function buildReportFromDashboardData(data: MaritimeDashboardResponse['data']) {
 
 const loadCachedPreviewReport = unstable_cache(
   async () => loadReport({ allowDirectDatabaseFallback: false }),
-  ['vesselsurge-market-pro-preview-report-v1'],
+  ['vesselsurge-market-pro-preview-report-v2-live-maritime'],
   { revalidate: 60 },
 )
 
