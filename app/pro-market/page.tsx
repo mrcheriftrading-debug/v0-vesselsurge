@@ -365,78 +365,25 @@ function AiMarketWorkspace({ report, selectedCategory }: { report: Report; selec
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">Simple market read</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">How the market is affected</h2>
           </div>
           <Radar className="h-5 w-5 text-sky-700" />
         </div>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Read this top to bottom: the plain answer, why it matters, and the source news behind it. This is research context, not a buy or sell signal.
+          One simple answer for the selected market. No trade signal, only how the current VesselSurge news may affect the market.
         </p>
       </div>
 
-      <div className="grid gap-5 p-5">
-        <div className="grid gap-4 lg:grid-cols-[0.44fr_0.56fr]">
-          <div className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Plain answer</p>
-            <h3 className="mt-3 text-2xl font-black leading-tight">{outlook.direction}</h3>
-            <div className="mt-5 flex items-end gap-3">
-              <p className="text-6xl font-black">{outlook.score}</p>
-              <p className="pb-2 text-xs font-bold uppercase text-slate-300">{outlook.confidence} confidence, out of 100</p>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-slate-300">{outlook.summary}</p>
+      <div className="p-5">
+        <div className="rounded-md border border-slate-200 bg-slate-950 p-6 text-white">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-sky-200">Market impact</p>
+          <h3 className="mt-3 text-3xl font-black leading-tight">{outlook.direction}</h3>
+          <p className="mt-4 text-base leading-7 text-slate-200">{outlook.summary}</p>
+          <div className="mt-6 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-300">
+            <span className="rounded-md bg-white/10 px-3 py-2">{categoryLabel(selectedCategory)}</span>
+            <span className="rounded-md bg-white/10 px-3 py-2">{outlook.score}/100 impact</span>
+            <span className="rounded-md bg-white/10 px-3 py-2">{outlook.confidence} confidence</span>
           </div>
-
-          <div className="rounded-md border border-slate-200 bg-slate-50 p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Why this matters</p>
-            <div className="mt-4 grid gap-3">
-              {outlook.why.map((reason) => (
-                <div key={reason} className="flex gap-3 rounded-md border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-700">
-                  <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-600" />
-                  <span>{reason}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-hidden rounded-md border border-slate-200">
-          <div className="grid grid-cols-[1fr_7rem] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-            <span>Sources used</span>
-            <span className="text-right">Score</span>
-          </div>
-          {outlook.news.length ? (
-            outlook.news.map((story) => (
-              <div key={`${story.kind}-${story.id}`} className="grid grid-cols-[1fr_7rem] gap-4 border-t border-slate-200 px-4 py-4 text-sm">
-                <div>
-                  <div className="mb-2 flex flex-wrap gap-2">
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{story.source}</span>
-                    <span className="rounded-md bg-sky-50 px-2 py-1 text-xs font-bold text-sky-800">{story.sourceQualityLabel}</span>
-                    <span className="rounded-md bg-white px-2 py-1 text-xs font-bold text-slate-500 ring-1 ring-slate-200">{formatDateTime(story.timestamp || report.generatedAt)}</span>
-                  </div>
-                  <h3 className="font-black leading-snug text-slate-950">{story.title}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{story.summary}</p>
-                  {story.sourceUrl && (
-                    <Link href={story.sourceUrl} target="_blank" className="mt-2 inline-flex text-sm font-bold text-sky-700 hover:underline">
-                      Open source
-                    </Link>
-                  )}
-                </div>
-                <div className="text-right">
-                  <span className={`inline-flex min-w-12 justify-center rounded-md px-2 py-1 font-black ${scorePillClass(story.score)}`}>{story.score}</span>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="border-t border-slate-200 px-4 py-6 text-sm font-semibold text-slate-600">
-              The AI is waiting for stronger source-backed maritime news before raising a directional market view.
-            </div>
-          )}
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-3">
-          <BriefPoint label="What prices say" body={outlook.marketTape} />
-          <BriefPoint label="Main news driver" body={outlook.trigger} />
-          <BriefPoint label="Watch next" body={outlook.watchNext} />
         </div>
       </div>
     </section>
@@ -452,15 +399,6 @@ function QuoteTile({ quote }: { quote: MarketQuoteReport }) {
         <p className="text-xl font-black text-slate-950">{formatMarketPrice(quote)}</p>
         <p className={`font-black ${quote.change >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{formatMarketMove(quote)}</p>
       </div>
-    </div>
-  )
-}
-
-function BriefPoint({ label, body }: { label: string; body: string }) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-white p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">{body}</p>
     </div>
   )
 }
@@ -491,11 +429,11 @@ function LockedAnalysisSection({ isLoggedIn, selectedCategory }: { isLoggedIn: b
         <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-5">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-700">2. AI market view</p>
-            <h2 className="mt-1 text-2xl font-black text-slate-950">Simple AI read locked</h2>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">Market impact locked</h2>
           </div>
           <div className="p-5">
             <p className="text-sm leading-6 text-slate-600">
-              Paid accounts see the plain answer first, then the reason, the sources used and what to watch next for {categoryLabel(selectedCategory).toLowerCase()}.
+              Paid accounts see one plain answer that says how current VesselSurge news may affect {categoryLabel(selectedCategory).toLowerCase()}.
             </p>
             <div className="mt-5">
               {isLoggedIn ? (
@@ -862,11 +800,4 @@ function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: strin
   })
 
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId))
-}
-
-function scorePillClass(score: number) {
-  if (score >= 70) return 'bg-red-50 text-red-800'
-  if (score >= 45) return 'bg-amber-50 text-amber-800'
-  if (score > 0) return 'bg-sky-50 text-sky-800'
-  return 'bg-slate-100 text-slate-600'
 }
