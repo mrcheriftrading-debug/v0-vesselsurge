@@ -826,6 +826,49 @@ async function supabaseRequest(path: string, init: RequestInit = {}) {
   })
 }
 
+async function postRowsInBatches<T>({
+  path,
+  rows,
+  batchSize,
+  timeoutMs,
+  describe,
+}: {
+  path: string
+  rows: T[]
+  batchSize: number
+  timeoutMs: number
+  describe: string
+}) {
+  let written = 0
+  const warnings: string[] = []
+
+  for (let index = 0; index < rows.length; index += batchSize) {
+    const batch = rows.slice(index, index + batchSize)
+    try {
+      const response = await supabaseRequest(path, {
+        method: 'POST',
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+        signal: AbortSignal.timeout(timeoutMs),
+        body: JSON.stringify(batch),
+      })
+
+      if (response.ok) {
+        written += batch.length
+      } else {
+        const warning = `${describe} batch ${Math.floor(index / batchSize) + 1} skipped: ${response.status}`
+        warnings.push(warning)
+        console.warn('[trusted-update]', warning, await response.text())
+      }
+    } catch (error) {
+      const warning = `${describe} batch ${Math.floor(index / batchSize) + 1} skipped: ${errorMessage(error)}`
+      warnings.push(warning)
+      console.warn('[trusted-update]', warning)
+    }
+  }
+
+  return { written, warnings }
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -1026,12 +1069,19 @@ export async function GET(request: Request) {
 
     if (signals.length > 0) {
       stage = 'upserting maritime signals'
-      const upsertSignals = await supabaseRequest('maritime_signals?on_conflict=signal_key', {
-        method: 'POST',
-        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(signals.map((signal) => ({ ...signal, updated_at: timestamp }))),
+      const signalWrite = await postRowsInBatches({
+        path: 'maritime_signals?on_conflict=signal_key',
+        rows: signals.map((signal) => ({ ...signal, updated_at: timestamp })),
+        batchSize: 6,
+        timeoutMs: 3000,
+        describe: 'maritime signal upsert',
       })
-      if (!upsertSignals.ok) throw new Error(`Failed to upsert maritime signals: ${upsertSignals.status} ${await upsertSignals.text()}`)
+      if (signalWrite.warnings.length > 0) {
+        maintenanceWarning ||= signalWrite.warnings[0]
+      }
+      if (signalWrite.written === 0) {
+        throw new Error(`Failed to upsert any maritime signals across ${signalWrite.warnings.length || 1} batch attempt(s)`)
+      }
     }
 
     stage = 'upserting hotspot stats'
