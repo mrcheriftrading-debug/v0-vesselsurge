@@ -3,10 +3,49 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+const AIS_QUERY_TIMEOUT_MS = 2200
+const AIS_CACHE_CONTROL = 'public, s-maxage=20, stale-while-revalidate=120'
+
+function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
+function unavailableVesselsResponse(hotspot: string | null, reason: string) {
+  return NextResponse.json(
+    {
+      success: true,
+      degraded: true,
+      vessels: [],
+      count: 0,
+      hotspot,
+      source: 'database-fallback',
+      note: 'Verified AIS vessel rows are temporarily unavailable. VesselSurge is keeping the live map active with source-reviewed hotspot, news, and signal layers instead of serving mock vessels.',
+      warning: reason,
+    },
+    {
+      headers: {
+        'Cache-Control': AIS_CACHE_CONTROL,
+        'Access-Control-Allow-Origin': '*',
+        'X-Content-Type-Options': 'nosniff',
+        'X-VesselSurge-Fallback': 'ais-database-unavailable',
+      },
+    },
+  )
+}
+
 export async function GET(request: NextRequest) {
+  let hotspot: string | null = null
+
   try {
     const { searchParams } = new URL(request.url)
-    const hotspot = searchParams.get('hotspot') || null
+    hotspot = searchParams.get('hotspot') || null
     const supabase = await createClient()
 
     let query = supabase
@@ -19,21 +58,11 @@ export async function GET(request: NextRequest) {
       query = query.eq('hotspot', hotspot)
     }
 
-    const { data, error } = await query
+    const { data, error } = await withTimeout(query, AIS_QUERY_TIMEOUT_MS, 'ais-vessels query')
 
     if (error) {
-      console.error('[ais-vessels] database error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          vessels: [],
-          count: 0,
-          hotspot,
-          source: 'database',
-          note: 'Verified AIS database query failed. Mock vessel data is disabled.',
-        },
-        { status: 500 },
-      )
+      console.warn('[ais-vessels] database fallback:', error)
+      return unavailableVesselsResponse(hotspot, error.message || 'AIS database query failed')
     }
 
     return NextResponse.json(
@@ -47,23 +76,14 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=20, stale-while-revalidate=60',
+          'Cache-Control': AIS_CACHE_CONTROL,
           'Access-Control-Allow-Origin': '*',
+          'X-Content-Type-Options': 'nosniff',
         },
       },
     )
   } catch (err: any) {
-    console.error('[ais-vessels] error:', err)
-    return NextResponse.json(
-      {
-        success: false,
-        vessels: [],
-        count: 0,
-        error: err.message,
-        source: 'database',
-        note: 'Verified AIS fetch failed. Mock vessel data is disabled.',
-      },
-      { status: 500 },
-    )
+    console.warn('[ais-vessels] serving fallback:', err?.message || err)
+    return unavailableVesselsResponse(hotspot, err?.message || 'AIS database unavailable')
   }
 }

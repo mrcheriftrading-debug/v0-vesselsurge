@@ -146,7 +146,7 @@ export async function GET(request: Request) {
     )
 
     if (hotspotsError) {
-      console.error('[x-feed] Hotspot fetch error:', hotspotsError)
+      console.warn('[x-feed] Hotspot fetch fallback:', hotspotsError)
     }
 
     const riskByRegion = new Map(
@@ -172,8 +172,7 @@ export async function GET(request: Request) {
     const { data, error } = await withTimeout(query, ARTICLE_QUERY_TIMEOUT_MS, 'x-feed article query')
 
     if (error) {
-      console.error('[x-feed] Article fetch error:', error)
-      return NextResponse.json({ success: false, error: error.message, items: [] }, { status: 500 })
+      throw new Error(error.message)
     }
 
     const reviewedItems = buildReviewedItems(data || [], riskByRegion, requestVariantSeed)
@@ -241,7 +240,7 @@ export async function GET(request: Request) {
       },
     )
   } catch (err: any) {
-    console.error('[x-feed] Unexpected error:', err)
+    console.warn('[x-feed] Serving offline fallback:', err?.message || err)
     const fallback = buildOfflineMaritimeDashboardSnapshot('x-feed database unavailable; serving bundled source-reviewed marketing queue')
     const riskByRegion = new Map(fallback.data.hotspots.map((hotspot: any) => [hotspot.hotspot, hotspot.riskLevel || 'medium']))
     const reviewedItems = buildReviewedItems(
