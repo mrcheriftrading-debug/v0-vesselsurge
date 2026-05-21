@@ -14,8 +14,9 @@ export function AuthRecoveryRedirect() {
       queryParams.get("next") === "/auth/reset-password"
     const hasHashSession = Boolean(params.get("access_token") && params.get("refresh_token"))
     const hasCode = Boolean(queryParams.get("code"))
+    const hasTokenHash = Boolean(queryParams.get("token_hash"))
 
-    if (!isRecovery || (!hasHashSession && !hasCode)) {
+    if (!isRecovery || (!hasHashSession && !hasCode && !hasTokenHash)) {
       return
     }
 

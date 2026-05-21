@@ -7,24 +7,14 @@ const OTP_TYPES = new Set<EmailOtpType>(["signup", "invite", "magiclink", "recov
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get("code")
   const tokenHash = searchParams.get("token_hash")
   const type = searchParams.get("type") as EmailOtpType | null
   const rawNext = searchParams.get("next")
-  const requestedNext = getSafeNextPath(searchParams.get("next"))
   const isPasswordRecovery =
     type === "recovery" ||
     rawNext === "/auth/reset-password" ||
     rawNext === "/auth/update-password"
-  const next = isPasswordRecovery ? "/auth/reset-password" : requestedNext
-
-  if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
-  }
+  const next = isPasswordRecovery ? "/auth/reset-password" : getSafeNextPath(rawNext)
 
   if (tokenHash && type && OTP_TYPES.has(type)) {
     const supabase = await createClient()
@@ -38,6 +28,5 @@ export async function GET(request: Request) {
     }
   }
 
-  // Return the user to an error page with instructions
   return NextResponse.redirect(`${origin}/auth/error`)
 }

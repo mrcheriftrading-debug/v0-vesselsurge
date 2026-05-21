@@ -21,8 +21,9 @@ const authRecoveryRedirectScript = `
       queryParams.get('next') === '/auth/reset-password';
     const hasHashSession = hashParams.get('access_token') && hashParams.get('refresh_token');
     const hasCode = queryParams.get('code');
+    const hasTokenHash = queryParams.get('token_hash');
 
-    if (isRecovery && (hasHashSession || hasCode) && window.location.pathname !== '/auth/reset-password') {
+    if (isRecovery && (hasHashSession || hasCode || hasTokenHash) && window.location.pathname !== '/auth/reset-password') {
       window.location.replace('/auth/reset-password' + search + hash);
     }
   } catch {}

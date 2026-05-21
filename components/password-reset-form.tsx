@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { KeyRound, Loader2, Zap } from "lucide-react"
+import type { EmailOtpType } from "@supabase/supabase-js"
+
+const OTP_TYPES = new Set<EmailOtpType>(["signup", "invite", "magiclink", "recovery", "email_change", "email"])
 
 type PasswordResetFormProps = {
   cleanPath?: string
@@ -40,13 +43,31 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""))
       const accessToken = hash.get("access_token")
       const refreshToken = hash.get("refresh_token")
-      const recoveryType = hash.get("type") || params.get("type")
+      const recoveryType = (hash.get("type") || params.get("type")) as EmailOtpType | null
+      const tokenHash = params.get("token_hash")
 
       if (code) {
         const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
         if (!active) return
 
         if (exchangeError || !data.session) {
+          markInvalid()
+          return
+        }
+
+        cleanRecoveryUrl()
+        setIsCheckingSession(false)
+        return
+      }
+
+      if (tokenHash && recoveryType && OTP_TYPES.has(recoveryType)) {
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: recoveryType,
+        })
+        if (!active) return
+
+        if (verifyError || !data.session) {
           markInvalid()
           return
         }
