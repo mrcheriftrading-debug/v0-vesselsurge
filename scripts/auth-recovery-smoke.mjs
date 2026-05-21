@@ -1,0 +1,298 @@
+#!/usr/bin/env node
+
+import { spawn } from 'node:child_process'
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import WebSocket from 'ws'
+
+const BASE_URL = (process.env.VESSELSURGE_AUTH_SMOKE_URL || 'https://www.vesselsurge.com').replace(/\/$/, '')
+const CHROME_CANDIDATES = [
+  process.env.VESSELSURGE_CHROME_PATH,
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+].filter(Boolean)
+const IGNORED_BROWSER_LOG = /favicon|preload|leaflet\.css|apple-mobile-web-app-capable|third-party cookie|privacy sandbox|_vercel\/(speed-)?insights\/script\.js|MIME type \('text\/html'\)|Web Analytics|Speed Insights/i
+
+function loadLocalEnv(file = '.env.local') {
+  if (!existsSync(file)) return
+
+  for (const line of readFileSync(file, 'utf8').split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+
+    const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/)
+    if (!match) continue
+
+    let value = match[2].trim()
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
+    }
+    process.env[match[1]] ||= value
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function findChrome() {
+  return CHROME_CANDIDATES.find((candidate) => candidate && existsSync(candidate)) || null
+}
+
+async function waitForPageTarget(port) {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/json/list`)
+      const targets = await response.json()
+      const page = targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl)
+      if (page) return page.webSocketDebuggerUrl
+    } catch {
+      // Chrome is still booting.
+    }
+    await sleep(250)
+  }
+
+  throw new Error('Chrome DevTools Protocol page target did not start')
+}
+
+function createCdpClient(wsUrl) {
+  const socket = new WebSocket(wsUrl)
+  let commandId = 0
+  const pending = new Map()
+  const events = []
+
+  socket.on('message', (data) => {
+    const message = JSON.parse(data.toString())
+    if (message.id && pending.has(message.id)) {
+      const { resolve, reject } = pending.get(message.id)
+      pending.delete(message.id)
+      if (message.error) reject(new Error(JSON.stringify(message.error)))
+      else resolve(message.result)
+      return
+    }
+
+    if (message.method === 'Runtime.exceptionThrown') {
+      events.push({
+        type: 'exception',
+        text: message.params?.exceptionDetails?.exception?.description || message.params?.exceptionDetails?.text || 'runtime exception',
+      })
+    }
+
+    if (message.method === 'Runtime.consoleAPICalled' && ['error', 'assert'].includes(message.params?.type)) {
+      const text = (message.params.args || []).map((arg) => arg.value || arg.description || '').join(' ')
+      if (!IGNORED_BROWSER_LOG.test(text)) events.push({ type: 'console', text })
+    }
+
+    if (message.method === 'Log.entryAdded' && ['error', 'warning'].includes(message.params?.entry?.level)) {
+      const text = message.params.entry.text || ''
+      const url = message.params.entry.url || ''
+      if (!IGNORED_BROWSER_LOG.test(text) && !IGNORED_BROWSER_LOG.test(url)) {
+        events.push({ type: 'log', text, url })
+      }
+    }
+  })
+
+  return {
+    events,
+    opened: new Promise((resolve, reject) => {
+      socket.once('open', resolve)
+      socket.once('error', reject)
+    }),
+    send(method, params = {}) {
+      return new Promise((resolve, reject) => {
+        const id = ++commandId
+        pending.set(id, { resolve, reject })
+        socket.send(JSON.stringify({ id, method, params }))
+      })
+    },
+    close: () => socket.close(),
+  }
+}
+
+async function evaluate(client, expression) {
+  const result = await client.send('Runtime.evaluate', {
+    expression,
+    returnByValue: true,
+    awaitPromise: true,
+  })
+
+  if (result.exceptionDetails) {
+    throw new Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text || 'Runtime evaluation failed')
+  }
+
+  return result.result.value
+}
+
+async function getPageState(client) {
+  return evaluate(client, `(() => ({
+    href: location.href,
+    path: location.pathname,
+    body: document.body.innerText.slice(0, 1800)
+  }))()`)
+}
+
+async function navigate(client, route, waitMs = 7000) {
+  client.events.length = 0
+  await client.send('Page.navigate', { url: `${BASE_URL}${route}` })
+  await sleep(waitMs)
+  return getPageState(client)
+}
+
+async function fillInput(client, selector, value) {
+  await evaluate(client, `(() => {
+    const input = document.querySelector(${JSON.stringify(selector)});
+    if (!input) throw new Error('Missing input ${selector}');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    setter.call(input, ${JSON.stringify(value)});
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  })()`)
+}
+
+async function click(client, selector) {
+  await evaluate(client, `(() => {
+    const element = document.querySelector(${JSON.stringify(selector)});
+    if (!element) throw new Error('Missing clickable ${selector}');
+    element.click();
+    return true;
+  })()`)
+}
+
+function createSupabaseAdmin() {
+  loadLocalEnv()
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const adminKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+
+  if (!supabaseUrl || !adminKey) {
+    throw new Error('Recovery smoke requires Supabase URL and service role key.')
+  }
+
+  return createSupabaseClient(supabaseUrl, adminKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
+}
+
+async function login(client, email, password) {
+  let state = await navigate(client, '/auth/login?next=/dashboard')
+  if (!state.body.includes('Welcome Back')) throw new Error('Login page did not render')
+
+  await fillInput(client, '#email', email)
+  await fillInput(client, '#password', password)
+  await click(client, 'form button[type="submit"]')
+  await sleep(14000)
+
+  state = await getPageState(client)
+  if (state.path !== '/dashboard' || !state.body.includes('Codex Recovery Smoke')) {
+    throw new Error(`Login with recovered password failed: ${state.href}`)
+  }
+}
+
+async function main() {
+  const admin = createSupabaseAdmin()
+  const chrome = findChrome()
+  if (!chrome) {
+    throw new Error('Chrome executable not found. Set VESSELSURGE_CHROME_PATH to run recovery smoke checks.')
+  }
+
+  const stamp = Date.now()
+  const email = `codex-recovery-smoke-${stamp}@example.com`
+  const oldPassword = `Original${stamp}!`
+  const newPassword = `Recovered${stamp}!`
+  const userDataDir = mkdtempSync(path.join(os.tmpdir(), 'vesselsurge-recovery-smoke-'))
+  const port = 10400 + Math.floor(Math.random() * 3000)
+  const chromeProcess = spawn(chrome, [
+    '--headless=new',
+    '--disable-gpu',
+    '--no-first-run',
+    '--no-default-browser-check',
+    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${userDataDir}`,
+    'about:blank',
+  ], { stdio: 'ignore' })
+
+  let userId = null
+
+  try {
+    const created = await admin.auth.admin.createUser({
+      email,
+      password: oldPassword,
+      email_confirm: true,
+      user_metadata: {
+        company_name: 'Codex Recovery Smoke',
+        service_type: 'trader',
+      },
+    })
+
+    if (created.error || !created.data.user) throw created.error || new Error('Supabase test user was not created')
+    userId = created.data.user.id
+
+    const link = await admin.auth.admin.generateLink({ type: 'recovery', email })
+    if (link.error) throw link.error
+    const tokenHash = link.data.properties?.hashed_token
+    if (!tokenHash) throw new Error('Supabase recovery link did not include a hashed token')
+
+    const wsUrl = await waitForPageTarget(port)
+    const client = createCdpClient(wsUrl)
+    await client.opened
+    await client.send('Page.enable')
+    await client.send('Runtime.enable')
+    await client.send('Log.enable')
+
+    let state = await navigate(
+      client,
+      `/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=recovery&next=${encodeURIComponent('/auth/reset-password')}`,
+      9000,
+    )
+    if (state.path !== '/auth/reset-password' || !state.body.includes('Reset Your Password')) {
+      throw new Error(`Recovery link did not reach reset-password page: ${state.href}`)
+    }
+
+    await fillInput(client, '#password', newPassword)
+    await fillInput(client, '#confirmPassword', newPassword)
+    await click(client, 'form button[type="submit"]')
+    await sleep(14000)
+
+    state = await getPageState(client)
+    if (state.path !== '/dashboard' || !state.body.includes('Codex Recovery Smoke')) {
+      throw new Error(`Password reset did not return to dashboard: ${state.href}`)
+    }
+
+    await click(client, 'form[action="/auth/sign-out"] button')
+    await sleep(5000)
+    await login(client, email, newPassword)
+
+    if (client.events.length > 0) {
+      throw new Error(`Browser errors: ${JSON.stringify(client.events)}`)
+    }
+
+    client.close()
+    console.log(JSON.stringify({
+      ok: true,
+      baseUrl: BASE_URL,
+      steps: ['open-recovery-link-while-logged-out', 'set-new-password', 'sign-out', 'login-new-password'],
+    }, null, 2))
+  } finally {
+    chromeProcess.kill('SIGTERM')
+    await sleep(750)
+    rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 150 })
+
+    if (userId) {
+      const { error } = await admin.auth.admin.deleteUser(userId)
+      if (error) throw error
+    }
+  }
+}
+
+main().catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

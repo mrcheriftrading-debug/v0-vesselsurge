@@ -13,6 +13,7 @@ const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
 const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
 const HEALTH_CACHE_QUERY_TIMEOUT_MS = 2200
+const AUTH_HEALTH_TIMEOUT_MS = 2500
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
@@ -54,6 +55,54 @@ function worstStatus(statuses: Status[]): Status {
   if (statuses.includes('unhealthy')) return 'unhealthy'
   if (statuses.includes('degraded')) return 'degraded'
   return 'ok'
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
+async function checkSupabaseAuth(admin: ReturnType<typeof createAdminClient>) {
+  const startedAt = Date.now()
+
+  try {
+    const { error } = await withTimeout(
+      admin.auth.admin.listUsers({ page: 1, perPage: 1 }),
+      AUTH_HEALTH_TIMEOUT_MS,
+      'Supabase Auth admin probe',
+    )
+
+    const durationMs = Date.now() - startedAt
+
+    if (error) {
+      return {
+        status: 'degraded' as Status,
+        durationMs,
+        probe: 'auth.admin.listUsers',
+        note: error.message,
+      }
+    }
+
+    return {
+      status: 'ok' as Status,
+      durationMs,
+      probe: 'auth.admin.listUsers',
+      note: 'Supabase Auth admin API accepted a minimal listUsers probe.',
+    }
+  } catch (error) {
+    return {
+      status: 'degraded' as Status,
+      durationMs: Date.now() - startedAt,
+      probe: 'auth.admin.listUsers',
+      note: error instanceof Error ? error.message : 'Supabase Auth probe failed',
+    }
+  }
 }
 
 function sourceQualityStatus(audit?: QualityAudit | null): Status {
@@ -151,6 +200,11 @@ function directSourceSweepHealthResponse(warning: string) {
           recommendations: ['Database cache is degraded; public live map is served by the direct source sweep until persistence recovers.'],
         },
         database: { status: 'degraded' },
+        auth: {
+          status: 'degraded',
+          probe: 'skipped',
+          note: 'Supabase Auth probe was skipped because the persisted health cache was unavailable.',
+        },
       },
     },
     {
@@ -170,9 +224,10 @@ async function liveSurfaceHealthResponse(_request: Request, warning: string) {
 export async function GET(request: Request) {
   try {
     const admin = createAdminClient()
-    const [cacheRow, marketProCache] = await Promise.all([
+    const [cacheRow, marketProCache, authHealth] = await Promise.all([
       getMaritimeDashboardCacheRow(admin, HEALTH_CACHE_QUERY_TIMEOUT_MS),
       getLastMarketProAnalysisCache(admin, 'health check reads last saved Market Pro analysis').catch(() => null),
+      checkSupabaseAuth(admin),
     ])
 
     if (!cacheRow) {
@@ -242,6 +297,7 @@ export async function GET(request: Request) {
       watch: statusFromAge(watchAge, WATCH_DEGRADED_MS, WATCH_UNHEALTHY_MS),
       coverage: coverageStatus,
       sourceQuality: sourceQualityStatus(qualityAudit),
+      auth: authHealth.status,
       hotspots: hotspotRows.length === HOTSPOTS.length ? 'ok' as Status : 'unhealthy' as Status,
     }
     const status = worstStatus(Object.values(componentStatuses))
@@ -257,6 +313,7 @@ export async function GET(request: Request) {
             mode: 'supabase-rest-cache',
             note: 'Dashboard cache row was read successfully from Supabase REST.',
           },
+          auth: authHealth,
           cache: {
             status: componentStatuses.cache,
             generatedAt: cacheRow.generated_at,
