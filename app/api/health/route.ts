@@ -10,7 +10,7 @@ const CACHE_UNHEALTHY_MS = 30 * 60 * 1000
 const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
 const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
-const HEALTH_CACHE_QUERY_TIMEOUT_MS = 1250
+const HEALTH_CACHE_QUERY_TIMEOUT_MS = 2200
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
