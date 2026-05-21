@@ -265,6 +265,7 @@ function UnlockedReport({ report, selectedCategory }: { report: Report; selected
   return (
     <div className="mx-auto max-w-7xl">
       <MarketCategorySelector selectedCategory={selectedCategory} />
+      <MarketProDataStatus report={report} />
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[0.96fr_1.04fr]">
         <LiveMarketWorkspace report={report} selectedCategory={selectedCategory} />
@@ -273,6 +274,34 @@ function UnlockedReport({ report, selectedCategory }: { report: Report; selected
 
       <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
         {report.disclaimer}
+      </div>
+    </div>
+  )
+}
+
+function MarketProDataStatus({ report }: { report: Report }) {
+  const summary = report.sourceSummary
+  const newsAndSignals = (summary?.newsCount || 0) + (summary?.signalCount || 0)
+
+  return (
+    <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-sm">
+      <div className="grid gap-3 text-sm md:grid-cols-4">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-800">Real data status</p>
+          <p className="mt-1 font-black text-emerald-950">Production report</p>
+        </div>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Live quotes</p>
+          <p className="mt-1 font-black text-emerald-950">{summary?.marketQuoteCount || report.marketSnapshot?.quotes.length || 0} instruments</p>
+        </div>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Source events</p>
+          <p className="mt-1 font-black text-emerald-950">{newsAndSignals || report.topStories.length} news/signals</p>
+        </div>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Updated</p>
+          <p className="mt-1 font-black text-emerald-950">{formatDateTime(summary?.latestEvidenceAt || report.generatedAt)}</p>
+        </div>
       </div>
     </div>
   )
@@ -641,6 +670,20 @@ function buildCategoryOutlook(report: Report, category: AssetCategory) {
 }
 
 function buildInstrumentOutlooks(report: Report, category: AssetCategory, categoryScore: number): InstrumentOutlook[] {
+  const reportTips = report.investmentTips?.[category]
+  if (reportTips?.length) {
+    return reportTips.map((tip) => ({
+      symbol: tip.symbol,
+      label: tip.label,
+      view: tip.tip,
+      reason: tip.reason,
+      expectedMoveLabel: tip.expectedMoveLabel,
+      catalyst: tip.catalyst,
+      score: tip.score,
+      tone: tip.tone,
+    }))
+  }
+
   const quotes = categoryMarketQuotes(report.marketSnapshot, category)
   const sourceSignal = sourceCatalyst(report)
 

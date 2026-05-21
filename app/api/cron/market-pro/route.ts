@@ -37,6 +37,17 @@ export async function GET(request: Request) {
       confidence: report.confidence,
       analystSignal: report.analysisBrief.signal,
       sourceCounts,
+      sourceSummary: report.sourceSummary,
+      investmentTipCounts: {
+        stocks: report.investmentTips.stocks.length,
+        crypto: report.investmentTips.crypto.length,
+        fx: report.investmentTips.fx.length,
+      },
+      topInvestmentTips: {
+        stocks: report.investmentTips.stocks[0] || null,
+        crypto: report.investmentTips.crypto[0] || null,
+        fx: report.investmentTips.fx[0] || null,
+      },
       note: 'Market Pro cron saved a real source-backed analyst report for paid subscribers.',
     })
   } catch (error) {

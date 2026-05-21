@@ -1,6 +1,6 @@
 import 'server-only'
 import { maritimeSourceQualityLabel, maritimeSourceQualityScore } from '@/lib/maritime-source-quality'
-import { formatQuoteMove, quoteFor, type MarketSnapshot } from '@/lib/market-snapshot'
+import { formatQuoteMove, quoteFor, type MarketQuote, type MarketSnapshot } from '@/lib/market-snapshot'
 
 type NewsInput = {
   id?: string
@@ -55,6 +55,38 @@ type AssetImpact = {
   evidenceCount: number
   drivers: string[]
   marketMove: string | null
+}
+
+type InvestmentCategory = 'stocks' | 'crypto' | 'fx'
+type InvestmentTone = 'positive' | 'caution' | 'wait' | 'neutral'
+
+type InvestmentTip = {
+  category: InvestmentCategory
+  symbol: string
+  label: string
+  tip: string
+  reason: string
+  catalyst: string
+  catalystSource: string | null
+  catalystUrl: string | null
+  catalystPublishedAt: string | null
+  expectedMovePct: number | null
+  expectedMoveLabel: string
+  score: number
+  confidence: 'high' | 'medium' | 'developing'
+  tone: InvestmentTone
+}
+
+type SourceSummary = {
+  newsCount: number
+  signalCount: number
+  rankedEventCount: number
+  marketQuoteCount: number
+  liveMarketSource: string | null
+  liveMarketGeneratedAt: string | null
+  latestEvidenceAt: string | null
+  leadSource: string | null
+  leadSourceUrl: string | null
 }
 
 const PRO_INVESTOR_SKILL = {
@@ -127,6 +159,10 @@ function recencyBoost(value?: string | null) {
 
 function clamp(value: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, value))
+}
+
+function formatPercent(value: number, digits = 1) {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(digits)}%`
 }
 
 function scoreText(text: string, timestamp?: string | null, source?: string | null) {
@@ -314,6 +350,193 @@ function pressureMeaning(score: number) {
   return 'The current evidence does not support a strong market-impact call.'
 }
 
+function investmentCategoryForQuote(quote: MarketQuote): InvestmentCategory | null {
+  if (quote.group === 'Equities' || quote.group === 'Transport') return 'stocks'
+  if (quote.group === 'Crypto') return 'crypto'
+  if (quote.group === 'FX' || quote.group === 'Currencies') return 'fx'
+  return null
+}
+
+function investmentConfidence(score: number): InvestmentTip['confidence'] {
+  if (score >= 74) return 'high'
+  if (score >= 58) return 'medium'
+  return 'developing'
+}
+
+function investmentScoreAdjustment(quote: MarketQuote, category: InvestmentCategory, pressure: number) {
+  if (category === 'stocks' && quote.group === 'Transport') return pressure >= 60 ? 8 : 3
+  if (category === 'crypto' && pressure >= 62) return -4
+  if (category === 'fx' && /USD|DX-Y/.test(quote.symbol)) return pressure >= 60 ? 7 : 2
+  return 0
+}
+
+function investmentViewForQuote(quote: MarketQuote, category: InvestmentCategory, pressure: number): {
+  tip: string
+  tone: InvestmentTone
+  reason: string
+} {
+  const momentum = quote.changePercent
+
+  if (category === 'stocks') {
+    if (quote.group === 'Transport' && pressure >= 60) {
+      return { tip: 'Buy setup', tone: 'positive', reason: 'Shipping pressure can lift freight and tanker exposure.' }
+    }
+    if (quote.group === 'Transport') {
+      return { tip: 'Wait for route trigger', tone: 'neutral', reason: 'Transport names react directly to route and freight changes.' }
+    }
+    if (pressure >= 65) {
+      return { tip: 'Avoid for now', tone: 'caution', reason: 'High shipping risk can cap broad equity upside.' }
+    }
+    if (momentum > 0.3) {
+      return { tip: 'Buy setup', tone: 'positive', reason: 'Live price action is positive and risk pressure is controlled.' }
+    }
+  }
+
+  if (category === 'crypto') {
+    if (pressure >= 62) {
+      return { tip: 'Avoid for now', tone: 'wait', reason: 'Shipping stress can reduce risk appetite and hurt crypto.' }
+    }
+    if (momentum > 0.8) {
+      return { tip: 'Buy setup', tone: 'positive', reason: 'Crypto momentum is positive while shipping pressure is manageable.' }
+    }
+    return { tip: 'Wait', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
+  }
+
+  if (/USDSEK|DX-Y|USDJPY/.test(quote.symbol) && pressure >= 60) {
+    return { tip: 'Long USD setup', tone: 'positive', reason: 'Shipping stress often supports USD demand.' }
+  }
+  if (/EURUSD|GBPUSD/.test(quote.symbol) && pressure >= 60) {
+    return { tip: 'Avoid for now', tone: 'caution', reason: 'Dollar strength can pressure non-USD pairs.' }
+  }
+  if (momentum > 0.2) {
+    return { tip: 'Buy setup', tone: 'positive', reason: 'Currency momentum is positive on the live tape.' }
+  }
+
+  return { tip: 'Wait', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
+}
+
+function investmentExpectedMove({
+  quote,
+  category,
+  score,
+  tone,
+}: {
+  quote: MarketQuote
+  category: InvestmentCategory
+  score: number
+  tone: InvestmentTone
+}) {
+  if (tone === 'neutral') return { expectedMovePct: null, expectedMoveLabel: 'No clear edge' }
+
+  const sign = tone === 'positive' ? 1 : -1
+  const conviction = Math.max(0.2, (score - 50) / 45)
+  const categoryMultiplier = category === 'crypto'
+    ? 1.55
+    : category === 'fx'
+      ? 0.42
+      : quote.group === 'Transport'
+        ? 1.15
+        : 0.82
+  const cap = category === 'crypto' ? 4.5 : category === 'fx' ? 1.2 : 2.8
+  const floor = category === 'fx' ? 0.15 : 0.4
+  const projectedMove = Math.max(
+    floor,
+    Math.min(cap, (0.38 + Math.abs(quote.changePercent) * 0.28 + conviction * 1.08) * categoryMultiplier),
+  )
+  const expectedMovePct = Number((projectedMove * sign).toFixed(2))
+
+  return {
+    expectedMovePct,
+    expectedMoveLabel: `AI scenario ${formatPercent(expectedMovePct, 1)}`,
+  }
+}
+
+function buildInvestmentTips(
+  marketSnapshot: MarketSnapshot | null,
+  marketPressureScore: number,
+  topStories: RankedMarketStory[],
+) {
+  const board: Record<InvestmentCategory, InvestmentTip[]> = {
+    stocks: [],
+    crypto: [],
+    fx: [],
+  }
+
+  if (!marketSnapshot) return board
+
+  const catalystStory = topStories[0]
+  const catalyst = catalystStory
+    ? `${catalystStory.region.toUpperCase()}: ${catalystStory.title}`
+    : marketSnapshot.summary
+
+  for (const quote of marketSnapshot.quotes) {
+    const category = investmentCategoryForQuote(quote)
+    if (!category) continue
+
+    const score = clamp(Math.round(
+      marketPressureScore +
+      Math.abs(quote.changePercent) * 4 +
+      investmentScoreAdjustment(quote, category, marketPressureScore),
+    ))
+    const { tip, tone, reason } = investmentViewForQuote(quote, category, marketPressureScore)
+    const { expectedMovePct, expectedMoveLabel } = investmentExpectedMove({ quote, category, score, tone })
+
+    board[category].push({
+      category,
+      symbol: quote.symbol,
+      label: quote.label,
+      tip,
+      reason,
+      catalyst,
+      catalystSource: catalystStory?.source || marketSnapshot.source,
+      catalystUrl: catalystStory?.sourceUrl || marketSnapshot.sourceUrl,
+      catalystPublishedAt: catalystStory?.timestamp || marketSnapshot.generatedAt,
+      expectedMovePct,
+      expectedMoveLabel,
+      score,
+      confidence: investmentConfidence(score),
+      tone,
+    })
+  }
+
+  return {
+    stocks: board.stocks.sort((a, b) => b.score - a.score),
+    crypto: board.crypto.sort((a, b) => b.score - a.score),
+    fx: board.fx.sort((a, b) => b.score - a.score),
+  }
+}
+
+function latestTimestamp(values: Array<string | null | undefined>) {
+  const sorted = values
+    .filter((value): value is string => typeof value === 'string' && Number.isFinite(Date.parse(value)))
+    .sort((a, b) => Date.parse(b) - Date.parse(a))
+  return sorted[0] || null
+}
+
+function buildSourceSummary(
+  news: NewsInput[],
+  signals: SignalInput[],
+  marketSnapshot: MarketSnapshot | null,
+  topStories: RankedMarketStory[],
+): SourceSummary {
+  const leadStory = topStories[0]
+
+  return {
+    newsCount: news.length,
+    signalCount: signals.length,
+    rankedEventCount: topStories.length,
+    marketQuoteCount: marketSnapshot?.quotes.length || 0,
+    liveMarketSource: marketSnapshot?.source || null,
+    liveMarketGeneratedAt: marketSnapshot?.generatedAt || null,
+    latestEvidenceAt: latestTimestamp([
+      marketSnapshot?.generatedAt,
+      ...topStories.map((story) => story.timestamp),
+    ]),
+    leadSource: leadStory?.source || null,
+    leadSourceUrl: leadStory?.sourceUrl || null,
+  }
+}
+
 function buildAnalysisBrief({
   leadStory,
   leadAsset,
@@ -430,6 +653,8 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     : marketSnapshot
       ? `No major maritime event is strong enough for a high-conviction alert, but the live market tape still matters: ${marketSnapshot.summary}`
       : 'No major market-impact signal is currently strong enough for a high-conviction alert.'
+  const sourceSummary = buildSourceSummary(news, signals, marketSnapshot, topStories)
+  const investmentTips = buildInvestmentTips(marketSnapshot, blendedPressureScore, topStories)
   const watchTriggers = [
     'New verified incident near Hormuz, Bab el-Mandeb, Suez or Malacca',
     'Brent/WTI crude moves more than 2% while maritime risk headlines accelerate',
@@ -456,6 +681,8 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
       topStoryCount: topStories.length,
       watchTrigger: watchTriggers[0],
     }),
+    sourceSummary,
+    investmentTips,
     marketSnapshot,
     marketDrivers: marketSnapshot?.drivers || [],
     assetImpacts,
