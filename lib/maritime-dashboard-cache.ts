@@ -10,6 +10,7 @@ import {
 const CACHE_KEY = 'live-map'
 const CACHE_TTL_MS = 5 * 60 * 1000
 const STALE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
+const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca']
 
 type DashboardCacheRow = {
   payload: MaritimeDashboardResponse
@@ -278,6 +279,30 @@ function dedupeArticles<T extends { title?: string | null; sourceUrl?: string | 
   })
 }
 
+function balanceDashboardArticles<T extends { region?: string | null; timestamp?: string | null }>(articles: T[], perHotspot = 10, limit = 64) {
+  const selected: T[] = []
+  const selectedIndexes = new Set<number>()
+  const sorted = articles
+    .map((article, index) => ({ article, index }))
+    .sort((a, b) => Date.parse(b.article.timestamp || '') - Date.parse(a.article.timestamp || ''))
+
+  for (const hotspot of LIVE_HOTSPOTS) {
+    const rows = sorted.filter(({ article }) => article.region === hotspot).slice(0, perHotspot)
+    for (const row of rows) {
+      selected.push(row.article)
+      selectedIndexes.add(row.index)
+    }
+  }
+
+  for (const row of sorted) {
+    if (selected.length >= limit) break
+    if (selectedIndexes.has(row.index)) continue
+    selected.push(row.article)
+  }
+
+  return selected.sort((a, b) => Date.parse(b.timestamp || '') - Date.parse(a.timestamp || ''))
+}
+
 function hoursOld(value?: string | null) {
   if (!value) return null
   const parsed = Date.parse(value)
@@ -404,7 +429,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       .from('news_articles')
       .select('*')
       .order('published_at', { ascending: false })
-      .limit(48),
+      .limit(160),
     supabase
       .from('hotspot_stats')
       .select('id,hotspot,active_vessels,daily_transits,avg_wait_time,market_volume,risk_level,updated_at')
@@ -427,7 +452,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     throw new Error('Failed to fetch maritime data')
   }
 
-  const articles = dedupeArticles((articlesData || []).map((article: any) => {
+  const articles = balanceDashboardArticles(dedupeArticles((articlesData || []).map((article: any) => {
     const articleTimestamp = article.published_at || article.created_at || timestamp
     const source = article.source || 'VesselSurge source layer'
     const summary = article.summary || article.description || article.snippet || ''
@@ -454,7 +479,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
         region: article.region || 'global',
       }),
     }
-  }))
+  })))
 
   const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
     const region = article.region || 'global'

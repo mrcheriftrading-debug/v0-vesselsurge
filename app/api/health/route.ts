@@ -62,11 +62,12 @@ function sourceQualityStatus(audit?: QualityAudit | null): Status {
 
   const sourceMix = audit.sourceMix || {}
   const officialOrTierOne = (sourceMix.official || 0) + (sourceMix.tierOne || 0)
+  const trustedTradeCoverage = (sourceMix.trade || 0) >= 8
   const searchBackedCoverage = (sourceMix.search || 0) >= 8
   const watchRows = (audit.coverageGaps || []).filter((row) => row.status === 'watch' || (row.score || 0) < 68)
 
   if (watchRows.length > 0) return 'degraded'
-  if (searchBackedCoverage) return 'ok'
+  if (searchBackedCoverage || trustedTradeCoverage) return 'ok'
   if (officialOrTierOne < 2) return 'degraded'
   return 'ok'
 }

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff, Globe2 } from 'lucide-react'
+import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import { maritimeSourceQualityLabel, maritimeSourceQualityTier } from '@/lib/maritime-source-quality'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
@@ -392,66 +392,6 @@ export default function MapDashboard() {
   const selectedRiskDrivers = (selected?.riskDrivers?.length ? selected.riskDrivers : fallbackRiskDrivers).slice(0, 4)
   const selectedRiskSummary = selected?.riskSummary ||
     `${riskLevel.toUpperCase()} based on ${selectedRiskDrivers[0] || 'standing VesselSurge watch coverage'}.`
-  const globalRiskRows = Object.entries(HOTSPOT_META)
-    .map(([id, hotspotMeta]) => {
-      const data = hotspots[id]
-      const hotspotArticles = articles
-        .filter((article) => article.region?.toLowerCase() === id)
-        .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
-      const hotspotSignals = signals
-        .filter((signal) => signal.region?.toLowerCase() === id)
-        .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))
-      const latestReport = hotspotArticles[0]
-      const latestRouteSignal = hotspotSignals[0]
-      const latestReportTime = latestReport ? Date.parse(latestReport.timestamp) : 0
-      const latestSignalTime = latestRouteSignal ? Date.parse(latestRouteSignal.observedAt) : 0
-      const watchItem = watchCoverageFor(id)[0]
-      const latest = latestReportTime >= latestSignalTime && latestReport
-        ? {
-            title: latestReport.title,
-            source: latestReport.source,
-            timestamp: latestReport.timestamp,
-            label: 'Source report',
-          }
-        : latestRouteSignal
-          ? {
-              title: latestRouteSignal.title,
-              source: latestRouteSignal.source,
-              timestamp: latestRouteSignal.observedAt,
-              label: readableSignalType(latestRouteSignal.signalType),
-            }
-          : {
-              title: watchItem.title,
-              source: watchItem.source,
-              timestamp: watchTimestamp,
-              label: watchItem.signalType,
-            }
-      const rowRisk = data?.riskLevel || 'medium'
-      const watchSources = new Set(watchCoverageFor(id).map((item) => item.source))
-      const rowCoverage = Math.max((data?.verifiedReports ?? 0) + hotspotSignals.length, watchCoverageFor(id).length)
-      const rowSources = Math.max(
-        data?.sourceCount ?? 0,
-        new Set(hotspotSignals.map((signal) => signal.source).filter(Boolean)).size,
-        watchSources.size,
-      )
-
-      return {
-        id,
-        name: hotspotMeta.name,
-        flag: hotspotMeta.flag,
-        risk: rowRisk,
-        riskColor: RISK_COLOR[rowRisk] ?? RISK_COLOR.medium,
-        coverage: rowCoverage,
-        sources: rowSources,
-        confidence: data?.confidenceLabel
-          ? `${data.confidenceLabel} · ${data.confidenceScore ?? 0}/100`
-          : rowCoverage > watchCoverageFor(id).length
-            ? 'Source reviewed'
-            : 'Standing watch',
-        latest,
-      }
-    })
-    .sort((a, b) => (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0) || Date.parse(b.latest.timestamp) - Date.parse(a.latest.timestamp))
   const coverageQualityRows = Object.entries(HOTSPOT_META)
     .map(([id, hotspotMeta]) => {
       const data = hotspots[id]
@@ -604,266 +544,11 @@ export default function MapDashboard() {
         )}
 
         <div className="space-y-3">
-          <section className="grid gap-3 xl:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-2xl border border-border bg-card/50 p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Operator summary</p>
-                  <h2 className="mt-1 text-lg font-black text-foreground">{meta?.flag} {meta?.name}: {riskLevel.toUpperCase()} · {selectedConfidence}</h2>
-                  <p className="mt-2 max-w-4xl text-xs leading-5 text-muted-foreground">{selectedRiskSummary}</p>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  <Link href="/latest" className="inline-flex min-h-9 items-center justify-center rounded-md border border-border bg-background/45 px-3 text-xs font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary">
-                    News desk
-                  </Link>
-                  <Link href="/pro-market" className="inline-flex min-h-9 items-center justify-center rounded-md border border-primary/35 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:border-primary/70">
-                    Market impact
-                  </Link>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                <div className="rounded-xl border border-border/70 bg-background/35 p-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Selected route audit</p>
-                  <p className="mt-1 text-2xl font-black text-foreground">{selectedAudit?.score ?? '—'}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">{selectedAudit?.missing.length ? `Needs ${selectedAudit.missing.join(', ')}` : 'No immediate coverage gap'}</p>
-                </div>
-                <div className="rounded-xl border border-border/70 bg-background/35 p-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Tier-1 / official mix</p>
-                  <p className="mt-1 text-2xl font-black text-foreground">
-                    {sourceMix ? sourceMix.official + sourceMix.tierOne : '—'}
-                  </p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">{totalQualitySources ? `${totalQualitySources} total source entries in current payload` : 'Waiting for source mix'}</p>
-                </div>
-                <div className="rounded-xl border border-border/70 bg-background/35 p-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Next operator action</p>
-                  <p className="mt-1 line-clamp-2 text-sm font-bold leading-5 text-foreground">
-                    {effectiveQualityAudit.recommendations[0] || 'Keep current live-map monitoring active.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className={`rounded-2xl border p-4 ${qualityAuditTone}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em]">Automated quality review</p>
-                  <h2 className="mt-1 text-lg font-black text-foreground">
-                    {effectiveQualityAudit.status.toUpperCase()}
-                  </h2>
-                </div>
-                <ShieldCheck className="h-5 w-5 shrink-0" />
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-lg border border-current/20 bg-background/30 px-2 py-2">
-                  <p className="text-[10px] uppercase opacity-80">Official</p>
-                  <p className="text-lg font-black text-foreground">{sourceMix?.official ?? 0}</p>
-                </div>
-                <div className="rounded-lg border border-current/20 bg-background/30 px-2 py-2">
-                  <p className="text-[10px] uppercase opacity-80">Tier-1</p>
-                  <p className="text-lg font-black text-foreground">{sourceMix?.tierOne ?? 0}</p>
-                </div>
-                <div className="rounded-lg border border-current/20 bg-background/30 px-2 py-2">
-                  <p className="text-[10px] uppercase opacity-80">Trade</p>
-                  <p className="text-lg font-black text-foreground">{sourceMix?.trade ?? 0}</p>
-                </div>
-              </div>
-              <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                Every payload is reviewed for source mix, fresh news, fresh signals and second-source coverage before it reaches this map.
-              </p>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-border bg-card/45 p-3 sm:p-4">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-              <div className="min-w-0 xl:max-w-sm">
-                <div className="flex items-center gap-2">
-                  <Globe2 className="h-4 w-4 text-primary" />
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Global risk board</p>
-                </div>
-                <h2 className="mt-2 text-lg font-black tracking-tight text-foreground">All monitored routes, ranked by current risk.</h2>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  Click a route to focus the map. Each card shows latest evidence, publication time, source count and confidence so the map never feels empty.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">{hotspotList.length} routes</span>
-                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">{articles.length} reports</span>
-                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">{signals.length} signals</span>
-                </div>
-              </div>
-
-              <div className="grid flex-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                {globalRiskRows.map((row) => (
-                  <button
-                    key={`global-risk-${row.id}`}
-                    onClick={() => selectHotspot(row.id)}
-                    className="group rounded-xl border p-3 text-left transition-all hover:-translate-y-0.5 hover:bg-card"
-                    style={{
-                      borderColor: selectedId === row.id ? row.riskColor : 'rgba(255,255,255,0.09)',
-                      background: selectedId === row.id ? row.riskColor + '16' : 'rgba(255,255,255,0.025)',
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-foreground">{row.flag} {row.name}</p>
-                        <p className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">{row.latest.label}</p>
-                      </div>
-                      <span
-                        className="shrink-0 rounded-full px-2 py-1 text-[10px] font-black uppercase"
-                        style={{ background: row.riskColor + '22', color: row.riskColor }}
-                      >
-                        {row.risk}
-                      </span>
-                    </div>
-                    <p className="mt-3 line-clamp-2 min-h-10 text-xs font-semibold leading-5 text-foreground group-hover:text-primary">
-                      {row.latest.title}
-                    </p>
-                    <div className="mt-3 space-y-1 border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
-                      <p className="truncate">
-                        <span className="font-semibold text-foreground">{row.latest.source}</span>
-                        {' '}· {formatRelativePublishedTime(row.latest.timestamp)}
-                      </p>
-                      <p className="font-mono">{formatExactPublishedTime(row.latest.timestamp)}</p>
-                      <p>{row.coverage} coverage · {row.sources} sources · {row.confidence}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-border bg-card/45 p-3 sm:p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Coverage quality layer</p>
-                <h2 className="mt-1 text-sm font-black text-foreground">Freshness, source depth and missing inputs by hotspot.</h2>
-                <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
-                  This layer audits each live route before the user reads the map: latest news, latest signal, source count, risk level and any gap that needs the next update cycle.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">News target: 24h</span>
-                <span className="rounded-full border border-border bg-background/45 px-2.5 py-1">Signal target: 12h</span>
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-              {coverageQualityRows.map((row) => (
-                <button
-                  key={`coverage-quality-${row.id}`}
-                  onClick={() => selectHotspot(row.id)}
-                  className="rounded-xl border border-border/70 bg-background/35 p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-black text-foreground">{row.flag} {row.name}</p>
-                      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">Coverage audit</p>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${row.tone}`}>
-                        {row.tier}
-                      </span>
-                      <span
-                        className="rounded-full px-2 py-1 text-[10px] font-black uppercase"
-                        style={{ background: row.riskColor + '22', color: row.riskColor }}
-                      >
-                        {row.risk}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-[70px_minmax(0,1fr)] gap-x-2 gap-y-2 border-t border-border/60 pt-3 text-xs">
-                    <span className="font-mono text-[10px] uppercase text-muted-foreground">News</span>
-                    <span className={row.newsFresh ? 'min-w-0 text-foreground' : 'min-w-0 text-amber-300'}>
-                      {row.latestNews ? (
-                        <>
-                          <span className="block truncate font-semibold">{row.latestNews.source}</span>
-                          <span className="block truncate text-[11px] text-muted-foreground">
-                            {formatQualityAge(row.latestNews.timestamp)} · {formatExactPublishedTime(row.latestNews.timestamp)}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="font-semibold">No source report in feed</span>
-                      )}
-                    </span>
-
-                    <span className="font-mono text-[10px] uppercase text-muted-foreground">Signal</span>
-                    <span className={row.signalFresh ? 'min-w-0 text-foreground' : 'min-w-0 text-amber-300'}>
-                      {row.latestRouteSignal ? (
-                        <>
-                          <span className="block truncate font-semibold">{readableSignalType(row.latestRouteSignal.signalType)}</span>
-                          <span className="block truncate text-[11px] text-muted-foreground">
-                            {row.latestRouteSignal.source} · {formatQualityAge(row.latestRouteSignal.observedAt)}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="font-semibold">No operational signal</span>
-                      )}
-                    </span>
-
-                    <span className="font-mono text-[10px] uppercase text-muted-foreground">Sources</span>
-                    <span className="font-semibold text-foreground">{row.sourceCount} source{row.sourceCount === 1 ? '' : 's'} · {row.score}/100 · {row.sourceQuality}</span>
-
-                    <span className="font-mono text-[10px] uppercase text-muted-foreground">Needs</span>
-                    <span className="line-clamp-1 font-semibold text-muted-foreground">
-                      {row.missing.length ? row.missing.join(', ') : 'No immediate gap'}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-border bg-card/35 p-3 sm:p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Expansion watchlist</p>
-                <h2 className="mt-1 text-sm font-black text-foreground">Next global routes VesselSurge is organizing for search and monitoring.</h2>
-                <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
-                  These are not promoted as live hotspots yet. They give visitors and AI search engines clean route pages while the live system keeps verified coverage focused on the four monitored chokepoints above.
-                </p>
-              </div>
-              <Link
-                href="/topics/global-shipping-route-risk"
-                className="inline-flex min-h-10 items-center justify-center rounded-md border border-border bg-background/45 px-3 text-xs font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
-              >
-                View global route risk
-              </Link>
-            </div>
-
-            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
-              {EXPANSION_WATCHLIST.map((route) => (
-                <Link
-                  key={route.name}
-                  href={route.href}
-                  className="group rounded-xl border border-border/70 bg-background/35 p-3 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-black text-foreground">{route.name}</p>
-                      <p className="mt-1 truncate text-[11px] font-semibold text-primary">{route.lane}</p>
-                    </div>
-                    <span className="shrink-0 rounded-full border border-border bg-card/70 px-2 py-1 text-[10px] font-black uppercase text-muted-foreground">
-                      Watch
-                    </span>
-                  </div>
-                  <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-muted-foreground">{route.focus}</p>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {route.signals.map((signal) => (
-                      <span key={signal} className="rounded-full border border-border/70 bg-card/50 px-2 py-1 text-[10px] font-semibold text-muted-foreground">
-                        {signal}
-                      </span>
-                    ))}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
           <section className="rounded-2xl border border-border bg-card/45 p-3">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Route selector</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Route focus</p>
                   <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${
                     isStaleData
                       ? 'border-amber-500/25 bg-amber-500/10 text-amber-300'
@@ -872,7 +557,7 @@ export default function MapDashboard() {
                     {isStaleData ? 'Fallback' : 'Live'}
                   </span>
                 </div>
-                <h2 className="mt-1 text-sm font-black text-foreground">Choose one hotspot, then read the evidence.</h2>
+                <h2 className="mt-1 text-sm font-black text-foreground">Choose one hotspot. The map and evidence update around that route.</h2>
                 <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
                   <span><FileText className="mr-1 inline h-3.5 w-3.5 text-primary" />{loading ? '—' : totalReports} reports</span>
                   <span><Database className="mr-1 inline h-3.5 w-3.5 text-sky-400" />{loading ? '—' : totalSources} sources</span>
@@ -913,7 +598,7 @@ export default function MapDashboard() {
           </section>
 
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="min-w-0 rounded-2xl border border-border bg-card/35 p-2 shadow-2xl shadow-black/20">
+            <section className="min-w-0 rounded-2xl border border-border bg-card/35 p-2 shadow-2xl shadow-black/20">
             <div className="flex flex-col gap-3 border-b border-border/60 px-2 pb-3 pt-1 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Live map</p>
@@ -1190,8 +875,114 @@ export default function MapDashboard() {
                 </div>
               )}
             </div>
-          </aside>
+            </aside>
           </div>
+
+          <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="rounded-2xl border border-border bg-card/35 p-3 sm:p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Operational quality</p>
+                  <h2 className="mt-1 text-sm font-black text-foreground">Coverage health, without cluttering the live map.</h2>
+                </div>
+                <div className="flex flex-wrap gap-2 text-[11px]">
+                  <span className={`rounded-full border px-2.5 py-1 font-black uppercase ${qualityAuditTone}`}>
+                    {effectiveQualityAudit.status}
+                  </span>
+                  <span className="rounded-full border border-border bg-background/45 px-2.5 py-1 text-muted-foreground">
+                    Selected audit {selectedAudit?.score ?? '—'}/100
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                {coverageQualityRows.map((row) => (
+                  <button
+                    key={`coverage-quality-${row.id}`}
+                    onClick={() => selectHotspot(row.id)}
+                    className="rounded-xl border border-border/70 bg-background/35 p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-foreground">{row.flag} {row.name}</p>
+                        <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                          {row.sourceCount} sources · {row.score}/100 · {row.sourceQuality}
+                        </p>
+                      </div>
+                      <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black uppercase ${row.tone}`}>
+                        {row.tier}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid gap-1.5 border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
+                      <p className="truncate">
+                        <span className="font-mono uppercase">News</span>
+                        {' '}· {row.latestNews ? `${formatQualityAge(row.latestNews.timestamp)} from ${row.latestNews.source}` : 'No source report'}
+                      </p>
+                      <p className="truncate">
+                        <span className="font-mono uppercase">Signal</span>
+                        {' '}· {row.latestRouteSignal ? `${formatQualityAge(row.latestRouteSignal.observedAt)} from ${row.latestRouteSignal.source}` : 'Standing watch'}
+                      </p>
+                      <p className="truncate">
+                        <span className="font-mono uppercase">Needs</span>
+                        {' '}· {row.missing.length ? row.missing.join(', ') : 'No immediate gap'}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card/35 p-3 sm:p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Source + expansion</p>
+                  <h2 className="mt-1 text-sm font-black text-foreground">Next routes stay secondary.</h2>
+                </div>
+                <Link
+                  href="/topics/global-shipping-route-risk"
+                  className="shrink-0 rounded-md border border-border bg-background/45 px-2.5 py-1.5 text-[11px] font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  Global risk
+                </Link>
+              </div>
+
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg border border-border/70 bg-background/35 px-2 py-2">
+                  <p className="text-[10px] uppercase text-muted-foreground">Official</p>
+                  <p className="text-lg font-black text-foreground">{sourceMix?.official ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-border/70 bg-background/35 px-2 py-2">
+                  <p className="text-[10px] uppercase text-muted-foreground">Tier-1</p>
+                  <p className="text-lg font-black text-foreground">{sourceMix?.tierOne ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-border/70 bg-background/35 px-2 py-2">
+                  <p className="text-[10px] uppercase text-muted-foreground">Total</p>
+                  <p className="text-lg font-black text-foreground">{totalQualitySources || '—'}</p>
+                </div>
+              </div>
+
+              <p className="mt-3 rounded-xl border border-border/70 bg-background/35 p-3 text-xs leading-5 text-muted-foreground">
+                {effectiveQualityAudit.recommendations[0] || 'Keep current live-map monitoring active.'}
+              </p>
+
+              <div className="mt-3 space-y-2">
+                {EXPANSION_WATCHLIST.map((route) => (
+                  <Link
+                    key={route.name}
+                    href={route.href}
+                    className="block rounded-lg border border-border/70 bg-background/35 p-2.5 transition-colors hover:border-primary/35 hover:bg-card"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-xs font-black text-foreground">{route.name}</span>
+                      <span className="shrink-0 text-[10px] font-black uppercase text-primary">Watch</span>
+                    </div>
+                    <p className="mt-1 line-clamp-1 text-[11px] text-muted-foreground">{route.focus}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </div>
