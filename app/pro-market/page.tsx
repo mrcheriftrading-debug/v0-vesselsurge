@@ -210,6 +210,7 @@ function PricingCard({
           </div>
         ) : isLoggedIn ? (
           <form action="/api/stripe/checkout" method="post">
+            <input type="hidden" name="asset" value={selectedCategory} />
             <Button type="submit" className="min-h-11 w-full bg-white text-slate-950 hover:bg-slate-100">
               Start subscription
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -499,6 +500,7 @@ function LockedAnalysisSection({ isLoggedIn, selectedCategory }: { isLoggedIn: b
             <div className="mt-5">
               {isLoggedIn ? (
                 <form action="/api/stripe/checkout" method="post">
+                  <input type="hidden" name="asset" value={selectedCategory} />
                   <Button type="submit" className="min-h-11 w-full bg-slate-950 text-white hover:bg-slate-800">
                     Unlock Market Pro
                     <ArrowRight className="ml-2 h-4 w-4" />

@@ -4,12 +4,16 @@ import { getBaseUrl, getStripe, hasUsableStripeSecret, VESSELSURGE_PRO_PRICE } f
 
 export const dynamic = 'force-dynamic'
 
-export async function POST() {
+type MarketAssetCategory = 'stocks' | 'crypto' | 'fx'
+
+export async function POST(request: Request) {
+  const asset = await readAssetCategory(request)
+  const selectedMarketPath = `/pro-market?asset=${asset}`
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user?.email) {
-    return NextResponse.redirect(new URL('/auth/login?next=/pro-market', getBaseUrl()), 303)
+    return NextResponse.redirect(new URL(`/auth/login?next=${encodeURIComponent(selectedMarketPath)}`, getBaseUrl()), 303)
   }
 
   try {
@@ -19,21 +23,25 @@ export async function POST() {
 
     const stripe = getStripe()
     const baseUrl = getBaseUrl()
+    const successParams = new URLSearchParams({ asset, checkout: 'success' })
+    const cancelParams = new URLSearchParams({ asset, checkout: 'cancelled' })
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer_email: user.email,
       client_reference_id: user.id,
-      success_url: `${baseUrl}/pro-market?checkout=success`,
-      cancel_url: `${baseUrl}/pro-market?checkout=cancelled`,
+      success_url: `${baseUrl}/pro-market?${successParams.toString()}`,
+      cancel_url: `${baseUrl}/pro-market?${cancelParams.toString()}`,
       allow_promotion_codes: true,
       metadata: {
         userId: user.id,
         product: 'vesselsurge_market_impact_pro',
+        selectedMarketCategory: asset,
       },
       subscription_data: {
         metadata: {
           userId: user.id,
           product: 'vesselsurge_market_impact_pro',
+          selectedMarketCategory: asset,
         },
       },
       line_items: [
@@ -53,4 +61,16 @@ export async function POST() {
     console.error('[stripe-checkout] failed:', error)
     return NextResponse.json({ success: false, error: 'Checkout unavailable' }, { status: 500 })
   }
+}
+
+async function readAssetCategory(request: Request): Promise<MarketAssetCategory> {
+  try {
+    const formData = await request.formData()
+    const value = formData.get('asset')
+    if (value === 'crypto' || value === 'fx' || value === 'stocks') return value
+  } catch {
+    // Keep checkout resilient for direct POSTs without form data.
+  }
+
+  return 'stocks'
 }
