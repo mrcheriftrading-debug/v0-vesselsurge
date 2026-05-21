@@ -68,11 +68,18 @@ export default function SignUpPage() {
       body: JSON.stringify({ ...formData, email: normalizedEmail }),
     })
 
+    const result = await signUpResponse.json().catch(() => null)
+
     if (!signUpResponse.ok) {
-      const result = await signUpResponse.json().catch(() => null)
       setError(result?.error || "Could not create your account right now.")
       setAccountExists(result?.code === "account_exists")
       setIsLoading(false)
+      return
+    }
+
+    if (result?.fallback) {
+      router.replace(getNextPath(formData.serviceType))
+      router.refresh()
       return
     }
 

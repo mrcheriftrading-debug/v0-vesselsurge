@@ -16,6 +16,7 @@ import { SiteNavigation } from '@/components/site-navigation'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getFallbackUser } from '@/lib/fallback-auth'
 import { buildMarketImpactReport } from '@/lib/market-impact'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subscription'
@@ -530,7 +531,12 @@ function AssetTable({ report }: { report: Report }) {
 
 async function loadAuthState() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user: supabaseUser } } = await withTimeout(
+    supabase.auth.getUser(),
+    2500,
+    'market auth',
+  ).catch(() => ({ data: { user: null } }))
+  const user = supabaseUser || await getFallbackUser()
   const subscription = user ? await getUserProSubscription(user.id) : null
 
   return {

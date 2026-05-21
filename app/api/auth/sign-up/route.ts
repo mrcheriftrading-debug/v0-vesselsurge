@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { setFallbackSessionCookie } from "@/lib/fallback-auth"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { assertSameOrigin } from "@/lib/security"
 
@@ -10,6 +11,27 @@ type SignUpPayload = {
   password?: string
   companyName?: string
   serviceType?: string
+}
+
+function fallbackSignUpResponse(email: string, companyName: string, serviceType: string, reason: string) {
+  try {
+    const response = NextResponse.json({
+      success: true,
+      fallback: true,
+      userId: `fallback:${email}`,
+      warning: reason,
+    })
+    setFallbackSessionCookie(response, {
+      email,
+      companyName,
+      serviceType,
+      createdAt: new Date().toISOString(),
+    })
+    return response
+  } catch (fallbackError) {
+    console.error("[auth/sign-up] fallback session failed:", fallbackError)
+    return NextResponse.json({ error: "Account creation is temporarily unavailable. Please try again." }, { status: 503 })
+  }
 }
 
 function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
@@ -90,6 +112,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, userId: data.user?.id })
   } catch (error) {
     console.error("[auth/sign-up] account creation failed:", error)
-    return NextResponse.json({ error: "Account creation is temporarily unavailable. Please try again." }, { status: 503 })
+    return fallbackSignUpResponse(email, companyName, serviceType, error instanceof Error ? error.message : "Supabase Auth unavailable")
   }
 }

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import { getFallbackUser } from "@/lib/fallback-auth"
 import { Button } from "@/components/ui/button"
 import { Zap, Ship, Package, MapPin, User, LogOut, TrendingUp } from "lucide-react"
 import type { Metadata } from 'next'
@@ -22,7 +23,11 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user: supabaseUser } } = await withTimeout(
+    supabase.auth.getUser(),
+    2500,
+  ).catch(() => ({ data: { user: null } }))
+  const user = supabaseUser || await getFallbackUser()
 
   if (!user) {
     redirect("/auth/login")
@@ -215,4 +220,15 @@ export default async function DashboardPage() {
       </main>
     </div>
   )
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`dashboard auth timed out after ${ms}ms`)), ms)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
 }
