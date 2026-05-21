@@ -336,7 +336,7 @@ function pressureLabel(score: number) {
 
 function pressureMeaning(score: number) {
   if (score >= 72) {
-    return 'The maritime signal and the live market tape are strong enough to deserve active monitoring now.'
+    return 'The maritime signal and live prices are strong enough to deserve active market monitoring now.'
   }
 
   if (score >= 48) {
@@ -379,37 +379,37 @@ function investmentViewForQuote(quote: MarketQuote, category: InvestmentCategory
 
   if (category === 'stocks') {
     if (quote.group === 'Transport' && pressure >= 60) {
-      return { tip: 'Buy setup', tone: 'positive', reason: 'Shipping pressure can lift freight and tanker exposure.' }
+      return { tip: 'Buy idea', tone: 'positive', reason: 'Higher shipping risk can lift tanker and freight stocks.' }
     }
     if (quote.group === 'Transport') {
-      return { tip: 'Wait for route trigger', tone: 'neutral', reason: 'Transport names react directly to route and freight changes.' }
+      return { tip: 'Wait for clearer stock signal', tone: 'neutral', reason: 'Shipping and transport stocks need a stronger route-risk trigger.' }
     }
     if (pressure >= 65) {
-      return { tip: 'Avoid for now', tone: 'caution', reason: 'High shipping risk can cap broad equity upside.' }
+      return { tip: 'Avoid now', tone: 'caution', reason: 'Higher oil, insurance and freight costs can pressure broad stocks.' }
     }
     if (momentum > 0.3) {
-      return { tip: 'Buy setup', tone: 'positive', reason: 'Live price action is positive and risk pressure is controlled.' }
+      return { tip: 'Buy idea', tone: 'positive', reason: 'The live price is rising and shipping risk is controlled.' }
     }
   }
 
   if (category === 'crypto') {
     if (pressure >= 62) {
-      return { tip: 'Avoid for now', tone: 'wait', reason: 'Shipping stress can reduce risk appetite and hurt crypto.' }
+      return { tip: 'Avoid now', tone: 'wait', reason: 'Crypto can fall when investors move away from risk assets.' }
     }
     if (momentum > 0.8) {
-      return { tip: 'Buy setup', tone: 'positive', reason: 'Crypto momentum is positive while shipping pressure is manageable.' }
+      return { tip: 'Buy idea', tone: 'positive', reason: 'Crypto price momentum is positive and shipping pressure is manageable.' }
     }
     return { tip: 'Wait', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
   }
 
   if (/USDSEK|DX-Y|USDJPY/.test(quote.symbol) && pressure >= 60) {
-    return { tip: 'Long USD setup', tone: 'positive', reason: 'Shipping stress often supports USD demand.' }
+    return { tip: 'USD may rise', tone: 'positive', reason: 'Shipping stress often increases demand for the US dollar.' }
   }
   if (/EURUSD|GBPUSD/.test(quote.symbol) && pressure >= 60) {
-    return { tip: 'Avoid for now', tone: 'caution', reason: 'Dollar strength can pressure non-USD pairs.' }
+    return { tip: 'Avoid now', tone: 'caution', reason: 'A stronger US dollar can pressure this currency pair.' }
   }
   if (momentum > 0.2) {
-    return { tip: 'Buy setup', tone: 'positive', reason: 'Currency momentum is positive on the live tape.' }
+    return { tip: 'Buy idea', tone: 'positive', reason: 'The live currency price is moving higher.' }
   }
 
   return { tip: 'Wait', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
@@ -426,7 +426,7 @@ function investmentExpectedMove({
   score: number
   tone: InvestmentTone
 }) {
-  if (tone === 'neutral') return { expectedMovePct: null, expectedMoveLabel: 'No clear edge' }
+  if (tone === 'neutral') return { expectedMovePct: null, expectedMoveLabel: 'No clear market signal' }
 
   const sign = tone === 'positive' ? 1 : -1
   const conviction = Math.max(0.2, (score - 50) / 45)
@@ -447,7 +447,7 @@ function investmentExpectedMove({
 
   return {
     expectedMovePct,
-    expectedMoveLabel: `AI scenario ${formatPercent(expectedMovePct, 1)}`,
+    expectedMoveLabel: `AI expects ${formatPercent(expectedMovePct, 1)}`,
   }
 }
 
@@ -560,7 +560,7 @@ function buildAnalysisBrief({
     : 'No ranked maritime source event is dominant yet'
   const liveTapeLabel = marketSnapshot
     ? `${marketSnapshot.source}: ${marketSnapshot.summary}`
-    : 'Live market tape unavailable; maritime source analysis remains active'
+    : 'Live prices unavailable; maritime source analysis remains active'
 
   return {
     label: pressureLabel(blendedPressureScore),
@@ -571,7 +571,7 @@ function buildAnalysisBrief({
       ? `${pressureMeaning(blendedPressureScore)} The first channel to watch is ${leadAsset.asset.toLowerCase()} because ${leadAsset.bias.toLowerCase()}.`
       : pressureMeaning(blendedPressureScore),
     marketRead: marketSnapshot
-      ? `The live tape score is ${tapeScore}/100. ${leadDriver}`
+      ? `The live price score is ${tapeScore}/100. ${leadDriver}`
       : 'The model could not load live quote data on this refresh, so the score is based on maritime evidence only.',
     evidence: `${sourceLabel}. ${topStoryCount} ranked VesselSurge events are included in the report.`,
     watch: watchTrigger,
@@ -649,9 +649,9 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     ? clamp(Math.round((averageScore * 0.68) + (tapeScore * 0.32)))
     : clamp(averageScore)
   const narrative = leadStory
-    ? `${leadStory.region.toUpperCase()} is the lead market-impact signal. ${leadStory.sourceQualityLabel} evidence and ${leadStory.reasons[0] || 'fresh maritime context'} point first toward ${leadAsset?.asset || 'energy and freight markets'} through ${leadAsset?.bias?.toLowerCase() || 'route-risk pressure'}. ${marketSnapshot ? `Live market tape: ${marketSnapshot.summary}` : ''}`.trim()
+    ? `${leadStory.region.toUpperCase()} is the lead stock-market signal. ${leadStory.sourceQualityLabel} evidence and ${leadStory.reasons[0] || 'fresh maritime context'} point first toward ${leadAsset?.asset || 'energy and freight markets'} through ${leadAsset?.bias?.toLowerCase() || 'route-risk pressure'}. ${marketSnapshot ? `Live prices: ${marketSnapshot.summary}` : ''}`.trim()
     : marketSnapshot
-      ? `No major maritime event is strong enough for a high-conviction alert, but the live market tape still matters: ${marketSnapshot.summary}`
+      ? `No major maritime event is strong enough for a high-conviction market alert, but live prices still matter: ${marketSnapshot.summary}`
       : 'No major market-impact signal is currently strong enough for a high-conviction alert.'
   const sourceSummary = buildSourceSummary(news, signals, marketSnapshot, topStories)
   const investmentTips = buildInvestmentTips(marketSnapshot, blendedPressureScore, topStories)
