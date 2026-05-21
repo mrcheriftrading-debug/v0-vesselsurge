@@ -68,6 +68,7 @@ const customerProfiles = [
 ]
 
 const reportIncludes = [
+  'AI analyst brief',
   'Live market tape',
   'Market pressure score',
   'Lead asset channel',
@@ -565,7 +566,7 @@ function BriefPoint({ label, body }: { label: string; body: string }) {
 }
 
 function LockedAnalysisSection({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const lockedItems = ['Live market tape', 'Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
+  const lockedItems = ['AI analyst brief', 'Live market tape', 'Asset impact table', 'Chokepoint heat', 'Ranked source events', 'Methodology trail']
 
   return (
     <div className="mx-auto max-w-7xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
