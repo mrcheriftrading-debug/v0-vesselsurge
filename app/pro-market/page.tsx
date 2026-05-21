@@ -124,7 +124,7 @@ export default async function ProMarketPage({
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>
-                    <Link href="/auth/login?next=/pro-market">
+                    <Link href={proMarketLoginHref(selectedCategory)}>
                       <Button variant="outline" className="min-h-11 border-slate-300 bg-white text-slate-950">
                         Log in
                       </Button>
@@ -529,6 +529,10 @@ function normalizeAssetCategory(value: string | null | undefined): AssetCategory
 
 function proMarketSignUpHref(category: AssetCategory) {
   return `/auth/sign-up?next=${encodeURIComponent(`/pro-market?asset=${category}`)}`
+}
+
+function proMarketLoginHref(category: AssetCategory) {
+  return `/auth/login?next=${encodeURIComponent(`/pro-market?asset=${category}`)}`
 }
 
 function categoryLabel(category: AssetCategory) {
