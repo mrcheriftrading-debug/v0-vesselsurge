@@ -31,9 +31,13 @@ export const ADDITIONAL_TRUSTED_NEWS_FEEDS = [
   { source: 'Financial Times Markets', url: 'https://www.ft.com/markets?format=rss', credibility: 8 },
   { source: 'CNBC World News', url: 'https://www.cnbc.com/id/100727362/device/rss/rss.html', credibility: 7 },
   { source: 'OilPrice', url: 'https://oilprice.com/rss/main', credibility: 6 },
+  { source: 'Container News', url: 'https://container-news.com/feed/', credibility: 7 },
+  { source: 'Ship Technology', url: 'https://www.ship-technology.com/feed/', credibility: 7 },
+  { source: 'WorldCargo News', url: 'https://www.worldcargonews.com/rss', credibility: 7 },
 ] as const
 
 const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com)'
+const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com)'
 
 const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
   {
@@ -157,6 +161,16 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Panama Canal" OR "Panama Canal Authority") (ship OR vessel OR shipping OR maritime OR transit OR queue OR draft OR water OR drought OR delay OR maintenance)',
   },
   {
+    label: 'Panama Canal operational advisories',
+    region: 'panama',
+    query: '("Panama Canal" OR "Panama Canal Authority" OR pancanal) ("advisory to shipping" OR "notice to shipping" OR booking OR reservation OR draught OR draft OR "Gatun Lake" OR transit)',
+  },
+  {
+    label: 'Panama Canal trade-source sweep',
+    region: 'panama',
+    query: `("Panama Canal" OR pancanal OR "Gatun Lake" OR Neopanamax) (shipping OR vessel OR transit OR queue OR draft OR water OR delay OR slots OR booking) ${MARITIME_TRADE_SOURCE_SITES}`,
+  },
+  {
     label: 'Tier-1 Panama Canal newsroom sweep',
     region: 'panama',
     query: `("Panama Canal" OR "Panama Canal Authority") (shipping OR vessel OR transit OR queue OR water OR drought OR canal OR maintenance OR delay) ${TIER_ONE_SOURCE_SITES}`,
@@ -165,6 +179,16 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Taiwan Strait trade lane risk',
     region: 'taiwan',
     query: '("Taiwan Strait" OR "Taiwan shipping" OR "Taiwan trade lane") (shipping OR vessel OR maritime OR cargo OR port OR naval OR alert OR exercise OR disruption OR risk)',
+  },
+  {
+    label: 'Taiwan Strait port and naval watch',
+    region: 'taiwan',
+    query: '("Taiwan Strait" OR "Kaohsiung" OR "Keelung" OR "Taipei Port") (vessel OR shipping OR cargo OR port OR maritime OR naval OR exercise OR warning OR traffic)',
+  },
+  {
+    label: 'Taiwan Strait trade-source sweep',
+    region: 'taiwan',
+    query: `("Taiwan Strait" OR "Taiwan ports" OR Kaohsiung OR Keelung) (shipping OR vessel OR cargo OR container OR port OR naval OR maritime OR disruption) ${MARITIME_TRADE_SOURCE_SITES}`,
   },
   {
     label: 'Tier-1 Taiwan Strait newsroom sweep',
@@ -177,6 +201,16 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Turkish Straits" OR Bosporus OR Bosphorus OR Dardanelles) (shipping OR vessel OR tanker OR maritime OR transit OR Black Sea OR delay OR closure OR traffic OR weather)',
   },
   {
+    label: 'Bosporus vessel traffic suspension',
+    region: 'turkish',
+    query: '(Bosporus OR Bosphorus OR Dardanelles OR "Turkish Straits" OR "Istanbul Strait" OR "Canakkale Strait") ("traffic suspended" OR closure OR fog OR malfunction OR tanker OR transit OR "vessel traffic")',
+  },
+  {
+    label: 'Turkish Straits trade-source sweep',
+    region: 'turkish',
+    query: `(Bosporus OR Bosphorus OR Dardanelles OR "Turkish Straits" OR "Istanbul Strait" OR "Canakkale Strait") (shipping OR tanker OR vessel OR transit OR traffic OR closure OR delay OR Black Sea) ${MARITIME_TRADE_SOURCE_SITES}`,
+  },
+  {
     label: 'Tier-1 Turkish Straits newsroom sweep',
     region: 'turkish',
     query: `("Turkish Straits" OR Bosporus OR Bosphorus OR Dardanelles) (shipping OR vessel OR tanker OR maritime OR transit OR Black Sea OR delay OR closure OR traffic) ${TIER_ONE_SOURCE_SITES}`,
@@ -187,6 +221,16 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Strait of Gibraltar" OR Gibraltar) (shipping OR vessel traffic OR tanker OR maritime OR port OR congestion OR security OR flow OR incident)',
   },
   {
+    label: 'Gibraltar port and bunkering watch',
+    region: 'gibraltar',
+    query: '("Strait of Gibraltar" OR "Gibraltar Port" OR Algeciras OR "Algeciras Bay") (vessel OR tanker OR bunkering OR port OR traffic OR congestion OR weather OR warning OR maritime)',
+  },
+  {
+    label: 'Gibraltar trade-source sweep',
+    region: 'gibraltar',
+    query: `("Strait of Gibraltar" OR "Gibraltar Port" OR Algeciras OR "Algeciras Bay") (shipping OR vessel OR tanker OR port OR bunkering OR congestion OR incident) ${MARITIME_TRADE_SOURCE_SITES}`,
+  },
+  {
     label: 'Tier-1 Gibraltar newsroom sweep',
     region: 'gibraltar',
     query: `("Strait of Gibraltar" OR Gibraltar) (shipping OR vessel OR tanker OR maritime OR port OR congestion OR security OR traffic OR incident) ${TIER_ONE_SOURCE_SITES}`,
@@ -195,6 +239,16 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Cape of Good Hope rerouting pressure',
     region: 'cape',
     query: '("Cape of Good Hope" OR "Cape route" OR "Red Sea rerouting") (shipping OR vessel OR container OR tanker OR freight OR rerouting OR delay OR fuel OR voyage)',
+  },
+  {
+    label: 'Cape route freight and bunker pressure',
+    region: 'cape',
+    query: '("Cape of Good Hope" OR "Cape route" OR "around Africa" OR "Red Sea bypass") (container shipping OR tanker OR freight OR bunker OR fuel cost OR voyage time OR rerouting)',
+  },
+  {
+    label: 'Cape route trade-source sweep',
+    region: 'cape',
+    query: `("Cape of Good Hope" OR "Cape route" OR "around Africa" OR "Red Sea bypass") (shipping OR vessel OR container OR tanker OR freight OR rerouting OR voyage OR fuel) ${MARITIME_TRADE_SOURCE_SITES}`,
   },
   {
     label: 'Tier-1 Cape of Good Hope newsroom sweep',

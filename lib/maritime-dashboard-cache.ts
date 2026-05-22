@@ -590,16 +590,18 @@ function buildQualityAudit(
         ...hotspotSignals.map((signal) => signal.source),
       ].filter(Boolean)).size,
     )
-    const score = Math.max(hasFreshSourceSweep && !latestNewsAt ? 68 : 0, qualityCoverageScore({
+    const sourceSweepOnlyScore = hasFreshSourceSweep && !latestNewsAt ? 54 : 0
+    const score = Math.max(sourceSweepOnlyScore, qualityCoverageScore({
       latestNewsAt,
       latestSignalAt,
       sourceCount,
       riskDrivers: hotspot.riskDrivers || [],
     }))
     const missing = [
-      hasFreshSourceSweep && !latestNewsAt ? null : hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : 'fresh news under 24h',
+      hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : 'fresh news under 24h',
       hoursOld(latestSignalAt) !== null && (hoursOld(latestSignalAt) || 999) <= 12 ? null : 'fresh signal under 12h',
-      hasFreshSourceSweep ? null : sourceCount >= 2 ? null : 'second independent source',
+      sourceCount >= 2 ? null : 'second independent source',
+      hasFreshSourceSweep && !latestNewsAt ? 'replace source sweep with source-linked report' : null,
     ].filter(Boolean) as string[]
 
     return {

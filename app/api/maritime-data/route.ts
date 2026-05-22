@@ -294,7 +294,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))[0]
     const hasSourceSweepSignal = latestSignal?.signalType === 'source_sweep'
     const score = Math.max(
-      hasSourceSweepSignal && hotspot.verifiedReports === 0 ? 72 : 0,
+      hasSourceSweepSignal && hotspot.verifiedReports === 0 ? 54 : 0,
       Math.min(100, (hotspot.verifiedReports > 0 ? 42 : 0) + Math.min(24, hotspot.sourceCount * 8) + (latestSignal ? 28 : 0)),
     )
 
@@ -303,9 +303,10 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       score,
       status: qualityStatus(score),
       missing: [
-        hasSourceSweepSignal && !latestArticle ? null : latestArticle ? null : 'fresh source-linked news',
-        hasSourceSweepSignal ? null : hotspot.sourceCount >= 2 ? null : 'second independent source',
+        latestArticle ? null : 'fresh source-linked news',
+        hotspot.sourceCount >= 2 ? null : 'second independent source',
         latestSignal ? null : 'fresh signal under 12h',
+        hasSourceSweepSignal && !latestArticle ? 'replace source sweep with source-linked report' : null,
       ].filter(Boolean) as string[],
       sourceCount: hotspot.sourceCount,
       latestNewsAt: latestArticle?.timestamp || null,
