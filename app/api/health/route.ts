@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getLastMarketProAnalysisCache } from '@/lib/market-pro-cache'
-import { getMaritimeDashboardCacheRow } from '@/lib/maritime-dashboard-cache'
+import { getMaritimeDashboardCacheRead } from '@/lib/maritime-dashboard-cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
@@ -248,11 +248,32 @@ async function liveSurfaceHealthResponse(_request: Request, warning: string) {
   return directSourceSweepHealthResponse(warning)
 }
 
+function dashboardCacheMode(source: string) {
+  if (source === 'redis-kv') {
+    return {
+      mode: 'kv-cache',
+      note: 'Dashboard cache row was read from the low-latency KV cache.',
+    }
+  }
+
+  if (source === 'supabase-rest') {
+    return {
+      mode: 'supabase-rest-cache',
+      note: 'Dashboard cache row was read successfully from Supabase REST.',
+    }
+  }
+
+  return {
+    mode: 'supabase-client-cache',
+    note: 'Dashboard cache row was read successfully from the Supabase client fallback.',
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const admin = createAdminClient()
-    const [cacheRow, marketProCache, authHealth] = await Promise.all([
-      getMaritimeDashboardCacheRow(admin, HEALTH_CACHE_QUERY_TIMEOUT_MS),
+    const [cacheRead, marketProCache, authHealth] = await Promise.all([
+      getMaritimeDashboardCacheRead(admin, HEALTH_CACHE_QUERY_TIMEOUT_MS),
       withTimeout(
         getLastMarketProAnalysisCache(admin, 'health check reads last saved Market Pro analysis'),
         MARKET_PRO_HEALTH_TIMEOUT_MS,
@@ -261,10 +282,12 @@ export async function GET(request: Request) {
       checkSupabaseAuth(),
     ])
 
-    if (!cacheRow) {
+    if (!cacheRead) {
       return liveSurfaceHealthResponse(request, `health cache query unavailable after ${HEALTH_CACHE_QUERY_TIMEOUT_MS}ms`)
     }
 
+    const cacheRow = cacheRead.row
+    const cacheMode = dashboardCacheMode(cacheRead.source)
     const cacheAge = ageMs(cacheRow.generated_at)
     const cachePayload = (cacheRow.payload || {}) as {
       data?: {
@@ -343,8 +366,9 @@ export async function GET(request: Request) {
         components: {
           database: {
             status: componentStatuses.database,
-            mode: 'supabase-rest-cache',
-            note: 'Dashboard cache row was read successfully from Supabase REST.',
+            source: cacheRead.source,
+            mode: cacheMode.mode,
+            note: cacheMode.note,
           },
           auth: authHealth,
           cache: {

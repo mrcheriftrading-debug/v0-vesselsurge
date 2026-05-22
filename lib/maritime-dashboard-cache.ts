@@ -19,6 +19,13 @@ type DashboardCacheRow = {
   generated_at: string
 }
 
+export type DashboardCacheSource = 'redis-kv' | 'supabase-rest' | 'supabase-client'
+
+export type DashboardCacheRead = {
+  row: DashboardCacheRow
+  source: DashboardCacheSource
+}
+
 function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = new Promise<never>((_, reject) => {
@@ -127,12 +134,23 @@ async function getDashboardCacheRowViaClient(supabase: SupabaseClient, timeoutMs
   }
 }
 
+export async function getMaritimeDashboardCacheRead(supabase?: SupabaseClient, timeoutMs = 1400): Promise<DashboardCacheRead | null> {
+  const redisRow = await getDashboardCacheRowViaRedis(timeoutMs)
+  if (redisRow) return { row: redisRow, source: 'redis-kv' }
+
+  const restRow = await getDashboardCacheRowViaRest(timeoutMs)
+  if (restRow) return { row: restRow, source: 'supabase-rest' }
+
+  if (supabase) {
+    const clientRow = await getDashboardCacheRowViaClient(supabase, timeoutMs, 'maritime dashboard cache row')
+    if (clientRow) return { row: clientRow, source: 'supabase-client' }
+  }
+
+  return null
+}
+
 export async function getMaritimeDashboardCacheRow(supabase?: SupabaseClient, timeoutMs = 1400) {
-  return (
-    await getDashboardCacheRowViaRedis(timeoutMs) ||
-    await getDashboardCacheRowViaRest(timeoutMs) ||
-    (supabase ? await getDashboardCacheRowViaClient(supabase, timeoutMs, 'maritime dashboard cache row') : null)
-  )
+  return (await getMaritimeDashboardCacheRead(supabase, timeoutMs))?.row || null
 }
 
 export type MaritimeDashboardResponse = {
