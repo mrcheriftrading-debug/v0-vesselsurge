@@ -4,14 +4,19 @@
 
 # Set timeout and required headers
 TIMEOUT=10
-URL="${VESSELSURGE_HEALTH_URL:-https://www.vesselsurge.com/api/health}"
+BASE_URL="${VESSELSURGE_HEALTH_URL:-https://www.vesselsurge.com/api/health}"
+SEPARATOR="?"
+if [[ "$BASE_URL" == *"?"* ]]; then
+    SEPARATOR="&"
+fi
+URL="${BASE_URL}${SEPARATOR}check_ts=$(date +%s)"
 
 echo "--- Starting VesselSurge Health Check ---"
 echo "Targeting: $URL"
 
 # Use curl to check the HTTP status code
-BODY=$(curl -s --connect-timeout 5 --max-time "$TIMEOUT" "$URL")
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time "$TIMEOUT" "$URL")
+BODY=$(curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" --connect-timeout 5 --max-time "$TIMEOUT" "$URL")
+HTTP_STATUS=$(curl -s -H "Cache-Control: no-cache" -H "Pragma: no-cache" -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time "$TIMEOUT" "$URL")
 
 if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 500 ]; then
     echo "SUCCESS: VesselSurge health endpoint responded with HTTP status code $HTTP_STATUS."
