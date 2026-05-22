@@ -52,8 +52,10 @@ export async function buildLiveMarketProReport(supabase: SupabaseClient) {
   const newsCutoff = new Date(Date.now() - MARKET_PRO_NEWS_MAX_AGE_HOURS * 60 * 60 * 1000).toISOString()
   const signalCutoff = new Date(Date.now() - MARKET_PRO_SIGNAL_MAX_AGE_HOURS * 60 * 60 * 1000).toISOString()
 
-  const marketSnapshot = await withTimeout(getMarketSnapshot(), 8000, 'live market quotes').catch((error) => {
-    console.error('[market-pro] live market quotes unavailable:', error)
+  const marketSnapshot = await withTimeout(getMarketSnapshot(), 3000, 'live market quotes').catch((error) => {
+    if (!isExpectedFallbackReason(error)) {
+      console.error('[market-pro] live market quotes unavailable:', error)
+    }
     return null
   })
 
@@ -73,7 +75,7 @@ export async function buildLiveMarketProReport(supabase: SupabaseClient) {
         .order('observed_at', { ascending: false })
         .limit(70),
     ]),
-    5000,
+    2500,
     'Market Pro source tables',
   ).catch((error) => {
     if (!isExpectedFallbackReason(error)) {
@@ -100,7 +102,7 @@ export async function buildLiveMarketProReport(supabase: SupabaseClient) {
 
   const dashboard = await withTimeout(
     getLastMaritimeDashboardCache(supabase, 'Market Pro source tables unavailable; using last source-backed live map context'),
-    2000,
+    1000,
     'Market Pro live dashboard cache',
   ).catch(() => null)
 

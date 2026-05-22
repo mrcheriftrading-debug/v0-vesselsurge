@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-dynamic'
+export const preferredRegion = 'fra1'
 
-const AIS_QUERY_TIMEOUT_MS = 2200
+const AIS_QUERY_TIMEOUT_MS = 1200
 const AIS_CACHE_CONTROL = 'public, s-maxage=20, stale-while-revalidate=120'
 const AIS_CACHE_HEADERS = publicVercelCacheHeaders(AIS_CACHE_CONTROL, ['ais-vessels', 'live-map'])
 

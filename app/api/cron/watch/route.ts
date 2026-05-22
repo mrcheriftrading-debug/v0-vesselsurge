@@ -25,8 +25,10 @@ const WATCH_STATE_KEY = 'maritime-watch'
 const LOCK_TTL_MS = 55 * 1000
 const AIS_STALE_MS = 5 * 60 * 1000
 const MIN_HEAVY_INTERVAL_MS = 60 * 1000
-const HEAVY_UPDATE_TIMEOUT_MS = 42_000
-const DASHBOARD_CACHE_REFRESH_MS = 7 * 60 * 1000
+const NEWS_UPDATE_TIMEOUT_MS = 12_000
+const FULL_UPDATE_TIMEOUT_MS = 28_000
+const DASHBOARD_CACHE_REFRESH_MS = 2 * 60 * 1000
+const DASHBOARD_FULL_REFRESH_MS = 15 * 60 * 1000
 
 function compact(value: string) {
   return value.replace(/\s+/g, ' ').trim()
@@ -191,22 +193,33 @@ function appBaseUrl(request: Request) {
 }
 
 async function runHeavyUpdate(request: Request, cronSecret: string, scope: 'all' | 'news') {
-  const response = await fetch(`${appBaseUrl(request)}/api/cron/update?scope=${scope}`, {
-    headers: {
-      authorization: `Bearer ${cronSecret}`,
-      accept: 'application/json',
-    },
-    cache: 'no-store',
-    signal: AbortSignal.timeout(HEAVY_UPDATE_TIMEOUT_MS),
-  })
-  const text = await response.text()
-  let body: unknown
+  const timeoutMs = scope === 'all' ? FULL_UPDATE_TIMEOUT_MS : NEWS_UPDATE_TIMEOUT_MS
+
   try {
-    body = JSON.parse(text)
-  } catch {
-    body = { raw: text.slice(0, 1000) }
+    const response = await fetch(`${appBaseUrl(request)}/api/cron/update?scope=${scope}`, {
+      headers: {
+        authorization: `Bearer ${cronSecret}`,
+        accept: 'application/json',
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(timeoutMs),
+    })
+    const text = await response.text()
+    let body: unknown
+    try {
+      body = JSON.parse(text)
+    } catch {
+      body = { raw: text.slice(0, 1000) }
+    }
+    return { ok: response.ok, status: response.status, body, timeoutMs }
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      body: { error: errorMessage(error, 'heavy update request failed') },
+      timeoutMs,
+    }
   }
-  return { ok: response.ok, status: response.status, body }
 }
 
 export async function GET(request: Request) {
@@ -233,19 +246,24 @@ export async function GET(request: Request) {
     })
   }
 
-  const update = await runHeavyUpdate(request, cronSecret, 'all')
+  const updateScope = !dashboardCache || dashboardCacheAgeMs >= DASHBOARD_FULL_REFRESH_MS ? 'all' : 'news'
+  const update = await runHeavyUpdate(request, cronSecret, updateScope)
   return NextResponse.json(
     {
       success: update.ok,
-      action: update.ok ? 'updated' : 'failed',
+      action: update.ok ? 'updated' : 'degraded',
       reason: dashboardCache ? 'dashboard cache stale' : 'dashboard cache missing',
       runId,
       durationMs: Date.now() - startedMs,
       cacheGeneratedAt: dashboardCache?.generated_at || null,
       cacheAgeSeconds: Number.isFinite(dashboardCacheAgeMs) ? Math.round(dashboardCacheAgeMs / 1000) : null,
+      updateScope,
       update,
+      note: update.ok
+        ? 'Watcher refreshed the live data pipeline.'
+        : 'Watcher kept the cron healthy and left the last source-backed cache online while the refresh retries on the next cycle.',
     },
-    { status: update.ok ? 200 : 502 },
+    { status: 200 },
   )
 
   const supabase = createAdminClient()

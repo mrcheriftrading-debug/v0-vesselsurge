@@ -6,7 +6,7 @@ import { assertSameOrigin } from "@/lib/security"
 export const runtime = "nodejs"
 export const preferredRegion = "fra1"
 
-const SUPABASE_SIGNUP_TIMEOUT_MS = 5500
+const SUPABASE_SIGNUP_TIMEOUT_MS = 2500
 
 type SignUpPayload = {
   email?: string
