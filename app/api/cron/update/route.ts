@@ -1126,6 +1126,18 @@ export async function GET(request: Request) {
       }
     }
 
+    let dashboardCacheUpdated = false
+    try {
+      dashboardCacheUpdated = await withOperationTimeout(
+        upsertLiveSurfaceDashboardCache(request),
+        9000,
+        'fast news dashboard cache upsert',
+      )
+    } catch (error) {
+      fastWriteWarning ||= `fast news dashboard cache upsert skipped: ${errorMessage(error)}`
+      logTrustedUpdateIssue('fast news dashboard cache upsert skipped', error)
+    }
+
     return NextResponse.json({
       success: true,
       timestamp,
@@ -1136,7 +1148,7 @@ export async function GET(request: Request) {
       signals_found: articleSignals.length + sourceSweepSignals.length,
       signals_written: signalsWritten,
       verified: articles.length,
-      dashboard_cache_updated: false,
+      dashboard_cache_updated: dashboardCacheUpdated,
       warning: fastWriteWarning,
       window: {
         from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -1144,7 +1156,7 @@ export async function GET(request: Request) {
         policy: 'Latest 24h source-published articles are prioritized; up to 7d fallback is allowed per hotspot when needed to prevent empty route coverage.',
       },
       sources: [...new Set(articles.map((article) => article.source))],
-      note: 'Fast news-only update. AIS, weather, vessel tables, destructive news clearing and dashboard cache rebuilds are left untouched so news freshness cannot be blocked by heavier data jobs.',
+      note: 'Fast news-only update refreshed trusted news, signal sweeps, and the live-map dashboard cache without running the heavier AIS/weather maintenance job.',
     })
   }
 
