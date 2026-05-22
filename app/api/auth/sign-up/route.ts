@@ -53,6 +53,11 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Pro
   })
 }
 
+function isExpectedAuthFallbackReason(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error)
+  return /timed out|timeout|aborted|fetch failed|network|522|504/i.test(message)
+}
+
 export async function POST(request: Request) {
   const originError = assertSameOrigin(request)
   if (originError) return originError
@@ -128,7 +133,12 @@ export async function POST(request: Request) {
     setFallbackAccountCookie(response, backupSession, password)
     return response
   } catch (error) {
-    console.error("[auth/sign-up] account creation failed:", error)
-    return fallbackSignUpResponse(email, password, companyName, serviceType, error instanceof Error ? error.message : "Supabase Auth unavailable")
+    const reason = error instanceof Error ? error.message : "Supabase Auth unavailable"
+    if (isExpectedAuthFallbackReason(error)) {
+      console.info("[auth/sign-up] using fallback account creation:", reason)
+    } else {
+      console.error("[auth/sign-up] account creation failed:", error)
+    }
+    return fallbackSignUpResponse(email, password, companyName, serviceType, reason)
   }
 }

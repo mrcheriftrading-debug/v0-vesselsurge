@@ -623,7 +623,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
       try {
         return parseRss(await fetchText(feed.url, fetchTimeoutMs), feed)
       } catch (error) {
-        console.warn('[trusted-update] feed failed', feed.source, error)
+        logTrustedUpdateIssue(`feed failed ${feed.source}`, error)
         return []
       }
     }),
@@ -631,7 +631,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
       try {
         return parseTrustedPage(await fetchText(page.url, fetchTimeoutMs), page.source, page.url, page.credibility, page.region)
       } catch (error) {
-        console.warn('[trusted-update] page failed', page.source, error)
+        logTrustedUpdateIssue(`page failed ${page.source}`, error)
         return []
       }
     }),
@@ -886,6 +886,28 @@ function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error)
 }
 
+function isExpectedUpdateFallbackReason(value: unknown) {
+  const message = errorMessage(value).toLowerCase()
+  return (
+    message.includes('timed out') ||
+    message.includes('timeout') ||
+    message.includes('aborted') ||
+    message.includes('returned 403') ||
+    /\b403\b/.test(message)
+  )
+}
+
+function logTrustedUpdateIssue(message: string, detail?: unknown) {
+  const combined = detail === undefined ? message : `${message} ${errorMessage(detail)}`
+  const logger = isExpectedUpdateFallbackReason(combined) ? console.info : console.warn
+
+  if (detail === undefined) {
+    logger('[trusted-update]', message)
+  } else {
+    logger('[trusted-update]', message, detail)
+  }
+}
+
 function withOperationTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = new Promise<never>((_, reject) => {
@@ -980,7 +1002,7 @@ async function postRowsInBatches<T>({
         written += batch.length
       } else {
         warnings.push(batchWarning)
-        console.warn('[trusted-update]', batchWarning)
+        logTrustedUpdateIssue(batchWarning)
 
         if (batch.length <= 1) continue
 
@@ -991,19 +1013,19 @@ async function postRowsInBatches<T>({
               written += 1
             } else {
               warnings.push(rowWarning)
-              console.warn('[trusted-update]', rowWarning)
+              logTrustedUpdateIssue(rowWarning)
             }
           } catch (error) {
             const warning = `${describe} row ${index + rowIndex + 1} skipped: ${errorMessage(error)}`
             warnings.push(warning)
-            console.warn('[trusted-update]', warning)
+            logTrustedUpdateIssue(warning)
           }
         }
       }
     } catch (error) {
       const warning = `${describe} batch ${batchNumber} skipped: ${errorMessage(error)}`
       warnings.push(warning)
-      console.warn('[trusted-update]', warning)
+      logTrustedUpdateIssue(warning)
     }
   }
 
@@ -1072,11 +1094,11 @@ export async function GET(request: Request) {
           articlesInserted = articles.length
         } else {
           fastWriteWarning = `fast news insert skipped: ${insertNews.status}`
-          console.warn('[trusted-update]', fastWriteWarning, await insertNews.text())
+          logTrustedUpdateIssue(fastWriteWarning, await insertNews.text())
         }
       } catch (error) {
         fastWriteWarning = 'fast news insert timed out'
-        console.warn('[trusted-update] fast news insert timed out:', error)
+        logTrustedUpdateIssue('fast news insert timed out', error)
       }
     }
 
@@ -1096,11 +1118,11 @@ export async function GET(request: Request) {
           signalsWritten = articleSignals.length + sourceSweepSignals.length
         } else {
           fastWriteWarning ||= `fast news signal upsert skipped: ${upsertArticleSignals.status}`
-          console.warn('[trusted-update] fast news signal upsert skipped:', upsertArticleSignals.status, await upsertArticleSignals.text())
+          logTrustedUpdateIssue(`fast news signal upsert skipped: ${upsertArticleSignals.status}`, await upsertArticleSignals.text())
         }
       } catch (error) {
         fastWriteWarning ||= 'fast news signal upsert timed out'
-        console.warn('[trusted-update] fast news signal upsert timed out:', error)
+        logTrustedUpdateIssue('fast news signal upsert timed out', error)
       }
     }
 
@@ -1141,11 +1163,11 @@ export async function GET(request: Request) {
       })
       if (!deleteNews.ok) {
         maintenanceWarning = `stale news prune skipped: ${deleteNews.status}`
-        console.warn('[trusted-update]', maintenanceWarning, await deleteNews.text())
+        logTrustedUpdateIssue(maintenanceWarning, await deleteNews.text())
       }
     } catch (error) {
       maintenanceWarning = `stale news prune skipped: ${errorMessage(error)}`
-      console.warn('[trusted-update] stale news prune skipped:', error)
+      logTrustedUpdateIssue('stale news prune skipped', error)
     }
 
     if (articles.length > 0) {
@@ -1161,11 +1183,11 @@ export async function GET(request: Request) {
           articlesWritten = articles.length
         } else {
           maintenanceWarning ||= `trusted news upsert skipped: ${insertNews.status}`
-          console.warn('[trusted-update] trusted news upsert skipped:', insertNews.status, await insertNews.text())
+          logTrustedUpdateIssue(`trusted news upsert skipped: ${insertNews.status}`, await insertNews.text())
         }
       } catch (error) {
         maintenanceWarning ||= `trusted news upsert skipped: ${errorMessage(error)}`
-        console.warn('[trusted-update] trusted news upsert skipped:', error)
+        logTrustedUpdateIssue('trusted news upsert skipped', error)
       }
     }
 
@@ -1208,11 +1230,11 @@ export async function GET(request: Request) {
       })
       if (!deleteOldSignals.ok) {
         maintenanceWarning ||= `old signal prune skipped: ${deleteOldSignals.status}`
-        console.warn('[trusted-update] old signal prune skipped:', deleteOldSignals.status, await deleteOldSignals.text())
+        logTrustedUpdateIssue(`old signal prune skipped: ${deleteOldSignals.status}`, await deleteOldSignals.text())
       }
     } catch (error) {
       maintenanceWarning ||= `old signal prune skipped: ${errorMessage(error)}`
-      console.warn('[trusted-update] old signal prune skipped:', error)
+      logTrustedUpdateIssue('old signal prune skipped', error)
     }
 
     stage = 'refreshing transient maritime signals'
@@ -1223,15 +1245,11 @@ export async function GET(request: Request) {
       })
       if (!deleteTransientSignals.ok) {
         maintenanceWarning ||= `transient signal refresh skipped: ${deleteTransientSignals.status}`
-        console.warn(
-          '[trusted-update] transient signal refresh skipped:',
-          deleteTransientSignals.status,
-          await deleteTransientSignals.text(),
-        )
+        logTrustedUpdateIssue(`transient signal refresh skipped: ${deleteTransientSignals.status}`, await deleteTransientSignals.text())
       }
     } catch (error) {
       maintenanceWarning ||= `transient signal refresh skipped: ${errorMessage(error)}`
-      console.warn('[trusted-update] transient signal refresh skipped:', error)
+      logTrustedUpdateIssue('transient signal refresh skipped', error)
     }
 
     if (signals.length > 0) {
@@ -1249,7 +1267,7 @@ export async function GET(request: Request) {
       signalsWritten = signalWrite.written
       if (signalWrite.written === 0) {
         maintenanceWarning ||= `maritime signal upsert wrote 0 rows across ${signalWrite.warnings.length || 1} batch attempt(s); continuing with last known signal layer`
-        console.warn('[trusted-update]', maintenanceWarning)
+        logTrustedUpdateIssue(maintenanceWarning)
       }
     }
 
@@ -1266,11 +1284,11 @@ export async function GET(request: Request) {
       } else {
         const body = await upsertStats.text().catch(() => '')
         maintenanceWarning ||= `hotspot stats upsert skipped: ${upsertStats.status}${body ? ` ${body.slice(0, 220)}` : ''}`
-        console.warn('[trusted-update]', maintenanceWarning)
+        logTrustedUpdateIssue(maintenanceWarning)
       }
     } catch (error) {
       maintenanceWarning ||= `hotspot stats upsert skipped: ${errorMessage(error)}`
-      console.warn('[trusted-update]', maintenanceWarning)
+      logTrustedUpdateIssue(maintenanceWarning)
     }
 
     let vesselsUpdated = 0
@@ -1284,7 +1302,7 @@ export async function GET(request: Request) {
         })
         if (!deleteStaleVessels.ok) {
           maintenanceWarning ||= `stale AIS vessel prune skipped: ${deleteStaleVessels.status}`
-          console.warn('[trusted-update]', maintenanceWarning, await deleteStaleVessels.text())
+          logTrustedUpdateIssue(maintenanceWarning, await deleteStaleVessels.text())
         }
 
         stage = 'upserting vessels'
@@ -1296,7 +1314,7 @@ export async function GET(request: Request) {
         })
         if (!upsertVessels.ok) {
           maintenanceWarning ||= `AIS vessel upsert skipped: ${upsertVessels.status}`
-          console.warn('[trusted-update]', maintenanceWarning, await upsertVessels.text())
+          logTrustedUpdateIssue(maintenanceWarning, await upsertVessels.text())
         } else {
           vesselsUpdated = ais.vessels.length
         }
@@ -1322,7 +1340,7 @@ export async function GET(request: Request) {
         })
         if (!insertHistory.ok) {
           maintenanceWarning ||= `AIS history insert skipped: ${insertHistory.status}`
-          console.warn('[trusted-update]', maintenanceWarning, await insertHistory.text())
+          logTrustedUpdateIssue(maintenanceWarning, await insertHistory.text())
         }
 
         stage = 'deleting old AIS history'
@@ -1333,7 +1351,7 @@ export async function GET(request: Request) {
         })
         if (!deleteOldHistory.ok) {
           maintenanceWarning ||= `old AIS history prune skipped: ${deleteOldHistory.status}`
-          console.warn('[trusted-update]', maintenanceWarning, await deleteOldHistory.text())
+          logTrustedUpdateIssue(maintenanceWarning, await deleteOldHistory.text())
         }
 
         const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
@@ -1354,11 +1372,11 @@ export async function GET(request: Request) {
         })
         if (!upsertAisStats.ok) {
           maintenanceWarning ||= `AIS stats upsert skipped: ${upsertAisStats.status}`
-          console.warn('[trusted-update]', maintenanceWarning, await upsertAisStats.text())
+          logTrustedUpdateIssue(maintenanceWarning, await upsertAisStats.text())
         }
       } catch (error) {
         maintenanceWarning ||= `AIS vessel persistence skipped: ${errorMessage(error)}`
-        console.warn('[trusted-update]', maintenanceWarning)
+        logTrustedUpdateIssue(maintenanceWarning)
       }
     }
 
@@ -1372,7 +1390,7 @@ export async function GET(request: Request) {
       )
     } catch (error) {
       maintenanceWarning ||= `dashboard cache upsert skipped: ${errorMessage(error)}`
-      console.warn('[trusted-update]', maintenanceWarning)
+      logTrustedUpdateIssue(maintenanceWarning)
     }
 
     return NextResponse.json({
