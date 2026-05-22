@@ -590,6 +590,10 @@ function balanceByHotspot(articles: TrustedArticle[]) {
 }
 
 function parseTrustedPage(html: string, source: string, pageUrl: string, credibility: number, regionHint?: string): TrustedArticle[] {
+  if (/<rss[\s>]|<feed[\s>]|<item[\s>]/i.test(html)) {
+    return parseRss(html, { source, url: pageUrl, credibility, regionHint })
+  }
+
   const title = decodeHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || source)
   const bodyText = decodeHtml(html).slice(0, 1200)
   const isSuezNewsPage = pageUrl.includes('suezcanal.gov.eg')
