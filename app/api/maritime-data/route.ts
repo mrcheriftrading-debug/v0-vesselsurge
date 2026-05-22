@@ -16,7 +16,7 @@ import {
   maritimeSourceQualityScore,
   maritimeSourceQualityTier,
 } from '@/lib/maritime-source-quality'
-import { sourceSweepAuditSourcesForRegion, sourceSweepSummary } from '@/lib/maritime-source-sweep'
+import { sourceSweepAuditSourcesForRegion, sourceSweepLayerLabel, sourceSweepSummary } from '@/lib/maritime-source-sweep'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
@@ -244,16 +244,21 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
   }))
   const sourceSweepSignals = HOTSPOTS
     .filter((hotspot) => !normalizedArticles.some((article) => article.region === hotspot && isCurrentLiveMapItem(article.timestamp, timestamp)))
-    .map((hotspot) => {
+    .flatMap((hotspot) => {
       const route = ROUTE_LABELS[hotspot]
       const auditSources = sourceSweepAuditSourcesForRegion(hotspot)
-      const primarySource = auditSources[0] || { source: 'VesselSurge Source Sweep', url: route.url }
-      return {
-        signalKey: `direct-source-sweep-${hotspot}-${timestamp.slice(0, 13)}`,
-        source: primarySource.source,
-        sourceUrl: primarySource.url,
-        title: `${route.name}: no fresh source-backed disruption found`,
-        summary: sourceSweepSummary(route.name, auditSources),
+      const checkedSources = auditSources.length
+        ? auditSources
+        : [{ source: 'VesselSurge Source Sweep', url: route.url, layer: 'search' as const }]
+
+      return checkedSources.map((checkedSource, index) => ({
+        signalKey: `direct-source-sweep-${hotspot}-${index}-${createHash('sha1').update(`${checkedSource.source}:${checkedSource.url}:${timestamp.slice(0, 13)}`).digest('base64url').slice(0, 12)}`,
+        source: checkedSource.source,
+        sourceUrl: checkedSource.url,
+        title: `${route.name}: ${sourceSweepLayerLabel(checkedSource.layer)} checked`,
+        summary: index === 0
+          ? `${sourceSweepSummary(route.name, auditSources)} Additional sweep layers are shown separately for source transparency.`
+          : `VesselSurge also checked ${checkedSource.source}; no current source-backed disruption is being claimed for ${route.name}.`,
         region: hotspot,
         signalType: 'source_sweep',
         severity: 'low',
@@ -261,7 +266,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
         observedAt: timestamp,
         sourceAuditCount: auditSources.length,
         sourceAuditSources: auditSources.map((source) => source.source),
-      }
+      }))
     })
   const allSignals = [...signals, ...sourceSweepSignals]
 

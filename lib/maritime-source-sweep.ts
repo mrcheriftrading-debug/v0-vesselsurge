@@ -62,6 +62,23 @@ export function sourceSweepSummary(routeName: string, auditSources: SourceSweepA
   return `The latest VesselSurge source sweep checked ${checked}; no current source-backed disruption is being claimed for ${routeName}.`
 }
 
+export function sourceSweepLayerLabel(layer?: SourceSweepAuditSource['layer'] | string | null) {
+  switch (layer) {
+    case 'official':
+      return 'official source'
+    case 'recent-search':
+      return 'recent news sweep'
+    case 'trade-search':
+      return 'trade-source sweep'
+    case 'tier-one-search':
+      return 'tier-1 newsroom sweep'
+    case 'search':
+      return 'general search sweep'
+    default:
+      return 'trusted source sweep'
+  }
+}
+
 export function sourceSweepAuditCount(signal: {
   signalType?: string | null
   signal_type?: string | null

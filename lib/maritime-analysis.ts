@@ -137,7 +137,8 @@ export function buildHotspotAnalysisBrief(input: AnalysisInput): HotspotAnalysis
   const sources = input.sourceCount || 0
   const evidence = uniqueEvidence(input)
   const noFreshDisruption = reports === 0 || /no fresh source-backed disruption/i.test(input.riskSummary || '')
-  const sourceBasis = `${reports} current source-linked report${reports === 1 ? '' : 's'}, ${sources} source${sources === 1 ? '' : 's'} and ${(input.signals || []).length} operational signal${(input.signals || []).length === 1 ? '' : 's'}. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.`
+  const sourceSweepChecks = (input.signals || []).filter((signal) => (signal.signalType || signal.signal_type) === 'source_sweep').length
+  const sourceBasis = `${reports} current source-linked report${reports === 1 ? '' : 's'}, ${sources} source${sources === 1 ? '' : 's'}, ${(input.signals || []).length} operational signal${(input.signals || []).length === 1 ? '' : 's'} and ${sourceSweepChecks} source-sweep layer check${sourceSweepChecks === 1 ? '' : 's'}. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.`
 
   let headline = `${name}: no fresh verified disruption found`
   if (risk === 'critical') headline = `${name}: severe source-backed route disruption`

@@ -840,7 +840,12 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     const aisSignalCount = regionSignals.filter((signal) => signal.signal_type === 'ais_anomaly').length
     const reports = articleStats[hotspot.hotspot]?.reports || 0
     const sourceSweepOnly = regionSignals.some((signal) => signal.signal_type === 'source_sweep') && actionableSignals.length === 0 && reports === 0
-    const sourceCount = articleStats[hotspot.hotspot]?.sources.size || 0
+    const sourceSweepSourceCount = Math.max(0, ...regionSignals.map(sourceSweepAuditCount))
+    const signalSourceCount = new Set(regionSignals
+      .filter((signal) => signal.signal_type === 'source_sweep')
+      .map((signal) => signal.source)
+      .filter(Boolean)).size
+    const sourceCount = Math.max(articleStats[hotspot.hotspot]?.sources.size || 0, sourceSweepSourceCount, signalSourceCount)
     const latestSource = articleStats[hotspot.hotspot]?.latestSource || null
     const derivedRiskLevel = deriveEvidenceRiskLevel({
       articles: articleStats[hotspot.hotspot]?.articles || [],

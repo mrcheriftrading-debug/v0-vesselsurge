@@ -4,7 +4,7 @@ import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCachePayload, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { MARITIME_SEARCH_FEEDS, MARITIME_TRUSTED_PUBLISHER_FEEDS } from '@/lib/maritime-search-feeds'
-import { sourceSweepAuditSourcesForRegion, sourceSweepSummary } from '@/lib/maritime-source-sweep'
+import { sourceSweepAuditSourcesForRegion, sourceSweepLayerLabel, sourceSweepSummary } from '@/lib/maritime-source-sweep'
 import { isMaritimeTradeSource, isOfficialMaritimeSource, isTierOneNewsSource } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -840,16 +840,21 @@ function buildSourceSweepSignals(articles: TrustedArticle[], currentSignals: Mar
       )
       return !hasFreshArticle && !hasFreshActionableSignal
     })
-    .map((region) => {
+    .flatMap((region) => {
       const route = ROUTE_LABELS[region]
       const auditSources = sourceSweepAuditSourcesForRegion(region)
-      const primarySource = auditSources[0] || { source: 'VesselSurge Source Sweep', url: route.url }
-      return {
-        signal_key: stableSignalKey(['source-sweep', region, observedAt.slice(0, 13)]),
-        source: primarySource.source,
-        source_url: primarySource.url,
-        title: `${route.name}: no fresh source-backed disruption found`,
-        summary: `${sourceSweepSummary(route.name, auditSources)} The route remains live and will update when trusted sources match.`,
+      const checkedSources = auditSources.length
+        ? auditSources
+        : [{ source: 'VesselSurge Source Sweep', url: route.url, layer: 'search' as const }]
+
+      return checkedSources.map((checkedSource, index) => ({
+        signal_key: stableSignalKey(['source-sweep', region, checkedSource.source, observedAt.slice(0, 13)]),
+        source: checkedSource.source,
+        source_url: checkedSource.url,
+        title: `${route.name}: ${sourceSweepLayerLabel(checkedSource.layer)} checked`,
+        summary: index === 0
+          ? `${sourceSweepSummary(route.name, auditSources)} The route remains live and additional sweep layers are stored separately for source transparency.`
+          : `VesselSurge also checked ${checkedSource.source}; no current source-backed disruption is being claimed for ${route.name}.`,
         region,
         signal_type: 'source_sweep' as const,
         severity: 'low' as const,
@@ -861,7 +866,7 @@ function buildSourceSweepSignals(articles: TrustedArticle[], currentSignals: Mar
           checkedSources: auditSources,
           policy: 'No invented incidents: source sweep signals are used only when trusted current news and actionable route signals are absent.',
         },
-      }
+      }))
     })
 }
 
