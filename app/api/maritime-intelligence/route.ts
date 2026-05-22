@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 const HOTSPOT_IDS = ['hormuz', 'bab', 'malacca', 'suez', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
 
@@ -58,7 +59,7 @@ export async function GET() {
 
     return NextResponse.json(
       { success: true, data: stats, timestamp: new Date().toISOString() },
-      { headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' } }
+      { headers: publicVercelCacheHeaders('public, s-maxage=30, stale-while-revalidate=120', ['maritime-intelligence', 'live-map']) }
     )
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 })

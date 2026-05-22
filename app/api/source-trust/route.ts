@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { loadSourceTrustReport } from '@/lib/source-trust'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -16,7 +17,7 @@ export async function GET() {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=180',
+          ...publicVercelCacheHeaders('public, s-maxage=60, stale-while-revalidate=180', ['source-trust']),
         },
       },
     )

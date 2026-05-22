@@ -16,12 +16,13 @@ import {
   maritimeSourceQualityTier,
 } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-dynamic'
 export const preferredRegion = 'fra1'
 
 const RESPONSE_HEADERS = {
-  'Cache-Control': 'public, max-age=15, s-maxage=30, stale-while-revalidate=120',
+  ...publicVercelCacheHeaders('public, max-age=15, s-maxage=30, stale-while-revalidate=120', ['maritime-data', 'live-map']),
   'X-Content-Type-Options': 'nosniff',
 }
 

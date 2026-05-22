@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-dynamic'
 
 const AIS_QUERY_TIMEOUT_MS = 2200
 const AIS_CACHE_CONTROL = 'public, s-maxage=20, stale-while-revalidate=120'
+const AIS_CACHE_HEADERS = publicVercelCacheHeaders(AIS_CACHE_CONTROL, ['ais-vessels', 'live-map'])
 
 function isExpectedFallbackReason(value: unknown) {
   const message = value instanceof Error ? value.message : String(value || '')
@@ -36,7 +38,7 @@ function unavailableVesselsResponse(hotspot: string | null, reason: string) {
     },
     {
       headers: {
-        'Cache-Control': AIS_CACHE_CONTROL,
+        ...AIS_CACHE_HEADERS,
         'Access-Control-Allow-Origin': '*',
         'X-Content-Type-Options': 'nosniff',
         'X-VesselSurge-Fallback': 'ais-database-unavailable',
@@ -81,7 +83,7 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': AIS_CACHE_CONTROL,
+          ...AIS_CACHE_HEADERS,
           'Access-Control-Allow-Origin': '*',
           'X-Content-Type-Options': 'nosniff',
         },

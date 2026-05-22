@@ -2,12 +2,14 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
 import { TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 import { buildMarketingPost, getMarketingApproval } from '@/scripts/lib/x-marketing-post.mjs'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 const FEED_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300'
+const FEED_CACHE_HEADERS = publicVercelCacheHeaders(FEED_CACHE_CONTROL, ['x-feed', 'growth-feed'])
 const DEFAULT_VARIANT_SEED = 'vesselsurge-stable-social-feed-v1'
 const FEED_SETTLE_MS = 2 * 60 * 1000
 const HOTSPOT_QUERY_TIMEOUT_MS = 1200
@@ -214,7 +216,7 @@ export async function GET(request: Request) {
       return new Response(rss, {
         headers: {
           'Content-Type': 'application/rss+xml; charset=utf-8',
-          'Cache-Control': FEED_CACHE_CONTROL,
+          ...FEED_CACHE_HEADERS,
           'X-Content-Type-Options': 'nosniff',
         },
       })
@@ -239,7 +241,7 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          'Cache-Control': FEED_CACHE_CONTROL,
+          ...FEED_CACHE_HEADERS,
           'X-Content-Type-Options': 'nosniff',
         },
       },
@@ -278,7 +280,7 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+          ...FEED_CACHE_HEADERS,
           'X-Content-Type-Options': 'nosniff',
           'X-VesselSurge-Fallback': 'offline-social-feed',
         },

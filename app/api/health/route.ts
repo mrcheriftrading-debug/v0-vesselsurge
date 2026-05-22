@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getLastMarketProAnalysisCache } from '@/lib/market-pro-cache'
 import { getMaritimeDashboardCacheRead } from '@/lib/maritime-dashboard-cache'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-dynamic'
 export const preferredRegion = 'fra1'
@@ -237,7 +238,7 @@ function directSourceSweepHealthResponse(warning: string) {
     {
       status: 200,
       headers: {
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+        ...publicVercelCacheHeaders('public, s-maxage=30, stale-while-revalidate=120', ['health']),
         'X-Content-Type-Options': 'nosniff',
       },
     },
@@ -419,7 +420,7 @@ export async function GET(request: Request) {
       {
         status: status === 'unhealthy' ? 503 : 200,
         headers: {
-          'Cache-Control': cacheControlForStatus(status),
+          ...publicVercelCacheHeaders(cacheControlForStatus(status), ['health']),
           'X-Content-Type-Options': 'nosniff',
         },
       },

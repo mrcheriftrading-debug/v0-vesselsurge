@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-static'
 
 const LLMS_HEADERS = {
   'Content-Type': 'text/plain; charset=utf-8',
-  'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+  ...publicVercelCacheHeaders('public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800', ['llms']),
   'X-Robots-Tag': 'index, follow',
 }
 

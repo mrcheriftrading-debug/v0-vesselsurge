@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
 import { isTierOneNewsSource, TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 const TRUSTED_SOURCES = [
   'USNI News',
@@ -36,6 +37,8 @@ const TRUSTED_SOURCES = [
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
+const LIVE_NEWS_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=15, s-maxage=30, stale-while-revalidate=120', ['live-news'])
+const LIVE_NEWS_FALLBACK_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=30, s-maxage=120, stale-while-revalidate=300', ['live-news'])
 
 function isExpectedFallbackReason(value: unknown) {
   const message = value instanceof Error ? value.message : String(value || '')
@@ -373,7 +376,7 @@ export async function GET(request: Request) {
       directNewsCount: directNews.length,
       sourceMode: 'direct',
       warning: directNews.length > 0 ? null : 'direct source sweep empty; showing live watch context',
-    }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
+    }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
   }
 
   try {
@@ -408,7 +411,7 @@ export async function GET(request: Request) {
             cached: true,
             generatedAt: cached.meta.generatedAt,
           },
-          { headers: { 'Cache-Control': 'public, max-age=15, s-maxage=30, stale-while-revalidate=120' } },
+          { headers: LIVE_NEWS_CACHE_HEADERS },
         )
       }
     }
@@ -444,7 +447,7 @@ export async function GET(request: Request) {
         watchCount: directNews.length > 0 ? 0 : fallback.length,
         directNewsCount: directNews.length,
         warning: directNews.length > 0 ? 'database news query timed out; served live source-linked web news' : 'news query timed out; showing live watch context',
-      }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
+      }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
     }
 
     const { data, error } = newsResult
@@ -461,7 +464,7 @@ export async function GET(request: Request) {
         watchCount: directNews.length > 0 ? 0 : fallback.length,
         directNewsCount: directNews.length,
         warning: directNews.length > 0 ? 'database news query failed; served live source-linked web news' : 'news query failed; showing live watch context',
-      }, { headers: { 'Cache-Control': 'public, max-age=30, s-maxage=120, stale-while-revalidate=300' } })
+      }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
     }
 
     const articles = dedupeNewsItems((data || [])

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { BASE_URL, publicFeaturePages, trafficTopicPages } from '@/lib/seo'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-static'
 
@@ -41,7 +42,7 @@ const entityMap = {
 export async function GET() {
   return NextResponse.json(entityMap, {
     headers: {
-      'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+      ...publicVercelCacheHeaders('public, max-age=86400, s-maxage=86400', ['entity-map']),
       'X-Robots-Tag': 'index, follow',
     },
   })

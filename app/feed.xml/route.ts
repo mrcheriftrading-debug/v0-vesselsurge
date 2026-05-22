@@ -3,6 +3,7 @@ import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type Mar
 import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
 import { BASE_URL } from '@/lib/seo'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
@@ -86,7 +87,7 @@ export async function GET() {
   return new NextResponse(xml, {
     headers: {
       'Content-Type': 'application/rss+xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=300, s-maxage=900, stale-while-revalidate=1800',
+      ...publicVercelCacheHeaders('public, max-age=300, s-maxage=900, stale-while-revalidate=1800', ['rss-feed', 'live-news']),
       'X-Robots-Tag': 'index, follow',
     },
   })

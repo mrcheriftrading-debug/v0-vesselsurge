@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { publicVercelCacheHeaders } from "@/lib/vercel-cache"
 
 export const dynamic = "force-dynamic"
 
@@ -78,6 +79,8 @@ export async function GET(request: Request) {
       data,
       source: "openclaw-supabase-verified",
       timestamp: new Date().toISOString(),
+    }, {
+      headers: publicVercelCacheHeaders("public, s-maxage=30, stale-while-revalidate=120", ["maritime-stats", `hotspot-${hotspotId}`]),
     })
   } catch (error: any) {
     return NextResponse.json(
