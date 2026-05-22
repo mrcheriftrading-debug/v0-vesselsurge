@@ -13,7 +13,7 @@ const AIS_DEGRADED_MS = 2 * 60 * 60 * 1000
 const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
 const HEALTH_CACHE_QUERY_TIMEOUT_MS = 2200
-const AUTH_HEALTH_TIMEOUT_MS = 4200
+const AUTH_HEALTH_TIMEOUT_MS = 1200
 const MARKET_PRO_HEALTH_TIMEOUT_MS = 1800
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
@@ -74,38 +74,52 @@ function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: strin
   })
 }
 
-async function checkSupabaseAuth(admin: ReturnType<typeof createAdminClient>) {
+async function checkSupabaseAuth() {
   const startedAt = Date.now()
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return {
+      status: 'degraded' as Status,
+      durationMs: Date.now() - startedAt,
+      probe: 'auth.health',
+      note: 'Supabase Auth credentials are not configured.',
+    }
+  }
 
   try {
-    const { error } = await withTimeout(
-      admin.auth.admin.listUsers({ page: 1, perPage: 1 }),
-      AUTH_HEALTH_TIMEOUT_MS,
-      'Supabase Auth admin probe',
-    )
-
+    const response = await fetch(`${supabaseUrl}/auth/v1/health`, {
+      headers: {
+        apikey: serviceRoleKey,
+        authorization: `Bearer ${serviceRoleKey}`,
+        accept: 'application/json',
+      },
+      signal: AbortSignal.timeout(AUTH_HEALTH_TIMEOUT_MS),
+    })
     const durationMs = Date.now() - startedAt
 
-    if (error) {
+    if (!response.ok) {
+      const text = await response.text().catch(() => '')
       return {
         status: 'degraded' as Status,
         durationMs,
-        probe: 'auth.admin.listUsers',
-        note: error.message,
+        probe: 'auth.health',
+        note: text.slice(0, 180) || `Supabase Auth health returned HTTP ${response.status}.`,
       }
     }
 
     return {
       status: 'ok' as Status,
       durationMs,
-      probe: 'auth.admin.listUsers',
-      note: 'Supabase Auth admin API accepted a minimal listUsers probe.',
+      probe: 'auth.health',
+      note: 'Supabase Auth keyed health probe responded.',
     }
   } catch (error) {
     return {
       status: 'degraded' as Status,
       durationMs: Date.now() - startedAt,
-      probe: 'auth.admin.listUsers',
+      probe: 'auth.health',
       note: error instanceof Error ? error.message : 'Supabase Auth probe failed',
     }
   }
@@ -237,7 +251,7 @@ export async function GET(request: Request) {
         MARKET_PRO_HEALTH_TIMEOUT_MS,
         'Market Pro health cache',
       ).catch(() => null),
-      checkSupabaseAuth(admin),
+      checkSupabaseAuth(),
     ])
 
     if (!cacheRow) {
