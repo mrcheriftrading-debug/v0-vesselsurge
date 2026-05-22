@@ -159,9 +159,9 @@ function checkAutomations(checks) {
   record(
     checks,
     'buffer_publisher_agent',
-    publisherStatus === 'ACTIVE' && /INTERVAL=30\b/.test(publisherRrule) && publisherCwds.includes(ROOT),
+    publisherStatus === 'ACTIVE' && /INTERVAL=(15|30)\b/.test(publisherRrule) && publisherCwds.includes(ROOT),
     `status=${publisherStatus || 'missing'} rrule=${publisherRrule || 'missing'}`,
-    { owner: 'Growth agent', fix: 'Keep Buffer publisher active every 30 minutes with this repo as cwd.' },
+    { owner: 'Growth agent', fix: 'Keep Buffer publisher active every 15-30 minutes with this repo as cwd.' },
   )
 }
 
