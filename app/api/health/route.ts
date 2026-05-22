@@ -324,9 +324,13 @@ export async function GET(request: Request) {
     const marketProAge = ageMs(marketProCache?.generatedAt)
     const hotspotSummary = HOTSPOTS.map((hotspot) => {
       const stats = hotspotRows.find((row) => row.hotspot === hotspot)
-      const visibleArticles = newsRows.filter((row) => row.region === hotspot)
-      const latestNews = newsRows.find((row) => row.region === hotspot)
-      const latestSignal = signalRows.find((row) => row.region === hotspot)
+      const visibleArticles = newsRows
+        .filter((row) => row.region === hotspot)
+        .sort((a, b) => Date.parse(b.timestamp || '') - Date.parse(a.timestamp || ''))
+      const latestNews = visibleArticles[0]
+      const latestSignal = signalRows
+        .filter((row) => row.region === hotspot)
+        .sort((a, b) => Date.parse(b.observedAt || '') - Date.parse(a.observedAt || ''))[0]
       const hasRecentNews = ageMs(latestNews?.timestamp) < 7 * 24 * 60 * 60 * 1000
       const hasRecentSignal = ageMs(latestSignal?.observedAt) < 6 * 60 * 60 * 1000
 
