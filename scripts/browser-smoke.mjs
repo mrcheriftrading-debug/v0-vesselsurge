@@ -33,6 +33,8 @@ const VIEWPORTS = [
 ]
 
 const IGNORED_BROWSER_LOG = /favicon|preload|apple-mobile-web-app-capable|third-party cookie|privacy sandbox|_vercel\/(speed-)?insights\/script\.js|MIME type \('text\/html'\)/i
+const COMMAND_TIMEOUT_MS = Number.parseInt(process.env.VESSELSURGE_BROWSER_SMOKE_COMMAND_TIMEOUT_MS || '12000', 10)
+const PAGE_SETTLE_MS = Number.parseInt(process.env.VESSELSURGE_BROWSER_SMOKE_PAGE_SETTLE_MS || '4500', 10)
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -98,15 +100,38 @@ function createCdpClient(wsUrl) {
     }
   })
 
+  socket.on('close', () => {
+    for (const [id, command] of pending.entries()) {
+      clearTimeout(command.timeout)
+      command.reject(new Error(`Chrome DevTools socket closed before command ${id} completed`))
+    }
+    pending.clear()
+  })
+
   const opened = new Promise((resolve, reject) => {
     socket.once('open', resolve)
     socket.once('error', reject)
   })
 
-  function send(method, params = {}) {
+  function send(method, params = {}, timeoutMs = COMMAND_TIMEOUT_MS) {
     return new Promise((resolve, reject) => {
       const id = ++commandId
-      pending.set(id, { resolve, reject })
+      const timeout = setTimeout(() => {
+        pending.delete(id)
+        reject(new Error(`Chrome DevTools command timed out after ${timeoutMs}ms: ${method}`))
+      }, timeoutMs)
+
+      pending.set(id, {
+        resolve: (result) => {
+          clearTimeout(timeout)
+          resolve(result)
+        },
+        reject: (error) => {
+          clearTimeout(timeout)
+          reject(error)
+        },
+        timeout,
+      })
       socket.send(JSON.stringify({ id, method, params }))
     })
   }
@@ -128,7 +153,8 @@ async function verifyPage(client, route, expectedText, viewport) {
     mobile: viewport.mobile,
   })
   await client.send('Page.navigate', { url: `${BASE_URL}${route}` })
-  await sleep(5500)
+  await sleep(PAGE_SETTLE_MS)
+  await client.send('Page.stopLoading').catch(() => {})
 
   const evaluated = await client.send('Runtime.evaluate', {
     expression: `(() => ({
