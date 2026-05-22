@@ -945,25 +945,52 @@ async function postRowsInBatches<T>({
   let written = 0
   const warnings: string[] = []
 
+  async function postBatch(batch: T[], batchLabel: string, retryTimeoutMs = timeoutMs) {
+    const response = await supabaseRequest(path, {
+      method: 'POST',
+      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+      signal: AbortSignal.timeout(retryTimeoutMs),
+      body: JSON.stringify(batch),
+    })
+
+    if (response.ok) return null
+
+    const body = await response.text().catch(() => '')
+    return `${batchLabel} skipped: ${response.status}${body ? ` ${body.slice(0, 220)}` : ''}`
+  }
+
   for (let index = 0; index < rows.length; index += batchSize) {
     const batch = rows.slice(index, index + batchSize)
-    try {
-      const response = await supabaseRequest(path, {
-        method: 'POST',
-        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        signal: AbortSignal.timeout(timeoutMs),
-        body: JSON.stringify(batch),
-      })
+    const batchNumber = Math.floor(index / batchSize) + 1
 
-      if (response.ok) {
+    try {
+      const batchWarning = await postBatch(batch, `${describe} batch ${batchNumber}`)
+      if (!batchWarning) {
         written += batch.length
       } else {
-        const warning = `${describe} batch ${Math.floor(index / batchSize) + 1} skipped: ${response.status}`
-        warnings.push(warning)
-        console.warn('[trusted-update]', warning, await response.text())
+        warnings.push(batchWarning)
+        console.warn('[trusted-update]', batchWarning)
+
+        if (batch.length <= 1) continue
+
+        for (const [rowIndex, row] of batch.entries()) {
+          try {
+            const rowWarning = await postBatch([row], `${describe} row ${index + rowIndex + 1}`, Math.max(timeoutMs, 6500))
+            if (!rowWarning) {
+              written += 1
+            } else {
+              warnings.push(rowWarning)
+              console.warn('[trusted-update]', rowWarning)
+            }
+          } catch (error) {
+            const warning = `${describe} row ${index + rowIndex + 1} skipped: ${errorMessage(error)}`
+            warnings.push(warning)
+            console.warn('[trusted-update]', warning)
+          }
+        }
       }
     } catch (error) {
-      const warning = `${describe} batch ${Math.floor(index / batchSize) + 1} skipped: ${errorMessage(error)}`
+      const warning = `${describe} batch ${batchNumber} skipped: ${errorMessage(error)}`
       warnings.push(warning)
       console.warn('[trusted-update]', warning)
     }
@@ -1177,8 +1204,8 @@ export async function GET(request: Request) {
       const signalWrite = await postRowsInBatches({
         path: 'maritime_signals?on_conflict=signal_key',
         rows: signals.map((signal) => ({ ...signal, updated_at: timestamp })),
-        batchSize: 6,
-        timeoutMs: 3000,
+        batchSize: 12,
+        timeoutMs: 7000,
         describe: 'maritime signal upsert',
       })
       if (signalWrite.warnings.length > 0) {

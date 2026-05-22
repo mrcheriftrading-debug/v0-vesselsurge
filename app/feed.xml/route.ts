@@ -4,6 +4,7 @@ import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-sn
 import { BASE_URL } from '@/lib/seo'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
 const FALLBACK_FEED_TIMESTAMP = '2026-05-20T00:00:00.000Z'
