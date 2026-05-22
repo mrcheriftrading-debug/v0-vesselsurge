@@ -168,6 +168,25 @@ async function checkProduction(checks) {
     `items=${articles.length} stale=${stale.length} noisy=${noisy.length}`,
     { owner: 'Data quality agent' },
   )
+
+  const maritimeStats = await fetchJson(`${SITE}/api/maritime-stats?hotspot=gibraltar&agent_check=${Date.now()}`, { timeoutMs: 7000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))
+  const maritimeIntelligence = await fetchJson(`${SITE}/api/maritime-intelligence?agent_check=${Date.now()}`, { timeoutMs: 7000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))
+  const statsText = JSON.stringify(maritimeStats.body || {})
+  const intelligenceRows = Object.values(maritimeIntelligence.body?.data || {})
+  const allIntelligenceRowsReviewed = intelligenceRows.length === 9 && intelligenceRows.every((row) => row?.dataStatus === 'reviewed_live_map_cache' || row?.dataStatus === 'reviewed_cache_stale')
+  const hasGibraltarLandNoise = /airport|runway|road traffic|vehicles?|tunnel|border crossing/i.test(statsText)
+  record(
+    checks,
+    'reviewed_stats_contract',
+    maritimeStats.ok &&
+      maritimeStats.body?.source === 'reviewed-live-map-cache' &&
+      maritimeIntelligence.ok &&
+      maritimeIntelligence.body?.source === 'reviewed-live-map-cache' &&
+      allIntelligenceRowsReviewed &&
+      !hasGibraltarLandNoise,
+    `statsSource=${maritimeStats.body?.source || maritimeStats.status} intelligenceSource=${maritimeIntelligence.body?.source || maritimeIntelligence.status} rows=${intelligenceRows.length} noise=${hasGibraltarLandNoise ? 1 : 0}`,
+    { owner: 'Data quality agent' },
+  )
 }
 
 async function checkCronEndpoints(checks) {
