@@ -28,13 +28,19 @@ function buildValidatedJsonResponse(payload: unknown, request: Request) {
   const body = JSON.stringify(payload)
   const etag = `"${createHash('sha1').update(body).digest('base64url')}"`
   const ifNoneMatch = request.headers.get('if-none-match')
+  const searchParams = new URL(request.url).searchParams
+  const forceRefresh = searchParams.has('cache_refresh') || searchParams.get('refresh') === '1'
   const generatedAt = payload && typeof payload === 'object' && 'meta' in payload
     ? (payload as { meta?: { generatedAt?: string } }).meta?.generatedAt
     : null
+  const cached = payload && typeof payload === 'object' && 'meta' in payload
+    ? Boolean((payload as { meta?: { cached?: boolean } }).meta?.cached)
+    : false
 
   const headers = {
     ...RESPONSE_HEADERS,
     ETag: etag,
+    'X-VesselSurge-Cache-Mode': forceRefresh ? 'refresh' : cached ? 'hit' : 'live',
     ...(generatedAt ? { 'Last-Modified': new Date(generatedAt).toUTCString() } : {}),
   }
 
