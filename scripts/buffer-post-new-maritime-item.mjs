@@ -14,6 +14,7 @@ const DEFAULT_MIN_HOURS_BETWEEN_POSTS = 8
 const DEFAULT_MAX_POSTS_PER_DAY = 2
 const DEFAULT_MAX_SCHEDULED_QUEUE = 6
 const DEFAULT_MIN_RATE_LIMIT_REMAINING = 10
+const DEFAULT_RATE_LIMIT_COOLDOWN_MS = 30 * 60 * 1000
 const FEED_URLS = (
   process.env.X_MARITIME_FEED_URLS ||
   process.env.X_MARITIME_FEED_URL ||
@@ -61,6 +62,8 @@ function readState() {
     postedUrls: Array.isArray(state.postedUrls) ? state.postedUrls : [],
     postedAt: Array.isArray(state.postedAt) ? state.postedAt : [],
     imageCursor: Number.isInteger(state.imageCursor) ? state.imageCursor : 0,
+    bufferRateLimitResetAt: typeof state.bufferRateLimitResetAt === 'string' ? state.bufferRateLimitResetAt : null,
+    bufferRateLimitLastStatus: Number.isInteger(state.bufferRateLimitLastStatus) ? state.bufferRateLimitLastStatus : null,
   }
 }
 
@@ -89,6 +92,65 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_FETCH_TIM
     return await fetch(url, { ...options, signal: controller.signal })
   } finally {
     clearTimeout(timeout)
+  }
+}
+
+class BufferRateLimitError extends Error {
+  constructor(message, resetAt) {
+    super(message)
+    this.name = 'BufferRateLimitError'
+    this.resetAt = resetAt
+  }
+}
+
+function parseRateLimitReset(value) {
+  if (!value) return null
+
+  const numericValue = Number(value)
+  if (Number.isFinite(numericValue)) {
+    const timestamp = numericValue < 10_000_000_000 ? numericValue * 1000 : numericValue
+    if (timestamp > Date.now()) return new Date(timestamp).toISOString()
+  }
+
+  const parsed = Date.parse(value)
+  return Number.isFinite(parsed) && parsed > Date.now() ? new Date(parsed).toISOString() : null
+}
+
+function rateLimitResetFromHeaders(headers) {
+  const retryAfter = headers.get('retry-after')
+  const retryAfterSeconds = Number(retryAfter)
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    return new Date(Date.now() + retryAfterSeconds * 1000).toISOString()
+  }
+
+  return (
+    parseRateLimitReset(retryAfter) ||
+    parseRateLimitReset(headers.get('ratelimit-reset')) ||
+    new Date(Date.now() + DEFAULT_RATE_LIMIT_COOLDOWN_MS).toISOString()
+  )
+}
+
+function shouldSkipForStoredRateLimitCooldown(state) {
+  const resetAtMs = Date.parse(state.bufferRateLimitResetAt || '')
+  if (!Number.isFinite(resetAtMs) || resetAtMs <= Date.now()) return null
+
+  const remainingMinutes = Math.ceil((resetAtMs - Date.now()) / (60 * 1000))
+  return `Buffer API cooldown active until ${state.bufferRateLimitResetAt} (${remainingMinutes}m remaining)`
+}
+
+async function withBufferRateLimitCooldown(state, operation) {
+  try {
+    return await operation()
+  } catch (error) {
+    if (error instanceof BufferRateLimitError) {
+      state.bufferRateLimitResetAt = error.resetAt
+      state.bufferRateLimitLastStatus = 429
+      writeState(state)
+      console.log(`[buffer-agent] Skipping: ${error.message}`)
+      process.exit(0)
+    }
+
+    throw error
   }
 }
 
@@ -163,12 +225,22 @@ async function bufferGraphql(token, query, variables = {}) {
     },
     body: JSON.stringify({ query, variables }),
   })
-  const json = await response.json()
+  const text = await response.text()
+  let json = {}
+  try {
+    json = text ? JSON.parse(text) : {}
+  } catch {
+    json = { raw: text }
+  }
   const rateLimitRemaining = Number.parseInt(response.headers.get('ratelimit-remaining') || '', 10)
   const rateLimitReset = response.headers.get('ratelimit-reset')
 
   if (!response.ok || json.errors) {
     const message = json.errors?.map((error) => error.message).join('; ') || JSON.stringify(json)
+    if (response.status === 429) {
+      const resetAt = rateLimitResetFromHeaders(response.headers)
+      throw new BufferRateLimitError(`Buffer API rate limit hit; cooling down until ${resetAt}.`, resetAt)
+    }
     throw new Error(`Buffer API error (${response.status}): ${message}`)
   }
 
@@ -398,13 +470,19 @@ if (!token) {
 }
 
 const state = readState()
+const storedRateLimitSkipReason = shouldSkipForStoredRateLimitCooldown(state)
+if (storedRateLimitSkipReason) {
+  console.log(`[buffer-agent] Skipping: ${storedRateLimitSkipReason}.`)
+  process.exit(0)
+}
+
 const localSkipReason = shouldSkipForLocalCadence({ state, maxPostsPerDay, minHoursBetweenPosts })
 if (localSkipReason) {
   console.log(`[buffer-agent] Skipping: ${localSkipReason}.`)
   process.exit(0)
 }
 
-const resolved = await resolveTwitterChannel(token, preferredChannelId)
+const resolved = await withBufferRateLimitCooldown(state, () => resolveTwitterChannel(token, preferredChannelId))
 if (!resolved) {
   console.error('[buffer-agent] No Buffer X/Twitter channel found.')
   process.exit(1)
@@ -418,10 +496,12 @@ if (resolved.channel.isQueuePaused) {
 const channelId = resolved.channel.id
 const organizationId = resolved.organization.id
 
-const [scheduledSummary, dailyPostingLimit] = await Promise.all([
-  getScheduledPostsSummary({ token, organizationId, channelId }),
-  getDailyPostingLimit({ token, channelId }),
-])
+const [scheduledSummary, dailyPostingLimit] = await withBufferRateLimitCooldown(state, () =>
+  Promise.all([
+    getScheduledPostsSummary({ token, organizationId, channelId }),
+    getDailyPostingLimit({ token, channelId }),
+  ]),
+)
 const bufferSkipReason = shouldSkipForBufferLimits({
   dailyLimit: dailyPostingLimit.status,
   scheduledSummary,
@@ -467,7 +547,9 @@ if (!nextArticle) {
 
 const postText = normalizePostText(nextArticle)
 const image = selectImage(nextArticle, state)
-const post = await createBufferPost({ token, channelId, postText, imageUrl: image.url, dryRun })
+const post = await withBufferRateLimitCooldown(state, () =>
+  createBufferPost({ token, channelId, postText, imageUrl: image.url, dryRun }),
+)
 
 console.log(dryRun ? '[buffer-agent] Dry run ready:' : '[buffer-agent] Queued Buffer post:')
 console.log(postText)
