@@ -372,11 +372,15 @@ function articleText(article: { title?: string | null; summary?: string | null }
 }
 
 function hasDirectOperationalIncident(text: string) {
-  return /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|blocked|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i.test(text)
+  return /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|closed|blocked|blockade|standstill|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i.test(text)
 }
 
 function hasRoutePressure(text: string) {
   return /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i.test(text)
+}
+
+function hasCriticalClosureContext(text: string) {
+  return /\b(effective(?:ly)? closed|closed to (?:most )?(?:commercial|international|foreign)?\s*shipping|shipping (?:is )?at a standstill|traffic (?:is )?at a standstill|standstill|blockade|blocked maritime traffic|traffic collapse|almost completely collapsed|chokehold|reopen(?:ing)? the strait|transit(?:s)? remained impossible|not to use .*strait of hormuz|vessels? .* unable to transit)\b/i.test(text)
 }
 
 function deriveEvidenceRiskLevel(input: {
@@ -391,8 +395,14 @@ function deriveEvidenceRiskLevel(input: {
   )
   const directIncidentReports = input.articles.filter((article) => hasDirectOperationalIncident(articleText(article))).length
   const routePressureReports = input.articles.filter((article) => hasRoutePressure(articleText(article))).length
+  const closureSources = new Set(input.articles
+    .filter((article) => hasCriticalClosureContext(articleText(article)))
+    .map((article) => article.source)
+    .filter(Boolean))
   const reports = input.articles.length
 
+  if (closureSources.size >= 2) return 'critical'
+  if (closureSources.size >= 1 && input.sourceCount >= 3 && routePressureReports >= 2) return 'critical'
   if (strongOperationalSignals.length > 0) return 'high'
   if (directIncidentReports >= 2 && input.sourceCount >= 2) return 'high'
   if (directIncidentReports >= 1 && routePressureReports >= 2 && input.sourceCount >= 2) return 'high'

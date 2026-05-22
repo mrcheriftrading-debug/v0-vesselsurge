@@ -91,6 +91,18 @@ const REGION_KEYWORDS: Record<string, string[]> = {
   cape: ['cape of good hope', 'cape route', 'red sea rerouting', 'red sea bypass', 'south africa shipping'],
 }
 
+const REGION_EXPANSION_KEYWORDS: Record<string, string[]> = {
+  hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman'],
+  bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'gulf of aden', 'houthi', 'yemen'],
+  suez: ['suez', 'suez canal', 'port said'],
+  malacca: ['malacca', 'strait of malacca', 'straits of malacca', 'singapore strait', 'port of singapore', 'singapore port', 'recaap'],
+  panama: ['panama canal', 'panama canal authority', 'pancanal', 'gatun lake', 'neopanamax'],
+  taiwan: ['taiwan strait', 'kaohsiung', 'keelung', 'taiwan maritime'],
+  turkish: ['turkish straits', 'bosporus', 'bosphorus', 'dardanelles', 'black sea', 'istanbul strait', 'canakkale strait'],
+  gibraltar: ['strait of gibraltar', 'gibraltar', 'algeciras', 'atlantic-mediterranean', 'atlantic mediterranean'],
+  cape: ['cape of good hope', 'cape route', 'red sea rerouting', 'red sea bypass'],
+}
+
 const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|draft|water|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng|naval|voyage|fuel|bunker)\b/i
 const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|crypto|bitcoin|railway|football|cricket|tourism|movie|celebrity)\b/i
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
@@ -200,6 +212,26 @@ function isOperationalMaritimeNews(article: any) {
     return false
   }
   return hasRegionSignal(article)
+}
+
+function matchedArticleRegions(article: { title?: string | null; summary?: string | null; snippet?: string | null; region?: string | null }) {
+  const text = `${article.title || ''} ${article.summary || article.snippet || ''}`.toLowerCase()
+  const matches = LIVE_REGIONS.filter((itemRegion) =>
+    (REGION_EXPANSION_KEYWORDS[itemRegion] || []).some((keyword) => text.includes(keyword)),
+  )
+  const fallbackRegion = LIVE_REGIONS.includes(article.region as any) ? article.region as typeof LIVE_REGIONS[number] : null
+  return matches.length > 0 ? matches : fallbackRegion ? [fallbackRegion] : []
+}
+
+function expandArticleRegions<T extends { id: string; title?: string | null; summary?: string | null; snippet?: string | null; region: string }>(article: T) {
+  const regions = matchedArticleRegions(article)
+  return regions.length
+    ? regions.map((itemRegion) => ({
+        ...article,
+        id: itemRegion === article.region ? article.id : `${article.id}-${itemRegion}`,
+        region: itemRegion,
+      }))
+    : [article]
 }
 
 function passesHighImpactClaimGate(article: any) {
@@ -361,7 +393,10 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
     })
 
   const max = Math.min(limit, 50)
-  const sorted = filtered.sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+  const sorted = filtered
+    .flatMap((article) => expandArticleRegions(article))
+    .filter((article) => !region || region === 'all' || article.region === region)
+    .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
   const balancedRegions = LIVE_REGIONS
   const byRegion = new Map(balancedRegions.map((itemRegion) => [
     itemRegion,

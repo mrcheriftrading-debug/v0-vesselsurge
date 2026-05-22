@@ -109,21 +109,46 @@ const ROUTE_LABELS: Record<string, { name: string; url: string }> = {
   cape: { name: 'Cape of Good Hope', url: 'https://www.vesselsurge.com/topics/cape-of-good-hope-rerouting' },
 }
 
-function directRiskLevel(articles: MaritimeDashboardResponse['data']['articles']) {
-  const sources = new Set(articles.map((article) => article.source).filter(Boolean))
-  const directIncidentCount = articles.filter((article) =>
-    /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|blocked|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i
-      .test(`${article.title} ${article.summary}`),
-  ).length
-  const routePressureCount = articles.filter((article) =>
-    /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i
-      .test(`${article.title} ${article.summary}`),
-  ).length
+function hasCriticalClosureContext(text: string) {
+  return /\b(effective(?:ly)? closed|closed to (?:most )?(?:commercial|international|foreign)?\s*shipping|shipping (?:is )?at a standstill|traffic (?:is )?at a standstill|standstill|blockade|blocked maritime traffic|traffic collapse|almost completely collapsed|chokehold|reopen(?:ing)? the strait|transit(?:s)? remained impossible|not to use .*strait of hormuz|vessels? .* unable to transit)\b/i.test(text)
+}
 
-  if (directIncidentCount >= 2 && sources.size >= 2) return 'high'
-  if (directIncidentCount >= 1 && routePressureCount >= 2 && sources.size >= 2) return 'high'
-  if ((directIncidentCount >= 1 || routePressureCount >= 2) && sources.size >= 2 && articles.length >= 2) return 'medium'
-  return 'low'
+function hasDirectIncidentContext(text: string) {
+  return /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|closed|blocked|blockade|standstill|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i.test(text)
+}
+
+function hasRoutePressureContext(text: string) {
+  return /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i.test(text)
+}
+
+function directRiskEvidence(articles: MaritimeDashboardResponse['data']['articles']) {
+  const sources = new Set(articles.map((article) => article.source).filter(Boolean))
+  const closureSources = new Set(articles
+    .filter((article) => hasCriticalClosureContext(`${article.title} ${article.summary}`))
+    .map((article) => article.source)
+    .filter(Boolean))
+  const directIncidentCount = articles.filter((article) => hasDirectIncidentContext(`${article.title} ${article.summary}`)).length
+  const routePressureCount = articles.filter((article) => hasRoutePressureContext(`${article.title} ${article.summary}`)).length
+
+  const riskLevel =
+    closureSources.size >= 2 ? 'critical'
+      : closureSources.size >= 1 && sources.size >= 3 && routePressureCount >= 2 ? 'critical'
+        : directIncidentCount >= 2 && sources.size >= 2 ? 'high'
+          : directIncidentCount >= 1 && routePressureCount >= 2 && sources.size >= 2 ? 'high'
+            : (directIncidentCount >= 1 || routePressureCount >= 2) && sources.size >= 2 && articles.length >= 2 ? 'medium'
+              : 'low'
+
+  return {
+    riskLevel,
+    sourceCount: sources.size,
+    closureSourceCount: closureSources.size,
+    directIncidentCount,
+    routePressureCount,
+  }
+}
+
+function directRiskLevel(articles: MaritimeDashboardResponse['data']['articles']) {
+  return directRiskEvidence(articles).riskLevel
 }
 
 function qualityStatus(score: number) {
@@ -252,14 +277,23 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     ].filter(Boolean)).size
     const sourceSweepAuditCount = Math.max(0, ...hotspotSignals.map((signal) => signal.signalType === 'source_sweep' ? signal.sourceAuditCount || 0 : 0))
     const sourceCount = Math.max(explicitSourceCount, sourceSweepAuditCount)
-    const riskLevel = directRiskLevel(currentArticles)
+    const riskEvidence = directRiskEvidence(currentArticles)
+    const riskLevel = riskEvidence.riskLevel
     const confidenceScore = currentArticles.length
       ? Math.min(88, 40 + Math.min(20, sourceCount * 6) + Math.min(24, currentArticles.length * 4))
       : 35
     const sourceSweepOnly = currentArticles.length === 0 && Boolean(sourceSweepSignal)
     const latestSource = currentArticles[0]?.source || sourceSweepSignal?.source || 'VesselSurge operational watch'
+    const priorityDriverArticles = riskLevel === 'critical'
+      ? currentArticles.filter((article) => {
+          const text = `${article.title} ${article.summary}`
+          return hasCriticalClosureContext(text) || hasRoutePressureContext(text)
+        })
+      : currentArticles
     const riskDrivers = currentArticles.length
-      ? currentArticles.slice(0, 3).map((article) => `${article.source}: ${article.title}`)
+      ? (priorityDriverArticles.length ? priorityDriverArticles : currentArticles)
+        .slice(0, 3)
+        .map((article) => `${article.source}: ${article.title}`)
       : sourceSweepOnly
         ? ['No fresh source-backed disruption found by the latest source sweep']
         : hotspotSignals.slice(0, 2).map((signal) => `${signal.source}: ${signal.title}`)
@@ -282,7 +316,11 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       confidenceScore,
       confidenceLabel: sourceSweepOnly ? 'Source sweep' : confidenceScore >= 70 ? 'Corroborated' : currentArticles.length ? 'Watchlist' : 'Thin signal',
       riskSummary: currentArticles.length
-        ? riskLevel === 'low'
+        ? riskLevel === 'critical'
+          ? riskEvidence.closureSourceCount >= 2
+            ? `CRITICAL because ${riskEvidence.closureSourceCount} independent current sources describe closure, blockade or standstill context; ${currentArticles.length} total reports across ${sourceCount} sources; latest source: ${latestSource}.`
+            : `CRITICAL because a current closure or standstill source is backed by ${riskEvidence.routePressureCount} route-pressure reports across ${sourceCount} sources; latest source: ${latestSource}.`
+          : riskLevel === 'low'
           ? `LOW because ${currentArticles.length} current report${currentArticles.length === 1 ? '' : 's'} did not meet corroboration or operational-impact thresholds; latest source: ${latestSource}.`
           : `${riskLevel.toUpperCase()} from ${currentArticles.length} current source-linked report${currentArticles.length === 1 ? '' : 's'} across ${sourceCount} source${sourceCount === 1 ? '' : 's'}; latest source: ${latestSource}.`
         : hotspotArticles.length
@@ -369,9 +407,10 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
 async function fetchDirectMaritimePayload(request: Request) {
   try {
     const directUrl = new URL('/api/live-news?source=direct&limit=44', request.url)
+    directUrl.searchParams.set('sweep', Math.floor(Date.now() / 120000).toString())
     const response = await fetch(directUrl, {
       headers: { accept: 'application/json' },
-      next: { revalidate: 120 },
+      cache: 'no-store',
       signal: AbortSignal.timeout(5500),
     })
 

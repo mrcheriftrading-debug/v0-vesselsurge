@@ -215,6 +215,7 @@ const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'spca',
 ]
 const HIGH_IMPACT_CLAIM_PATTERN = /\b(closure|closed|blockade|blocked|war began|shut(?:down)?|halted|suspended transit|traffic suspended|transit suspended)\b/i
+const CRITICAL_CLOSURE_CONTEXT_PATTERN = /\b(effective(?:ly)? closed|closed to (?:most )?(?:commercial|international|foreign)?\s*shipping|shipping (?:is )?at a standstill|traffic (?:is )?at a standstill|standstill|blockade|blocked maritime traffic|traffic collapse|almost completely collapsed|chokehold|reopen(?:ing)? the strait|transit(?:s)? remained impossible|not to use .*strait of hormuz|vessels? .* unable to transit)\b/i
 
 const CURRENT_YEAR = new Date().getUTCFullYear()
 const MONTHS: Record<string, number> = {
@@ -319,6 +320,7 @@ function classifyRisk(text: string): RiskLevel {
 }
 
 function classifyNewsRisk(text: string): RiskLevel {
+  if (CRITICAL_CLOSURE_CONTEXT_PATTERN.test(text)) return 'critical'
   const risk = classifyRisk(text)
   return risk === 'critical' ? 'high' : risk
 }
@@ -744,15 +746,23 @@ function buildStats(articles: TrustedArticle[]) {
         const articleRisk = classifyNewsRisk(`${article.title} ${article.snippet}`)
         counts[articleRisk] += 1
         if (articleRisk === 'high' && article.source) counts.highSources.add(article.source)
+        if (articleRisk === 'critical' && article.source) {
+          counts.criticalSources.add(article.source)
+          counts.highSources.add(article.source)
+        }
         return counts
       },
-      { low: 0, medium: 0, high: 0, critical: 0, highSources: new Set<string>() },
+      { low: 0, medium: 0, high: 0, critical: 0, highSources: new Set<string>(), criticalSources: new Set<string>() },
     )
-    const risk: RiskLevel = riskCounts.high >= 6 && riskCounts.highSources.size >= 3
-      ? 'high'
-      : riskCounts.high > 0 || riskCounts.medium > 0
-        ? 'medium'
-        : 'low'
+    const risk: RiskLevel = riskCounts.critical >= 2 && riskCounts.criticalSources.size >= 2
+      ? 'critical'
+      : riskCounts.critical >= 1 && riskCounts.highSources.size >= 2
+        ? 'high'
+        : riskCounts.high >= 6 && riskCounts.highSources.size >= 3
+          ? 'high'
+          : riskCounts.high > 0 || riskCounts.medium > 0
+            ? 'medium'
+            : 'low'
 
     return {
       hotspot,
@@ -800,7 +810,11 @@ function buildArticleSignals(articles: TrustedArticle[]): MaritimeSignal[] {
   return articles.map((article) => {
     const signalType = signalTypeForArticle(article)
     const rawSeverity = classifyRisk(`${article.title} ${article.snippet}`)
-    const severity = signalType === 'news_corroboration' && rawSeverity === 'critical' ? 'high' : rawSeverity
+    const text = `${article.title} ${article.snippet}`
+    const trustedHighImpactSource = isOfficialMaritimeSource(article.source) || isTierOneNewsSource(`${article.source} ${article.url}`) || isMaritimeTradeSource(`${article.source} ${article.url}`)
+    const severity = signalType === 'news_corroboration' && rawSeverity === 'critical'
+      ? CRITICAL_CLOSURE_CONTEXT_PATTERN.test(text) && trustedHighImpactSource ? 'critical' : 'high'
+      : rawSeverity
 
     return {
       signal_key: stableSignalKey([signalType, article.region, article.url || article.title]),

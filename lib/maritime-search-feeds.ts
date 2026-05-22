@@ -41,7 +41,7 @@ export const ADDITIONAL_TRUSTED_NEWS_FEEDS = [
   { source: 'Hapag-Lloyd Rules and Restrictions', url: 'https://www.hapag-lloyd.com/feeds/en/news/rules_regulations_restrictions.rss', credibility: 7 },
 ] as const
 
-const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com)'
+const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com OR site:lemonde.fr OR site:businesstimes.com.sg)'
 const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com OR site:joc.com OR site:hapag-lloyd.com OR site:seatrade-maritime.com OR site:marineinsight.com OR site:portnews.ru OR site:theloadstar.com OR site:porttechnology.org OR site:rivieramm.com OR site:bairdmaritime.com OR site:maritime-executive.com OR site:marinenews.com OR site:energyintel.com OR site:tradewindsnews.com OR site:shipandbunker.com)'
 
 const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
@@ -56,6 +56,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Strait of Hormuz" OR Hormuz OR "Gulf of Oman") (tanker OR vessel OR shipping OR maritime) (attack OR seizure OR threat OR warning OR incident OR insurance OR oil)',
   },
   {
+    label: 'Hormuz closure and traffic collapse',
+    region: 'hormuz',
+    query: '("Strait of Hormuz" OR Hormuz) ("effectively closed" OR closed OR closure OR blockade OR standstill OR "traffic collapse" OR "blocked maritime traffic" OR reopen OR "not to use") (shipping OR tanker OR vessel OR maritime OR oil)',
+  },
+  {
     label: 'Hormuz oil route disruption',
     region: 'hormuz',
     query: '("Strait of Hormuz" OR Hormuz OR "Persian Gulf") (oil OR crude OR LNG OR energy) (shipping OR tanker OR route OR disruption OR sanctions OR Iran)',
@@ -64,6 +69,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Tier-1 Hormuz newsroom sweep',
     region: 'hormuz',
     query: `("Strait of Hormuz" OR Hormuz OR "Persian Gulf" OR "Gulf of Oman" OR Iran) (shipping OR tanker OR maritime OR vessel OR oil OR crude OR insurance OR freight OR sanctions) ${TIER_ONE_SOURCE_SITES}`,
+  },
+  {
+    label: 'Tier-1 Hormuz closure confirmation',
+    region: 'hormuz',
+    query: `("Strait of Hormuz" OR Hormuz) ("effectively closed" OR closed OR standstill OR "traffic collapse" OR blockade OR reopen) ${TIER_ONE_SOURCE_SITES}`,
   },
   {
     label: 'Red Sea vessel security',

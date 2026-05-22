@@ -11,6 +11,8 @@ export const TIER_ONE_NEWS_SOURCE_NAMES = [
   'Financial Times World',
   'Financial Times Markets',
   'CNBC World News',
+  'Le Monde Economy',
+  'The Business Times',
 ]
 
 const TIER_ONE_SOURCE_PATTERNS = [
@@ -23,6 +25,8 @@ const TIER_ONE_SOURCE_PATTERNS = [
   /\bfinancial times\b|\bft\.com\b/i,
   /\bthe guardian\b|\bguardian\b|\btheguardian\.com\b/i,
   /\bcnbc\b|\bcnbc\.com\b/i,
+  /\ble monde\b|\blemonde\.fr\b/i,
+  /\bthe business times\b|\bbusinesstimes\.com\.sg\b/i,
 ]
 
 const OFFICIAL_SOURCE_PATTERNS = [
