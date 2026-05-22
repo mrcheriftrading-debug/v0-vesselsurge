@@ -112,6 +112,28 @@ function criticalEvidenceByHotspot(maritimeData) {
   })
 }
 
+function sourceSweepBreadthByHotspot(maritimeData, hotspots) {
+  const signals = Array.isArray(maritimeData?.signals) ? maritimeData.signals : []
+  return hotspots.map((hotspot) => {
+    const sweepSignals = signals.filter((signal) =>
+      signal.region === hotspot &&
+      (signal.signalType || signal.signal_type) === 'source_sweep'
+    )
+    const auditCounts = sweepSignals.map((signal) => {
+      if (typeof signal.sourceAuditCount === 'number') return signal.sourceAuditCount
+      if (typeof signal.source_audit_count === 'number') return signal.source_audit_count
+      const metadata = signal.metadata && typeof signal.metadata === 'object' ? signal.metadata : {}
+      if (Array.isArray(metadata.checkedSources)) return metadata.checkedSources.length
+      return typeof metadata.checkedSourceCount === 'number' ? metadata.checkedSourceCount : 0
+    })
+    return {
+      hotspot,
+      sweepSignals: sweepSignals.length,
+      sourceLayers: Math.max(0, ...auditCounts),
+    }
+  })
+}
+
 function automationPath(id) {
   return path.join(AUTOMATIONS_DIR, id, 'automation.toml')
 }
@@ -227,6 +249,17 @@ async function checkProduction(checks) {
     maritime.ok && analysisRows.length === LIVE_HOTSPOTS.length && missingAnalysis.length === 0,
     `analysis=${analysisRows.filter((row) => row.hasAnalysis).length}/${LIVE_HOTSPOTS.length} missing=${missingAnalysis.join(', ') || 'none'}`,
     { owner: 'Data quality agent', missingAnalysis },
+  )
+  const sourceSweepBreadthRows = sourceSweepBreadthByHotspot(maritimeData, goodNoFresh)
+  const thinSourceSweeps = sourceSweepBreadthRows.filter((row) => row.sweepSignals < 3 && row.sourceLayers < 3)
+  record(
+    checks,
+    'source_sweep_breadth_gate',
+    maritime.ok && thinSourceSweeps.length === 0,
+    sourceSweepBreadthRows.length
+      ? `sourceSweepBreadth=${sourceSweepBreadthRows.map((row) => `${row.hotspot}:${row.sweepSignals}/${row.sourceLayers}`).join(', ')}`
+      : 'no source-sweep-only hotspots',
+    { owner: 'Data quality agent', thinSourceSweeps },
   )
   const criticalEvidenceRows = criticalEvidenceByHotspot(maritimeData)
   const criticalEvidenceMismatches = criticalEvidenceRows.filter((row) => row.shouldBeCritical && row.risk !== 'critical')
