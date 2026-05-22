@@ -211,8 +211,15 @@ async function main() {
     }
   } finally {
     chromeProcess.kill('SIGTERM')
-    await sleep(200)
-    rmSync(userDataDir, { recursive: true, force: true })
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await sleep(250 + attempt * 150)
+      try {
+        rmSync(userDataDir, { recursive: true, force: true })
+        break
+      } catch (error) {
+        if (attempt === 4) throw error
+      }
+    }
   }
 }
 
