@@ -773,30 +773,34 @@ export async function getLastMaritimeDashboardCache(supabase: SupabaseClient, re
 export async function upsertMaritimeDashboardCache(supabase: SupabaseClient) {
   try {
     const payload = await buildMaritimeDashboardPayload(supabase)
-    const generatedAt = payload.data.timestamp
-    const { error } = await supabase
-      .from('maritime_dashboard_cache')
-      .upsert(
-        {
-          cache_key: CACHE_KEY,
-          payload: {
-            ...payload,
-            meta: { ...payload.meta, cached: true, generatedAt },
-          },
-          generated_at: generatedAt,
-          updated_at: generatedAt,
-        },
-        { onConflict: 'cache_key' },
-      )
-
-    if (error) {
-      console.warn('[maritime-data] Dashboard cache upsert skipped:', error.message)
-      return false
-    }
-
-    return true
+    return upsertMaritimeDashboardCachePayload(supabase, payload)
   } catch (error) {
     console.warn('[maritime-data] Dashboard cache build skipped:', error)
     return false
   }
+}
+
+export async function upsertMaritimeDashboardCachePayload(supabase: SupabaseClient, payload: MaritimeDashboardResponse) {
+  const generatedAt = payload.data.timestamp
+  const { error } = await supabase
+    .from('maritime_dashboard_cache')
+    .upsert(
+      {
+        cache_key: CACHE_KEY,
+        payload: {
+          ...payload,
+          meta: { ...payload.meta, cached: true, generatedAt },
+        },
+        generated_at: generatedAt,
+        updated_at: generatedAt,
+      },
+      { onConflict: 'cache_key' },
+    )
+
+  if (error) {
+    console.warn('[maritime-data] Dashboard cache upsert skipped:', error.message)
+    return false
+  }
+
+  return true
 }

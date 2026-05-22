@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
-import { upsertMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
+import { upsertMaritimeDashboardCachePayload, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
 import { isTierOneNewsSource } from '@/lib/maritime-source-quality'
@@ -1010,6 +1010,28 @@ async function postRowsInBatches<T>({
   return { written, warnings }
 }
 
+async function upsertLiveSurfaceDashboardCache(request: Request) {
+  const response = await fetch(new URL(`/api/maritime-data?cache_refresh=${Date.now()}`, request.url), {
+    headers: {
+      accept: 'application/json',
+      'cache-control': 'no-cache',
+      pragma: 'no-cache',
+    },
+    signal: AbortSignal.timeout(7000),
+  })
+
+  if (!response.ok) {
+    throw new Error(`live surface cache source returned ${response.status}`)
+  }
+
+  const payload = await response.json() as MaritimeDashboardResponse
+  if (!payload?.success || !payload.data?.timestamp) {
+    throw new Error('live surface cache source returned an invalid payload')
+  }
+
+  return upsertMaritimeDashboardCachePayload(createAdminClient(), payload)
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -1314,8 +1336,8 @@ export async function GET(request: Request) {
     let dashboardCacheUpdated = false
     try {
       dashboardCacheUpdated = await withOperationTimeout(
-        upsertMaritimeDashboardCache(createAdminClient()),
-        9000,
+        upsertLiveSurfaceDashboardCache(request),
+        10000,
         'dashboard cache upsert',
       )
     } catch (error) {
