@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getLastMarketProAnalysisCache } from '@/lib/market-pro-cache'
+import type { MarketProAnalysisCache } from '@/lib/market-pro-cache'
 import { getMaritimeDashboardCacheRead } from '@/lib/maritime-dashboard-cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
@@ -270,6 +271,99 @@ function dashboardCacheMode(source: string) {
   }
 }
 
+function normalizedHotspot(value?: string | null) {
+  const text = (value || '').toLowerCase()
+  if (!text || text === 'global') return null
+  if (/\bbab\b|bab el|mandeb|red sea|yemen|socotra/.test(text)) return 'bab'
+  if (/hormuz|persian gulf|gulf of oman|iran/.test(text)) return 'hormuz'
+  if (/suez/.test(text)) return 'suez'
+  if (/malacca|singapore strait/.test(text)) return 'malacca'
+  if (/panama/.test(text)) return 'panama'
+  if (/taiwan/.test(text)) return 'taiwan'
+  if (/turkish|bosporus|bosphorus|dardanelles/.test(text)) return 'turkish'
+  if (/gibraltar/.test(text)) return 'gibraltar'
+  if (/cape|good hope|south africa/.test(text)) return 'cape'
+  return null
+}
+
+function riskRank(value?: string | null) {
+  if (value === 'critical') return 4
+  if (value === 'high') return 3
+  if (value === 'medium') return 2
+  if (value === 'watch' || value === 'low') return 1
+  return 0
+}
+
+function marketProLeadHotspot(marketProCache: MarketProAnalysisCache | null) {
+  return normalizedHotspot(marketProCache?.report?.topStories?.[0]?.region) ||
+    normalizedHotspot(marketProCache?.report?.analysisBrief?.signal)
+}
+
+function marketProConsistencyStatus(
+  marketProCache: MarketProAnalysisCache | null,
+  hotspots: Array<{ hotspot: string; riskLevel?: string | null }>,
+) {
+  if (!marketProCache) {
+    return {
+      status: 'degraded' as Status,
+      leadHotspot: null,
+      leadHotspotRisk: null,
+      strongestHotspot: null,
+      note: 'Market Pro cache is missing.',
+    }
+  }
+
+  const leadHotspot = marketProLeadHotspot(marketProCache)
+  const strongestHotspot = hotspots
+    .filter((row) => riskRank(row.riskLevel) >= 2)
+    .sort((a, b) => riskRank(b.riskLevel) - riskRank(a.riskLevel))[0] || null
+
+  if (!leadHotspot) {
+    return {
+      status: 'ok' as Status,
+      leadHotspot: null,
+      leadHotspotRisk: null,
+      strongestHotspot: strongestHotspot?.hotspot || null,
+      note: 'Market Pro is not claiming a dominant maritime hotspot.',
+    }
+  }
+
+  const leadRow = hotspots.find((row) => row.hotspot === leadHotspot)
+  const leadHotspotRisk = leadRow?.riskLevel || null
+
+  if (!leadRow) {
+    return {
+      status: 'degraded' as Status,
+      leadHotspot,
+      leadHotspotRisk,
+      strongestHotspot: strongestHotspot?.hotspot || null,
+      note: 'Market Pro lead hotspot is not present in live map coverage.',
+    }
+  }
+
+  if (
+    strongestHotspot &&
+    strongestHotspot.hotspot !== leadHotspot &&
+    riskRank(strongestHotspot.riskLevel) > riskRank(leadHotspotRisk)
+  ) {
+    return {
+      status: 'degraded' as Status,
+      leadHotspot,
+      leadHotspotRisk,
+      strongestHotspot: strongestHotspot.hotspot,
+      note: `Market Pro lead ${leadHotspot} is ${leadHotspotRisk}, while live map's strongest source-backed hotspot is ${strongestHotspot.hotspot} at ${strongestHotspot.riskLevel}.`,
+    }
+  }
+
+  return {
+    status: 'ok' as Status,
+    leadHotspot,
+    leadHotspotRisk,
+    strongestHotspot: strongestHotspot?.hotspot || null,
+    note: 'Market Pro lead is consistent with live-map risk evidence.',
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const admin = createAdminClient()
@@ -351,6 +445,9 @@ export async function GET(request: Request) {
     const coverageStatus: Status = hotspotSummary.every((row) =>
       row.hasRecentCoverage && (row.visibleArticleCount > 0 || row.latestSignalType === 'source_sweep'),
     ) ? 'ok' : 'degraded'
+    const marketProFreshnessStatus: Status = marketProCache ? statusFromAge(marketProAge, 15 * 60 * 1000, 60 * 60 * 1000) : 'degraded'
+    const marketProConsistency = marketProConsistencyStatus(marketProCache, hotspotSummary)
+    const marketProStatus = worstStatus([marketProFreshnessStatus, marketProConsistency.status])
     const componentStatuses = {
       database: 'ok' as Status,
       cache: statusFromAge(cacheAge, CACHE_DEGRADED_MS, CACHE_UNHEALTHY_MS),
@@ -359,6 +456,7 @@ export async function GET(request: Request) {
       coverage: coverageStatus,
       sourceQuality: sourceQualityStatus(qualityAudit),
       auth: authHealth.status,
+      marketPro: marketProStatus,
       hotspots: hotspotRows.length === HOTSPOTS.length ? 'ok' as Status : 'unhealthy' as Status,
     }
     const status = worstStatus(Object.values(componentStatuses))
@@ -409,14 +507,18 @@ export async function GET(request: Request) {
             recommendations: qualityAudit?.recommendations || ['Dashboard cache is missing quality audit metadata; rebuild maritime dashboard cache.'],
           },
           marketPro: {
-            status: marketProCache ? statusFromAge(marketProAge, 15 * 60 * 1000, 60 * 60 * 1000) : 'degraded',
+            status: componentStatuses.marketPro,
             generatedAt: marketProCache?.generatedAt || null,
             ageSeconds: Number.isFinite(marketProAge) ? Math.round(marketProAge / 1000) : null,
             marketPressureScore: marketProCache?.report?.marketPressureScore || null,
             confidence: marketProCache?.report?.confidence || null,
             analystSignal: marketProCache?.report?.analysisBrief?.signal || null,
+            leadHotspot: marketProConsistency.leadHotspot,
+            leadHotspotRisk: marketProConsistency.leadHotspotRisk,
+            strongestLiveMapHotspot: marketProConsistency.strongestHotspot,
+            consistencyStatus: marketProConsistency.status,
             note: marketProCache
-              ? 'Market Pro background analysis cache is available.'
+              ? marketProConsistency.note
               : 'Market Pro background analysis cache has not been written yet.',
           },
         },
