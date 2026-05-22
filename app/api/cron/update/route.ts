@@ -418,6 +418,13 @@ function isGlobalSupplyChainNoise(article: TrustedArticle) {
   return !/\b(strait of malacca|malacca strait|singapore strait|port of singapore|suez canal|bab el-mandeb|red sea|strait of hormuz|gulf of aden|gulf of oman|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|strait of gibraltar|cape of good hope)\b/i.test(text)
 }
 
+function isSuezmaxNoise(article: TrustedArticle) {
+  if (article.region !== 'suez') return false
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  if (!/\bsuezmax\b/i.test(text)) return false
+  return !/\b(suez canal|port said|canal transit|red sea|cape of good hope|rerout|re-rout|divert|queue|convoy|canal authority)\b/i.test(text)
+}
+
 function hasDirectRegionSignal(article: TrustedArticle) {
   if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
   if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
@@ -663,6 +670,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
     .filter((article) => !isGlobalSupplyChainNoise(article))
+    .filter((article) => !isSuezmaxNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => passesHighImpactClaimGate(article))
@@ -679,6 +687,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => !isDefenseProcurementNoise(article))
     .filter((article) => !isFinancialMarketNoise(article))
     .filter((article) => !isGlobalSupplyChainNoise(article))
+    .filter((article) => !isSuezmaxNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => passesHighImpactClaimGate(article))

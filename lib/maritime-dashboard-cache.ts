@@ -456,7 +456,7 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   const region = article.region || ''
   const expansionRouteNeedsOperationalContext = ['panama', 'taiwan', 'turkish', 'gibraltar', 'cape'].includes(region)
   const expansionOperationalContext = !expansionRouteNeedsOperationalContext ||
-    /\b(ship|shipping|vessel|tanker|cargo|container|maritime|port|transit|queue|draft|water|drought|delay|congestion|closure|traffic|rerout|re-rout|divert|freight|bunker|voyage|security|incident|naval|exercise|warning|alert)\b/i.test(text)
+    /\b(ship|shipping|vessel|tanker|cargo|container|maritime|port|transit|queue|draft|draught|water|drought|capacity|restriction|restrictions|reservation|booking|slot|slots|maintenance|delay|congestion|closure|traffic|rerout|re-rout|divert|freight|bunker|voyage|security|incident|naval|exercise|warning|alert|lng|energy export)\b/i.test(text)
   const governanceOnlyUpdate = expansionRouteNeedsOperationalContext &&
     /\b(appoint|appointed|appointment|names?|named|administrator|chief executive|ceo|board|chair|minister|president|director|leadership|election|resigns?|resignation)\b/i.test(text) &&
     !/\b(restrict|restriction|suspend|closed|closure|delay|queue|draft|water level|drought|congestion|traffic disruption|ship traffic|vessel traffic|security warning|navigation warning|incident|rerout|re-rout|divert)\b/i.test(text)
