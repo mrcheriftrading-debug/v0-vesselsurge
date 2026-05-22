@@ -160,12 +160,21 @@ async function checkProduction(checks) {
   const maritimeData = maritime.body?.data || maritime.body
   const gaps = maritimeData?.qualityAudit?.coverageGaps || []
   const watchGaps = gaps.filter((gap) => gap.status === 'watch').map((gap) => gap.hotspot)
+  const goodNoFresh = gaps
+    .filter((gap) => gap.status === 'good' && (gap.missing || []).includes('no fresh source-linked disruption report'))
+    .map((gap) => gap.hotspot)
+  const auditStatus = maritimeData?.qualityAudit?.status || 'missing'
   record(
     checks,
     'live_map_contract',
-    maritime.ok && maritimeData?.count?.hotspots === 9 && (maritimeData?.count?.signals || 0) >= 9 && (maritimeData?.count?.articles || 0) >= 1,
-    `hotspots=${maritimeData?.count?.hotspots || 0} articles=${maritimeData?.count?.articles || 0} signals=${maritimeData?.count?.signals || 0}`,
-    { owner: 'Live-map data agent', watchGaps },
+    maritime.ok &&
+      maritimeData?.count?.hotspots === 9 &&
+      (maritimeData?.count?.signals || 0) >= 9 &&
+      (maritimeData?.count?.articles || 0) >= 1 &&
+      auditStatus !== 'degraded' &&
+      watchGaps.length === 0,
+    `hotspots=${maritimeData?.count?.hotspots || 0} articles=${maritimeData?.count?.articles || 0} signals=${maritimeData?.count?.signals || 0} audit=${auditStatus}`,
+    { owner: 'Live-map data agent', watchGaps, goodNoFresh },
   )
 
   const liveNews = await fetchJson(`${SITE}/api/live-news?source=direct&limit=80&agent_check=${Date.now()}`, { timeoutMs: 9000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))
@@ -246,12 +255,18 @@ async function main() {
   await checkCronEndpoints(checks)
 
   const failed = checks.filter((check) => check.status !== 'ok')
+  const liveMapCheck = checks.find((check) => check.name === 'live_map_contract')
+  const goodNoFresh = liveMapCheck?.goodNoFresh || []
   const summary = {
     status: failed.length ? 'needs_attention' : 'ok',
     checkedAt: new Date().toISOString(),
     failed: failed.length,
     checks,
-    nextAction: failed[0]?.fix || (failed[0] ? `Fix ${failed[0].name}` : 'Keep improving the weakest source-coverage gaps without inventing events.'),
+    nextAction: failed[0]?.fix || (failed[0]
+      ? `Fix ${failed[0].name}`
+      : goodNoFresh.length
+        ? `Monitor ${goodNoFresh.join(', ')} source sweeps; replace them only when fresh source-linked disruption reports appear.`
+        : 'Find the next measurable speed, data quality, SEO, or conversion improvement.'),
   }
 
   console.log(JSON.stringify(summary, null, 2))
