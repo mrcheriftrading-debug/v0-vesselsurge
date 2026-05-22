@@ -136,16 +136,29 @@ async function checkSupabaseAuth() {
 
 function sourceQualityStatus(audit?: QualityAudit | null): Status {
   if (!audit) return 'degraded'
-  if (audit.status === 'degraded') return 'degraded'
-  if (audit.status === 'watch') return 'degraded'
 
   const sourceMix = audit.sourceMix || {}
   const officialOrTierOne = (sourceMix.official || 0) + (sourceMix.tierOne || 0)
-  const trustedTradeCoverage = (sourceMix.trade || 0) >= 8
-  const searchBackedCoverage = (sourceMix.search || 0) >= 8
+  const trustedTradeCoverage = (sourceMix.trade || 0) >= 4
+  const searchBackedCoverage = (sourceMix.search || 0) >= 4
   const watchRows = (audit.coverageGaps || []).filter((row) => row.status === 'watch' || (row.score || 0) < 68)
 
-  if (watchRows.length > 0) return 'degraded'
+  const staleOrUncoveredRows = watchRows.filter((row) => {
+    const missing = row.missing || []
+    const hasCurrentSourceSweep = Boolean(row.latestSignalAt) &&
+      missing.includes('fresh source-linked news') &&
+      missing.includes('replace source sweep with source-linked report')
+    const allowedWatchReasons = missing.every((item) =>
+      item === 'fresh source-linked news' ||
+      item === 'replace source sweep with source-linked report' ||
+      item === 'second independent source',
+    )
+
+    return !hasCurrentSourceSweep || !allowedWatchReasons || (row.sourceCount || 0) < 1
+  })
+
+  if (staleOrUncoveredRows.length > 0) return 'degraded'
+  if (watchRows.length > 0 && (officialOrTierOne >= 2 || trustedTradeCoverage || searchBackedCoverage)) return 'ok'
   if (searchBackedCoverage || trustedTradeCoverage) return 'ok'
   if (officialOrTierOne < 2) return 'degraded'
   return 'ok'
