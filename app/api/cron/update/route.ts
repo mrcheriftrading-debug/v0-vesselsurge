@@ -82,7 +82,7 @@ const TRUSTED_PAGES = [
   { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', credibility: 10, region: 'bab' },
 ]
 
-const FAST_NEWS_SEARCH_PREFIXES = ['Google News Search:', 'Bing News Search:']
+const FAST_NEWS_SEARCH_PREFIXES = ['Google News Search:', 'Google News 48h Search:', 'Bing News Search:']
 const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
 
 const ROUTE_LABELS: Record<string, { name: string; url: string }> = {

@@ -287,8 +287,36 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
   },
 ]
 
-function googleNewsSearchUrl(query: string) {
-  return `https://news.google.com/rss/search?q=${encodeURIComponent(`${query} when:1d`)}&hl=en-US&gl=US&ceid=US:en`
+const RECENT_FALLBACK_SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
+  {
+    label: 'Suez 48h route evidence sweep',
+    region: 'suez',
+    query: '("Suez Canal" OR "Suez Canal Authority" OR "Port Said" OR "canal convoy") (shipping OR vessel OR transit OR queue OR delay OR advisory OR navigation OR freight OR rerouting OR "Red Sea route")',
+  },
+  {
+    label: 'Taiwan Strait 48h route evidence sweep',
+    region: 'taiwan',
+    query: '("Taiwan Strait" OR "Kaohsiung port" OR "Keelung port" OR "Taiwan ports") (shipping OR vessel OR cargo OR container OR maritime OR "port operations" OR "naval exercise" OR warning OR disruption)',
+  },
+  {
+    label: 'Turkish Straits 48h route evidence sweep',
+    region: 'turkish',
+    query: '("Bosporus" OR "Bosphorus" OR "Dardanelles" OR "Turkish Straits" OR "Istanbul Strait") ("vessel traffic" OR shipping OR tanker OR transit OR fog OR closure OR suspension OR delay)',
+  },
+  {
+    label: 'Gibraltar 48h route evidence sweep',
+    region: 'gibraltar',
+    query: '("Strait of Gibraltar" OR "Gibraltar Port" OR Algeciras OR "Algeciras Bay") (shipping OR vessel OR tanker OR bunkering OR "port traffic" OR congestion OR incident OR weather)',
+  },
+  {
+    label: 'Cape of Good Hope 48h route evidence sweep',
+    region: 'cape',
+    query: '("Cape of Good Hope" OR "Cape route" OR "around Africa" OR "South Africa shipping") (shipping OR vessel OR tanker OR container OR freight OR rerouting OR bunker OR "voyage delay")',
+  },
+]
+
+function googleNewsSearchUrl(query: string, days = 1) {
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(`${query} when:${days}d`)}&hl=en-US&gl=US&ceid=US:en`
 }
 
 function bingNewsSearchUrl(query: string) {
@@ -308,4 +336,11 @@ export const MARITIME_SEARCH_FEEDS: MaritimeSearchFeed[] = SEARCH_DEFINITIONS.fl
     credibility: 6,
     regionHint: definition.region,
   }]),
-])
+]).concat(
+  RECENT_FALLBACK_SEARCH_DEFINITIONS.map((definition) => ({
+    source: `Google News 48h Search: ${definition.label}`,
+    url: googleNewsSearchUrl(definition.query, 2),
+    credibility: 7,
+    regionHint: definition.region,
+  })),
+)
