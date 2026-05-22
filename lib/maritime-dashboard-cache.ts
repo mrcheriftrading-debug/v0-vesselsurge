@@ -782,9 +782,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
 }
 
 export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
-  const row =
-    await getDashboardCacheRowViaRest(1400) ||
-    await getDashboardCacheRowViaClient(supabase, 1200, 'fresh maritime dashboard cache')
+  const row = await getMaritimeDashboardCacheRow(supabase, 1400)
 
   if (!row) return null
 
@@ -802,9 +800,7 @@ export async function getFreshMaritimeDashboardCache(supabase: SupabaseClient) {
 }
 
 export async function getLastMaritimeDashboardCache(supabase: SupabaseClient, reason = 'serving last known VesselSurge cache') {
-  const row =
-    await getDashboardCacheRowViaRest(1400) ||
-    await getDashboardCacheRowViaClient(supabase, 1200, 'last maritime dashboard cache')
+  const row = await getMaritimeDashboardCacheRow(supabase, 1400)
 
   if (!row) return null
 
