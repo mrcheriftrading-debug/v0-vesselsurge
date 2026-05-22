@@ -32,7 +32,7 @@ const VIEWPORTS = [
   { name: 'mobile', width: 390, height: 900, mobile: true },
 ]
 
-const IGNORED_BROWSER_LOG = /favicon|preload|apple-mobile-web-app-capable|third-party cookie|privacy sandbox|_vercel\/(speed-)?insights\/script\.js|MIME type \('text\/html'\)/i
+const IGNORED_BROWSER_LOG = /favicon|site\.webmanifest|preload|apple-mobile-web-app-capable|third-party cookie|privacy sandbox|_vercel\/(speed-)?insights\/script\.js|MIME type \('text\/html'\)/i
 const COMMAND_TIMEOUT_MS = Number.parseInt(process.env.VESSELSURGE_BROWSER_SMOKE_COMMAND_TIMEOUT_MS || '12000', 10)
 const PAGE_SETTLE_MS = Number.parseInt(process.env.VESSELSURGE_BROWSER_SMOKE_PAGE_SETTLE_MS || '4500', 10)
 
