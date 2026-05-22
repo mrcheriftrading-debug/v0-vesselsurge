@@ -120,7 +120,7 @@ const PRO_MARKET_ANALYST_SKILL = {
   outputs: ['market narrative', 'asset class table', 'investment triggers', 'source-backed evidence'],
 }
 
-export const MARKET_PRO_NEWS_MAX_AGE_HOURS = 72
+export const MARKET_PRO_NEWS_MAX_AGE_HOURS = 48
 export const MARKET_PRO_SIGNAL_MAX_AGE_HOURS = 48
 
 const MARKET_TERMS: WeightedTerm[] = [

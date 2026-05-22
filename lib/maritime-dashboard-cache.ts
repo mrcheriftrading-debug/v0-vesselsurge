@@ -12,7 +12,7 @@ const REDIS_CACHE_KEY = `vesselsurge:maritime-dashboard-cache:${CACHE_KEY}`
 const CACHE_TTL_MS = 5 * 60 * 1000
 const STALE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
-export const LIVE_MAP_NEWS_MAX_AGE_HOURS = 96
+export const LIVE_MAP_NEWS_MAX_AGE_HOURS = 48
 
 type DashboardCacheRow = {
   payload: MaritimeDashboardResponse
