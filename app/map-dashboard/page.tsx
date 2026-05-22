@@ -293,10 +293,18 @@ export default function MapDashboard() {
   const hotspotList = Object.entries(HOTSPOT_META).map(([id, m]) => {
     const data = hotspots[id]
     const hotspotSignals = signals.filter((signal) => signal.region?.toLowerCase() === id)
+    const sourceSweepCount = hotspotSignals.filter((signal) => signal.signalType === 'source_sweep').length
+    const operationalSignalCount = hotspotSignals.length - sourceSweepCount
     const signalSources = new Set(hotspotSignals.map((signal) => signal.source).filter(Boolean))
     const watchSources = new Set(watchCoverageFor(id).map((item) => item.source))
     const riskLevel = data?.riskLevel || 'medium'
-    const coverageCount = (data?.verifiedReports ?? 0) + hotspotSignals.length
+    const verifiedReports = data?.verifiedReports ?? 0
+    const sourceCount = data?.sourceCount ?? 0
+    const coverageLabel = verifiedReports > 0
+      ? `${verifiedReports} report${verifiedReports === 1 ? '' : 's'} · ${sourceCount} source${sourceCount === 1 ? '' : 's'}`
+      : sourceSweepCount > 0
+        ? `No fresh reports · ${sourceSweepCount} source check${sourceSweepCount === 1 ? '' : 's'}`
+        : `${operationalSignalCount} signal${operationalSignalCount === 1 ? '' : 's'} · ${sourceCount} source${sourceCount === 1 ? '' : 's'}`
     return {
       id,
       name: m.name,
@@ -307,10 +315,12 @@ export default function MapDashboard() {
       riskColor: RISK_COLOR[riskLevel] ?? RISK_COLOR.medium,
       dailyTransits: data?.dailyTransits ?? 0,
       activeVessels: data?.activeVessels ?? 0,
-      verifiedReports: data?.verifiedReports ?? 0,
-      sourceCount: data?.sourceCount ?? 0,
-      coverageCount: Math.max(coverageCount, watchCoverageFor(id).length),
-      coverageSources: Math.max(data?.sourceCount ?? 0, signalSources.size, watchSources.size),
+      verifiedReports,
+      sourceCount,
+      sourceSweepCount,
+      operationalSignalCount,
+      coverageLabel,
+      coverageSources: Math.max(sourceCount, signalSources.size, watchSources.size),
       note: '',
     }
   })
@@ -389,12 +399,18 @@ export default function MapDashboard() {
   ]).size
   const criticalHotspots = Object.values(hotspots).filter((hotspot) => hotspot.riskLevel === 'critical').length
   const latestArticle = selectedArticles[0]
-  const selectedCoverageCount = Math.max((selected?.verifiedReports ?? 0) + selectedSignals.length, selectedWatchCoverage.length)
+  const selectedSourceSweepCount = selectedSignals.filter((signal) => signal.signalType === 'source_sweep').length
+  const selectedOperationalSignalCount = selectedSignals.length - selectedSourceSweepCount
   const selectedCoverageSources = Math.max(
     selected?.sourceCount ?? 0,
     new Set(selectedSignals.map((signal) => signal.source).filter(Boolean)).size,
     new Set(selectedWatchCoverage.map((item) => item.source)).size,
   )
+  const selectedEvidenceSummary = selected?.verifiedReports
+    ? `${selected.verifiedReports} source-linked report${selected.verifiedReports === 1 ? '' : 's'} across ${selectedCoverageSources} source${selectedCoverageSources === 1 ? '' : 's'}`
+    : selectedSourceSweepCount > 0
+      ? `No fresh source-linked disruption report; ${selectedSourceSweepCount} source-sweep layer check${selectedSourceSweepCount === 1 ? '' : 's'} reviewed`
+      : `${selectedOperationalSignalCount} operational signal${selectedOperationalSignalCount === 1 ? '' : 's'} across ${selectedCoverageSources} source${selectedCoverageSources === 1 ? '' : 's'}`
   const selectedUpdatedAt = selected?.updatedAt ? new Date(selected.updatedAt) : null
   const isStaleData = Boolean(dataMeta?.stale)
   const selectedConfidence = selected
@@ -407,7 +423,7 @@ export default function MapDashboard() {
   const fallbackRiskDrivers = [
     ...(latestSignal ? [`${readableSignalType(latestSignal.signalType)} from ${latestSignal.source} · ${latestSignal.confidence}/100`] : []),
     ...(latestArticle ? [`Latest report from ${latestArticle.source}`] : []),
-    `${selectedCoverageCount} coverage item${selectedCoverageCount === 1 ? '' : 's'} across ${selectedCoverageSources} source${selectedCoverageSources === 1 ? '' : 's'}`,
+    selectedEvidenceSummary,
   ]
   const selectedRiskDrivers = (selected?.riskDrivers?.length ? selected.riskDrivers : fallbackRiskDrivers).slice(0, 4)
   const selectedRiskSummary = selected?.riskSummary ||
@@ -618,7 +634,7 @@ export default function MapDashboard() {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-black text-foreground">{h.flag} {h.name}</p>
                         <p className="mt-1 text-[11px] text-muted-foreground">
-                          {loading ? 'Loading coverage' : `${h.coverageCount} coverage · ${h.coverageSources} sources`}
+                          {loading ? 'Loading coverage' : h.coverageLabel}
                         </p>
                       </div>
                       <span
@@ -653,11 +669,11 @@ export default function MapDashboard() {
                   Map-first operating view for route risk, AIS context and verified VesselSurge intelligence.
                 </p>
               </div>
-              <div className="grid w-full grid-cols-3 gap-2 text-center sm:w-auto">
-                <div className="rounded-lg border border-border bg-background/45 px-3 py-2">
-                  <p className="text-[10px] uppercase text-muted-foreground">Coverage</p>
-                  <p className="text-sm font-black tabular-nums">{loading ? '—' : selectedCoverageCount}</p>
-                </div>
+	              <div className="grid w-full grid-cols-3 gap-2 text-center sm:w-auto">
+	                <div className="rounded-lg border border-border bg-background/45 px-3 py-2">
+	                  <p className="text-[10px] uppercase text-muted-foreground">Reports</p>
+	                  <p className="text-sm font-black tabular-nums">{loading ? '—' : selected?.verifiedReports ?? 0}</p>
+	                </div>
                 <div className="rounded-lg border border-border bg-background/45 px-3 py-2">
                   <p className="text-[10px] uppercase text-muted-foreground">Sources</p>
                   <p className="text-sm font-black tabular-nums">{loading ? '—' : selectedCoverageSources}</p>
