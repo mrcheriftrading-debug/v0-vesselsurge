@@ -6,6 +6,11 @@ const HOTSPOT_NAMES = {
   bab: 'Bab el-Mandeb',
   malacca: 'Strait of Malacca',
   suez: 'Suez Canal',
+  panama: 'Panama Canal',
+  taiwan: 'Taiwan Strait',
+  turkish: 'Turkish Straits',
+  gibraltar: 'Strait of Gibraltar',
+  cape: 'Cape of Good Hope',
 }
 
 const HOOKS = {
@@ -81,6 +86,14 @@ function truncate(value, max) {
 
 function compact(value) {
   return `${value || ''}`.replace(/\s+/g, ' ').trim()
+}
+
+function cleanHeadline(value) {
+  return compact(value)
+    .replace(/\s+-\s+[^-]{2,48}$/g, '')
+    .replace(/[.…]{2,}$/g, '')
+    .replace(/[“"']([^”"']*)$/g, '$1')
+    .trim()
 }
 
 function seedFrom(value) {
@@ -190,20 +203,16 @@ function pickImpactLine(article, variantSeed = '') {
 export function buildMarketingPost(article, options = {}) {
   const variantSeed = options.variantSeed || ''
   const hotspot = HOTSPOT_NAMES[article.region] || article.region
-  const source = truncate(compact(article.source || 'verified source'), 32)
+  const source = truncate(compact(article.source || 'verified source').replace(/^Google News:\s*/i, ''), 34)
   const hook = pickHook(article, variantSeed)
   const impactLine = pickImpactLine(article, variantSeed)
   const ctaLabel = pickFrom(CTA_LABELS, `${article.title}${article.source}`, variantSeed, 5)
-  const template = seedFrom(`${article.title}${variantSeed}`) % 3
-  const footer = `\n\n${impactLine}\n\n${ctaLabel}: ${MAP_URL}\nSource: ${source}`
-  const prefix =
-    template === 0
-      ? `${hook}\n\n${hotspot}: `
-      : template === 1
-        ? `${hook}\n\nWhy it matters: `
-        : `${hook}\n\n${hotspot} watch: `
-  const titleBudget = Math.max(48, MAX_POST_LENGTH - prefix.length - footer.length)
-  const title = truncate(compact(article.title || 'New maritime intelligence update'), titleBudget)
+  const headline = cleanHeadline(article.title || '')
+  const base = `${hook}\n\n${hotspot}: source-reviewed maritime signal from ${source}.`
+  const footer = `\n\n${impactLine}\n\n${ctaLabel}: ${MAP_URL}`
+  const latest = headline ? `\n\nLatest: ${headline}` : ''
+  const full = `${base}${latest}${footer}`
 
-  return `${prefix}${title}${footer}`
+  if (full.length <= MAX_POST_LENGTH) return full
+  return `${base}${footer}`
 }

@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
-import { TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
+import {
+  isMaritimeTradeSource,
+  isOfficialMaritimeSource,
+  isTierOneNewsSource,
+  TIER_ONE_NEWS_SOURCE_NAMES,
+} from '@/lib/maritime-source-quality'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 import { buildMarketingPost, getMarketingApproval } from '@/scripts/lib/x-marketing-post.mjs'
 
@@ -49,10 +54,23 @@ const TRUSTED_SOURCES = [
   'Suez Canal Authority',
 ]
 
-const TRUSTED_SOURCE_PREFIXES = ['Google News:']
+const GOOGLE_NEWS_SOURCE_PREFIX = 'Google News:'
+const MARKETING_SOURCE_BLOCKLIST = /\b(citybuzz|rising kashmir|kurdistan24|crypto|coin|bitcoin|decrypt|coingape|forex|sports|tourism|entertainment)\b/i
 
-function isTrustedSource(source: string) {
-  return TRUSTED_SOURCES.includes(source) || TRUSTED_SOURCE_PREFIXES.some((prefix) => source.startsWith(prefix))
+function trustedMarketingSourceContext(article: any) {
+  return `${article.source || ''} ${article.title || ''} ${article.url || article.sourceUrl || ''}`
+}
+
+function isTrustedMarketingSource(article: any) {
+  const source = article.source || ''
+  const context = trustedMarketingSourceContext(article)
+  if (MARKETING_SOURCE_BLOCKLIST.test(context)) return false
+
+  if (TRUSTED_SOURCES.includes(source)) return true
+  if (isOfficialMaritimeSource(context) || isTierOneNewsSource(context) || isMaritimeTradeSource(context)) return true
+
+  return source.startsWith(GOOGLE_NEWS_SOURCE_PREFIX) &&
+    (isTierOneNewsSource(context) || isMaritimeTradeSource(context) || isOfficialMaritimeSource(context))
 }
 
 function escapeXml(value: string) {
@@ -90,7 +108,7 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Pro
 
 function buildReviewedItems(articles: any[], riskByRegion: Map<string, string>, requestVariantSeed: string) {
   return articles
-    .filter((article: any) => isTrustedSource(article.source || ''))
+    .filter((article: any) => isTrustedMarketingSource(article))
     .map((article: any) => {
       const item = {
         id: article.id,

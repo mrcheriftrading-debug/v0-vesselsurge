@@ -35,6 +35,11 @@ const IMAGE_BY_REGION = {
   bab: ['seo-02-red-sea-shipping-risk.jpg', 'viral-05-red-sea-domino-risk.jpg', 'trend-04-bab-el-mandeb-next.jpg'],
   suez: ['seo-03-shipping-disruption-tracker.jpg', 'trend-03-market-does-not-wait.jpg'],
   malacca: ['trend-05-vessel-slowing-signal.jpg', 'seo-05-maritime-intelligence-layer.jpg'],
+  panama: ['seo-03-shipping-disruption-tracker.jpg', 'trend-02-operators-watch-chokepoint.jpg'],
+  taiwan: ['seo-05-maritime-intelligence-layer.jpg', 'trend-05-vessel-slowing-signal.jpg'],
+  turkish: ['trend-02-operators-watch-chokepoint.jpg', 'seo-04-oil-tanker-tracking.jpg'],
+  gibraltar: ['trend-05-vessel-slowing-signal.jpg', 'seo-05-maritime-intelligence-layer.jpg'],
+  cape: ['viral-05-red-sea-domino-risk.jpg', 'seo-03-shipping-disruption-tracker.jpg'],
 }
 
 const FALLBACK_IMAGES = [
@@ -42,6 +47,18 @@ const FALLBACK_IMAGES = [
   'viral-06-vesselsurge-watch-before-news.jpg',
   'trend-02-operators-watch-chokepoint.jpg',
 ]
+const EVERGREEN_MARKETING_IMAGES = [
+  'viral-06-vesselsurge-watch-before-news.jpg',
+  'trend-02-operators-watch-chokepoint.jpg',
+  'seo-05-maritime-intelligence-layer.jpg',
+]
+const EVERGREEN_MARKETING_POSTS = [
+  'Most shipping risk is visible before it becomes a headline.\n\nVesselSurge tracks source-reviewed chokepoint signals across Hormuz, Bab el-Mandeb, Suez, Malacca and more.\n\nLive map: https://www.vesselsurge.com/map-dashboard',
+  'Markets react to headlines. Operators need route signals first.\n\nVesselSurge turns maritime news, source checks and chokepoint risk into one live operating view.\n\nWatch it live: https://www.vesselsurge.com',
+  'One blocked route can change freight, fuel, insurance and timing.\n\nVesselSurge watches the global chokepoints before the noise becomes a decision problem.\n\nLive intelligence: https://www.vesselsurge.com/map-dashboard',
+]
+const WEAK_MARKETING_SOURCE_PATTERN = /\b(citybuzz|rising kashmir|kurdistan24|crypto|coin|bitcoin|decrypt|coingape|forex|sports|tourism|entertainment)\b/i
+const TRUSTED_MARKETING_SOURCE_PATTERN = /\b(reuters|associated press|ap news|bloomberg|financial times|ft\.com|bbc|al jazeera|cnbc|new york times|nytimes|guardian|cna|agbi|arabian gulf business insight|gcaptain|hellenic shipping|splash247|seatrade|marinelink|safety4sea|marinelog|container news|ship technology|worldcargo|journal of commerce|joc|hapag[-\s]?lloyd|usni|world oil|oilprice|recaap|marad|ukmto|mscio|suez canal authority|panama canal authority|gibraltar port authority)\b/i
 
 function readJsonFile(filePath, fallback) {
   if (!fs.existsSync(filePath)) return fallback
@@ -100,6 +117,13 @@ class BufferRateLimitError extends Error {
     super(message)
     this.name = 'BufferRateLimitError'
     this.resetAt = resetAt
+  }
+}
+
+class BufferDuplicatePostError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'BufferDuplicatePostError'
   }
 }
 
@@ -191,8 +215,29 @@ function selectImage(article, state) {
 }
 
 function normalizePostText(article) {
-  const text = article.postText || buildMarketingPost(article, { variantSeed: `${Date.now()}` })
+  const text = buildMarketingPost(article, { variantSeed: `${Date.now()}` })
   return text.length <= 280 ? text : `${text.slice(0, 276).trim()}...`
+}
+
+function isStrongMarketingCandidate(article) {
+  const context = `${article.source || ''} ${article.title || ''} ${article.sourceUrl || ''}`
+  if (WEAK_MARKETING_SOURCE_PATTERN.test(context)) return false
+  if (/^Google News:/i.test(article.source || '')) return TRUSTED_MARKETING_SOURCE_PATTERN.test(context)
+  return true
+}
+
+function buildEvergreenMarketingCandidate(state) {
+  const index = state.imageCursor % EVERGREEN_MARKETING_POSTS.length
+  const fileName = EVERGREEN_MARKETING_IMAGES[state.imageCursor % EVERGREEN_MARKETING_IMAGES.length]
+  state.imageCursor += 1
+  return {
+    postText: EVERGREEN_MARKETING_POSTS[index],
+    sourceUrl: `${SITE_URL}/map-dashboard#evergreen-${new Date().toISOString().slice(0, 10)}-${index}`,
+    image: {
+      url: `${SITE_URL}/social-assets/${fileName}`,
+      altText: 'VesselSurge maritime intelligence marketing card for global chokepoint monitoring',
+    },
+  }
 }
 
 function readNumberEnv(name, localEnv, fallback) {
@@ -442,7 +487,12 @@ async function createBufferPost({ token, channelId, postText, imageUrl, dryRun }
     { input },
   )
 
-  if (data.createPost?.message) throw new Error(`Buffer rejected post: ${data.createPost.message}`)
+  if (data.createPost?.message) {
+    if (/posted that one recently|same thing again so soon|duplicate/i.test(data.createPost.message)) {
+      throw new BufferDuplicatePostError(`Buffer rejected duplicate post: ${data.createPost.message}`)
+    }
+    throw new Error(`Buffer rejected post: ${data.createPost.message}`)
+  }
   return data.createPost?.post
 }
 
@@ -531,6 +581,7 @@ if (!payload) {
 const articles = payload?.items || payload?.data?.articles || []
 const candidates = articles
   .filter((article) => article.sourceUrl && article.region && article.region !== 'global')
+  .filter(isStrongMarketingCandidate)
   .sort((a, b) => {
     const scoreDiff = (b.approval?.score || 0) - (a.approval?.score || 0)
     if (scoreDiff !== 0) return scoreDiff
@@ -538,28 +589,66 @@ const candidates = articles
   })
 
 const posted = new Set(state.postedUrls)
-const nextArticle = candidates.find((article) => !posted.has(article.sourceUrl))
+const unpostedCandidates = candidates.filter((article) => !posted.has(article.sourceUrl))
 
-if (!nextArticle) {
-  console.log('[buffer-agent] No new approved maritime item to queue.')
-  process.exit(0)
+if (!unpostedCandidates.length) {
+  console.log('[buffer-agent] No new approved maritime item to queue; preparing evergreen VesselSurge marketing post.')
 }
 
-const postText = normalizePostText(nextArticle)
-const image = selectImage(nextArticle, state)
-const post = await withBufferRateLimitCooldown(state, () =>
-  createBufferPost({ token, channelId, postText, imageUrl: image.url, dryRun }),
+let duplicateSkips = 0
+for (const nextArticle of unpostedCandidates) {
+  const postText = normalizePostText(nextArticle)
+  const image = selectImage(nextArticle, state)
+
+  try {
+    const post = await withBufferRateLimitCooldown(state, () =>
+      createBufferPost({ token, channelId, postText, imageUrl: image.url, dryRun }),
+    )
+
+    console.log(dryRun ? '[buffer-agent] Dry run ready:' : '[buffer-agent] Queued Buffer post:')
+    console.log(postText)
+    console.log(`[buffer-agent] Image: ${image.url}`)
+    console.log(`[buffer-agent] Alt text: ${image.altText}`)
+    if (post?.id) console.log(`[buffer-agent] Buffer post id: ${post.id}`)
+    if (post?.dueAt) console.log(`[buffer-agent] Scheduled for: ${post.dueAt}`)
+
+    if (!dryRun) {
+      state.postedUrls = [nextArticle.sourceUrl, ...state.postedUrls].slice(0, 300)
+      state.postedAt = [new Date().toISOString(), ...state.postedAt].slice(0, 300)
+      writeState(state)
+    }
+    process.exit(0)
+  } catch (error) {
+    if (error instanceof BufferDuplicatePostError) {
+      duplicateSkips += 1
+      console.log(`[buffer-agent] Skipping duplicate candidate: ${nextArticle.sourceUrl}`)
+      if (!dryRun) {
+        state.postedUrls = [nextArticle.sourceUrl, ...state.postedUrls].slice(0, 300)
+        writeState(state)
+      }
+      continue
+    }
+
+    throw error
+  }
+}
+
+console.log(`[buffer-agent] No queueable post after ${duplicateSkips} duplicate Buffer rejection${duplicateSkips === 1 ? '' : 's'}.`)
+
+const evergreen = buildEvergreenMarketingCandidate(state)
+const evergreenPost = await withBufferRateLimitCooldown(state, () =>
+  createBufferPost({ token, channelId, postText: evergreen.postText, imageUrl: evergreen.image.url, dryRun }),
 )
 
-console.log(dryRun ? '[buffer-agent] Dry run ready:' : '[buffer-agent] Queued Buffer post:')
-console.log(postText)
-console.log(`[buffer-agent] Image: ${image.url}`)
-console.log(`[buffer-agent] Alt text: ${image.altText}`)
-if (post?.id) console.log(`[buffer-agent] Buffer post id: ${post.id}`)
-if (post?.dueAt) console.log(`[buffer-agent] Scheduled for: ${post.dueAt}`)
+console.log(dryRun ? '[buffer-agent] Dry run evergreen ready:' : '[buffer-agent] Queued evergreen Buffer post:')
+console.log(evergreen.postText)
+console.log(`[buffer-agent] Image: ${evergreen.image.url}`)
+console.log(`[buffer-agent] Alt text: ${evergreen.image.altText}`)
+if (evergreenPost?.id) console.log(`[buffer-agent] Buffer post id: ${evergreenPost.id}`)
+if (evergreenPost?.dueAt) console.log(`[buffer-agent] Scheduled for: ${evergreenPost.dueAt}`)
 
 if (!dryRun) {
-  state.postedUrls = [nextArticle.sourceUrl, ...state.postedUrls].slice(0, 300)
+  state.postedUrls = [evergreen.sourceUrl, ...state.postedUrls].slice(0, 300)
   state.postedAt = [new Date().toISOString(), ...state.postedAt].slice(0, 300)
   writeState(state)
 }
