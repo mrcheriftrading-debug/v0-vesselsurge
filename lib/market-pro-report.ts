@@ -16,6 +16,11 @@ function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: strin
   })
 }
 
+function isExpectedFallbackReason(value: unknown) {
+  const message = value instanceof Error ? value.message : String(value || '')
+  return /timed out|timeout|aborted/i.test(message)
+}
+
 export function buildMarketProReportFromDashboardData(data: MaritimeDashboardResponse['data'], marketSnapshot: Awaited<ReturnType<typeof getMarketSnapshot>> | null) {
   return buildMarketImpactReport(
     data.articles.map((article) => ({
@@ -71,7 +76,9 @@ export async function buildLiveMarketProReport(supabase: SupabaseClient) {
     5000,
     'Market Pro source tables',
   ).catch((error) => {
-    console.warn('[market-pro] source tables unavailable; falling back to live dashboard cache:', error)
+    if (!isExpectedFallbackReason(error)) {
+      console.warn('[market-pro] source tables unavailable; falling back to live dashboard cache:', error)
+    }
     return null
   })
 

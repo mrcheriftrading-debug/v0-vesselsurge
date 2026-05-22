@@ -14,6 +14,11 @@ const HOTSPOT_QUERY_TIMEOUT_MS = 1200
 const ARTICLE_QUERY_TIMEOUT_MS = 2500
 const STABLE_FALLBACK_TIMESTAMP = '2026-05-20T00:00:00.000Z'
 
+function isExpectedFallbackReason(value: unknown) {
+  const message = value instanceof Error ? value.message : String(value || '')
+  return /timed out|timeout|aborted/i.test(message)
+}
+
 const TRUSTED_SOURCES = [
   'USNI News',
   'gCaptain',
@@ -240,7 +245,7 @@ export async function GET(request: Request) {
       },
     )
   } catch (err: any) {
-    console.warn('[x-feed] Serving offline fallback:', err?.message || err)
+    if (!isExpectedFallbackReason(err)) console.warn('[x-feed] Serving offline fallback:', err?.message || err)
     const fallback = buildOfflineMaritimeDashboardSnapshot('x-feed database unavailable; serving bundled source-reviewed marketing queue')
     const riskByRegion = new Map(fallback.data.hotspots.map((hotspot: any) => [hotspot.hotspot, hotspot.riskLevel || 'medium']))
     const reviewedItems = buildReviewedItems(

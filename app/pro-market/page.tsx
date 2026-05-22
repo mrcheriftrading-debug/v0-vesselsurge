@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import {
   AlertTriangle,
   ArrowRight,
@@ -23,6 +24,7 @@ import { getUserProSubscription, isActiveProSubscription } from '@/lib/pro-subsc
 export const dynamic = 'force-dynamic'
 
 const BASE_URL = 'https://www.vesselsurge.com'
+const FALLBACK_SESSION_COOKIE = 'vesselsurge_fallback_session'
 
 export const metadata: Metadata = {
   title: 'AI Investment Tips From Shipping News | VesselSurge Market Pro',
@@ -1014,12 +1016,23 @@ function formatDateTime(value: string) {
 }
 
 async function loadAuthState() {
-  const supabase = await createClient()
-  const { data: { user: supabaseUser } } = await withTimeout(
-    supabase.auth.getUser(),
-    2500,
-    'market auth',
-  ).catch(() => ({ data: { user: null } }))
+  const cookieStore = await cookies()
+  const hasSupabaseSession = cookieStore.getAll().some((cookie) =>
+    cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token'),
+  )
+  const hasFallbackSession = Boolean(cookieStore.get(FALLBACK_SESSION_COOKIE)?.value)
+
+  if (!hasSupabaseSession && !hasFallbackSession) {
+    return { user: null, hasAccess: false }
+  }
+
+  const supabaseUser = hasSupabaseSession
+    ? (await withTimeout(
+      (await createClient()).auth.getUser(),
+      1800,
+      'market auth',
+    ).catch(() => ({ data: { user: null } }))).data.user
+    : null
   const user = supabaseUser || await getFallbackUser()
   const hasAdminAccess = isAdminEmail(supabaseUser?.email)
   const subscription = supabaseUser && !hasAdminAccess ? await getUserProSubscription(supabaseUser.id) : null

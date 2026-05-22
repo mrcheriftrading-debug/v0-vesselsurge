@@ -6,11 +6,26 @@ export const dynamic = 'force-dynamic'
 
 type MarketAssetCategory = 'stocks' | 'crypto' | 'fx'
 
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
 export async function POST(request: Request) {
   const asset = await readAssetCategory(request)
   const selectedMarketPath = `/pro-market?asset=${asset}`
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await withTimeout(
+    supabase.auth.getUser(),
+    1800,
+    'Stripe checkout auth',
+  ).catch(() => ({ data: { user: null } }))
 
   if (!user?.email) {
     return NextResponse.redirect(new URL(`/auth/login?next=${encodeURIComponent(selectedMarketPath)}`, getBaseUrl()), 303)

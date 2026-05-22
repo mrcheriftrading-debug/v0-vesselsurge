@@ -6,6 +6,11 @@ export const dynamic = 'force-dynamic'
 const AIS_QUERY_TIMEOUT_MS = 2200
 const AIS_CACHE_CONTROL = 'public, s-maxage=20, stale-while-revalidate=120'
 
+function isExpectedFallbackReason(value: unknown) {
+  const message = value instanceof Error ? value.message : String(value || '')
+  return /timed out|timeout|aborted/i.test(message)
+}
+
 function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = new Promise<never>((_, reject) => {
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await withTimeout(query, AIS_QUERY_TIMEOUT_MS, 'ais-vessels query')
 
     if (error) {
-      console.warn('[ais-vessels] database fallback:', error)
+      if (!isExpectedFallbackReason(error)) console.warn('[ais-vessels] database fallback:', error)
       return unavailableVesselsResponse(hotspot, error.message || 'AIS database query failed')
     }
 
@@ -83,7 +88,7 @@ export async function GET(request: NextRequest) {
       },
     )
   } catch (err: any) {
-    console.warn('[ais-vessels] serving fallback:', err?.message || err)
+    if (!isExpectedFallbackReason(err)) console.warn('[ais-vessels] serving fallback:', err?.message || err)
     return unavailableVesselsResponse(hotspot, err?.message || 'AIS database unavailable')
   }
 }

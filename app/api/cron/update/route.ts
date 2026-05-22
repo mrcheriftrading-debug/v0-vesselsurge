@@ -1275,61 +1275,91 @@ export async function GET(request: Request) {
 
     let vesselsUpdated = 0
     if (ais.vessels.length > 0) {
-      stage = 'deleting stale vessels'
-      const staleCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-      const deleteStaleVessels = await supabaseRequest(`vessels?updated_at=lt.${encodeURIComponent(staleCutoff)}`, { method: 'DELETE' })
-      if (!deleteStaleVessels.ok) throw new Error(`Failed to delete stale AIS vessels: ${deleteStaleVessels.status} ${await deleteStaleVessels.text()}`)
+      try {
+        stage = 'deleting stale vessels'
+        const staleCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        const deleteStaleVessels = await supabaseRequest(`vessels?updated_at=lt.${encodeURIComponent(staleCutoff)}`, {
+          method: 'DELETE',
+          signal: AbortSignal.timeout(1800),
+        })
+        if (!deleteStaleVessels.ok) {
+          maintenanceWarning ||= `stale AIS vessel prune skipped: ${deleteStaleVessels.status}`
+          console.warn('[trusted-update]', maintenanceWarning, await deleteStaleVessels.text())
+        }
 
-      stage = 'upserting vessels'
-      const upsertVessels = await supabaseRequest('vessels?on_conflict=mmsi', {
-        method: 'POST',
-        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(ais.vessels),
-      })
-      if (!upsertVessels.ok) throw new Error(`Failed to update AIS vessels: ${upsertVessels.status} ${await upsertVessels.text()}`)
-      vesselsUpdated = ais.vessels.length
+        stage = 'upserting vessels'
+        const upsertVessels = await supabaseRequest('vessels?on_conflict=mmsi', {
+          method: 'POST',
+          headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+          signal: AbortSignal.timeout(2800),
+          body: JSON.stringify(ais.vessels),
+        })
+        if (!upsertVessels.ok) {
+          maintenanceWarning ||= `AIS vessel upsert skipped: ${upsertVessels.status}`
+          console.warn('[trusted-update]', maintenanceWarning, await upsertVessels.text())
+        } else {
+          vesselsUpdated = ais.vessels.length
+        }
 
-      const historyRows = ais.vessels.map((vessel) => ({
-        mmsi: vessel.mmsi,
-        name: vessel.name,
-        lat: vessel.lat,
-        lng: vessel.lng,
-        speed: vessel.speed,
-        heading: vessel.heading,
-        ship_type: vessel.ship_type,
-        destination: vessel.destination,
-        hotspot: vessel.hotspot,
-        captured_at: timestamp,
-      }))
-      stage = 'inserting AIS history'
-      const insertHistory = await supabaseRequest('ais_position_history', {
-        method: 'POST',
-        headers: { prefer: 'return=minimal' },
-        body: JSON.stringify(historyRows),
-      })
-      if (!insertHistory.ok) throw new Error(`Failed to insert AIS history: ${insertHistory.status} ${await insertHistory.text()}`)
+        const historyRows = ais.vessels.map((vessel) => ({
+          mmsi: vessel.mmsi,
+          name: vessel.name,
+          lat: vessel.lat,
+          lng: vessel.lng,
+          speed: vessel.speed,
+          heading: vessel.heading,
+          ship_type: vessel.ship_type,
+          destination: vessel.destination,
+          hotspot: vessel.hotspot,
+          captured_at: timestamp,
+        }))
+        stage = 'inserting AIS history'
+        const insertHistory = await supabaseRequest('ais_position_history', {
+          method: 'POST',
+          headers: { prefer: 'return=minimal' },
+          signal: AbortSignal.timeout(2500),
+          body: JSON.stringify(historyRows),
+        })
+        if (!insertHistory.ok) {
+          maintenanceWarning ||= `AIS history insert skipped: ${insertHistory.status}`
+          console.warn('[trusted-update]', maintenanceWarning, await insertHistory.text())
+        }
 
-      stage = 'deleting old AIS history'
-      const staleHistoryCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
-      const deleteOldHistory = await supabaseRequest(`ais_position_history?captured_at=lt.${encodeURIComponent(staleHistoryCutoff)}`, { method: 'DELETE' })
-      if (!deleteOldHistory.ok) throw new Error(`Failed to delete old AIS history: ${deleteOldHistory.status} ${await deleteOldHistory.text()}`)
+        stage = 'deleting old AIS history'
+        const staleHistoryCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+        const deleteOldHistory = await supabaseRequest(`ais_position_history?captured_at=lt.${encodeURIComponent(staleHistoryCutoff)}`, {
+          method: 'DELETE',
+          signal: AbortSignal.timeout(1800),
+        })
+        if (!deleteOldHistory.ok) {
+          maintenanceWarning ||= `old AIS history prune skipped: ${deleteOldHistory.status}`
+          console.warn('[trusted-update]', maintenanceWarning, await deleteOldHistory.text())
+        }
 
-      const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
-        acc[vessel.hotspot] = (acc[vessel.hotspot] || 0) + 1
-        return acc
-      }, {})
+        const vesselCounts = ais.vessels.reduce<Record<string, number>>((acc, vessel) => {
+          acc[vessel.hotspot] = (acc[vessel.hotspot] || 0) + 1
+          return acc
+        }, {})
 
-      const statsWithAis = stats.map((row) => ({
-        ...row,
-        active_vessels: vesselCounts[row.hotspot] || 0,
-      }))
-      stage = 'upserting AIS stats'
-      const upsertAisStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
-        method: 'POST',
-        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        body: JSON.stringify(statsWithAis),
-      })
-      if (!upsertAisStats.ok) throw new Error(`Failed to update AIS stats: ${upsertAisStats.status} ${await upsertAisStats.text()}`)
+        const statsWithAis = stats.map((row) => ({
+          ...row,
+          active_vessels: vesselCounts[row.hotspot] || 0,
+        }))
+        stage = 'upserting AIS stats'
+        const upsertAisStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
+          method: 'POST',
+          headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+          signal: AbortSignal.timeout(2500),
+          body: JSON.stringify(statsWithAis),
+        })
+        if (!upsertAisStats.ok) {
+          maintenanceWarning ||= `AIS stats upsert skipped: ${upsertAisStats.status}`
+          console.warn('[trusted-update]', maintenanceWarning, await upsertAisStats.text())
+        }
+      } catch (error) {
+        maintenanceWarning ||= `AIS vessel persistence skipped: ${errorMessage(error)}`
+        console.warn('[trusted-update]', maintenanceWarning)
+      }
     }
 
     stage = 'upserting dashboard cache'

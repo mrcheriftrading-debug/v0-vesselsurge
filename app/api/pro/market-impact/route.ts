@@ -10,9 +10,24 @@ export const preferredRegion = 'fra1'
 
 const PRIVATE_NO_STORE = { 'Cache-Control': 'private, no-store' }
 
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
 export async function GET() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await withTimeout(
+    supabase.auth.getUser(),
+    1800,
+    'Market Pro API auth',
+  ).catch(() => ({ data: { user: null } }))
 
   if (!user) {
     return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401, headers: PRIVATE_NO_STORE })

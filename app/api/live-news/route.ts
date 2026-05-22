@@ -37,6 +37,11 @@ const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
 
+function isExpectedFallbackReason(value: unknown) {
+  const message = value instanceof Error ? value.message : String(value || '')
+  return /timed out|timeout|aborted/i.test(message)
+}
+
 const REGION_KEYWORDS: Record<string, string[]> = {
   hormuz: ['hormuz', 'strait of hormuz', 'persian gulf', 'gulf of oman', 'iran', 'oman', 'uae'],
   bab: ['bab el-mandeb', 'bab el mandeb', 'red sea', 'gulf of aden', 'houthi', 'yemen', 'aden'],
@@ -425,9 +430,9 @@ export async function GET(request: Request) {
     try {
       newsResult = await withTimeout(query, 900, 'news query')
     } catch (error) {
-      console.warn('[live-news] News query fallback:', error)
+      if (!isExpectedFallbackReason(error)) console.warn('[live-news] News query fallback:', error)
       const directNews = await fetchDirectLiveNews(region, topic, limit).catch((directError) => {
-        console.warn('[live-news] Direct news fallback unavailable:', directError)
+        if (!isExpectedFallbackReason(directError)) console.warn('[live-news] Direct news fallback unavailable:', directError)
         return []
       })
       const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
@@ -445,7 +450,7 @@ export async function GET(request: Request) {
     const { data, error } = newsResult
 
     if (error) {
-      console.warn('[live-news] Supabase news fallback:', error)
+      if (!isExpectedFallbackReason(error)) console.warn('[live-news] Supabase news fallback:', error)
       const directNews = await fetchDirectLiveNews(region, topic, limit).catch(() => [])
       const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
       return NextResponse.json({
