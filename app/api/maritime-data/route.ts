@@ -336,7 +336,11 @@ async function fetchDirectMaritimePayload(request: Request) {
 
 export async function GET(request: Request) {
   const supabase = createAdminClient()
-  const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 1500, 'fresh dashboard cache').catch(() => null)
+  const searchParams = new URL(request.url).searchParams
+  const forceRefresh = searchParams.has('cache_refresh') || searchParams.get('refresh') === '1'
+  const cached = forceRefresh
+    ? null
+    : await withTimeout(getFreshMaritimeDashboardCache(supabase), 1500, 'fresh dashboard cache').catch(() => null)
 
   if (cached) {
     return buildValidatedJsonResponse(cached, request)
