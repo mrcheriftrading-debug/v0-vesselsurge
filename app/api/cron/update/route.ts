@@ -1097,6 +1097,7 @@ export async function GET(request: Request) {
   let maintenanceWarning: string | null = null
   let articlesWritten = 0
   let signalsWritten = 0
+  let statsWritten = 0
 
   try {
     const staleNewsCutoff = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
@@ -1220,12 +1221,24 @@ export async function GET(request: Request) {
     }
 
     stage = 'upserting hotspot stats'
-    const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
-      method: 'POST',
-      headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify(stats),
-    })
-    if (!upsertStats.ok) throw new Error(`Failed to update hotspot stats: ${upsertStats.status} ${await upsertStats.text()}`)
+    try {
+      const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
+        method: 'POST',
+        headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
+        signal: AbortSignal.timeout(7000),
+        body: JSON.stringify(stats),
+      })
+      if (upsertStats.ok) {
+        statsWritten = stats.length
+      } else {
+        const body = await upsertStats.text().catch(() => '')
+        maintenanceWarning ||= `hotspot stats upsert skipped: ${upsertStats.status}${body ? ` ${body.slice(0, 220)}` : ''}`
+        console.warn('[trusted-update]', maintenanceWarning)
+      }
+    } catch (error) {
+      maintenanceWarning ||= `hotspot stats upsert skipped: ${errorMessage(error)}`
+      console.warn('[trusted-update]', maintenanceWarning)
+    }
 
     let vesselsUpdated = 0
     if (ais.vessels.length > 0) {
@@ -1296,6 +1309,7 @@ export async function GET(request: Request) {
       articles_fetched: articles.length,
       articles_inserted: articlesWritten,
       stats_updated: stats.length,
+      stats_written: statsWritten,
       signals_found: signals.length,
       signals_written: signalsWritten,
       official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
