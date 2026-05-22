@@ -4,7 +4,7 @@ import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCachePayload, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
-import { officialMaritimeWatchSourceForRegion } from '@/lib/maritime-official-watch-sources'
+import { sourceSweepAuditSourcesForRegion, sourceSweepSummary } from '@/lib/maritime-source-sweep'
 import { isMaritimeTradeSource, isOfficialMaritimeSource, isTierOneNewsSource } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -844,13 +844,14 @@ function buildSourceSweepSignals(articles: TrustedArticle[], currentSignals: Mar
     })
     .map((region) => {
       const route = ROUTE_LABELS[region]
-      const officialSource = officialMaritimeWatchSourceForRegion(region)
+      const auditSources = sourceSweepAuditSourcesForRegion(region)
+      const primarySource = auditSources[0] || { source: 'VesselSurge Source Sweep', url: route.url }
       return {
         signal_key: stableSignalKey(['source-sweep', region, observedAt.slice(0, 13)]),
-        source: officialSource?.source || 'VesselSurge Source Sweep',
-        source_url: officialSource?.url || route.url,
+        source: primarySource.source,
+        source_url: primarySource.url,
         title: `${route.name}: no fresh source-backed disruption found`,
-        summary: `The latest VesselSurge sweep checked trusted news${officialSource ? ` and ${officialSource.source}` : ''}; no current source-backed disruption is being claimed for ${route.name}. The route remains live and will update when trusted sources match.`,
+        summary: `${sourceSweepSummary(route.name, auditSources)} The route remains live and will update when trusted sources match.`,
         region,
         signal_type: 'source_sweep' as const,
         severity: 'low' as const,
@@ -858,6 +859,8 @@ function buildSourceSweepSignals(articles: TrustedArticle[], currentSignals: Mar
         observed_at: observedAt,
         metadata: {
           derivedFrom: 'vesselsurge-source-sweep',
+          checkedSourceCount: auditSources.length,
+          checkedSources: auditSources,
           policy: 'No invented incidents: source sweep signals are used only when trusted current news and actionable route signals are absent.',
         },
       }

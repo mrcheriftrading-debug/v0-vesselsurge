@@ -15,7 +15,7 @@ import {
   maritimeSourceQualityScore,
   maritimeSourceQualityTier,
 } from '@/lib/maritime-source-quality'
-import { officialMaritimeWatchSourceForRegion } from '@/lib/maritime-official-watch-sources'
+import { sourceSweepAuditSourcesForRegion, sourceSweepSummary } from '@/lib/maritime-source-sweep'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
@@ -213,23 +213,28 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     severity: directRiskLevel([article]),
     confidence: Math.max(45, Math.min(82, Math.round((article.sourceQualityScore || 55) * 0.65 + (article.freshnessScore || 0) * 0.35))),
     observedAt: article.timestamp,
+    sourceAuditCount: 0,
+    sourceAuditSources: [],
   }))
   const sourceSweepSignals = HOTSPOTS
     .filter((hotspot) => !normalizedArticles.some((article) => article.region === hotspot && isCurrentLiveMapItem(article.timestamp, timestamp)))
     .map((hotspot) => {
       const route = ROUTE_LABELS[hotspot]
-      const officialSource = officialMaritimeWatchSourceForRegion(hotspot)
+      const auditSources = sourceSweepAuditSourcesForRegion(hotspot)
+      const primarySource = auditSources[0] || { source: 'VesselSurge Source Sweep', url: route.url }
       return {
         signalKey: `direct-source-sweep-${hotspot}-${timestamp.slice(0, 13)}`,
-        source: officialSource?.source || 'VesselSurge Source Sweep',
-        sourceUrl: officialSource?.url || route.url,
+        source: primarySource.source,
+        sourceUrl: primarySource.url,
         title: `${route.name}: no fresh source-backed disruption found`,
-        summary: `The latest VesselSurge source sweep checked trusted news${officialSource ? ` and ${officialSource.source}` : ''}; no current source-backed disruption is being claimed for ${route.name}.`,
+        summary: sourceSweepSummary(route.name, auditSources),
         region: hotspot,
         signalType: 'source_sweep',
         severity: 'low',
         confidence: 68,
         observedAt: timestamp,
+        sourceAuditCount: auditSources.length,
+        sourceAuditSources: auditSources.map((source) => source.source),
       }
     })
   const allSignals = [...signals, ...sourceSweepSignals]
@@ -241,10 +246,12 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     const currentArticles = hotspotArticles.filter((article) => isCurrentLiveMapItem(article.timestamp, timestamp))
     const hotspotSignals = allSignals.filter((signal) => signal.region === hotspot)
     const sourceSweepSignal = hotspotSignals.find((signal) => signal.signalType === 'source_sweep')
-    const sourceCount = new Set([
+    const explicitSourceCount = new Set([
       ...currentArticles.map((article) => article.source),
       ...hotspotSignals.map((signal) => signal.source),
     ].filter(Boolean)).size
+    const sourceSweepAuditCount = Math.max(0, ...hotspotSignals.map((signal) => signal.signalType === 'source_sweep' ? signal.sourceAuditCount || 0 : 0))
+    const sourceCount = Math.max(explicitSourceCount, sourceSweepAuditCount)
     const riskLevel = directRiskLevel(currentArticles)
     const confidenceScore = currentArticles.length
       ? Math.min(88, 40 + Math.min(20, sourceCount * 6) + Math.min(24, currentArticles.length * 4))
@@ -293,8 +300,11 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       .filter((signal) => signal.region === hotspot.hotspot)
       .sort((a, b) => Date.parse(b.observedAt) - Date.parse(a.observedAt))[0]
     const hasSourceSweepSignal = latestSignal?.signalType === 'source_sweep'
+    const sourceSweepOnlyScore = hasSourceSweepSignal && hotspot.verifiedReports === 0
+      ? hotspot.sourceCount >= 3 ? 70 : hotspot.sourceCount >= 2 ? 64 : 54
+      : 0
     const score = Math.max(
-      hasSourceSweepSignal && hotspot.verifiedReports === 0 ? 54 : 0,
+      sourceSweepOnlyScore,
       Math.min(100, (hotspot.verifiedReports > 0 ? 42 : 0) + Math.min(24, hotspot.sourceCount * 8) + (latestSignal ? 28 : 0)),
     )
 
@@ -303,10 +313,10 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       score,
       status: qualityStatus(score),
       missing: [
-        latestArticle ? null : 'fresh source-linked news',
+        latestArticle ? null : hasSourceSweepSignal ? 'no fresh source-linked disruption report' : 'fresh source-linked news',
         hotspot.sourceCount >= 2 ? null : 'second independent source',
         latestSignal ? null : 'fresh signal under 12h',
-        hasSourceSweepSignal && !latestArticle ? 'replace source sweep with source-linked report' : null,
+        hasSourceSweepSignal && !latestArticle && hotspot.sourceCount < 3 ? 'replace source sweep with source-linked report' : null,
       ].filter(Boolean) as string[],
       sourceCount: hotspot.sourceCount,
       latestNewsAt: latestArticle?.timestamp || null,

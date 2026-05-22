@@ -6,6 +6,7 @@ import {
   maritimeSourceQualityScore,
   maritimeSourceQualityTier,
 } from '@/lib/maritime-source-quality'
+import { sourceSweepAuditCount } from '@/lib/maritime-source-sweep'
 
 const CACHE_KEY = 'live-map'
 const REDIS_CACHE_KEY = `vesselsurge:maritime-dashboard-cache:${CACHE_KEY}`
@@ -207,6 +208,9 @@ export type MaritimeDashboardResponse = {
       severity: string
       confidence: number
       observedAt: string
+      metadata?: Record<string, unknown> | null
+      sourceAuditCount?: number
+      sourceAuditSources?: string[]
     }>
     timestamp: string
     count: {
@@ -601,8 +605,11 @@ function buildQualityAudit(
         ...hotspotArticles.map((article) => article.source),
         ...hotspotSignals.map((signal) => signal.source),
       ].filter(Boolean)).size,
+      ...hotspotSignals.map(sourceSweepAuditCount),
     )
-    const sourceSweepOnlyScore = hasFreshSourceSweep && !latestNewsAt ? 54 : 0
+    const sourceSweepOnlyScore = hasFreshSourceSweep && !latestNewsAt
+      ? sourceCount >= 3 ? 70 : sourceCount >= 2 ? 64 : 54
+      : 0
     const score = Math.max(sourceSweepOnlyScore, qualityCoverageScore({
       latestNewsAt,
       latestSignalAt,
@@ -610,10 +617,10 @@ function buildQualityAudit(
       riskDrivers: hotspot.riskDrivers || [],
     }))
     const missing = [
-      hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : 'fresh news under 24h',
+      hoursOld(latestNewsAt) !== null && (hoursOld(latestNewsAt) || 999) <= 24 ? null : hasFreshSourceSweep ? 'no fresh source-linked disruption report' : 'fresh news under 24h',
       hoursOld(latestSignalAt) !== null && (hoursOld(latestSignalAt) || 999) <= 12 ? null : 'fresh signal under 12h',
       sourceCount >= 2 ? null : 'second independent source',
-      hasFreshSourceSweep && !latestNewsAt ? 'replace source sweep with source-linked report' : null,
+      hasFreshSourceSweep && !latestNewsAt && sourceCount < 3 ? 'replace source sweep with source-linked report' : null,
     ].filter(Boolean) as string[]
 
     return {
@@ -683,7 +690,7 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       .order('updated_at', { ascending: false }),
     supabase
       .from('maritime_signals')
-      .select('signal_key,source,source_url,title,summary,region,signal_type,severity,confidence,observed_at')
+      .select('signal_key,source,source_url,title,summary,region,signal_type,severity,confidence,observed_at,metadata')
       .gte('observed_at', signalCutoff)
       .order('observed_at', { ascending: false })
       .limit(80),
@@ -739,6 +746,14 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     severity: signal.severity,
     confidence: signal.confidence,
     observedAt: signal.observed_at,
+    metadata: signal.metadata || null,
+    sourceAuditCount: sourceSweepAuditCount({
+      signal_type: signal.signal_type,
+      metadata: signal.metadata || null,
+    }) || undefined,
+    sourceAuditSources: Array.isArray(signal.metadata?.checkedSources)
+      ? signal.metadata.checkedSources.map((source: any) => source?.source).filter(Boolean)
+      : undefined,
   }))
   const signalBackedArticles = signals
     .filter((signal) => signal.signalType === 'news_corroboration' && signal.region && signal.title)
