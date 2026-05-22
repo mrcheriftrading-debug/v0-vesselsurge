@@ -135,6 +135,17 @@ function isCurrentLiveMapItem(timestamp: string | null | undefined, nowIso: stri
   return ageMs >= 0 && ageMs <= CURRENT_LIVE_MAP_HOURS * 60 * 60 * 1000
 }
 
+function buildSourceMix(sources: Array<string | null | undefined>) {
+  return [...new Set(sources.filter(Boolean) as string[])].reduce(
+    (mix, source) => {
+      const tier = maritimeSourceQualityTier(source) as keyof typeof mix
+      mix[tier] = (mix[tier] || 0) + 1
+      return mix
+    },
+    { official: 0, tierOne: 0, trade: 0, search: 0, general: 0, watch: 0 },
+  )
+}
+
 function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): MaritimeDashboardResponse | null {
   const timestamp = new Date().toISOString()
   const reviewCandidates = articles
@@ -295,14 +306,10 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
   })
 
   const watchRows = coverageGaps.filter((gap) => gap.status === 'watch')
-  const sourceMix = normalizedArticles.reduce(
-    (mix, article) => {
-      const tier = maritimeSourceQualityTier(article.source) as keyof typeof mix
-      mix[tier] = (mix[tier] || 0) + 1
-      return mix
-    },
-    { official: 0, tierOne: 0, trade: 0, search: 0, general: 0, watch: 0 },
-  )
+  const sourceMix = buildSourceMix([
+    ...normalizedArticles.map((article) => article.source),
+    ...allSignals.map((signal) => signal.source),
+  ])
   const recommendations = [
     watchRows.length ? `Prioritize ${watchRows.map((gap) => gap.hotspot).join(', ')} for the next source sweep.` : null,
     reviewGate.blocked ? `${reviewGate.blocked} low-evidence direct reports were blocked before the live map.` : null,

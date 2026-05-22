@@ -513,8 +513,13 @@ function buildQualityAudit(
     watch: 0,
   }
 
-  for (const article of articles) {
-    const tier = maritimeSourceQualityTier(article.source) as keyof typeof sourceMix
+  const uniqueSources = new Set([
+    ...articles.map((article) => article.source),
+    ...signals.map((signal) => signal.source),
+  ].filter(Boolean))
+
+  for (const source of uniqueSources) {
+    const tier = maritimeSourceQualityTier(source) as keyof typeof sourceMix
     sourceMix[tier] = (sourceMix[tier] || 0) + 1
   }
 

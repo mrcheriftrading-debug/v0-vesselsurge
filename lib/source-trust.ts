@@ -115,10 +115,16 @@ function latestIso(values: Array<string | null | undefined>) {
   return latest > 0 ? new Date(latest).toISOString() : null
 }
 
-function deriveSourceMix(articles: MaritimeDashboardResponse['data']['articles']): SourceMix {
-  return articles.reduce<SourceMix>(
+function deriveSourceMix(
+  articles: MaritimeDashboardResponse['data']['articles'],
+  signals: MaritimeDashboardResponse['data']['signals'] = [],
+): SourceMix {
+  return [...new Set([
+    ...articles.map((article) => article.source),
+    ...signals.map((signal) => signal.source),
+  ].filter(Boolean))].reduce<SourceMix>(
     (mix, article) => {
-      const tier = article.sourceQualityTier || maritimeSourceQualityTier(article.source)
+      const tier = maritimeSourceQualityTier(article)
       if (tier === 'official') mix.official += 1
       else if (tier === 'tierOne') mix.tierOne += 1
       else if (tier === 'trade') mix.trade += 1
@@ -189,7 +195,7 @@ export function buildSourceTrustReport(payload: MaritimeDashboardResponse | null
   const hotspots = payload?.data.hotspots || []
   const qualityAudit = payload?.data.qualityAudit
   const reviewGate = qualityAudit?.reviewGate || deriveReviewGate(articles)
-  const sourceMix = qualityAudit?.sourceMix || deriveSourceMix(articles)
+  const sourceMix = qualityAudit?.sourceMix || deriveSourceMix(articles, signals)
   const blockedVisible = articles.filter((article) => article.reviewStatus === 'blocked').length
   const visibleArticles = articles.filter((article) => article.reviewStatus !== 'blocked')
   const oldestVisibleArticleAgeHours = visibleArticles.reduce<number | null>((oldest, article) => {
@@ -206,7 +212,10 @@ export function buildSourceTrustReport(payload: MaritimeDashboardResponse | null
   const trustedCount = sourceMix.official + sourceMix.tierOne + sourceMix.trade
   const visibleCount = Math.max(1, reviewGate.visible || visibleArticles.length)
   const trustedShare = Math.round((trustedCount / visibleCount) * 100)
-  const uniqueSources = new Set(articles.map((article) => article.source).filter(Boolean)).size
+  const uniqueSources = new Set([
+    ...articles.map((article) => article.source),
+    ...signals.map((signal) => signal.source),
+  ].filter(Boolean)).size
   const watchShare = Math.round((reviewGate.watch / visibleCount) * 100)
 
   let trustScore = 100
