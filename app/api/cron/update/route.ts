@@ -434,6 +434,15 @@ function isSuezmaxNoise(article: TrustedArticle) {
   return !/\b(suez canal|port said|canal transit|red sea|cape of good hope|rerout|re-rout|divert|queue|convoy|canal authority)\b/i.test(text)
 }
 
+function isGibraltarLandTrafficNoise(article: TrustedArticle) {
+  if (article.region !== 'gibraltar') return false
+  const text = `${article.title} ${article.snippet}`.toLowerCase()
+  const landTraffic = /\b(airport|runway|road traffic|cars?|vehicles?|tunnel|border crossing|pedestrian|driving)\b/i.test(text)
+  if (!landTraffic) return false
+
+  return !/\b(ship|shipping|vessel|tanker|cargo|bunker|bunkering|port|maritime|strait|anchorage|pilotage|vts)\b/i.test(text)
+}
+
 function hasDirectRegionSignal(article: TrustedArticle) {
   if (article.source.startsWith('ReCAAP ISC') && article.region === 'malacca') return true
   if ((article.source === 'Norwegian Maritime Authority' || article.source === 'MARAD Maritime Security Advisory') && article.region === 'bab') return true
@@ -684,6 +693,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => !isFinancialMarketNoise(article))
     .filter((article) => !isGlobalSupplyChainNoise(article))
     .filter((article) => !isSuezmaxNoise(article))
+    .filter((article) => !isGibraltarLandTrafficNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => passesHighImpactClaimGate(article))
@@ -701,6 +711,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => !isFinancialMarketNoise(article))
     .filter((article) => !isGlobalSupplyChainNoise(article))
     .filter((article) => !isSuezmaxNoise(article))
+    .filter((article) => !isGibraltarLandTrafficNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
     .filter((article) => passesHighImpactClaimGate(article))

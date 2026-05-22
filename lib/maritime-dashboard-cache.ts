@@ -460,6 +460,9 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   const governanceOnlyUpdate = expansionRouteNeedsOperationalContext &&
     /\b(appoint|appointed|appointment|names?|named|administrator|chief executive|ceo|board|chair|minister|president|director|leadership|election|resigns?|resignation)\b/i.test(text) &&
     !/\b(restrict|restriction|suspend|closed|closure|delay|queue|draft|water level|drought|congestion|traffic disruption|ship traffic|vessel traffic|security warning|navigation warning|incident|rerout|re-rout|divert)\b/i.test(text)
+  const gibraltarLandTrafficNoise = region === 'gibraltar' &&
+    /\b(airport|runway|road traffic|cars?|vehicles?|tunnel|border crossing|pedestrian|driving)\b/i.test(text) &&
+    !/\b(ship|shipping|vessel|tanker|cargo|bunker|bunkering|port|maritime|strait|anchorage|pilotage|vts)\b/i.test(text)
   const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
     .test(text) && expansionOperationalContext
   const reviewScore = Math.round((intelligenceScore * 0.46) + (sourceScore * 0.28) + (freshnessScore * 0.18) + (routeEvidence ? 8 : 0))
@@ -478,6 +481,15 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
     return {
       reviewStatus: 'blocked' as const,
       reviewReason: 'Blocked before live map: governance or appointment update without a confirmed operational shipping impact.',
+      reviewScore,
+      reviewedAt: new Date().toISOString(),
+    }
+  }
+
+  if (gibraltarLandTrafficNoise) {
+    return {
+      reviewStatus: 'blocked' as const,
+      reviewReason: 'Blocked before live map: Gibraltar land, airport or road traffic item without confirmed maritime operating impact.',
       reviewScore,
       reviewedAt: new Date().toISOString(),
     }
