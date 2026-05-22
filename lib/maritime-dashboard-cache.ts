@@ -316,6 +316,18 @@ function riskSummaryForHotspot(stats: {
   latestSource: string | null
   activeVessels: number
 }) {
+  const sourceSweepOnly = stats.reports === 0 &&
+    stats.activeVessels === 0 &&
+    stats.signals.some((signal) => signal.signal_type === 'source_sweep') &&
+    !stats.signals.some((signal) => signal.signal_type && signal.signal_type !== 'source_sweep')
+
+  if (sourceSweepOnly) {
+    return {
+      riskSummary: `${stats.riskLevel.toUpperCase()} because the latest source sweep found no current source-backed disruption; no incident is being claimed.`,
+      riskDrivers: ['No fresh source-backed disruption found by the latest source sweep'],
+    }
+  }
+
   const sortedSignals = [...stats.signals]
     .sort((a, b) => {
       const severityRank: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 }
