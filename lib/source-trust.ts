@@ -290,9 +290,9 @@ export function buildSourceTrustReport(payload: MaritimeDashboardResponse | null
         detail: 'Weak or uncorroborated items stay in watch or blocked state instead of being promoted as hard risk.',
       },
       {
-        title: 'Explain market calls',
+        title: 'Explain market views',
         state: 'active',
-        detail: 'Market Pro must show the asset, direction, buy/hold/sell view, confidence, sell signal and source-backed reason.',
+        detail: 'Market Pro must show the asset, direction, research view, confidence, exit trigger and source-backed reason.',
       },
     ],
     recommendations: Array.from(new Set(recommendations)).slice(0, 6),

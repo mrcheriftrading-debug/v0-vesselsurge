@@ -101,39 +101,39 @@ const HIGH_IMPACT_CLAIM_PATTERN = /\b(closure|closed|blockade|blocked|war began|
 const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string; source: string; topic: string }>> = {
   hormuz: [
     {
-      title: 'OpenClaw Hormuz news watch active',
+      title: 'VesselSurge Hormuz news watch active',
       summary: 'VesselSurge is monitoring tanker flow, oil-route exposure, Iran-linked shipping risk and Gulf export routing.',
-      source: 'OpenClaw Hormuz Watch',
+      source: 'VesselSurge Hormuz Watch',
       topic: 'oil_route_watch',
     },
   ],
   bab: [
     {
-      title: 'OpenClaw Red Sea news watch active',
+      title: 'VesselSurge Red Sea news watch active',
       summary: 'VesselSurge is monitoring Bab el-Mandeb, Gulf of Aden, Red Sea routing, advisories, rerouting and war-risk insurance signals.',
-      source: 'OpenClaw Red Sea Watch',
+      source: 'VesselSurge Red Sea Watch',
       topic: 'red_sea_watch',
     },
     {
       title: 'Bab el-Mandeb source sweep active',
       summary: 'Fresh reports from trusted maritime and official-warning sources will be promoted here as soon as they clear the noise filters.',
-      source: 'OpenClaw Chokepoint Watch',
+      source: 'VesselSurge Chokepoint Watch',
       topic: 'source_sweep',
     },
   ],
   suez: [
     {
-      title: 'OpenClaw Suez news watch active',
+      title: 'VesselSurge Suez news watch active',
       summary: 'VesselSurge is monitoring canal transit, convoy operations, delay signals, Red Sea spillover and freight-route pressure.',
-      source: 'OpenClaw Suez Watch',
+      source: 'VesselSurge Suez Watch',
       topic: 'canal_watch',
     },
   ],
   malacca: [
     {
-      title: 'OpenClaw Malacca news watch active',
+      title: 'VesselSurge Malacca news watch active',
       summary: 'VesselSurge is monitoring Malacca and Singapore Strait traffic density, piracy reports, ReCAAP context and port-flow signals.',
-      source: 'OpenClaw Malacca Watch',
+      source: 'VesselSurge Malacca Watch',
       topic: 'ais_density_watch',
     },
   ],
@@ -141,7 +141,7 @@ const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string;
     {
       title: 'Panama Canal source sweep active',
       summary: 'VesselSurge is monitoring Panama Canal transit, queue pressure, water constraints and Atlantic-Pacific route exposure.',
-      source: 'OpenClaw Panama Canal Source Sweep',
+      source: 'VesselSurge Panama Canal Source Sweep',
       topic: 'canal_transit_context',
     },
   ],
@@ -149,7 +149,7 @@ const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string;
     {
       title: 'Taiwan Strait source sweep active',
       summary: 'VesselSurge is monitoring Taiwan Strait maritime alerts, naval activity, ports and Asia cargo continuity signals.',
-      source: 'OpenClaw Taiwan Strait Source Sweep',
+      source: 'VesselSurge Taiwan Strait Source Sweep',
       topic: 'asia_trade_lane_context',
     },
   ],
@@ -157,7 +157,7 @@ const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string;
     {
       title: 'Turkish Straits source sweep active',
       summary: 'VesselSurge is monitoring Bosporus, Dardanelles, Black Sea tanker flow, weather holds and transit interruptions.',
-      source: 'OpenClaw Turkish Straits Source Sweep',
+      source: 'VesselSurge Turkish Straits Source Sweep',
       topic: 'black_sea_route_context',
     },
   ],
@@ -165,7 +165,7 @@ const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string;
     {
       title: 'Strait of Gibraltar source sweep active',
       summary: 'VesselSurge is monitoring Atlantic-Mediterranean vessel flow, Gibraltar port context, congestion and security signals.',
-      source: 'OpenClaw Gibraltar Source Sweep',
+      source: 'VesselSurge Gibraltar Source Sweep',
       topic: 'mediterranean_entry_context',
     },
   ],
@@ -173,7 +173,7 @@ const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string;
     {
       title: 'Cape of Good Hope source sweep active',
       summary: 'VesselSurge is monitoring Red Sea bypass routing, Cape voyage time, fuel cost pressure and freight disruption signals.',
-      source: 'OpenClaw Cape Route Source Sweep',
+      source: 'VesselSurge Cape Route Source Sweep',
       topic: 'rerouting_context',
     },
   ],
@@ -307,7 +307,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
       signal: AbortSignal.timeout(1800),
       headers: {
         accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.8',
-        'user-agent': 'VesselSurge OpenClaw/1.0',
+        'user-agent': 'VesselSurge Source Review/1.0',
       },
       next: { revalidate: 120 },
     })

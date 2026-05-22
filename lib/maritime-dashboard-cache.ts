@@ -359,11 +359,11 @@ function riskSummaryForHotspot(stats: {
 
   const riskSummary = strongest
     ? `${stats.riskLevel.toUpperCase()} because ${strongest}${stats.latestSource ? `; latest source: ${stats.latestSource}` : ''}.`
-    : `${stats.riskLevel.toUpperCase()} from standing watch coverage while fresh direct signals are thin.`
+    : `${stats.riskLevel.toUpperCase()} from operational watch coverage while fresh direct signals are thin.`
 
   return {
     riskSummary,
-    riskDrivers: uniqueDrivers.length > 0 ? uniqueDrivers : ['Standing watch coverage active'],
+    riskDrivers: uniqueDrivers.length > 0 ? uniqueDrivers : ['Operational watch coverage active'],
   }
 }
 

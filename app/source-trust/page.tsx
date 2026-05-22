@@ -129,10 +129,10 @@ export default async function SourceTrustPage() {
                 Source Trust
               </div>
               <h1 className="max-w-4xl text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                AI can run the site because weak data gets stopped first.
+                Source-reviewed maritime intelligence, with weak data stopped before publication.
               </h1>
               <p className="mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
-                VesselSurge checks freshness, source quality and review status before live map and Market Pro outputs are shown. AI can explain and rank signals, but source evidence stays in charge.
+                VesselSurge checks freshness, source quality and review status before live map and Market Pro outputs are shown. AI explains and ranks signals only after source evidence, freshness and review gates pass.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/map-dashboard" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:bg-primary/90">

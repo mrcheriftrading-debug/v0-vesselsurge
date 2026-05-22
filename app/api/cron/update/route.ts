@@ -529,7 +529,7 @@ async function fetchText(url: string, timeoutMs = 7000) {
   const response = await fetch(url, {
     headers: {
       accept: 'text/html,application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
-      'user-agent': 'VesselSurge OpenClaw/1.0',
+      'user-agent': 'VesselSurge Source Review/1.0',
     },
     cache: 'no-store',
     signal: AbortSignal.timeout(timeoutMs),

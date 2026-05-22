@@ -257,7 +257,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       ? Math.min(88, 40 + Math.min(20, sourceCount * 6) + Math.min(24, currentArticles.length * 4))
       : 35
     const sourceSweepOnly = currentArticles.length === 0 && Boolean(sourceSweepSignal)
-    const latestSource = currentArticles[0]?.source || sourceSweepSignal?.source || 'OpenClaw standing watch'
+    const latestSource = currentArticles[0]?.source || sourceSweepSignal?.source || 'VesselSurge operational watch'
     const riskDrivers = currentArticles.length
       ? currentArticles.slice(0, 3).map((article) => `${article.source}: ${article.title}`)
       : sourceSweepOnly
@@ -269,7 +269,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       hotspot,
       activeVessels: 0,
       dailyTransits: 0,
-      avgWaitTime: hotspotSignals.length ? `${hotspotSignals.length} live source signals` : 'Standing watch active',
+      avgWaitTime: hotspotSignals.length ? `${hotspotSignals.length} live source signals` : 'Operational watch active',
       marketVolume: HOTSPOT_MARKET_VOLUME[hotspot] || 0,
       riskLevel,
       updatedAt: timestamp,
@@ -288,7 +288,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
         : hotspotArticles.length
           ? 'LOW because the latest source sweep found no current source-backed disruption; older reports remain context only.'
           : 'LOW because the latest source sweep found no current source-backed disruption; no incident is being claimed.',
-      riskDrivers: riskDrivers.length ? riskDrivers : ['Standing watch coverage active'],
+      riskDrivers: riskDrivers.length ? riskDrivers : ['Operational watch coverage active'],
     }
   })
 

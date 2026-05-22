@@ -109,15 +109,15 @@ type SourceSummary = {
 }
 
 const PRO_INVESTOR_SKILL = {
-  name: 'Pro Investor Impact Skill',
-  mandate: 'Translate maritime disruption into general AI investment tips without making personalized financial advice.',
+  name: 'Pro Market Impact Skill',
+  mandate: 'Translate maritime disruption into general market impact research without making personalized financial advice.',
   outputs: ['oil beta', 'freight pressure', 'insurance pressure', 'equity risk-on/risk-off', 'confidence bands'],
 }
 
 const PRO_MARKET_ANALYST_SKILL = {
   name: 'Pro Market Analyst Skill',
   mandate: 'Score each source event by severity, recency, chokepoint exposure, and cross-market transmission.',
-  outputs: ['market narrative', 'asset class table', 'investment triggers', 'source-backed evidence'],
+  outputs: ['market narrative', 'asset class table', 'market triggers', 'source-backed evidence'],
 }
 
 export const MARKET_PRO_NEWS_MAX_AGE_HOURS = 48
@@ -466,37 +466,37 @@ function investmentViewForQuote(quote: MarketQuote, category: InvestmentCategory
 
   if (category === 'stocks') {
     if (quote.group === 'Transport' && pressure >= 60) {
-      return { tip: 'Buy idea', tone: 'positive', reason: 'Higher shipping risk can lift tanker and freight stocks.' }
+      return { tip: 'Bullish research signal', tone: 'positive', reason: 'Higher shipping risk can lift tanker and freight stocks.' }
     }
     if (quote.group === 'Transport') {
       return { tip: 'Wait for clearer stock signal', tone: 'neutral', reason: 'Shipping and transport stocks need a stronger route-risk trigger.' }
     }
     if (pressure >= 65) {
-      return { tip: 'Avoid now', tone: 'caution', reason: 'Higher oil, insurance and freight costs can pressure broad stocks.' }
+      return { tip: 'Risk-off signal', tone: 'caution', reason: 'Higher oil, insurance and freight costs can pressure broad stocks.' }
     }
     if (momentum > 0.3) {
-      return { tip: 'Buy idea', tone: 'positive', reason: 'The live price is rising and shipping risk is controlled.' }
+      return { tip: 'Bullish research signal', tone: 'positive', reason: 'The live price is rising and shipping risk is controlled.' }
     }
   }
 
   if (category === 'crypto') {
     if (pressure >= 62) {
-      return { tip: 'Avoid now', tone: 'wait', reason: 'Crypto can fall when investors move away from risk assets.' }
+      return { tip: 'Risk-off signal', tone: 'wait', reason: 'Crypto can fall when investors move away from risk assets.' }
     }
     if (momentum > 0.8) {
-      return { tip: 'Buy idea', tone: 'positive', reason: 'Crypto price momentum is positive and shipping pressure is manageable.' }
+      return { tip: 'Bullish research signal', tone: 'positive', reason: 'Crypto price momentum is positive and shipping pressure is manageable.' }
     }
-    return { tip: 'Wait', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
+    return { tip: 'Watch only', tone: 'neutral', reason: 'No strong news-to-crypto signal is confirmed yet.' }
   }
 
   if (/USDSEK|DX-Y|USDJPY/.test(quote.symbol) && pressure >= 60) {
     return { tip: 'USD may rise', tone: 'positive', reason: 'Shipping stress often increases demand for the US dollar.' }
   }
   if (/EURUSD|GBPUSD/.test(quote.symbol) && pressure >= 60) {
-    return { tip: 'Avoid now', tone: 'caution', reason: 'A stronger US dollar can pressure this currency pair.' }
+    return { tip: 'Risk-off signal', tone: 'caution', reason: 'A stronger US dollar can pressure this currency pair.' }
   }
   if (momentum > 0.2) {
-    return { tip: 'Buy idea', tone: 'positive', reason: 'The live currency price is moving higher.' }
+    return { tip: 'Bullish research signal', tone: 'positive', reason: 'The live currency price is moving higher.' }
   }
 
   return { tip: 'Wait', tone: 'neutral', reason: 'The AI needs a clearer news and price signal.' }
@@ -623,20 +623,20 @@ function investmentSellSignal({
   if (tone === 'positive' && expectedMovePct !== null) {
     const stopLoss = category === 'crypto' ? '-1.2%' : category === 'fx' ? '-0.3%' : '-0.8%'
     return {
-      sellSignal: `Sell near ${formatPercent(expectedMovePct, 1)} or if price moves ${stopLoss} against the idea.`,
+      sellSignal: `Exit near ${formatPercent(expectedMovePct, 1)} or if price moves ${stopLoss} against the view.`,
       sellReason: 'Take profit if the fact scenario is reached. Exit early if the source evidence fades.',
     }
   }
 
   if (tone === 'caution' || tone === 'wait') {
     return {
-      sellSignal: 'Sell or stay out until the signal improves.',
-      sellReason: 'The news and live price do not support a clean buy idea yet.',
+      sellSignal: 'Exit or stay out until the signal improves.',
+      sellReason: 'The news and live price do not support a clean directional view yet.',
     }
   }
 
   return {
-    sellSignal: 'No sell signal yet.',
+    sellSignal: 'No exit trigger yet.',
     sellReason: 'Wait for clearer news and price confirmation first.',
   }
 }
@@ -901,6 +901,6 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
     regions,
     topStories,
     watchTriggers,
-    disclaimer: 'General AI investment tips and market context only. Not personalized financial advice or a recommendation based on your portfolio, risk level or time horizon.',
+    disclaimer: 'General market impact research and context only. Not personalized financial advice or a recommendation based on your portfolio, risk level or time horizon.',
   }
 }
