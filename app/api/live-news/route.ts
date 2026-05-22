@@ -256,6 +256,15 @@ function isGovernanceOnlyDirectUpdate(article: { title?: string | null; summary?
   return governanceOnly && !operationalImpact
 }
 
+function isGibraltarLandTrafficNoise(article: { title?: string | null; summary?: string | null; snippet?: string | null; region?: string | null }) {
+  if (article.region !== 'gibraltar') return false
+  const text = `${article.title || ''} ${article.summary || article.snippet || ''}`
+  const landTraffic = /\b(airport|runway|road traffic|cars?|vehicles?|tunnel|border crossing|pedestrian|driving)\b/i.test(text)
+  if (!landTraffic) return false
+
+  return !/\b(ship|shipping|vessel|tanker|cargo|bunker|bunkering|port|maritime|strait|anchorage|pilotage|vts)\b/i.test(text)
+}
+
 function googleNewsSource(title: string) {
   const parts = title.split(' - ')
   return parts.length > 1 ? `Google News: ${parts.at(-1)}` : 'Google News'
@@ -328,6 +337,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
     .filter((article) => !HARD_NEWS_NOISE_PATTERN.test(`${article.title} ${article.summary} ${article.source}`))
     .filter((article) => isFreshDirectNews(article.timestamp))
     .filter((article) => !isGovernanceOnlyDirectUpdate(article))
+    .filter((article) => !isGibraltarLandTrafficNoise(article))
     .filter((article) => isOperationalMaritimeNews(article))
     .filter((article) => passesHighImpactClaimGate(article))
     .filter((article) => {
@@ -513,6 +523,7 @@ export async function GET(request: Request) {
     const articles = dedupeNewsItems((data || [])
       .filter((a: any) => isTrustedSource(a.source || ''))
       .filter((a: any) => isOperationalMaritimeNews(a))
+      .filter((a: any) => !isGibraltarLandTrafficNoise(a))
       .filter((a: any) => passesHighImpactClaimGate(a))
       .filter((a: any) => !region || region === 'all' || a.region === region)
       .map((a: any) => ({
