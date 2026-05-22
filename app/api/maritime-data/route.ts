@@ -110,13 +110,19 @@ const ROUTE_LABELS: Record<string, { name: string; url: string }> = {
 }
 
 function directRiskLevel(articles: MaritimeDashboardResponse['data']['articles']) {
-  const highSignalCount = articles.filter((article) =>
-    /\b(attack|missile|strike|seized|hijack|warning|advisory|incident|war[-\s]?risk|rerout|divert|disruption|closure|blocked|security threat|shipping threat|vessel threat|tanker threat|houthi threat|naval threat)\b/i
+  const sources = new Set(articles.map((article) => article.source).filter(Boolean))
+  const directIncidentCount = articles.filter((article) =>
+    /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|blocked|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i
+      .test(`${article.title} ${article.summary}`),
+  ).length
+  const routePressureCount = articles.filter((article) =>
+    /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i
       .test(`${article.title} ${article.summary}`),
   ).length
 
-  if (highSignalCount >= 3) return 'high'
-  if (highSignalCount > 0 || articles.length > 0) return 'medium'
+  if (directIncidentCount >= 2 && sources.size >= 2) return 'high'
+  if (directIncidentCount >= 1 && routePressureCount >= 2 && sources.size >= 2) return 'high'
+  if ((directIncidentCount >= 1 || routePressureCount >= 2) && sources.size >= 2 && articles.length >= 2) return 'medium'
   return 'low'
 }
 
@@ -269,7 +275,9 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       confidenceScore,
       confidenceLabel: sourceSweepOnly ? 'Source sweep' : confidenceScore >= 70 ? 'Corroborated' : currentArticles.length ? 'Watchlist' : 'Thin signal',
       riskSummary: currentArticles.length
-        ? `${riskLevel.toUpperCase()} from ${currentArticles.length} current source-linked report${currentArticles.length === 1 ? '' : 's'}; latest source: ${latestSource}.`
+        ? riskLevel === 'low'
+          ? `LOW because ${currentArticles.length} current report${currentArticles.length === 1 ? '' : 's'} did not meet corroboration or operational-impact thresholds; latest source: ${latestSource}.`
+          : `${riskLevel.toUpperCase()} from ${currentArticles.length} current source-linked report${currentArticles.length === 1 ? '' : 's'} across ${sourceCount} source${sourceCount === 1 ? '' : 's'}; latest source: ${latestSource}.`
         : hotspotArticles.length
           ? 'LOW because the latest source sweep found no current source-backed disruption; older reports remain context only.'
           : 'LOW because the latest source sweep found no current source-backed disruption; no incident is being claimed.',

@@ -363,6 +363,42 @@ function riskSummaryForHotspot(stats: {
   }
 }
 
+function articleText(article: { title?: string | null; summary?: string | null }) {
+  return `${article.title || ''} ${article.summary || ''}`
+}
+
+function hasDirectOperationalIncident(text: string) {
+  return /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|blocked|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i.test(text)
+}
+
+function hasRoutePressure(text: string) {
+  return /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i.test(text)
+}
+
+function deriveEvidenceRiskLevel(input: {
+  articles: Array<{ title?: string | null; summary?: string | null; source?: string | null }>
+  signals: Array<{ signal_type?: string | null; severity?: string | null; confidence?: number | null }>
+  sourceCount: number
+  fallbackRiskLevel?: string | null
+}) {
+  const operationalSignals = input.signals.filter((signal) => signal.signal_type && !['source_sweep', 'news_corroboration'].includes(signal.signal_type))
+  const strongOperationalSignals = operationalSignals.filter((signal) =>
+    ['critical', 'high'].includes(signal.severity || '') || (signal.confidence || 0) >= 78,
+  )
+  const directIncidentReports = input.articles.filter((article) => hasDirectOperationalIncident(articleText(article))).length
+  const routePressureReports = input.articles.filter((article) => hasRoutePressure(articleText(article))).length
+  const reports = input.articles.length
+
+  if (strongOperationalSignals.length > 0) return 'high'
+  if (directIncidentReports >= 2 && input.sourceCount >= 2) return 'high'
+  if (directIncidentReports >= 1 && routePressureReports >= 2 && input.sourceCount >= 2) return 'high'
+  if ((directIncidentReports >= 1 || routePressureReports >= 2) && input.sourceCount >= 2 && reports >= 2) return 'medium'
+  if (operationalSignals.length >= 2) return 'medium'
+
+  const fallback = input.fallbackRiskLevel || 'low'
+  return fallback === 'critical' || fallback === 'high' ? 'medium' : 'low'
+}
+
 function dedupeArticles<T extends { title?: string | null; sourceUrl?: string | null; source?: string | null }>(articles: T[]) {
   const seen = new Set<string>()
   return articles.filter((article) => {
@@ -727,10 +763,11 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
   const reviewGate = reviewGateSummary(reviewedCandidates)
   const articles = balanceDashboardArticles(reviewedCandidates.filter((article) => article.reviewStatus !== 'blocked'))
 
-  const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null }>, article: any) => {
+  const articleStats = articles.reduce((acc: Record<string, { reports: number; sources: Set<string>; latestSource: string | null; articles: any[] }>, article: any) => {
     const region = article.region || 'global'
-    if (!acc[region]) acc[region] = { reports: 0, sources: new Set(), latestSource: null }
+    if (!acc[region]) acc[region] = { reports: 0, sources: new Set(), latestSource: null, articles: [] }
     acc[region].reports += 1
+    acc[region].articles.push(article)
     if (article.source) acc[region].sources.add(article.source)
     if (!acc[region].latestSource && article.source) acc[region].latestSource = article.source
     return acc
@@ -764,13 +801,12 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
     const sourceSweepOnly = regionSignals.some((signal) => signal.signal_type === 'source_sweep') && actionableSignals.length === 0 && reports === 0
     const sourceCount = articleStats[hotspot.hotspot]?.sources.size || 0
     const latestSource = articleStats[hotspot.hotspot]?.latestSource || null
-    const derivedRiskLevel = actionableSignals.some((signal) => signal.severity === 'critical' || signal.severity === 'high')
-      ? 'high'
-      : reports > 0 || actionableSignals.length > 0
-        ? 'medium'
-        : regionSignals.some((signal) => signal.signal_type === 'source_sweep')
-          ? 'low'
-          : hotspot.risk_level
+    const derivedRiskLevel = deriveEvidenceRiskLevel({
+      articles: articleStats[hotspot.hotspot]?.articles || [],
+      signals: regionSignals,
+      sourceCount,
+      fallbackRiskLevel: regionSignals.some((signal) => signal.signal_type === 'source_sweep') ? 'low' : hotspot.risk_level,
+    })
     const confidenceScore = confidenceForHotspot({
       reports,
       sources: articleStats[hotspot.hotspot]?.sources || new Set(),
