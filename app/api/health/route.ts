@@ -74,18 +74,32 @@ function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: strin
   })
 }
 
+function fallbackAuthConfigured() {
+  return Boolean(process.env.FALLBACK_AUTH_SECRET || process.env.SUPABASE_JWT_SECRET || process.env.CRON_SECRET)
+}
+
+function authFallbackHealth(note: string, durationMs: number) {
+  const fallbackReady = fallbackAuthConfigured()
+  return {
+    status: fallbackReady ? 'ok' as Status : 'degraded' as Status,
+    durationMs,
+    probe: 'auth.health',
+    providerStatus: 'degraded' as Status,
+    providerProbe: 'supabase.auth.health',
+    fallbackStatus: fallbackReady ? 'ok' as Status : 'degraded' as Status,
+    note: fallbackReady
+      ? `${note}; VesselSurge fallback auth is configured for sign-up, login and same-device password reset while Supabase recovers.`
+      : note,
+  }
+}
+
 async function checkSupabaseAuth() {
   const startedAt = Date.now()
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
 
   if (!supabaseUrl || !serviceRoleKey) {
-    return {
-      status: 'degraded' as Status,
-      durationMs: Date.now() - startedAt,
-      probe: 'auth.health',
-      note: 'Supabase Auth credentials are not configured.',
-    }
+    return authFallbackHealth('Supabase Auth credentials are not configured', Date.now() - startedAt)
   }
 
   try {
@@ -101,27 +115,20 @@ async function checkSupabaseAuth() {
 
     if (!response.ok) {
       const text = await response.text().catch(() => '')
-      return {
-        status: 'degraded' as Status,
-        durationMs,
-        probe: 'auth.health',
-        note: text.slice(0, 180) || `Supabase Auth health returned HTTP ${response.status}.`,
-      }
+      return authFallbackHealth(text.slice(0, 180) || `Supabase Auth health returned HTTP ${response.status}`, durationMs)
     }
 
     return {
       status: 'ok' as Status,
       durationMs,
       probe: 'auth.health',
+      providerStatus: 'ok' as Status,
+      providerProbe: 'supabase.auth.health',
+      fallbackStatus: fallbackAuthConfigured() ? 'ok' as Status : 'degraded' as Status,
       note: 'Supabase Auth keyed health probe responded.',
     }
   } catch (error) {
-    return {
-      status: 'degraded' as Status,
-      durationMs: Date.now() - startedAt,
-      probe: 'auth.health',
-      note: error instanceof Error ? error.message : 'Supabase Auth probe failed',
-    }
+    return authFallbackHealth(error instanceof Error ? error.message : 'Supabase Auth probe failed', Date.now() - startedAt)
   }
 }
 

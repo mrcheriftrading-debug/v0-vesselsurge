@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Loader2, Mail, Zap } from "lucide-react"
 
+const PASSWORD_RESET_TIMEOUT_MS = 5500
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,12 +26,26 @@ export default function ForgotPasswordPage() {
     recoveryCallback.searchParams.set("type", "recovery")
     recoveryCallback.searchParams.set("next", "/auth/reset-password")
 
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-      redirectTo: recoveryCallback.toString(),
-    })
+    const { error: resetError } = await withTimeout(
+      supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: recoveryCallback.toString(),
+      }),
+      PASSWORD_RESET_TIMEOUT_MS,
+    ).catch(() => ({ error: { message: "Password reset service timed out." } }))
 
     if (resetError) {
-      setError(resetError.message)
+      const fallbackReset = await fetch("/api/auth/fallback-password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail }),
+      }).then((response) => response.ok ? response.json() : null).catch(() => null)
+
+      if (fallbackReset?.available) {
+        window.location.assign(`/auth/reset-password?fallback=1&email=${encodeURIComponent(normalizedEmail)}`)
+        return
+      }
+
+      setError("Password reset is temporarily unavailable. Try again shortly, or log in if this device already has an active VesselSurge session.")
       setIsLoading(false)
       return
     }
@@ -123,4 +139,15 @@ export default function ForgotPasswordPage() {
       </main>
     </div>
   )
+}
+
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`Timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
 }

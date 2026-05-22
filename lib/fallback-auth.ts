@@ -43,6 +43,12 @@ function decodePayload(value: string): FallbackSessionPayload | null {
   }
 }
 
+function decodeAccountPayload(value: string): FallbackAccountPayload | null {
+  const payload = decodePayload(value) as FallbackAccountPayload | null
+  if (!payload?.passwordHash) return null
+  return payload
+}
+
 export function createFallbackSessionToken(payload: FallbackSessionPayload) {
   const encoded = encodePayload(payload)
   return `${encoded}.${sign(encoded)}`
@@ -134,9 +140,35 @@ export async function verifyFallbackAccount(email: string, password: string) {
     return null
   }
 
-  const payload = decodePayload(encoded) as FallbackAccountPayload | null
+  const payload = decodeAccountPayload(encoded)
   if (!payload || payload.email !== normalizedEmail) return null
   if (payload.passwordHash !== passwordHash(normalizedEmail, password)) return null
+
+  return {
+    email: payload.email,
+    companyName: payload.companyName,
+    serviceType: payload.serviceType,
+    createdAt: payload.createdAt,
+  }
+}
+
+export async function getFallbackAccountForEmail(email: string) {
+  const normalizedEmail = email.trim().toLowerCase()
+  const cookieStore = await cookies()
+  const token = cookieStore.get(ACCOUNT_COOKIE_NAME)?.value
+  if (!token) return null
+
+  const [encoded, signature] = token.split('.')
+  if (!encoded || !signature) return null
+
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(sign(encoded)))) return null
+  } catch {
+    return null
+  }
+
+  const payload = decodeAccountPayload(encoded)
+  if (!payload || payload.email !== normalizedEmail) return null
 
   return {
     email: payload.email,

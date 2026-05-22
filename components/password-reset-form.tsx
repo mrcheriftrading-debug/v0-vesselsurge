@@ -23,6 +23,7 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
   const [isCheckingSession, setIsCheckingSession] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fallbackEmail, setFallbackEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -45,6 +46,15 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
       const refreshToken = hash.get("refresh_token")
       const recoveryType = (hash.get("type") || params.get("type")) as EmailOtpType | null
       const tokenHash = params.get("token_hash")
+      const fallbackRecoveryEmail = params.get("fallback") === "1"
+        ? params.get("email")?.trim().toLowerCase()
+        : null
+
+      if (fallbackRecoveryEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fallbackRecoveryEmail)) {
+        setFallbackEmail(fallbackRecoveryEmail)
+        setIsCheckingSession(false)
+        return
+      }
 
       if (code) {
         const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
@@ -143,6 +153,32 @@ export function PasswordResetForm({ cleanPath = "/auth/reset-password" }: Passwo
 
     setIsLoading(true)
     const supabase = createClient()
+
+    if (fallbackEmail) {
+      const response = await fetch("/api/auth/fallback-password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: fallbackEmail, password }),
+      }).catch(() => null)
+
+      if (!response?.ok) {
+        setError("Password reset is temporarily unavailable. Try again shortly.")
+        setIsLoading(false)
+        return
+      }
+
+      const result = await response.json().catch(() => null)
+      if (!result?.success || !result?.available) {
+        setError("This reset link is invalid or expired. Request a new password reset link.")
+        setIsLoading(false)
+        return
+      }
+
+      router.replace("/dashboard")
+      router.refresh()
+      return
+    }
+
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
