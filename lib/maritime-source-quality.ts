@@ -53,6 +53,11 @@ const MARITIME_TRADE_SOURCE_PATTERNS = [
   /\bworld oil\b/i,
   /\boilprice\b/i,
   /\binsurance journal\b/i,
+  /\bcontainer news\b/i,
+  /\bship technology\b/i,
+  /\bworldcargo\b|\bworld cargo\b/i,
+  /\bjournal of commerce\b|\bjoc\.com\b/i,
+  /\bhapag[-\s]?lloyd\b/i,
 ]
 
 const SEARCH_LAYER_PATTERN = /\b(google news|bing news)\b/i

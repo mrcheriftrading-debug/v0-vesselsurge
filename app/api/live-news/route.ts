@@ -28,6 +28,14 @@ const TRUSTED_SOURCES = [
   'Safety4Sea',
   'MarineLog',
   'World Oil',
+  'Container News',
+  'Ship Technology',
+  'WorldCargo News',
+  'Journal of Commerce Maritime',
+  'Journal of Commerce Container Shipping',
+  'Hapag-Lloyd Liner Services',
+  'Hapag-Lloyd Ports and Inland',
+  'Hapag-Lloyd Rules and Restrictions',
   'Arab News',
   'Google News Bab el-Mandeb',
   'Google News Suez Canal',
@@ -42,6 +50,7 @@ const TRUSTED_SOURCES = [
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
+const DIRECT_NEWS_MAX_AGE_HOURS = 7 * 24
 const LIVE_NEWS_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=15, s-maxage=30, stale-while-revalidate=120', ['live-news'])
 const LIVE_NEWS_FALLBACK_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=30, s-maxage=120, stale-while-revalidate=300', ['live-news'])
 
@@ -230,6 +239,14 @@ function safeIsoDate(value: string) {
   return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString()
 }
 
+function isFreshDirectNews(timestamp?: string | null) {
+  if (!timestamp) return false
+  const parsed = Date.parse(timestamp)
+  if (!Number.isFinite(parsed)) return false
+  const ageHours = (Date.now() - parsed) / 36e5
+  return ageHours >= 0 && ageHours <= DIRECT_NEWS_MAX_AGE_HOURS
+}
+
 function googleNewsSource(title: string) {
   const parts = title.split(' - ')
   return parts.length > 1 ? `Google News: ${parts.at(-1)}` : 'Google News'
@@ -300,6 +317,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
     .filter((article) => !article.tierOneSweep || isTierOneNewsSource(`${article.source} ${article.sourceUrl}`))
     .filter((article) => !GOOGLE_NEWS_SOURCE_BLOCKLIST.test(article.source))
     .filter((article) => !HARD_NEWS_NOISE_PATTERN.test(`${article.title} ${article.summary} ${article.source}`))
+    .filter((article) => isFreshDirectNews(article.timestamp))
     .filter((article) => isOperationalMaritimeNews(article))
     .filter((article) => passesHighImpactClaimGate(article))
     .filter((article) => {

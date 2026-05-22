@@ -34,10 +34,15 @@ export const ADDITIONAL_TRUSTED_NEWS_FEEDS = [
   { source: 'Container News', url: 'https://container-news.com/feed/', credibility: 7 },
   { source: 'Ship Technology', url: 'https://www.ship-technology.com/feed/', credibility: 7 },
   { source: 'WorldCargo News', url: 'https://www.worldcargonews.com/rss', credibility: 7 },
+  { source: 'Journal of Commerce Maritime', url: 'https://www.joc.com/api/rssfeed/8876', credibility: 8 },
+  { source: 'Journal of Commerce Container Shipping', url: 'https://www.joc.com/api/rssfeed/24515', credibility: 8 },
+  { source: 'Hapag-Lloyd Liner Services', url: 'https://www.hapag-lloyd.com/feeds/en/news/liner_services.rss', credibility: 7 },
+  { source: 'Hapag-Lloyd Ports and Inland', url: 'https://www.hapag-lloyd.com/feeds/en/news/ports_inland.rss', credibility: 7 },
+  { source: 'Hapag-Lloyd Rules and Restrictions', url: 'https://www.hapag-lloyd.com/feeds/en/news/rules_regulations_restrictions.rss', credibility: 7 },
 ] as const
 
 const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com)'
-const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com)'
+const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com OR site:joc.com OR site:hapag-lloyd.com)'
 
 const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
   {
@@ -109,6 +114,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Suez authority and convoy operations',
     region: 'suez',
     query: '("Suez Canal Authority" OR "Suez Canal") (navigation OR convoy OR transit OR vessel OR canal traffic OR ship)',
+  },
+  {
+    label: 'Suez official notice sweep',
+    region: 'suez',
+    query: '(site:suezcanal.gov.eg OR "Suez Canal Authority") (navigation OR transit OR convoy OR "canal traffic" OR vessel OR ship)',
   },
   {
     label: 'Suez rerouting and freight pressure',
@@ -186,6 +196,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Taiwan Strait" OR "Kaohsiung" OR "Keelung" OR "Taipei Port") (vessel OR shipping OR cargo OR port OR maritime OR naval OR exercise OR warning OR traffic)',
   },
   {
+    label: 'Taiwan official maritime notice sweep',
+    region: 'taiwan',
+    query: '(site:motcmpb.gov.tw OR "Taiwan Maritime and Port Bureau" OR MOTCMPB) (navigation OR maritime OR port OR vessel OR warning OR traffic)',
+  },
+  {
     label: 'Taiwan Strait trade-source sweep',
     region: 'taiwan',
     query: `("Taiwan Strait" OR "Taiwan ports" OR Kaohsiung OR Keelung) (shipping OR vessel OR cargo OR container OR port OR naval OR maritime OR disruption) ${MARITIME_TRADE_SOURCE_SITES}`,
@@ -204,6 +219,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Bosporus vessel traffic suspension',
     region: 'turkish',
     query: '(Bosporus OR Bosphorus OR Dardanelles OR "Turkish Straits" OR "Istanbul Strait" OR "Canakkale Strait") ("traffic suspended" OR closure OR fog OR malfunction OR tanker OR transit OR "vessel traffic")',
+  },
+  {
+    label: 'Turkish official traffic notice sweep',
+    region: 'turkish',
+    query: '(site:kiyiemniyeti.gov.tr OR "Directorate General of Coastal Safety" OR "Turkish Coastal Safety") (Bosporus OR Bosphorus OR "Istanbul Strait" OR Dardanelles OR "vessel traffic" OR suspension OR fog)',
   },
   {
     label: 'Turkish Straits trade-source sweep',
@@ -226,6 +246,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Strait of Gibraltar" OR "Gibraltar Port" OR Algeciras OR "Algeciras Bay") (vessel OR tanker OR bunkering OR port OR traffic OR congestion OR weather OR warning OR maritime)',
   },
   {
+    label: 'Gibraltar official port notice sweep',
+    region: 'gibraltar',
+    query: '(site:gibraltarport.com OR "Gibraltar Port Authority") ("vessel traffic" OR "port notice" OR bunkering OR incident OR weather OR maritime)',
+  },
+  {
     label: 'Gibraltar trade-source sweep',
     region: 'gibraltar',
     query: `("Strait of Gibraltar" OR "Gibraltar Port" OR Algeciras OR "Algeciras Bay") (shipping OR vessel OR tanker OR port OR bunkering OR congestion OR incident) ${MARITIME_TRADE_SOURCE_SITES}`,
@@ -246,6 +271,11 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Cape of Good Hope" OR "Cape route" OR "around Africa" OR "Red Sea bypass") (container shipping OR tanker OR freight OR bunker OR fuel cost OR voyage time OR rerouting)',
   },
   {
+    label: 'Cape official maritime safety sweep',
+    region: 'cape',
+    query: '(site:samsa.org.za OR "South African Maritime Safety Authority" OR SAMSA OR "Cape of Good Hope") (shipping OR maritime safety OR navigation warning OR weather OR vessel OR rerouting)',
+  },
+  {
     label: 'Cape route trade-source sweep',
     region: 'cape',
     query: `("Cape of Good Hope" OR "Cape route" OR "around Africa" OR "Red Sea bypass") (shipping OR vessel OR container OR tanker OR freight OR rerouting OR voyage OR fuel) ${MARITIME_TRADE_SOURCE_SITES}`,
@@ -258,7 +288,7 @@ const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
 ]
 
 function googleNewsSearchUrl(query: string) {
-  return `https://news.google.com/rss/search?q=${encodeURIComponent(`${query} when:7d`)}&hl=en-US&gl=US&ceid=US:en`
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(`${query} when:1d`)}&hl=en-US&gl=US&ceid=US:en`
 }
 
 function bingNewsSearchUrl(query: string) {
