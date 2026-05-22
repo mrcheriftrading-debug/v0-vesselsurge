@@ -40,11 +40,19 @@ const TRUSTED_SOURCES = [
   'Google News Bab el-Mandeb',
   'Google News Suez Canal',
   'Google News Malacca Strait',
+  'MARAD Hormuz Security Advisory',
+  'UKMTO Products',
+  'MSCIO Alerts',
   'ReCAAP ISC Alerts',
   'ReCAAP ISC Reports',
   'Norwegian Maritime Authority',
   'MARAD Maritime Security Advisory',
   'Suez Canal Authority',
+  'Panama Canal Authority',
+  'Taiwan Maritime and Port Bureau',
+  'Turkish Directorate General of Coastal Safety',
+  'Gibraltar Port Authority',
+  'South African Maritime Safety Authority',
 ]
 
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
