@@ -50,7 +50,7 @@ const TRUSTED_SOURCES = [
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
-const DIRECT_NEWS_MAX_AGE_HOURS = 7 * 24
+const DIRECT_NEWS_MAX_AGE_HOURS = 48
 const LIVE_NEWS_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=15, s-maxage=30, stale-while-revalidate=120', ['live-news'])
 const LIVE_NEWS_FALLBACK_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=30, s-maxage=120, stale-while-revalidate=300', ['live-news'])
 
@@ -86,8 +86,8 @@ const REGION_KEYWORDS: Record<string, string[]> = {
 const OPERATIONAL_NEWS_PATTERN = /\b(ship|shipping|vessel|tanker|cargo|freight|maritime|ais|port|canal|convoy|transit|route|reroute|re-route|divert|queue|draft|water|delay|congestion|piracy|armed robbery|attack|missile|drone|seized|hijack|warning|advisory|incident|threat|war risk|insurance|oil|crude|lng|naval|voyage|fuel|bunker)\b/i
 const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|crypto|bitcoin|railway|football|cricket|tourism|movie|celebrity)\b/i
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
-const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|coinmarketcap|coin republic|unchained|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment|msn|aol|barron|discovery alert|etv bharat|wlns|latteluxury|nomad lawyer|greek city times|korea herald|chosun|nation thailand|cgtn|okdiario)\b|조선일보|아시아경제/i
-const HARD_NEWS_NOISE_PATTERN = /\b(crypto|bitcoin|blockchain|defi|token|coinmarketcap|football|cricket|celebrity|movie|tourism|historic|history|accidentally blocked|ever given)\b/i
+const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|coinmarketcap|coin republic|unchained|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment|msn|aol|barron|discovery alert|discoveryalert|etv bharat|wlns|latteluxury|nomad lawyer|greek city times|korea herald|chosun|nation thailand|cgtn|okdiario|spca)\b|조선일보|아시아경제/i
+const HARD_NEWS_NOISE_PATTERN = /\b(crypto|bitcoin|blockchain|defi|token|coinmarketcap|football|cricket|celebrity|movie|tourism|historic|history|op-ed|opinion|accidentally blocked|ever given)\b/i
 const HIGH_IMPACT_CLAIM_PATTERN = /\b(closure|closed|blockade|blocked|war began|shut(?:down)?|halted|suspended transit|traffic suspended|transit suspended)\b/i
 
 const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string; source: string; topic: string }>> = {
@@ -247,6 +247,15 @@ function isFreshDirectNews(timestamp?: string | null) {
   return ageHours >= 0 && ageHours <= DIRECT_NEWS_MAX_AGE_HOURS
 }
 
+function isGovernanceOnlyDirectUpdate(article: { title?: string | null; summary?: string | null; region?: string | null }) {
+  const region = article.region || ''
+  if (!['panama', 'taiwan', 'turkish', 'gibraltar', 'cape'].includes(region)) return false
+  const text = `${article.title || ''} ${article.summary || ''}`
+  const governanceOnly = /\b(appoint|appointed|appointment|names?|named|administrator|chief executive|ceo|board|chair|minister|president|director|leadership|election|resigns?|resignation|term)\b/i.test(text)
+  const operationalImpact = /\b(restrict|restriction|suspend|closed|closure|delay|queue|draft|draught|water level|drought|congestion|traffic disruption|ship traffic|vessel traffic|security warning|navigation warning|incident|rerout|re-rout|divert|maintenance|capacity|booking|reservation|slot)\b/i.test(text)
+  return governanceOnly && !operationalImpact
+}
+
 function googleNewsSource(title: string) {
   const parts = title.split(' - ')
   return parts.length > 1 ? `Google News: ${parts.at(-1)}` : 'Google News'
@@ -318,6 +327,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
     .filter((article) => !GOOGLE_NEWS_SOURCE_BLOCKLIST.test(article.source))
     .filter((article) => !HARD_NEWS_NOISE_PATTERN.test(`${article.title} ${article.summary} ${article.source}`))
     .filter((article) => isFreshDirectNews(article.timestamp))
+    .filter((article) => !isGovernanceOnlyDirectUpdate(article))
     .filter((article) => isOperationalMaritimeNews(article))
     .filter((article) => passesHighImpactClaimGate(article))
     .filter((article) => {

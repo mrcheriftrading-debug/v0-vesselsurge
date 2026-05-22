@@ -152,6 +152,8 @@ const GOOGLE_NEWS_NOISE_KEYWORDS = [
   'movie',
   'celebrity',
   'weather forecast',
+  'op-ed',
+  'opinion',
   'bitcoin',
   'cryptocurrency',
   'crypto',
@@ -178,6 +180,7 @@ const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'aol.com',
   'barron',
   'discovery alert',
+  'discoveryalert',
   'etv bharat',
   'yahoo finance',
   'wlns',
@@ -203,6 +206,7 @@ const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'football',
   'cricket',
   'entertainment',
+  'spca',
 ]
 const HIGH_IMPACT_CLAIM_PATTERN = /\b(closure|closed|blockade|blocked|war began|shut(?:down)?|halted|suspended transit|traffic suspended|transit suspended)\b/i
 
