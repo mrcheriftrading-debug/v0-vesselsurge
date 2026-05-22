@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import { buildHotspotAnalysisBrief } from '@/lib/maritime-analysis'
 import {
   buildMaritimeDashboardPayload,
   getFreshMaritimeDashboardCache,
@@ -297,6 +298,17 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       : sourceSweepOnly
         ? ['No fresh source-backed disruption found by the latest source sweep']
         : hotspotSignals.slice(0, 2).map((signal) => `${signal.source}: ${signal.title}`)
+    const riskSummary = currentArticles.length
+      ? riskLevel === 'critical'
+        ? riskEvidence.closureSourceCount >= 2
+          ? `CRITICAL because ${riskEvidence.closureSourceCount} independent current sources describe closure, blockade or standstill context; ${currentArticles.length} total reports across ${sourceCount} sources; latest source: ${latestSource}.`
+          : `CRITICAL because a current closure or standstill source is backed by ${riskEvidence.routePressureCount} route-pressure reports across ${sourceCount} sources; latest source: ${latestSource}.`
+        : riskLevel === 'low'
+        ? `LOW because ${currentArticles.length} current report${currentArticles.length === 1 ? '' : 's'} did not meet corroboration or operational-impact thresholds; latest source: ${latestSource}.`
+        : `${riskLevel.toUpperCase()} from ${currentArticles.length} current source-linked report${currentArticles.length === 1 ? '' : 's'} across ${sourceCount} source${sourceCount === 1 ? '' : 's'}; latest source: ${latestSource}.`
+      : hotspotArticles.length
+        ? 'LOW because the latest source sweep found no current source-backed disruption; older reports remain context only.'
+        : 'LOW because the latest source sweep found no current source-backed disruption; no incident is being claimed.'
 
     return {
       id: `direct-live-${hotspot}`,
@@ -315,18 +327,19 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
       aisSignalCount: 0,
       confidenceScore,
       confidenceLabel: sourceSweepOnly ? 'Source sweep' : confidenceScore >= 70 ? 'Corroborated' : currentArticles.length ? 'Watchlist' : 'Thin signal',
-      riskSummary: currentArticles.length
-        ? riskLevel === 'critical'
-          ? riskEvidence.closureSourceCount >= 2
-            ? `CRITICAL because ${riskEvidence.closureSourceCount} independent current sources describe closure, blockade or standstill context; ${currentArticles.length} total reports across ${sourceCount} sources; latest source: ${latestSource}.`
-            : `CRITICAL because a current closure or standstill source is backed by ${riskEvidence.routePressureCount} route-pressure reports across ${sourceCount} sources; latest source: ${latestSource}.`
-          : riskLevel === 'low'
-          ? `LOW because ${currentArticles.length} current report${currentArticles.length === 1 ? '' : 's'} did not meet corroboration or operational-impact thresholds; latest source: ${latestSource}.`
-          : `${riskLevel.toUpperCase()} from ${currentArticles.length} current source-linked report${currentArticles.length === 1 ? '' : 's'} across ${sourceCount} source${sourceCount === 1 ? '' : 's'}; latest source: ${latestSource}.`
-        : hotspotArticles.length
-          ? 'LOW because the latest source sweep found no current source-backed disruption; older reports remain context only.'
-          : 'LOW because the latest source sweep found no current source-backed disruption; no incident is being claimed.',
+      riskSummary,
       riskDrivers: riskDrivers.length ? riskDrivers : ['Operational watch coverage active'],
+      analysisBrief: buildHotspotAnalysisBrief({
+        hotspot,
+        riskLevel,
+        verifiedReports: currentArticles.length,
+        sourceCount,
+        latestSource,
+        riskSummary,
+        riskDrivers,
+        articles: currentArticles,
+        signals: hotspotSignals,
+      }),
     }
   })
 

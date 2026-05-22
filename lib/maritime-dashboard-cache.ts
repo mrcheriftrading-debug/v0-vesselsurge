@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { buildHotspotAnalysisBrief, type HotspotAnalysisBrief } from '@/lib/maritime-analysis'
 import {
   maritimeArticleIntelligenceScore,
   maritimeFreshnessScore,
@@ -196,6 +197,7 @@ export type MaritimeDashboardResponse = {
       confidenceLabel: string
       riskSummary?: string
       riskDrivers?: string[]
+      analysisBrief?: HotspotAnalysisBrief
     }>
     signals: Array<{
       signalKey: string
@@ -880,6 +882,17 @@ export async function buildMaritimeDashboardPayload(supabase: SupabaseClient): P
       confidenceLabel: confidenceLabelForHotspot(confidenceScore, { officialSignalCount, aisSignalCount, sourceSweepOnly }),
       riskSummary: riskEvidence.riskSummary,
       riskDrivers: riskEvidence.riskDrivers,
+      analysisBrief: buildHotspotAnalysisBrief({
+        hotspot: hotspot.hotspot,
+        riskLevel: derivedRiskLevel,
+        verifiedReports: reports,
+        sourceCount,
+        latestSource,
+        riskSummary: riskEvidence.riskSummary,
+        riskDrivers: riskEvidence.riskDrivers,
+        articles: articleStats[hotspot.hotspot]?.articles || [],
+        signals: regionSignals,
+      }),
     }
   })
   const qualityAudit = buildQualityAudit(hotspots, articles, signals, reviewGate)

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff } from 'lucide-react'
+import { Activity, ExternalLink, RefreshCw, Radio, FileText, Database, AlertCircle, ShieldCheck, WifiOff } from 'lucide-react'
 import { useMaritimeData } from '@/lib/use-maritime-data'
 import { maritimeSourceQualityLabel, maritimeSourceQualityTier } from '@/lib/maritime-source-quality'
 import { MapArrivalScan } from '@/components/maritime-motion-effects'
@@ -412,6 +412,12 @@ export default function MapDashboard() {
   const selectedRiskDrivers = (selected?.riskDrivers?.length ? selected.riskDrivers : fallbackRiskDrivers).slice(0, 4)
   const selectedRiskSummary = selected?.riskSummary ||
     `${riskLevel.toUpperCase()} based on ${selectedRiskDrivers[0] || 'VesselSurge source-review coverage'}.`
+  const selectedAnalysis = selected?.analysisBrief
+  const analysisConfidenceTone = selectedAnalysis?.confidence === 'Strong'
+    ? 'border-green-500/25 bg-green-500/10 text-green-300'
+    : selectedAnalysis?.confidence === 'Moderate'
+      ? 'border-sky-500/25 bg-sky-500/10 text-sky-300'
+      : 'border-amber-500/25 bg-amber-500/10 text-amber-300'
   const coverageQualityRows = Object.entries(HOTSPOT_META)
     .map(([id, hotspotMeta]) => {
       const data = hotspots[id]
@@ -686,6 +692,54 @@ export default function MapDashboard() {
           </section>
 
           <aside className="min-w-0 space-y-3 xl:sticky xl:top-20 xl:h-[calc(100vh-5.5rem)] xl:overflow-y-auto xl:pr-1">
+            <div className="rounded-2xl border border-border bg-card/45 p-4">
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Source analysis</p>
+                  <h2 className="mt-1 text-sm font-black text-foreground">What this means now</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Plain-language route impact from the current source set.</p>
+                </div>
+                <Activity className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              </div>
+
+              {selectedAnalysis ? (
+                <div className="space-y-2">
+                  <div className="rounded-xl border border-border/70 bg-background/45 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className="rounded-full px-2 py-1 text-[10px] font-black uppercase"
+                        style={{ background: riskColor + '22', color: riskColor }}
+                      >
+                        {riskLevel}
+                      </span>
+                      <span className={`rounded-full border px-2 py-1 text-[10px] font-black uppercase ${analysisConfidenceTone}`}>
+                        {selectedAnalysis.confidence} evidence
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-sm font-black text-foreground">{selectedAnalysis.headline}</h3>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{selectedAnalysis.impact}</p>
+                  </div>
+
+                  <div className="rounded-xl border border-border/70 bg-background/35 p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Why</p>
+                    <p className="mt-1 text-xs leading-5 text-foreground">{selectedAnalysis.why}</p>
+                  </div>
+
+                  <div className="rounded-xl border border-border/70 bg-background/35 p-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Watch next</p>
+                    <p className="mt-1 text-xs leading-5 text-foreground">{selectedAnalysis.watch}</p>
+                    <p className="mt-2 border-t border-border/60 pt-2 text-[11px] leading-5 text-muted-foreground">
+                      {selectedAnalysis.sourceBasis}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border/70 bg-background/45 p-3 text-xs leading-5 text-muted-foreground">
+                  Analysis is loading from the live source-review payload.
+                </div>
+              )}
+            </div>
+
             <div className="rounded-2xl border border-border bg-card/45 p-4">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>

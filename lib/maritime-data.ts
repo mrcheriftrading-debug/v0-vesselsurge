@@ -1,5 +1,6 @@
 // Server-side helpers for maritime data from Supabase
 import { createClient } from '@/lib/supabase/server'
+import type { HotspotAnalysisBrief } from '@/lib/maritime-analysis'
 
 export interface Article {
   id: string
@@ -41,6 +42,7 @@ export interface Hotspot {
   confidenceLabel?: string
   riskSummary?: string
   riskDrivers?: string[]
+  analysisBrief?: HotspotAnalysisBrief
 }
 
 export interface MaritimeSignal {

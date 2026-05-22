@@ -1,4 +1,5 @@
 import type { MaritimeDashboardResponse } from './maritime-dashboard-cache'
+import { buildHotspotAnalysisBrief } from './maritime-analysis'
 
 const ARCHIVE_TIMESTAMP = '2026-05-19T00:00:00.000Z'
 
@@ -300,6 +301,20 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
     confidence: 60,
     observedAt: ARCHIVE_TIMESTAMP,
   }))
+  const hotspotsWithAnalysis = hotspots.map((hotspot) => ({
+    ...hotspot,
+    analysisBrief: buildHotspotAnalysisBrief({
+      hotspot: hotspot.hotspot,
+      riskLevel: hotspot.riskLevel,
+      verifiedReports: hotspot.verifiedReports,
+      sourceCount: hotspot.sourceCount,
+      latestSource: hotspot.latestSource,
+      riskSummary: hotspot.riskSummary,
+      riskDrivers: hotspot.riskDrivers,
+      articles: articles.filter((article) => article.region === hotspot.hotspot),
+      signals: signals.filter((signal) => signal.region === hotspot.hotspot),
+    }),
+  }))
   const qualityAudit = {
     status: 'watch' as const,
     sourceMix: {
@@ -310,7 +325,7 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
       general: 4,
       watch: 0,
     },
-    coverageGaps: hotspots.map((hotspot) => ({
+    coverageGaps: hotspotsWithAnalysis.map((hotspot) => ({
       hotspot: hotspot.hotspot,
       score: hotspot.hotspot === 'hormuz' || hotspot.hotspot === 'bab' ? 72 : 68,
       status: 'good' as const,
@@ -326,7 +341,7 @@ export function buildOfflineMaritimeDashboardSnapshot(reason = 'network unavaila
     success: true,
     data: {
       articles,
-      hotspots,
+      hotspots: hotspotsWithAnalysis,
       signals,
       timestamp: ARCHIVE_TIMESTAMP,
       count: {

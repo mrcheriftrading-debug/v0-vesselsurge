@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
-import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { MARITIME_SEARCH_FEEDS, MARITIME_TRUSTED_PUBLISHER_FEEDS } from '@/lib/maritime-search-feeds'
 import {
   isMaritimeTradeSource,
   isOfficialMaritimeSource,
@@ -58,7 +58,34 @@ const TRUSTED_SOURCES = [
 const TRUSTED_SOURCE_PREFIXES = ['Google News:']
 const TRUSTED_SEARCH_PREFIXES = ['Bing News Search:']
 const LIVE_REGIONS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape'] as const
+type LiveRegion = typeof LIVE_REGIONS[number]
+type DirectNewsFeed = {
+  source: string
+  url: string
+  credibility: number
+  regionHint?: LiveRegion
+  window?: '24h' | '7d' | 'live' | 'publisher'
+}
 const DIRECT_NEWS_MAX_AGE_HOURS = 48
+const DIRECT_PUBLISHER_SOURCES = new Set([
+  'gCaptain',
+  'Hellenic Shipping News',
+  'Splash247',
+  'Seatrade Maritime News',
+  'MarineLink',
+  'Al Jazeera',
+  'Bloomberg Markets',
+  'Bloomberg Business',
+  'Safety4Sea',
+  'MarineLog',
+  'New York Times World',
+  'BBC World',
+  'Financial Times World',
+  'Financial Times Markets',
+  'CNBC World News',
+  'Container News',
+  'Ship Technology',
+])
 const LIVE_NEWS_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=15, s-maxage=30, stale-while-revalidate=120', ['live-news'])
 const LIVE_NEWS_FALLBACK_CACHE_HEADERS = publicVercelCacheHeaders('public, max-age=30, s-maxage=120, stale-while-revalidate=300', ['live-news'])
 
@@ -324,19 +351,24 @@ function broadenGoogleNewsWindow(url: string) {
 }
 
 async function fetchDirectLiveNews(region: string | null, topic: string | null, limit: number) {
-  const selectedFeeds = MARITIME_SEARCH_FEEDS
+  const publisherFeeds: DirectNewsFeed[] = MARITIME_TRUSTED_PUBLISHER_FEEDS.map((feed): DirectNewsFeed => ({
+    ...feed,
+    window: 'publisher',
+  })).filter((feed) => DIRECT_PUBLISHER_SOURCES.has(feed.source))
+  const searchFeeds: DirectNewsFeed[] = MARITIME_SEARCH_FEEDS
     .filter((feed) => !region || region === 'all' || feed.regionHint === region)
-    .flatMap((feed) => feed.source.startsWith('Google News Search:')
+    .flatMap((feed): DirectNewsFeed[] => feed.source.startsWith('Google News Search:')
       ? [
           { ...feed, url: feed.url, window: '24h' },
           { ...feed, url: broadenGoogleNewsWindow(feed.url), window: '7d' },
         ]
       : [{ ...feed, url: feed.url, window: 'live' }],
     )
+  const selectedFeeds = [...publisherFeeds, ...searchFeeds]
 
   const results = await Promise.allSettled(selectedFeeds.map(async (feed) => {
     const response = await fetch(feed.url, {
-      signal: AbortSignal.timeout(1800),
+      signal: AbortSignal.timeout(feed.window === 'publisher' ? 1300 : 1800),
       headers: {
         accept: 'application/rss+xml,text/xml;q=0.9,*/*;q=0.8',
         'user-agent': 'VesselSurge Source Review/1.0',
@@ -346,7 +378,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
 
     if (!response.ok) return []
     const xml = await response.text()
-    const items = xml.split('<item>').slice(1, 8)
+    const items = xml.split('<item>').slice(1, feed.window === 'publisher' ? 4 : 8)
     const googleNewsSearchFeed = isGoogleNewsSearchFeed(feed.source)
 
     return items.map((item, index) => {
@@ -356,18 +388,20 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
       const summary = decodeHtml(between(item, '<description>', '</description>'))
       const url = decodeHtml(between(item, '<link>', '</link>'))
       const publishedAt = safeIsoDate(decodeHtml(between(item, '<pubDate>', '</pubDate>')))
+      const matchedRegions = matchedArticleRegions({ title, summary, region: feed.regionHint })
+      const derivedRegion = feed.regionHint || matchedRegions[0] || 'global'
       return {
-        id: `direct-${feed.regionHint}-${feed.window}-${index}-${Buffer.from(url || title).toString('base64url').slice(0, 16)}`,
+        id: `direct-${derivedRegion}-${feed.window}-${index}-${Buffer.from(url || title).toString('base64url').slice(0, 16)}`,
         title,
         snippet: summary,
         summary,
         source,
         sourceUrl: url || null,
         topic: topic && topic !== 'all' ? topic : 'live_maritime_news',
-        region: feed.regionHint,
+        region: derivedRegion,
         timestamp: publishedAt,
         published_at: publishedAt,
-        derivedFrom: 'direct_news_search_rss',
+        derivedFrom: feed.window === 'publisher' ? 'trusted_publisher_rss' : 'direct_news_search_rss',
         tierOneSweep: feed.source.includes('Tier-1'),
       }
     })

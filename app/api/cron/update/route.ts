@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCachePayload, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
-import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { MARITIME_SEARCH_FEEDS, MARITIME_TRUSTED_PUBLISHER_FEEDS } from '@/lib/maritime-search-feeds'
 import { sourceSweepAuditSourcesForRegion, sourceSweepSummary } from '@/lib/maritime-source-sweep'
 import { isMaritimeTradeSource, isOfficialMaritimeSource, isTierOneNewsSource } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -52,23 +52,7 @@ type TrustedFeed = {
 }
 
 const TRUSTED_FEEDS = [
-  { source: 'USNI News', url: 'https://news.usni.org/feed', credibility: 9 },
-  { source: 'gCaptain', url: 'https://gcaptain.com/feed/', credibility: 8 },
-  { source: 'Hellenic Shipping News', url: 'https://www.hellenicshippingnews.com/feed/', credibility: 8 },
-  { source: 'Splash247', url: 'https://splash247.com/feed/', credibility: 8 },
-  { source: 'Offshore Energy', url: 'https://www.offshore-energy.biz/feed/', credibility: 8 },
-  { source: 'Seatrade Maritime News', url: 'https://www.seatrade-maritime.com/rss.xml', credibility: 8 },
-  { source: 'MarineLink', url: 'https://www.marinelink.com/news/rss', credibility: 8 },
-  { source: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', credibility: 8 },
-  { source: 'Bloomberg Markets', url: 'https://feeds.bloomberg.com/markets/news.rss', credibility: 8 },
-  { source: 'Bloomberg Politics', url: 'https://feeds.bloomberg.com/politics/news.rss', credibility: 8 },
-  { source: 'Bloomberg Economics', url: 'https://feeds.bloomberg.com/economics/news.rss', credibility: 8 },
-  { source: 'Bloomberg Business', url: 'https://feeds.bloomberg.com/business/news.rss', credibility: 8 },
-  { source: 'Safety4Sea', url: 'https://safety4sea.com/feed/', credibility: 8 },
-  { source: 'MarineLog', url: 'https://www.marinelog.com/feed/', credibility: 8 },
-  { source: 'World Oil', url: 'https://www.worldoil.com/rss', credibility: 7 },
-  { source: 'Arab News', url: 'https://www.arabnews.com/rss.xml', credibility: 7 },
-  ...ADDITIONAL_TRUSTED_NEWS_FEEDS,
+  ...MARITIME_TRUSTED_PUBLISHER_FEEDS,
   ...MARITIME_SEARCH_FEEDS,
 ] satisfies TrustedFeed[]
 

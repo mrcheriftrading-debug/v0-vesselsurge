@@ -209,6 +209,25 @@ async function checkProduction(checks) {
     `hotspots=${maritimeData?.count?.hotspots || 0} articles=${maritimeData?.count?.articles || 0} signals=${maritimeData?.count?.signals || 0} audit=${auditStatus}`,
     { owner: 'Live-map data agent', watchGaps, goodNoFresh },
   )
+  const analysisRows = (maritimeData?.hotspots || []).map((hotspot) => ({
+    hotspot: hotspot.hotspot,
+    hasAnalysis: Boolean(
+      hotspot.analysisBrief?.headline &&
+      hotspot.analysisBrief?.impact &&
+      hotspot.analysisBrief?.why &&
+      hotspot.analysisBrief?.watch &&
+      hotspot.analysisBrief?.sourceBasis,
+    ),
+    confidence: hotspot.analysisBrief?.confidence || 'missing',
+  }))
+  const missingAnalysis = analysisRows.filter((row) => !row.hasAnalysis).map((row) => row.hotspot)
+  record(
+    checks,
+    'live_map_analysis_gate',
+    maritime.ok && analysisRows.length === LIVE_HOTSPOTS.length && missingAnalysis.length === 0,
+    `analysis=${analysisRows.filter((row) => row.hasAnalysis).length}/${LIVE_HOTSPOTS.length} missing=${missingAnalysis.join(', ') || 'none'}`,
+    { owner: 'Data quality agent', missingAnalysis },
+  )
   const criticalEvidenceRows = criticalEvidenceByHotspot(maritimeData)
   const criticalEvidenceMismatches = criticalEvidenceRows.filter((row) => row.shouldBeCritical && row.risk !== 'critical')
   const criticalEvidenceActive = criticalEvidenceRows.filter((row) => row.shouldBeCritical).map((row) => `${row.hotspot}:${row.risk}`)

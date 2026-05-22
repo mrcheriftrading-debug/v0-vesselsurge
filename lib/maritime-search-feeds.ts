@@ -16,6 +16,12 @@ export type MaritimeSearchFeed = {
   regionHint: MaritimeSearchRegion
 }
 
+export type MaritimeTrustedPublisherFeed = {
+  source: string
+  url: string
+  credibility: number
+}
+
 type MaritimeSearchDefinition = {
   label: string
   region: MaritimeSearchRegion
@@ -40,6 +46,26 @@ export const ADDITIONAL_TRUSTED_NEWS_FEEDS = [
   { source: 'Hapag-Lloyd Ports and Inland', url: 'https://www.hapag-lloyd.com/feeds/en/news/ports_inland.rss', credibility: 7 },
   { source: 'Hapag-Lloyd Rules and Restrictions', url: 'https://www.hapag-lloyd.com/feeds/en/news/rules_regulations_restrictions.rss', credibility: 7 },
 ] as const
+
+export const MARITIME_TRUSTED_PUBLISHER_FEEDS = [
+  { source: 'USNI News', url: 'https://news.usni.org/feed', credibility: 9 },
+  { source: 'gCaptain', url: 'https://gcaptain.com/feed/', credibility: 8 },
+  { source: 'Hellenic Shipping News', url: 'https://www.hellenicshippingnews.com/feed/', credibility: 8 },
+  { source: 'Splash247', url: 'https://splash247.com/feed/', credibility: 8 },
+  { source: 'Offshore Energy', url: 'https://www.offshore-energy.biz/feed/', credibility: 8 },
+  { source: 'Seatrade Maritime News', url: 'https://www.seatrade-maritime.com/rss.xml', credibility: 8 },
+  { source: 'MarineLink', url: 'https://www.marinelink.com/news/rss', credibility: 8 },
+  { source: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml', credibility: 8 },
+  { source: 'Bloomberg Markets', url: 'https://feeds.bloomberg.com/markets/news.rss', credibility: 8 },
+  { source: 'Bloomberg Politics', url: 'https://feeds.bloomberg.com/politics/news.rss', credibility: 8 },
+  { source: 'Bloomberg Economics', url: 'https://feeds.bloomberg.com/economics/news.rss', credibility: 8 },
+  { source: 'Bloomberg Business', url: 'https://feeds.bloomberg.com/business/news.rss', credibility: 8 },
+  { source: 'Safety4Sea', url: 'https://safety4sea.com/feed/', credibility: 8 },
+  { source: 'MarineLog', url: 'https://www.marinelog.com/feed/', credibility: 8 },
+  { source: 'World Oil', url: 'https://www.worldoil.com/rss', credibility: 7 },
+  { source: 'Arab News', url: 'https://www.arabnews.com/rss.xml', credibility: 7 },
+  ...ADDITIONAL_TRUSTED_NEWS_FEEDS,
+] as const satisfies readonly MaritimeTrustedPublisherFeed[]
 
 const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com OR site:lemonde.fr OR site:businesstimes.com.sg)'
 const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com OR site:joc.com OR site:hapag-lloyd.com OR site:seatrade-maritime.com OR site:marineinsight.com OR site:portnews.ru OR site:theloadstar.com OR site:porttechnology.org OR site:rivieramm.com OR site:bairdmaritime.com OR site:maritime-executive.com OR site:marinenews.com OR site:energyintel.com OR site:tradewindsnews.com OR site:shipandbunker.com)'
