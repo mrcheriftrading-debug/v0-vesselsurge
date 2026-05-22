@@ -158,10 +158,10 @@ function checkAutomations(checks) {
   const publisherCwds = parseTomlArray(publisherText, 'cwds')
   record(
     checks,
-    'buffer_publisher_agent',
-    publisherStatus === 'ACTIVE' && /INTERVAL=(15|30)\b/.test(publisherRrule) && publisherCwds.includes(ROOT),
+    'x_publisher_agent',
+    publisherStatus === 'ACTIVE' && /INTERVAL=(1|15|30)\b/.test(publisherRrule) && publisherCwds.includes(ROOT),
     `status=${publisherStatus || 'missing'} rrule=${publisherRrule || 'missing'}`,
-    { owner: 'Growth agent', fix: 'Keep Buffer publisher active every 15-30 minutes with this repo as cwd.' },
+    { owner: 'Growth agent', fix: 'Keep the guarded X publisher active hourly or every 15-30 minutes with this repo as cwd.' },
   )
 }
 
@@ -171,7 +171,12 @@ function checkRepoWiring(checks) {
   record(checks, 'ops_agent_script', Boolean(scripts['ops:agents']), scripts['ops:agents'] || 'missing')
   record(checks, 'ops_smoke_script', Boolean(scripts['ops:smoke']), scripts['ops:smoke'] || 'missing')
   record(checks, 'maritime_update_script', Boolean(scripts['maritime:update'] && scripts['maritime:update:full']), 'maritime update scripts present')
-  record(checks, 'buffer_guard_script', Boolean(scripts['buffer:post-new'] && scripts['buffer:dry-run']), 'buffer guarded scripts present')
+  record(
+    checks,
+    'x_guard_scripts',
+    Boolean(scripts['x:check'] && scripts['x:post-new-direct'] && scripts['x:compose-new']),
+    'X direct and browser fallback scripts present',
+  )
 
   const agentText = readText(path.join(ROOT, '.agent.md'))
   record(
