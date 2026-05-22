@@ -886,6 +886,17 @@ function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error)
 }
 
+function withOperationTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  })
+}
+
 function buildStatsFromSignals(articles: TrustedArticle[], signals: MaritimeSignal[]) {
   const base = buildStats(articles)
   return base.map((row) => {
@@ -1207,7 +1218,7 @@ export async function GET(request: Request) {
         path: 'maritime_signals?on_conflict=signal_key',
         rows: signals.map((signal) => ({ ...signal, updated_at: timestamp })),
         batchSize: 12,
-        timeoutMs: 7000,
+        timeoutMs: 1800,
         describe: 'maritime signal upsert',
       })
       if (signalWrite.warnings.length > 0) {
@@ -1225,7 +1236,7 @@ export async function GET(request: Request) {
       const upsertStats = await supabaseRequest('hotspot_stats?on_conflict=hotspot', {
         method: 'POST',
         headers: { prefer: 'resolution=merge-duplicates,return=minimal' },
-        signal: AbortSignal.timeout(7000),
+        signal: AbortSignal.timeout(2500),
         body: JSON.stringify(stats),
       })
       if (upsertStats.ok) {
@@ -1300,7 +1311,17 @@ export async function GET(request: Request) {
     }
 
     stage = 'upserting dashboard cache'
-    const dashboardCacheUpdated = await upsertMaritimeDashboardCache(createAdminClient())
+    let dashboardCacheUpdated = false
+    try {
+      dashboardCacheUpdated = await withOperationTimeout(
+        upsertMaritimeDashboardCache(createAdminClient()),
+        9000,
+        'dashboard cache upsert',
+      )
+    } catch (error) {
+      maintenanceWarning ||= `dashboard cache upsert skipped: ${errorMessage(error)}`
+      console.warn('[trusted-update]', maintenanceWarning)
+    }
 
     return NextResponse.json({
       success: true,
