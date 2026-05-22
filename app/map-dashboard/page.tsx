@@ -471,7 +471,7 @@ export default function MapDashboard() {
         sourceQuality: maritimeSourceQualityLabel(latestNews?.source || latestRouteSignal?.source),
       }
     })
-    .sort((a, b) => b.score - a.score || (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0))
+    .sort((a, b) => a.score - b.score || (RISK_RANK[b.risk] || 0) - (RISK_RANK[a.risk] || 0))
   const derivedSourceMix = articles.reduce((mix, article) => {
     const tier = maritimeSourceQualityTier(article.source) as keyof typeof mix
     mix[tier] += 1
@@ -930,7 +930,7 @@ export default function MapDashboard() {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Operational quality</p>
-                  <h2 className="mt-1 text-sm font-black text-foreground">Coverage health, without cluttering the live map.</h2>
+                  <h2 className="mt-1 text-sm font-black text-foreground">Coverage health, weakest routes first.</h2>
                 </div>
                 <div className="flex flex-wrap gap-2 text-[11px]">
                   <span className={`rounded-full border px-2.5 py-1 font-black uppercase ${qualityAuditTone}`}>
