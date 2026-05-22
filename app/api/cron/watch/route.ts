@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
+import { getMaritimeDashboardCacheRow } from '@/lib/maritime-dashboard-cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MARITIME_WATCH_SOURCES, type MaritimeWatchSource } from '@/lib/maritime-watch-sources'
 
@@ -25,6 +26,7 @@ const LOCK_TTL_MS = 55 * 1000
 const AIS_STALE_MS = 5 * 60 * 1000
 const MIN_HEAVY_INTERVAL_MS = 60 * 1000
 const HEAVY_UPDATE_TIMEOUT_MS = 42_000
+const DASHBOARD_CACHE_REFRESH_MS = 7 * 60 * 1000
 
 function compact(value: string) {
   return value.replace(/\s+/g, ' ').trim()
@@ -150,6 +152,16 @@ function isRecent(iso: string | undefined, windowMs: number) {
   return Number.isFinite(timestamp) && Date.now() - timestamp < windowMs
 }
 
+function ageMs(iso: string | undefined | null) {
+  const timestamp = Date.parse(iso || '')
+  return Number.isFinite(timestamp) ? Date.now() - timestamp : Number.POSITIVE_INFINITY
+}
+
+function errorMessage(error: unknown, fallback = 'watch failed') {
+  if (error && typeof error === 'object' && 'message' in error) return String((error as { message?: unknown }).message || fallback)
+  return fallback
+}
+
 async function getWatchState(supabase: ReturnType<typeof createAdminClient>) {
   const { data, error } = await supabase.from('ingestion_state').select('value').eq('key', WATCH_STATE_KEY).maybeSingle()
   if (error) throw error
@@ -206,6 +218,36 @@ export async function GET(request: Request) {
   if (!cronSecret) return NextResponse.json({ error: 'Cron is not configured' }, { status: 503 })
   if (authHeader !== `Bearer ${cronSecret}`) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const dashboardCache = await getMaritimeDashboardCacheRow(undefined, 800).catch(() => null)
+  const dashboardCacheAgeMs = ageMs(dashboardCache?.generated_at)
+  if (dashboardCache && dashboardCacheAgeMs < DASHBOARD_CACHE_REFRESH_MS) {
+    return NextResponse.json({
+      success: true,
+      action: 'skipped',
+      reason: 'dashboard cache fresh',
+      runId,
+      durationMs: Date.now() - startedMs,
+      cacheGeneratedAt: dashboardCache.generated_at,
+      cacheAgeSeconds: Math.round(dashboardCacheAgeMs / 1000),
+      nextRefreshAfterSeconds: Math.max(0, Math.round((DASHBOARD_CACHE_REFRESH_MS - dashboardCacheAgeMs) / 1000)),
+    })
+  }
+
+  const update = await runHeavyUpdate(request, cronSecret, 'all')
+  return NextResponse.json(
+    {
+      success: update.ok,
+      action: update.ok ? 'updated' : 'failed',
+      reason: dashboardCache ? 'dashboard cache stale' : 'dashboard cache missing',
+      runId,
+      durationMs: Date.now() - startedMs,
+      cacheGeneratedAt: dashboardCache?.generated_at || null,
+      cacheAgeSeconds: Number.isFinite(dashboardCacheAgeMs) ? Math.round(dashboardCacheAgeMs / 1000) : null,
+      update,
+    },
+    { status: update.ok ? 200 : 502 },
+  )
+
   const supabase = createAdminClient()
   let state: WatchState = {}
 
@@ -254,7 +296,7 @@ export async function GET(request: Request) {
 
     await setWatchState(supabase, { ...nextState, lastStartedAt: now })
     const updateScope = ais.stale ? 'all' : 'news'
-    const update = await runHeavyUpdate(request, cronSecret, updateScope)
+    const update = await runHeavyUpdate(request, cronSecret!, updateScope)
     const completedAt = new Date().toISOString()
     const durationMs = Date.now() - startedMs
     await setWatchState(supabase, {
@@ -285,7 +327,7 @@ export async function GET(request: Request) {
     )
   } catch (error) {
     const failedAt = new Date().toISOString()
-    const message = error instanceof Error ? error.message : 'watch failed'
+    const message = errorMessage(error)
     const durationMs = Date.now() - startedMs
 
     try {
