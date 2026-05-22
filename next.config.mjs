@@ -37,7 +37,6 @@ const nextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-insights.com",
               "connect-src 'self' https://*.supabase.co https://*.vercel-insights.com https://vitals.vercel-insights.com https://api.stripe.com",
               "form-action 'self' https://checkout.stripe.com",
-              "upgrade-insecure-requests",
             ].join('; '),
           },
         ],
