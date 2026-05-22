@@ -6,6 +6,8 @@ import { assertSameOrigin } from "@/lib/security"
 export const runtime = "nodejs"
 export const preferredRegion = "fra1"
 
+const SUPABASE_SIGNUP_TIMEOUT_MS = 5500
+
 type SignUpPayload = {
   email?: string
   password?: string
@@ -99,7 +101,7 @@ export async function POST(request: Request) {
           service_type: serviceType,
         },
       }),
-      12000,
+      SUPABASE_SIGNUP_TIMEOUT_MS,
       "Supabase Auth account creation",
     )
 
