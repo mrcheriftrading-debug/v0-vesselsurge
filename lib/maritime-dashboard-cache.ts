@@ -8,6 +8,7 @@ import {
 } from '@/lib/maritime-source-quality'
 
 const CACHE_KEY = 'live-map'
+const REDIS_CACHE_KEY = `vesselsurge:maritime-dashboard-cache:${CACHE_KEY}`
 const CACHE_TTL_MS = 5 * 60 * 1000
 const STALE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
@@ -27,6 +28,57 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Pro
   return Promise.race([promise, timeout]).finally(() => {
     if (timeoutId) clearTimeout(timeoutId)
   })
+}
+
+function getRedisConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
+
+  if (!url || !token) return null
+  return { url, token }
+}
+
+async function redisCommand<T>(command: unknown[], timeoutMs: number): Promise<T | null> {
+  const config = getRedisConfig()
+  if (!config) return null
+
+  try {
+    const response = await fetch(config.url, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${config.token}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(command),
+      signal: AbortSignal.timeout(timeoutMs),
+    })
+
+    if (!response.ok) return null
+    const body = await response.json() as { result?: T; error?: string }
+    if (body.error) return null
+    return body.result ?? null
+  } catch {
+    return null
+  }
+}
+
+async function getDashboardCacheRowViaRedis(timeoutMs: number): Promise<DashboardCacheRow | null> {
+  const cached = await redisCommand<string | DashboardCacheRow>(['GET', REDIS_CACHE_KEY], timeoutMs)
+  if (!cached) return null
+
+  try {
+    const row = typeof cached === 'string' ? JSON.parse(cached) : cached
+    if (!row?.payload || !row?.generated_at) return null
+    return row as DashboardCacheRow
+  } catch {
+    return null
+  }
+}
+
+async function upsertDashboardCacheRowViaRedis(row: DashboardCacheRow) {
+  const ttlSeconds = Math.round(STALE_CACHE_TTL_MS / 1000)
+  const result = await redisCommand<string>(['SET', REDIS_CACHE_KEY, JSON.stringify(row), 'EX', ttlSeconds], 2500)
+  return result === 'OK'
 }
 
 async function getDashboardCacheRowViaRest(timeoutMs: number): Promise<DashboardCacheRow | null> {
@@ -77,6 +129,7 @@ async function getDashboardCacheRowViaClient(supabase: SupabaseClient, timeoutMs
 
 export async function getMaritimeDashboardCacheRow(supabase?: SupabaseClient, timeoutMs = 1400) {
   return (
+    await getDashboardCacheRowViaRedis(timeoutMs) ||
     await getDashboardCacheRowViaRest(timeoutMs) ||
     (supabase ? await getDashboardCacheRowViaClient(supabase, timeoutMs, 'maritime dashboard cache row') : null)
   )
@@ -782,15 +835,22 @@ export async function upsertMaritimeDashboardCache(supabase: SupabaseClient) {
 
 export async function upsertMaritimeDashboardCachePayload(supabase: SupabaseClient, payload: MaritimeDashboardResponse) {
   const generatedAt = payload.data.timestamp
+  const row = {
+    payload: {
+      ...payload,
+      meta: { ...payload.meta, cached: true, generatedAt },
+    },
+    generated_at: generatedAt,
+  }
+
+  if (await upsertDashboardCacheRowViaRedis(row)) return true
+
   const { error } = await supabase
     .from('maritime_dashboard_cache')
     .upsert(
       {
         cache_key: CACHE_KEY,
-        payload: {
-          ...payload,
-          meta: { ...payload.meta, cached: true, generatedAt },
-        },
+        payload: row.payload,
         generated_at: generatedAt,
         updated_at: generatedAt,
       },
