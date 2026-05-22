@@ -4,6 +4,7 @@ import {
   getFreshMaritimeDashboardCache,
   getLastMaritimeDashboardCache,
   reviewArticleForLiveMap,
+  upsertMaritimeDashboardCachePayload,
   type MaritimeDashboardResponse,
 } from '@/lib/maritime-dashboard-cache'
 import { buildOfflineMaritimeDashboardSnapshot } from '@/lib/maritime-offline-snapshot'
@@ -354,6 +355,13 @@ export async function GET(request: Request) {
 
   const directLivePayload = await fetchDirectMaritimePayload(request)
   if (directLivePayload) {
+    await withTimeout(
+      upsertMaritimeDashboardCachePayload(supabase, directLivePayload),
+      3000,
+      'direct live dashboard cache write',
+    ).catch((error) => {
+      console.warn('[maritime-data] Direct live dashboard cache write skipped:', error)
+    })
     return buildValidatedJsonResponse(directLivePayload, request)
   }
 
