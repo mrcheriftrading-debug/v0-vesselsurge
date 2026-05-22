@@ -58,6 +58,11 @@ const MARITIME_TRADE_SOURCE_PATTERNS = [
   /\bworldcargo\b|\bworld cargo\b/i,
   /\bjournal of commerce\b|\bjoc\.com\b/i,
   /\bhapag[-\s]?lloyd\b/i,
+  /\bportnews\b|\bportnews iaa\b|\bportnews\.ru\b/i,
+  /\bport technology\b|\bporttechnology\.org\b/i,
+  /\bthe loadstar\b|\btheloadstar\.com\b/i,
+  /\briviera maritime\b|\brivieramm\.com\b/i,
+  /\bbaird maritime\b|\bbairdmaritime\.com\b/i,
 ]
 
 const SEARCH_LAYER_PATTERN = /\b(google news|bing news)\b/i
