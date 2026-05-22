@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { buildMarketImpactReport, MARKET_PRO_NEWS_MAX_AGE_HOURS, MARKET_PRO_SIGNAL_MAX_AGE_HOURS } from '@/lib/market-impact'
-import { getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
+import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { getMarketSnapshot } from '@/lib/market-snapshot'
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
@@ -58,6 +58,23 @@ export async function buildLiveMarketProReport(supabase: SupabaseClient) {
     }
     return null
   })
+
+  const reviewedDashboard = await withTimeout(
+    getFreshMaritimeDashboardCache(supabase),
+    1200,
+    'Market Pro reviewed live map cache',
+  ).catch(() => null)
+
+  if (reviewedDashboard?.data) {
+    return {
+      report: buildMarketProReportFromDashboardData(reviewedDashboard.data, marketSnapshot),
+      sourceCounts: {
+        news: reviewedDashboard.data.articles.length,
+        signals: reviewedDashboard.data.signals.length,
+        marketQuotes: marketSnapshot?.quotes.length || 0,
+      },
+    }
+  }
 
   const databaseResult = await withTimeout(
     Promise.all([
