@@ -1,5 +1,9 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
+import {
+  getFreshMaritimeDashboardCache,
+  getLastMaritimeDashboardCache,
+} from '@/lib/maritime-dashboard-cache'
 import { createClient } from '@/lib/supabase/server'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
@@ -20,24 +24,54 @@ function unavailableStats() {
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: statsData } = await supabase.from('hotspot_stats').select('*')
     const { data: alertsData } = await supabase
       .from('hotspot_alerts')
       .select('*')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(10)
+    const cache = await getFreshMaritimeDashboardCache(supabase) || await getLastMaritimeDashboardCache(supabase, 'serving reviewed maritime intelligence stats')
 
     const stats: Record<string, any> = {}
-    for (const row of statsData || []) {
-      stats[row.hotspot] = {
-        activeVessels: row.active_vessels,
-        dailyTransits: row.daily_transits,
-        avgWaitTime:   row.avg_wait_time,
-        marketVolume:  row.market_volume,
-        riskLevel:     row.risk_level,
-        updatedAt:     row.updated_at,
-        activeAlerts:  [],
+
+    if (cache) {
+      for (const hotspot of cache.data.hotspots) {
+        const coverage = cache.data.qualityAudit?.coverageGaps.find((gap) => gap.hotspot === hotspot.hotspot)
+        stats[hotspot.hotspot] = {
+          activeVessels: hotspot.activeVessels,
+          dailyTransits: hotspot.dailyTransits,
+          avgWaitTime: hotspot.avgWaitTime,
+          marketVolume: hotspot.marketVolume,
+          riskLevel: hotspot.riskLevel,
+          updatedAt: hotspot.updatedAt,
+          verifiedReports: hotspot.verifiedReports,
+          sourceCount: hotspot.sourceCount,
+          latestSource: hotspot.latestSource,
+          signalCount: hotspot.signalCount,
+          confidenceScore: hotspot.confidenceScore,
+          confidenceLabel: hotspot.confidenceLabel,
+          sourceQualityStatus: coverage?.status || 'watch',
+          sourceQualityScore: coverage?.score || 0,
+          missingEvidence: coverage?.missing || [],
+          riskSummary: hotspot.riskSummary,
+          riskDrivers: hotspot.riskDrivers || [],
+          dataStatus: cache.meta?.stale ? 'reviewed_cache_stale' : 'reviewed_live_map_cache',
+          activeAlerts: [],
+        }
+      }
+    } else {
+      const { data: statsData } = await supabase.from('hotspot_stats').select('*')
+      for (const row of statsData || []) {
+        stats[row.hotspot] = {
+          activeVessels: row.active_vessels,
+          dailyTransits: row.daily_transits,
+          avgWaitTime: row.avg_wait_time,
+          marketVolume: row.market_volume,
+          riskLevel: row.risk_level,
+          updatedAt: row.updated_at,
+          activeAlerts: [],
+          dataStatus: 'raw_hotspot_stats_fallback',
+        }
       }
     }
 
@@ -58,7 +92,7 @@ export async function GET() {
     }
 
     return NextResponse.json(
-      { success: true, data: stats, timestamp: new Date().toISOString() },
+      { success: true, data: stats, source: cache ? 'reviewed-live-map-cache' : 'hotspot-stats-fallback', timestamp: new Date().toISOString() },
       { headers: publicVercelCacheHeaders('public, s-maxage=30, stale-while-revalidate=120', ['maritime-intelligence', 'live-map']) }
     )
   } catch (err: any) {
