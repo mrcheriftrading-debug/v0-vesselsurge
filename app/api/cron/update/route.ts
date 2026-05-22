@@ -4,7 +4,7 @@ import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCachePayload, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
-import { isTierOneNewsSource } from '@/lib/maritime-source-quality'
+import { isMaritimeTradeSource, isOfficialMaritimeSource, isTierOneNewsSource } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
@@ -203,6 +203,7 @@ const GOOGLE_NEWS_SOURCE_BLOCKLIST = [
   'cricket',
   'entertainment',
 ]
+const HIGH_IMPACT_CLAIM_PATTERN = /\b(closure|closed|blockade|blocked|war began|shut(?:down)?|halted|suspended transit|traffic suspended|transit suspended)\b/i
 
 const CURRENT_YEAR = new Date().getUTCFullYear()
 const MONTHS: Record<string, number> = {
@@ -364,6 +365,14 @@ function hasOperationalChokepointSignal(article: TrustedArticle) {
   const hasEnergyRoute = article.region === 'hormuz' && hasRegionEnergySignal(article)
 
   return hasEnergyRoute || hasVesselOrRoute || hasSecurityIncident || hasNamedExpansionRoute
+}
+
+function passesHighImpactClaimGate(article: TrustedArticle) {
+  const text = `${article.title} ${article.snippet}`
+  if (!HIGH_IMPACT_CLAIM_PATTERN.test(text)) return true
+
+  const sourceContext = `${article.source} ${article.url}`
+  return isOfficialMaritimeSource(sourceContext) || isTierOneNewsSource(sourceContext) || isMaritimeTradeSource(sourceContext)
 }
 
 function isNoisyGoogleNewsArticle(article: TrustedArticle) {
@@ -655,6 +664,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => !isGlobalSupplyChainNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
+    .filter((article) => passesHighImpactClaimGate(article))
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))
@@ -670,6 +680,7 @@ async function collectTrustedArticles(now = new Date(), options: { fast?: boolea
     .filter((article) => !isGlobalSupplyChainNoise(article))
     .filter((article) => !isMisassignedDominantRegionArticle(article))
     .filter((article) => hasRegionOrRouteSignal(article))
+    .filter((article) => passesHighImpactClaimGate(article))
     .filter((article) => !isWebSearchArticle(article) || hasOperationalChokepointSignal(article))
     .filter((article) => !isNoisyGoogleNewsArticle(article))
     .filter((article) => isCurrentYear(article))

@@ -3,7 +3,12 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getFreshMaritimeDashboardCache, getLastMaritimeDashboardCache } from '@/lib/maritime-dashboard-cache'
 import { MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
-import { isTierOneNewsSource, TIER_ONE_NEWS_SOURCE_NAMES } from '@/lib/maritime-source-quality'
+import {
+  isMaritimeTradeSource,
+  isOfficialMaritimeSource,
+  isTierOneNewsSource,
+  TIER_ONE_NEWS_SOURCE_NAMES,
+} from '@/lib/maritime-source-quality'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 const TRUSTED_SOURCES = [
@@ -74,6 +79,7 @@ const NOISE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|
 const FINANCIAL_TITLE_PATTERN = /\b(stock|stocks|shares|dividend|earnings|equity|equities|bond|bonds|forex|market cap|price target)\b/i
 const GOOGLE_NEWS_SOURCE_BLOCKLIST = /\b(crypto|bitcoin|blockchain|defi|decrypt|coingape|coinmarketcap|coin republic|unchained|facebook|mexc|forex|fxstreet|travel|tourism|sports|football|cricket|entertainment|msn|aol|barron|discovery alert|etv bharat|wlns|latteluxury|nomad lawyer|greek city times|korea herald|chosun|nation thailand|cgtn|okdiario)\b|조선일보|아시아경제/i
 const HARD_NEWS_NOISE_PATTERN = /\b(crypto|bitcoin|blockchain|defi|token|coinmarketcap|football|cricket|celebrity|movie|tourism|historic|history|accidentally blocked|ever given)\b/i
+const HIGH_IMPACT_CLAIM_PATTERN = /\b(closure|closed|blockade|blocked|war began|shut(?:down)?|halted|suspended transit|traffic suspended|transit suspended)\b/i
 
 const WATCH_NEWS_CONTEXT: Record<string, Array<{ title: string; summary: string; source: string; topic: string }>> = {
   hormuz: [
@@ -177,6 +183,14 @@ function isOperationalMaritimeNews(article: any) {
     return false
   }
   return hasRegionSignal(article)
+}
+
+function passesHighImpactClaimGate(article: any) {
+  const text = `${article.title || ''} ${article.summary || article.snippet || ''}`
+  if (!HIGH_IMPACT_CLAIM_PATTERN.test(text)) return true
+
+  const sourceContext = `${article.source || ''} ${article.sourceUrl || article.url || ''}`
+  return isOfficialMaritimeSource(sourceContext) || isTierOneNewsSource(sourceContext) || isMaritimeTradeSource(sourceContext)
 }
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
@@ -287,6 +301,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
     .filter((article) => !GOOGLE_NEWS_SOURCE_BLOCKLIST.test(article.source))
     .filter((article) => !HARD_NEWS_NOISE_PATTERN.test(`${article.title} ${article.summary} ${article.source}`))
     .filter((article) => isOperationalMaritimeNews(article))
+    .filter((article) => passesHighImpactClaimGate(article))
     .filter((article) => {
       const key = article.sourceUrl || article.title
       if (seen.has(key)) return false
@@ -470,6 +485,7 @@ export async function GET(request: Request) {
     const articles = dedupeNewsItems((data || [])
       .filter((a: any) => isTrustedSource(a.source || ''))
       .filter((a: any) => isOperationalMaritimeNews(a))
+      .filter((a: any) => passesHighImpactClaimGate(a))
       .filter((a: any) => !region || region === 'all' || a.region === region)
       .map((a: any) => ({
         id: a.id,
