@@ -312,6 +312,14 @@ function marketProLeadHotspot(marketProCache: MarketProAnalysisCache | null) {
     normalizedHotspot(marketProCache?.report?.analysisBrief?.signal)
 }
 
+function marketProCoveredHotspots(marketProCache: MarketProAnalysisCache | null) {
+  const stories = marketProCache?.report?.topStories || []
+  const hotspots = stories
+    .map((story) => normalizedHotspot(story.region) || normalizedHotspot(`${story.title || ''} ${story.summary || ''}`))
+    .filter(Boolean) as string[]
+  return new Set(hotspots)
+}
+
 function marketProConsistencyStatus(
   marketProCache: MarketProAnalysisCache | null,
   hotspots: Array<{ hotspot: string; riskLevel?: string | null }>,
@@ -343,6 +351,7 @@ function marketProConsistencyStatus(
 
   const leadRow = hotspots.find((row) => row.hotspot === leadHotspot)
   const leadHotspotRisk = leadRow?.riskLevel || null
+  const coveredHotspots = marketProCoveredHotspots(marketProCache)
 
   if (!leadRow) {
     return {
@@ -359,6 +368,16 @@ function marketProConsistencyStatus(
     strongestHotspot.hotspot !== leadHotspot &&
     riskRank(strongestHotspot.riskLevel) > riskRank(leadHotspotRisk)
   ) {
+    if (coveredHotspots.has(strongestHotspot.hotspot)) {
+      return {
+        status: 'ok' as Status,
+        leadHotspot,
+        leadHotspotRisk,
+        strongestHotspot: strongestHotspot.hotspot,
+        note: `Market Pro lead ${leadHotspot} is the market-impact lead, and strongest live-map hotspot ${strongestHotspot.hotspot} is covered in the Market Pro source evidence.`,
+      }
+    }
+
     return {
       status: 'degraded' as Status,
       leadHotspot,
