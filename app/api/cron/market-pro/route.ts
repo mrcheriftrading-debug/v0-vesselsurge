@@ -36,6 +36,7 @@ function isExpectedFallbackReason(error: unknown) {
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
+  const forceRefresh = new URL(request.url).searchParams.get('force') === '1'
 
   if (!cronSecret) {
     return NextResponse.json({ success: false, error: 'Cron is not configured' }, { status: 503 })
@@ -56,7 +57,7 @@ export async function GET(request: Request) {
     ).catch(() => null)
     const existingAgeMs = ageMs(existingCache?.generatedAt)
 
-    if (existingCache && existingAgeMs < MARKET_PRO_MIN_REFRESH_MS) {
+    if (!forceRefresh && existingCache && existingAgeMs < MARKET_PRO_MIN_REFRESH_MS) {
       return NextResponse.json({
         success: true,
         action: 'skipped',
