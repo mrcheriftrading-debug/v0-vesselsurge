@@ -78,6 +78,11 @@ const TRUSTED_PAGES = [
   { source: 'Norwegian Maritime Authority', url: 'https://www.sdir.no/en/accidents-and-safety/maritim-sikring/security-level-for-norwegian-vessels/gulf-of-aden-bab-el-mandeb-red-sea/', credibility: 9, region: 'bab' },
   { source: 'MARAD Maritime Security Advisory', url: 'https://www.maritime.dot.gov/msci/2026-006-red-sea-bab-el-mandeb-strait-gulf-aden-arabian-sea-and-somali-basin-houthi-attacks', credibility: 9, region: 'bab' },
   { source: 'Suez Canal Authority', url: 'https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx', credibility: 10, region: 'suez' },
+  { source: 'Panama Canal Authority', url: 'https://pancanal.com/en/maritime-services/advisory-to-shipping/', credibility: 10, region: 'panama' },
+  { source: 'Taiwan Maritime and Port Bureau', url: 'https://www.motcmpb.gov.tw/RSS', credibility: 10, region: 'taiwan' },
+  { source: 'Turkish Directorate General of Coastal Safety', url: 'https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2', credibility: 10, region: 'turkish' },
+  { source: 'Gibraltar Port Authority', url: 'https://www.gibraltarport.com/port-information/vessel-traffic-services', credibility: 10, region: 'gibraltar' },
+  { source: 'South African Maritime Safety Authority', url: 'https://www.samsa.org.za/Pages/Notices.aspx', credibility: 10, region: 'cape' },
   { source: 'MSCIO Alerts', url: 'https://www.mscio.eu/alerts/', credibility: 10, region: 'bab' },
   { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', credibility: 10, region: 'bab' },
 ]
