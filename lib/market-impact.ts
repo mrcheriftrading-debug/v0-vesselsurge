@@ -208,6 +208,59 @@ function scoreText(text: string, timestamp?: string | null, source?: string | nu
   }
 }
 
+function operationalStoryText(item: NewsInput | SignalInput) {
+  return `${item.title || ''} ${itemSummary(item)} ${item.region || ''} ${isSignalInput(item) ? item.signal_type || '' : item.topic || ''}`
+}
+
+function hasDirectOperationalIncident(text: string) {
+  return /\b(attack|missile|strike|seized|hijack|warning shots|fired warning|incident|security warning|navigation warning|closure|blocked|suspend|stopped|collision|explosion|fire|damaged|distress|piracy|armed|approach(?:ing)? craft|vessel fires|tanker fires)\b/i.test(text)
+}
+
+function hasRoutePressure(text: string) {
+  return /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i.test(text)
+}
+
+function isOperationalSignal(item: NewsInput | SignalInput) {
+  return isSignalInput(item) && Boolean(item.signal_type) && !['source_sweep', 'news_corroboration'].includes(item.signal_type || '')
+}
+
+function buildRegionEvidenceGate(items: Array<NewsInput | SignalInput>) {
+  const rows: Record<string, { sources: Set<string>; directIncidents: number; routePressure: number; operationalSignals: number }> = {}
+
+  for (const item of items) {
+    const region = item.region || 'global'
+    if (!rows[region]) rows[region] = { sources: new Set(), directIncidents: 0, routePressure: 0, operationalSignals: 0 }
+    const text = operationalStoryText(item)
+
+    if (item.source && !(isSignalInput(item) && item.signal_type === 'source_sweep')) rows[region].sources.add(item.source)
+    if (hasDirectOperationalIncident(text)) rows[region].directIncidents += 1
+    if (hasRoutePressure(text)) rows[region].routePressure += 1
+    if (isOperationalSignal(item)) rows[region].operationalSignals += 1
+  }
+
+  return rows
+}
+
+function passesMarketEvidenceGate(item: NewsInput | SignalInput, regionEvidence: ReturnType<typeof buildRegionEvidenceGate>) {
+  if (isSignalInput(item) && item.signal_type === 'source_sweep') return false
+  if (isOperationalSignal(item)) return true
+
+  const region = item.region || 'global'
+  const evidence = regionEvidence[region]
+  if (!evidence) return false
+
+  const text = operationalStoryText(item)
+  const hasDirectIncident = hasDirectOperationalIncident(text)
+  const hasPressure = hasRoutePressure(text)
+  const sourceCount = evidence.sources.size
+
+  if (evidence.directIncidents >= 2 && sourceCount >= 2) return true
+  if (evidence.directIncidents >= 1 && evidence.routePressure >= 2 && sourceCount >= 2) return true
+  if ((hasDirectIncident || hasPressure) && evidence.routePressure >= 2 && sourceCount >= 2) return true
+
+  return false
+}
+
 function severityLabel(score: number) {
   if (score >= 78) return 'critical'
   if (score >= 58) return 'high'
@@ -741,10 +794,12 @@ export function buildMarketImpactReport(news: NewsInput[], signals: SignalInput[
   const staleExcludedCount = rawMerged.length - merged.length
   const freshNews = news.filter(isFreshMarketInput)
   const freshSignals = signals.filter(isFreshMarketInput)
+  const regionEvidence = buildRegionEvidenceGate(merged.map(({ item }) => item))
 
   const scored = merged
+    .filter(({ item }) => passesMarketEvidenceGate(item, regionEvidence))
     .map(({ kind, item }) => {
-      const text = `${item.title || ''} ${itemSummary(item)} ${item.region || ''} ${isSignalInput(item) ? item.signal_type || '' : item.topic || ''}`
+      const text = operationalStoryText(item)
       const source = item.source || 'VesselSurge source layer'
       const { score, reasons } = scoreText(text, itemTime(item), source)
       return {
