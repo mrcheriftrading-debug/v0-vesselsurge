@@ -1,5 +1,6 @@
 import { MARITIME_SEARCH_FEEDS } from './maritime-search-feeds'
 import type { MaritimeSearchRegion } from './maritime-search-feeds'
+import { OFFICIAL_MARITIME_WATCH_SOURCES } from './maritime-official-watch-sources'
 
 export type MaritimeWatchSource = {
   source: string
@@ -15,14 +16,5 @@ export const MARITIME_WATCH_SOURCES: MaritimeWatchSource[] = [
     kind: 'rss' as const,
     regionHint: feed.regionHint,
   })),
-  { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', kind: 'html', regionHint: 'bab' },
-  { source: 'MSCIO Alerts', url: 'https://www.mscio.eu/alerts/', kind: 'html', regionHint: 'bab' },
-  { source: 'ReCAAP ISC Alerts', url: 'https://www.recaap.org/alerts', kind: 'html', regionHint: 'malacca' },
-  { source: 'ReCAAP ISC Reports', url: 'https://www.recaap.org/reports', kind: 'html', regionHint: 'malacca' },
-  {
-    source: 'Suez Canal Authority',
-    url: 'https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx',
-    kind: 'html',
-    regionHint: 'suez',
-  },
+  ...OFFICIAL_MARITIME_WATCH_SOURCES,
 ]

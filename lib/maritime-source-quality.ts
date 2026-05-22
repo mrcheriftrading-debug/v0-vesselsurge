@@ -32,8 +32,10 @@ const OFFICIAL_SOURCE_PATTERNS = [
   /\brecaap\b/i,
   /\bsuez canal authority\b/i,
   /\bpanama canal authority\b|\bpancanal\b/i,
+  /\btaiwan maritime and port bureau\b|\bmotcmpb\b/i,
   /\bgibraltar port authority\b/i,
   /\bdirectorate general of coastal safety\b|\bturkish coastal safety\b/i,
+  /\bsouth african maritime safety authority\b|\bsamsa\b/i,
   /\bnorwegian maritime authority\b/i,
 ]
 

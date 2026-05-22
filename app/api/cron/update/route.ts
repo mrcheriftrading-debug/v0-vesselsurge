@@ -4,6 +4,7 @@ import { collectAisStreamVessels } from '@/lib/aisstream'
 import { upsertMaritimeDashboardCachePayload, type MaritimeDashboardResponse } from '@/lib/maritime-dashboard-cache'
 import { fetchAllMarineConditions } from '@/lib/marine-conditions'
 import { ADDITIONAL_TRUSTED_NEWS_FEEDS, MARITIME_SEARCH_FEEDS } from '@/lib/maritime-search-feeds'
+import { officialMaritimeWatchSourceForRegion } from '@/lib/maritime-official-watch-sources'
 import { isMaritimeTradeSource, isOfficialMaritimeSource, isTierOneNewsSource } from '@/lib/maritime-source-quality'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -809,12 +810,13 @@ function buildSourceSweepSignals(articles: TrustedArticle[], currentSignals: Mar
     })
     .map((region) => {
       const route = ROUTE_LABELS[region]
+      const officialSource = officialMaritimeWatchSourceForRegion(region)
       return {
         signal_key: stableSignalKey(['source-sweep', region, observedAt.slice(0, 13)]),
-        source: 'VesselSurge Source Sweep',
-        source_url: route.url,
+        source: officialSource?.source || 'VesselSurge Source Sweep',
+        source_url: officialSource?.url || route.url,
         title: `${route.name}: no fresh source-backed disruption found`,
-        summary: `The latest VesselSurge sweep found no current source-backed disruption for ${route.name}. The route remains live and will update when trusted sources match.`,
+        summary: `The latest VesselSurge sweep checked trusted news${officialSource ? ` and ${officialSource.source}` : ''}; no current source-backed disruption is being claimed for ${route.name}. The route remains live and will update when trusted sources match.`,
         region,
         signal_type: 'source_sweep' as const,
         severity: 'low' as const,
