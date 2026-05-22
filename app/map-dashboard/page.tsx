@@ -47,6 +47,13 @@ const RISK_RANK: Record<string, number> = {
   low: 1,
 }
 
+const RISK_BASIS: Record<string, string> = {
+  critical: 'Critical means confirmed severe disruption, closure, attack impact, or major operational interruption.',
+  high: 'High means direct vessel/security incident or multiple current reports with operational impact.',
+  medium: 'Medium means verified route pressure, but no confirmed closure, attack impact, major delay, or traffic halt.',
+  low: 'Low means the latest source sweep found no fresh source-backed disruption for this route.',
+}
+
 type FeedItem = {
   id: string
   title: string
@@ -695,6 +702,9 @@ export default function MapDashboard() {
               </div>
               <div className="rounded-xl border border-border/70 bg-background/45 p-3">
                 <p className="text-xs leading-5 text-foreground">{selectedRiskSummary}</p>
+                <p className="mt-2 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-[11px] leading-5 text-muted-foreground">
+                  {RISK_BASIS[riskLevel] || 'Risk level is set from current source-reviewed reports, signals and route coverage.'}
+                </p>
                 <div className="mt-3 space-y-2 border-t border-border/60 pt-3">
                   {selectedRiskDrivers.map((driver, index) => (
                     <div key={driver} className="grid grid-cols-[24px_minmax(0,1fr)] gap-2 text-xs text-muted-foreground">
