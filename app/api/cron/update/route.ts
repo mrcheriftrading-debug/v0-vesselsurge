@@ -1096,6 +1096,7 @@ export async function GET(request: Request) {
   let stage = 'pruning stale news'
   let maintenanceWarning: string | null = null
   let articlesWritten = 0
+  let signalsWritten = 0
 
   try {
     const staleNewsCutoff = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
@@ -1211,8 +1212,10 @@ export async function GET(request: Request) {
       if (signalWrite.warnings.length > 0) {
         maintenanceWarning ||= signalWrite.warnings[0]
       }
+      signalsWritten = signalWrite.written
       if (signalWrite.written === 0) {
-        throw new Error(`Failed to upsert any maritime signals across ${signalWrite.warnings.length || 1} batch attempt(s)`)
+        maintenanceWarning ||= `maritime signal upsert wrote 0 rows across ${signalWrite.warnings.length || 1} batch attempt(s); continuing with last known signal layer`
+        console.warn('[trusted-update]', maintenanceWarning)
       }
     }
 
@@ -1294,6 +1297,7 @@ export async function GET(request: Request) {
       articles_inserted: articlesWritten,
       stats_updated: stats.length,
       signals_found: signals.length,
+      signals_written: signalsWritten,
       official_signals: signals.filter((signal) => signal.signal_type === 'official_alert' || signal.signal_type === 'navigation_warning').length,
       ais_signals: signals.filter((signal) => signal.signal_type === 'ais_anomaly').length,
       marine_conditions: marineConditions.length,
