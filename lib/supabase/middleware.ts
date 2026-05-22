@@ -6,12 +6,6 @@ import { getSafeNextPath } from '@/lib/auth-next'
 const FALLBACK_SESSION_COOKIE = 'vesselsurge_fallback_session'
 const AUTH_REFRESH_TIMEOUT_MS = 1400
 
-function hasSupabaseSessionCookie(request: NextRequest) {
-  return request.cookies.getAll().some((cookie) =>
-    cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token'),
-  )
-}
-
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number, label: string): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = new Promise<never>((_, reject) => {
@@ -39,7 +33,7 @@ export async function updateSession(request: NextRequest) {
   const hasFallbackDashboardSession =
     pathname.startsWith('/dashboard') &&
     Boolean(request.cookies.get(FALLBACK_SESSION_COOKIE)?.value)
-  const shouldCheckSupabaseAuth = isProtected || isAuthEntryPage || hasSupabaseSessionCookie(request)
+  const shouldCheckSupabaseAuth = isProtected || isAuthEntryPage
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
