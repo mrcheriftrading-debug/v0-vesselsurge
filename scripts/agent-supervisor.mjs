@@ -6,6 +6,7 @@ const ROOT = process.cwd()
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vesselsurge.com'
 const AUTOMATIONS_DIR = '/Users/vesselsurge/.codex/automations'
 const OPENCLAW_DIR = '/Users/vesselsurge/.openclaw'
+const LIVE_HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
 
 function readText(file) {
   try {
@@ -76,6 +77,38 @@ function record(checks, name, ok, detail, extra = {}) {
     status: ok ? 'ok' : 'fail',
     detail,
     ...extra,
+  })
+}
+
+function hasCriticalClosureContext(text) {
+  return /\b(effective(?:ly)? closed|closed to (?:most )?(?:commercial|international|foreign)?\s*shipping|shipping (?:is )?at a standstill|traffic (?:is )?at a standstill|standstill|blockade|blocked maritime traffic|traffic collapse|almost completely collapsed|chokehold|reopen(?:ing)? the strait|transit(?:s)? remained impossible|not to use .*strait of hormuz|vessels? .* unable to transit)\b/i.test(text)
+}
+
+function hasRoutePressureContext(text) {
+  return /\b(advisory|avoid|not to use|rerout|re-rout|divert|disruption|delay|queue|congestion|draft restriction|water level|war[-\s]?risk|insurance|threat|naval activity|military activity|transit restriction)\b/i.test(text)
+}
+
+function criticalEvidenceByHotspot(maritimeData) {
+  const articles = Array.isArray(maritimeData?.articles) ? maritimeData.articles : []
+  return LIVE_HOTSPOTS.map((hotspot) => {
+    const regionArticles = articles.filter((article) => article.region === hotspot)
+    const sources = new Set(regionArticles.map((article) => article.source).filter(Boolean))
+    const closureSources = new Set(regionArticles
+      .filter((article) => hasCriticalClosureContext(`${article.title || ''} ${article.summary || ''}`))
+      .map((article) => article.source)
+      .filter(Boolean))
+    const routePressureReports = regionArticles.filter((article) => hasRoutePressureContext(`${article.title || ''} ${article.summary || ''}`)).length
+    const hotspotRow = (maritimeData?.hotspots || []).find((item) => item.hotspot === hotspot)
+    const shouldBeCritical = closureSources.size >= 2 || (closureSources.size >= 1 && sources.size >= 3 && routePressureReports >= 2)
+    return {
+      hotspot,
+      risk: hotspotRow?.riskLevel || 'missing',
+      sources: sources.size,
+      reports: regionArticles.length,
+      closureSources: closureSources.size,
+      routePressureReports,
+      shouldBeCritical,
+    }
   })
 }
 
@@ -175,6 +208,18 @@ async function checkProduction(checks) {
       watchGaps.length === 0,
     `hotspots=${maritimeData?.count?.hotspots || 0} articles=${maritimeData?.count?.articles || 0} signals=${maritimeData?.count?.signals || 0} audit=${auditStatus}`,
     { owner: 'Live-map data agent', watchGaps, goodNoFresh },
+  )
+  const criticalEvidenceRows = criticalEvidenceByHotspot(maritimeData)
+  const criticalEvidenceMismatches = criticalEvidenceRows.filter((row) => row.shouldBeCritical && row.risk !== 'critical')
+  const criticalEvidenceActive = criticalEvidenceRows.filter((row) => row.shouldBeCritical).map((row) => `${row.hotspot}:${row.risk}`)
+  record(
+    checks,
+    'critical_risk_evidence_gate',
+    maritime.ok && criticalEvidenceMismatches.length === 0,
+    criticalEvidenceActive.length
+      ? `criticalEvidence=${criticalEvidenceActive.join(', ')}`
+      : 'no current closure/blockade evidence requiring critical',
+    { owner: 'Data quality agent', mismatches: criticalEvidenceMismatches },
   )
 
   const liveNews = await fetchJson(`${SITE}/api/live-news?source=direct&limit=80&agent_check=${Date.now()}`, { timeoutMs: 9000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))
