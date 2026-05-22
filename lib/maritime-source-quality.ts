@@ -63,6 +63,11 @@ const MARITIME_TRADE_SOURCE_PATTERNS = [
   /\bthe loadstar\b|\btheloadstar\.com\b/i,
   /\briviera maritime\b|\brivieramm\.com\b/i,
   /\bbaird maritime\b|\bbairdmaritime\.com\b/i,
+  /\bthe maritime executive\b|\bmaritime-executive\.com\b/i,
+  /\bmarine news magazine\b|\bmarinenews\.com\b/i,
+  /\benergy intelligence\b|\benergyintel\.com\b/i,
+  /\btradewinds\b|\btradewindsnews\.com\b/i,
+  /\bship\s*&\s*bunker\b|\bshipandbunker\.com\b/i,
 ]
 
 const SEARCH_LAYER_PATTERN = /\b(google news|bing news)\b/i

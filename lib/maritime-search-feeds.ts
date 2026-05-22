@@ -42,7 +42,7 @@ export const ADDITIONAL_TRUSTED_NEWS_FEEDS = [
 ] as const
 
 const TIER_ONE_SOURCE_SITES = '(site:bloomberg.com OR site:nytimes.com OR site:aljazeera.com OR site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:theguardian.com OR site:cnbc.com)'
-const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com OR site:joc.com OR site:hapag-lloyd.com OR site:seatrade-maritime.com OR site:marineinsight.com OR site:portnews.ru OR site:theloadstar.com OR site:porttechnology.org OR site:rivieramm.com OR site:bairdmaritime.com)'
+const MARITIME_TRADE_SOURCE_SITES = '(site:gcaptain.com OR site:marinelink.com OR site:hellenicshippingnews.com OR site:splash247.com OR site:offshore-energy.biz OR site:safety4sea.com OR site:marinelog.com OR site:container-news.com OR site:ship-technology.com OR site:worldcargonews.com OR site:joc.com OR site:hapag-lloyd.com OR site:seatrade-maritime.com OR site:marineinsight.com OR site:portnews.ru OR site:theloadstar.com OR site:porttechnology.org OR site:rivieramm.com OR site:bairdmaritime.com OR site:maritime-executive.com OR site:marinenews.com OR site:energyintel.com OR site:tradewindsnews.com OR site:shipandbunker.com)'
 
 const SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
   {
