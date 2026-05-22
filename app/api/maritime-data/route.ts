@@ -96,7 +96,7 @@ const HOTSPOT_MARKET_VOLUME: Record<string, number> = {
 }
 
 const HOTSPOTS = ['hormuz', 'bab', 'suez', 'malacca', 'panama', 'taiwan', 'turkish', 'gibraltar', 'cape']
-const CURRENT_LIVE_MAP_HOURS = 24
+const CURRENT_LIVE_MAP_HOURS = 48
 
 const ROUTE_LABELS: Record<string, { name: string; url: string }> = {
   hormuz: { name: 'Strait of Hormuz', url: 'https://www.vesselsurge.com/topics/strait-of-hormuz-oil-risk' },
