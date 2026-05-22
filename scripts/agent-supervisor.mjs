@@ -281,12 +281,24 @@ async function checkProduction(checks) {
     return !Number.isFinite(timestamp) || Date.now() - timestamp > 48 * 60 * 60 * 1000
   })
   const noisy = articles.filter((article) => /spca|discoveryalert|op-ed|opinion|administrator/i.test(`${article.title || ''} ${article.source || ''}`))
+  const regionCounts = Object.fromEntries(LIVE_HOTSPOTS.map((hotspot) => [
+    hotspot,
+    articles.filter((article) => article.region === hotspot).length,
+  ]))
+  const missingRegions = LIVE_HOTSPOTS.filter((hotspot) => (regionCounts[hotspot] || 0) < 4)
+  const largestRegionCount = Math.max(0, ...Object.values(regionCounts))
+  const largestRegionShare = articles.length ? largestRegionCount / articles.length : 0
   record(
     checks,
     'direct_news_gate',
-    liveNews.ok && articles.length > 0 && stale.length === 0 && noisy.length === 0,
-    `items=${articles.length} stale=${stale.length} noisy=${noisy.length}`,
-    { owner: 'Data quality agent' },
+    liveNews.ok &&
+      articles.length > 0 &&
+      stale.length === 0 &&
+      noisy.length === 0 &&
+      missingRegions.length === 0 &&
+      largestRegionShare <= 0.55,
+    `items=${articles.length} stale=${stale.length} noisy=${noisy.length} sourceSweep=${liveNews.body?.sourceSweepCount || 0} distribution=${Object.entries(regionCounts).map(([hotspot, count]) => `${hotspot}:${count}`).join(', ')}`,
+    { owner: 'Data quality agent', missingRegions, largestRegionShare: Number(largestRegionShare.toFixed(2)) },
   )
 
   const maritimeStats = await fetchJson(`${SITE}/api/maritime-stats?hotspot=gibraltar&agent_check=${Date.now()}`, { timeoutMs: 7000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))

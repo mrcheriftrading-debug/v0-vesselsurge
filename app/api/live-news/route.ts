@@ -9,6 +9,7 @@ import {
   isTierOneNewsSource,
   TIER_ONE_NEWS_SOURCE_NAMES,
 } from '@/lib/maritime-source-quality'
+import { sourceSweepAuditSourcesForRegion, sourceSweepLayerLabel, sourceSweepSummary } from '@/lib/maritime-source-sweep'
 import { publicVercelCacheHeaders } from '@/lib/vercel-cache'
 
 const TRUSTED_SOURCES = [
@@ -67,6 +68,20 @@ type DirectNewsFeed = {
   window?: '24h' | '7d' | 'live' | 'publisher'
 }
 const DIRECT_NEWS_MAX_AGE_HOURS = 48
+const DIRECT_NEWS_MAX_RESULTS = 72
+const DIRECT_NEWS_REGION_MINIMUM = 5
+
+const LIVE_REGION_NAMES: Record<LiveRegion, string> = {
+  hormuz: 'Strait of Hormuz',
+  bab: 'Bab el-Mandeb',
+  suez: 'Suez Canal',
+  malacca: 'Strait of Malacca',
+  panama: 'Panama Canal',
+  taiwan: 'Taiwan Strait',
+  turkish: 'Turkish Straits',
+  gibraltar: 'Strait of Gibraltar',
+  cape: 'Cape of Good Hope',
+}
 const DIRECT_PUBLISHER_SOURCES = new Set([
   'gCaptain',
   'Hellenic Shipping News',
@@ -350,6 +365,89 @@ function broadenGoogleNewsWindow(url: string) {
   return url.replace('when%3A1d', 'when%3A7d').replace('when:1d', 'when:7d')
 }
 
+type LiveNewsItem = {
+  id: string
+  title: string
+  summary: string
+  source: string
+  sourceUrl: string | null
+  topic: string
+  region: string
+  timestamp: string
+  derivedFrom: string
+}
+
+function balanceLiveNewsCoverage<T extends { id?: string; region?: string | null; timestamp?: string | null; derivedFrom?: string | null; sourceUrl?: string | null; title?: string | null }>(
+  items: T[],
+  limit: number,
+) {
+  const max = Math.min(limit, DIRECT_NEWS_MAX_RESULTS)
+  const selected: T[] = []
+  const seen = new Set<string>()
+  const byRegion = new Map(LIVE_REGIONS.map((itemRegion) => [
+    itemRegion,
+    items
+      .filter((item) => item.region === itemRegion)
+      .sort((a, b) => {
+        const aContext = a.derivedFrom === 'source_sweep_audit' ? 1 : 0
+        const bContext = b.derivedFrom === 'source_sweep_audit' ? 1 : 0
+        if (aContext !== bContext) return aContext - bContext
+        return Date.parse(b.timestamp || '') - Date.parse(a.timestamp || '')
+      }),
+  ]))
+
+  while (selected.length < max && LIVE_REGIONS.some((itemRegion) => (byRegion.get(itemRegion)?.length || 0) > 0)) {
+    for (const itemRegion of LIVE_REGIONS) {
+      const next = byRegion.get(itemRegion)?.shift()
+      if (!next) continue
+      const key = (next.sourceUrl || next.id || next.title || `${itemRegion}-${selected.length}`).toLowerCase()
+      if (seen.has(key)) continue
+      seen.add(key)
+      selected.push(next)
+      if (selected.length >= max) break
+    }
+  }
+
+  return selected
+}
+
+function buildSourceSweepNewsContext(existingItems: Array<{ region?: string | null }>, region: string | null, limit: number): LiveNewsItem[] {
+  const now = new Date().toISOString()
+  const targetRegions = (region && region !== 'all' ? [region] : [...LIVE_REGIONS])
+    .filter((itemRegion): itemRegion is LiveRegion => LIVE_REGIONS.includes(itemRegion as LiveRegion))
+  const existingCounts = new Map<LiveRegion, number>()
+  for (const item of existingItems) {
+    if (LIVE_REGIONS.includes(item.region as LiveRegion)) {
+      const itemRegion = item.region as LiveRegion
+      existingCounts.set(itemRegion, (existingCounts.get(itemRegion) || 0) + 1)
+    }
+  }
+
+  return targetRegions.flatMap((itemRegion) => {
+    const missing = Math.max(0, DIRECT_NEWS_REGION_MINIMUM - (existingCounts.get(itemRegion) || 0))
+    if (missing <= 0) return []
+
+    const auditSources = sourceSweepAuditSourcesForRegion(itemRegion)
+    const sources = auditSources.length
+      ? auditSources
+      : [{ source: 'VesselSurge Source Sweep', url: `https://www.vesselsurge.com/regions/${itemRegion}`, layer: 'search' as const }]
+
+    return sources.slice(0, Math.min(missing, limit)).map((source, index) => ({
+      id: `source-sweep-news-${itemRegion}-${index}-${Buffer.from(`${source.source}:${source.url}`).toString('base64url').slice(0, 14)}`,
+      title: `${LIVE_REGION_NAMES[itemRegion]}: ${sourceSweepLayerLabel(source.layer)} checked`,
+      summary: index === 0
+        ? `${sourceSweepSummary(LIVE_REGION_NAMES[itemRegion], auditSources)} This is source coverage, not a confirmed incident.`
+        : `VesselSurge also checked ${source.source}; no fresh source-backed disruption is being claimed for ${LIVE_REGION_NAMES[itemRegion]}.`,
+      source: source.source,
+      sourceUrl: source.url,
+      topic: 'source_sweep',
+      region: itemRegion,
+      timestamp: now,
+      derivedFrom: 'source_sweep_audit',
+    }))
+  })
+}
+
 async function fetchDirectLiveNews(region: string | null, topic: string | null, limit: number) {
   const publisherFeeds: DirectNewsFeed[] = MARITIME_TRUSTED_PUBLISHER_FEEDS.map((feed): DirectNewsFeed => ({
     ...feed,
@@ -378,7 +476,7 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
 
     if (!response.ok) return []
     const xml = await response.text()
-    const items = xml.split('<item>').slice(1, feed.window === 'publisher' ? 4 : 8)
+    const items = xml.split('<item>').slice(1, feed.window === 'publisher' ? 7 : 16)
     const googleNewsSearchFeed = isGoogleNewsSearchFeed(feed.source)
 
     return items.map((item, index) => {
@@ -426,25 +524,12 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
       return true
     })
 
-  const max = Math.min(limit, 50)
+  const max = Math.min(limit, DIRECT_NEWS_MAX_RESULTS)
   const sorted = filtered
     .flatMap((article) => expandArticleRegions(article))
     .filter((article) => !region || region === 'all' || article.region === region)
     .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
-  const balancedRegions = LIVE_REGIONS
-  const byRegion = new Map(balancedRegions.map((itemRegion) => [
-    itemRegion,
-    sorted.filter((article) => article.region === itemRegion),
-  ]))
-  const balanced: typeof sorted = []
-
-  while (balanced.length < max && balancedRegions.some((itemRegion) => (byRegion.get(itemRegion)?.length || 0) > 0)) {
-    for (const itemRegion of balancedRegions) {
-      const next = byRegion.get(itemRegion)?.shift()
-      if (next) balanced.push(next)
-      if (balanced.length >= max) break
-    }
-  }
+  const balanced = balanceLiveNewsCoverage(sorted, max)
 
   return balanced
     .map((article) => ({
@@ -494,13 +579,16 @@ export async function GET(request: Request) {
   const region = searchParams.get('region') || null
   const limit = parseInt(searchParams.get('limit') || '20')
   const directOnly = searchParams.get('source') === 'direct' || searchParams.get('direct') === '1'
+  const eventOnly = searchParams.get('eventOnly') === '1'
 
   if (directOnly) {
     const directNews = await fetchDirectLiveNews(region, topic, limit).catch((directError) => {
       console.warn('[live-news] Direct-only source sweep fallback:', directError)
       return []
     })
-    const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
+    const sourceSweepContext = eventOnly ? [] : buildSourceSweepNewsContext(directNews, region, limit)
+    const mergedDirectNews = balanceLiveNewsCoverage([...directNews, ...sourceSweepContext], limit)
+    const fallback = mergedDirectNews.length > 0 ? mergedDirectNews : buildWatchFallback(region).slice(0, Math.min(limit, DIRECT_NEWS_MAX_RESULTS))
 
     return NextResponse.json({
       success: true,
@@ -509,6 +597,7 @@ export async function GET(request: Request) {
       fallbackCount: 0,
       watchCount: directNews.length > 0 ? 0 : fallback.length,
       directNewsCount: directNews.length,
+      sourceSweepCount: sourceSweepContext.length,
       sourceMode: 'direct',
       warning: directNews.length > 0 ? null : 'direct source sweep empty; showing live watch context',
     }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
@@ -533,16 +622,18 @@ export async function GET(request: Request) {
           timestamp: article.timestamp,
           derivedFrom: 'maritime_dashboard_cache',
         })))
-        .slice(0, Math.min(limit, 50))
+      const sourceSweepContext = buildSourceSweepNewsContext(cachedArticles, region, limit)
+      const balancedCachedArticles = balanceLiveNewsCoverage([...cachedArticles, ...sourceSweepContext], limit)
 
-      if (cachedArticles.length > 0) {
+      if (balancedCachedArticles.length > 0) {
         return NextResponse.json(
           {
             success: true,
-            articles: cachedArticles,
-            count: cachedArticles.length,
+            articles: balancedCachedArticles,
+            count: balancedCachedArticles.length,
             fallbackCount: 0,
             watchCount: 0,
+            sourceSweepCount: sourceSweepContext.length,
             cached: true,
             generatedAt: cached.meta.generatedAt,
           },
@@ -573,7 +664,9 @@ export async function GET(request: Request) {
         if (!isExpectedFallbackReason(directError)) console.warn('[live-news] Direct news fallback unavailable:', directError)
         return []
       })
-      const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
+      const sourceSweepContext = buildSourceSweepNewsContext(directNews, region, limit)
+      const mergedDirectNews = balanceLiveNewsCoverage([...directNews, ...sourceSweepContext], limit)
+      const fallback = mergedDirectNews.length > 0 ? mergedDirectNews : buildWatchFallback(region).slice(0, Math.min(limit, DIRECT_NEWS_MAX_RESULTS))
       return NextResponse.json({
         success: true,
         articles: fallback,
@@ -581,6 +674,7 @@ export async function GET(request: Request) {
         fallbackCount: 0,
         watchCount: directNews.length > 0 ? 0 : fallback.length,
         directNewsCount: directNews.length,
+        sourceSweepCount: sourceSweepContext.length,
         warning: directNews.length > 0 ? 'database news query timed out; served live source-linked web news' : 'news query timed out; showing live watch context',
       }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
     }
@@ -590,7 +684,9 @@ export async function GET(request: Request) {
     if (error) {
       if (!isExpectedFallbackReason(error)) console.warn('[live-news] Supabase news fallback:', error)
       const directNews = await fetchDirectLiveNews(region, topic, limit).catch(() => [])
-      const fallback = directNews.length > 0 ? directNews : buildWatchFallback(region).slice(0, Math.min(limit, 50))
+      const sourceSweepContext = buildSourceSweepNewsContext(directNews, region, limit)
+      const mergedDirectNews = balanceLiveNewsCoverage([...directNews, ...sourceSweepContext], limit)
+      const fallback = mergedDirectNews.length > 0 ? mergedDirectNews : buildWatchFallback(region).slice(0, Math.min(limit, DIRECT_NEWS_MAX_RESULTS))
       return NextResponse.json({
         success: true,
         articles: fallback,
@@ -598,6 +694,7 @@ export async function GET(request: Request) {
         fallbackCount: 0,
         watchCount: directNews.length > 0 ? 0 : fallback.length,
         directNewsCount: directNews.length,
+        sourceSweepCount: sourceSweepContext.length,
         warning: directNews.length > 0 ? 'database news query failed; served live source-linked web news' : 'news query failed; showing live watch context',
       }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
     }
@@ -620,7 +717,7 @@ export async function GET(request: Request) {
       })))
 
     const articleUrls = new Set(articles.map((article: any) => article.sourceUrl).filter(Boolean))
-    const signalLimit = Math.max(0, Math.min(limit, 50) - articles.length)
+    const signalLimit = Math.max(0, Math.min(limit, DIRECT_NEWS_MAX_RESULTS) - articles.length)
     let signalFallback: any[] = []
 
     if (signalLimit > 0) {
@@ -666,10 +763,14 @@ export async function GET(request: Request) {
       }
     }
 
-    const currentCount = articles.length + signalFallback.length
+    const sourceSweepContext = buildSourceSweepNewsContext([...articles, ...signalFallback], region, limit)
+    const currentCount = articles.length + signalFallback.length + sourceSweepContext.length
     const watchFallback = currentCount > 0 ? [] : buildWatchFallback(region)
 
-    const mergedArticles = dedupeNewsItems([...articles, ...signalFallback, ...watchFallback]).slice(0, Math.min(limit, 50))
+    const mergedArticles = balanceLiveNewsCoverage(
+      dedupeNewsItems([...articles, ...signalFallback, ...sourceSweepContext, ...watchFallback]),
+      limit,
+    )
 
     return NextResponse.json(
       {
@@ -678,17 +779,20 @@ export async function GET(request: Request) {
         count: mergedArticles.length,
         fallbackCount: signalFallback.length,
         watchCount: watchFallback.length,
+        sourceSweepCount: sourceSweepContext.length,
       },
       { headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' } }
     )
   } catch (err: any) {
-    const fallback = buildWatchFallback(region).slice(0, Math.min(limit, 50))
+    const sourceSweepContext = buildSourceSweepNewsContext([], region, limit)
+    const fallback = balanceLiveNewsCoverage(sourceSweepContext.length ? sourceSweepContext : buildWatchFallback(region), limit)
     return NextResponse.json({
       success: true,
       articles: fallback,
       count: fallback.length,
       fallbackCount: 0,
-      watchCount: fallback.length,
+      watchCount: sourceSweepContext.length ? 0 : fallback.length,
+      sourceSweepCount: sourceSweepContext.length,
       warning: err?.message || 'live news fallback active',
     })
   }

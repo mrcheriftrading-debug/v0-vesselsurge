@@ -81,6 +81,7 @@ type DirectLiveNewsArticle = {
   topic?: string
   region?: string
   timestamp?: string
+  derivedFrom?: string
 }
 
 const HOTSPOT_MARKET_VOLUME: Record<string, number> = {
@@ -178,6 +179,10 @@ function buildSourceMix(sources: Array<string | null | undefined>) {
   )
 }
 
+function isSourceSweepAuditArticle(article: { derivedFrom?: string | null; topic?: string | null }) {
+  return article.derivedFrom === 'source_sweep_audit' || article.topic === 'source_sweep'
+}
+
 function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): MaritimeDashboardResponse | null {
   const timestamp = new Date().toISOString()
   const reviewCandidates = articles
@@ -208,12 +213,21 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
           summary,
           region: article.region,
         }),
+        derivedFrom: article.derivedFrom || 'direct_live_news',
       }
     })
-    .map((article) => ({
-      ...article,
-      ...reviewArticleForLiveMap(article),
-    }))
+    .map((article) => isSourceSweepAuditArticle(article)
+      ? {
+          ...article,
+          reviewStatus: 'watch' as const,
+          reviewReason: 'Source-sweep context: shown as source coverage only, not counted as a verified incident report.',
+          reviewScore: 68,
+          reviewedAt: new Date().toISOString(),
+        }
+      : {
+          ...article,
+          ...reviewArticleForLiveMap(article),
+        })
   const reviewGate = reviewCandidates.reduce(
     (acc, article) => {
       if (article.reviewStatus === 'approved') acc.approved += 1
@@ -225,10 +239,11 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
   )
   reviewGate.visible = reviewGate.approved + reviewGate.watch
   const normalizedArticles = reviewCandidates.filter((article) => article.reviewStatus !== 'blocked')
+  const evidenceArticles = normalizedArticles.filter((article) => !isSourceSweepAuditArticle(article))
 
   if (normalizedArticles.length === 0) return null
 
-  const signals = normalizedArticles.map((article) => ({
+  const signals = evidenceArticles.map((article) => ({
     signalKey: `direct-live-${createHash('sha1').update(article.sourceUrl || `${article.source}:${article.title}`).digest('base64url').slice(0, 22)}`,
     source: article.source,
     sourceUrl: article.sourceUrl,
@@ -243,7 +258,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
     sourceAuditSources: [],
   }))
   const sourceSweepSignals = HOTSPOTS
-    .filter((hotspot) => !normalizedArticles.some((article) => article.region === hotspot && isCurrentLiveMapItem(article.timestamp, timestamp)))
+    .filter((hotspot) => !evidenceArticles.some((article) => article.region === hotspot && isCurrentLiveMapItem(article.timestamp, timestamp)))
     .flatMap((hotspot) => {
       const route = ROUTE_LABELS[hotspot]
       const auditSources = sourceSweepAuditSourcesForRegion(hotspot)
@@ -271,7 +286,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
   const allSignals = [...signals, ...sourceSweepSignals]
 
   const hotspots = HOTSPOTS.map((hotspot) => {
-    const hotspotArticles = normalizedArticles
+    const hotspotArticles = evidenceArticles
       .filter((article) => article.region === hotspot)
       .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
     const currentArticles = hotspotArticles.filter((article) => isCurrentLiveMapItem(article.timestamp, timestamp))
@@ -349,7 +364,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
   })
 
   const coverageGaps = hotspots.map((hotspot) => {
-    const latestArticle = normalizedArticles
+    const latestArticle = evidenceArticles
       .filter((article) => article.region === hotspot.hotspot && isCurrentLiveMapItem(article.timestamp, timestamp))
       .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))[0]
     const latestSignal = allSignals
@@ -424,7 +439,7 @@ function buildDirectMaritimePayload(articles: DirectLiveNewsArticle[]): Maritime
 
 async function fetchDirectMaritimePayload(request: Request) {
   try {
-    const directUrl = new URL('/api/live-news?source=direct&limit=44', request.url)
+    const directUrl = new URL('/api/live-news?source=direct&limit=72', request.url)
     directUrl.searchParams.set('sweep', Math.floor(Date.now() / 120000).toString())
     const response = await fetch(directUrl, {
       headers: { accept: 'application/json' },
