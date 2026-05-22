@@ -401,14 +401,17 @@ function deriveEvidenceRiskLevel(input: {
     .filter((article) => hasCriticalClosureContext(articleText(article)))
     .map((article) => article.source)
     .filter(Boolean))
+  const evidenceSourceCount = new Set(input.articles
+    .map((article) => article.source)
+    .filter(Boolean)).size
   const reports = input.articles.length
 
   if (closureSources.size >= 2) return 'critical'
-  if (closureSources.size >= 1 && input.sourceCount >= 3 && routePressureReports >= 2) return 'critical'
+  if (closureSources.size >= 1 && evidenceSourceCount >= 3 && routePressureReports >= 2) return 'critical'
   if (strongOperationalSignals.length > 0) return 'high'
-  if (directIncidentReports >= 2 && input.sourceCount >= 2) return 'high'
-  if (directIncidentReports >= 1 && routePressureReports >= 2 && input.sourceCount >= 2) return 'high'
-  if ((directIncidentReports >= 1 || routePressureReports >= 2) && input.sourceCount >= 2 && reports >= 2) return 'medium'
+  if (directIncidentReports >= 2 && evidenceSourceCount >= 2) return 'high'
+  if (directIncidentReports >= 1 && routePressureReports >= 2 && evidenceSourceCount >= 2) return 'high'
+  if ((directIncidentReports >= 1 || routePressureReports >= 2) && evidenceSourceCount >= 2 && reports >= 2) return 'medium'
   if (operationalSignals.length >= 2) return 'medium'
 
   const fallback = input.fallbackRiskLevel || 'low'
