@@ -421,6 +421,9 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
   const expansionRouteNeedsOperationalContext = ['panama', 'taiwan', 'turkish', 'gibraltar', 'cape'].includes(region)
   const expansionOperationalContext = !expansionRouteNeedsOperationalContext ||
     /\b(ship|shipping|vessel|tanker|cargo|container|maritime|port|transit|queue|draft|water|drought|delay|congestion|closure|traffic|rerout|re-rout|divert|freight|bunker|voyage|security|incident|naval|exercise|warning|alert)\b/i.test(text)
+  const governanceOnlyUpdate = expansionRouteNeedsOperationalContext &&
+    /\b(appoint|appointed|appointment|names?|named|administrator|chief executive|ceo|board|chair|minister|president|director|leadership|election|resigns?|resignation)\b/i.test(text) &&
+    !/\b(restrict|restriction|suspend|closed|closure|delay|queue|draft|water level|drought|congestion|traffic disruption|ship traffic|vessel traffic|security warning|navigation warning|incident|rerout|re-rout|divert)\b/i.test(text)
   const routeEvidence = /\b(hormuz|red sea|bab el|suez|malacca|panama canal|taiwan strait|turkish straits|bosporus|bosphorus|dardanelles|gibraltar|cape of good hope|tanker|oil|crude|lng|freight|rerout|divert|war[-\s]?risk|insurance|ais|chokepoint|shipping|vessel|port|canal|strait)\b/i
     .test(text) && expansionOperationalContext
   const reviewScore = Math.round((intelligenceScore * 0.46) + (sourceScore * 0.28) + (freshnessScore * 0.18) + (routeEvidence ? 8 : 0))
@@ -430,6 +433,15 @@ export function reviewArticleForLiveMap(article: LiveMapReviewInput) {
     return {
       reviewStatus: 'blocked' as const,
       reviewReason: `Blocked before live map: event is ${ageHours === null ? 'missing a valid timestamp' : `${Math.round(ageHours)}h old`}; live reports must be under ${LIVE_MAP_NEWS_MAX_AGE_HOURS}h.`,
+      reviewScore,
+      reviewedAt: new Date().toISOString(),
+    }
+  }
+
+  if (governanceOnlyUpdate) {
+    return {
+      reviewStatus: 'blocked' as const,
+      reviewReason: 'Blocked before live map: governance or appointment update without a confirmed operational shipping impact.',
       reviewScore,
       reviewedAt: new Date().toISOString(),
     }
