@@ -299,9 +299,19 @@ const RECENT_FALLBACK_SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     query: '("Taiwan Strait" OR "Kaohsiung port" OR "Keelung port" OR "Taiwan ports") (shipping OR vessel OR cargo OR container OR maritime OR "port operations" OR "naval exercise" OR warning OR disruption)',
   },
   {
+    label: 'Taiwan official and port 48h sweep',
+    region: 'taiwan',
+    query: '("Taiwan Maritime and Port Bureau" OR MOTCMPB OR "Kaohsiung Port" OR "Keelung Port" OR "Taipei Port") ("navigation warning" OR "maritime safety" OR shipping OR vessel OR cargo OR closure OR typhoon OR disruption)',
+  },
+  {
     label: 'Turkish Straits 48h route evidence sweep',
     region: 'turkish',
     query: '("Bosporus" OR "Bosphorus" OR "Dardanelles" OR "Turkish Straits" OR "Istanbul Strait") ("vessel traffic" OR shipping OR tanker OR transit OR fog OR closure OR suspension OR delay)',
+  },
+  {
+    label: 'Turkish official traffic 48h sweep',
+    region: 'turkish',
+    query: '("Directorate General of Coastal Safety" OR "Kiyi Emniyeti" OR "Turkish Coastal Safety" OR "Istanbul Strait") ("vessel traffic" OR "ship traffic" OR Bosporus OR Dardanelles OR suspended OR reopened OR fog OR accident)',
   },
   {
     label: 'Gibraltar 48h route evidence sweep',
@@ -312,6 +322,11 @@ const RECENT_FALLBACK_SEARCH_DEFINITIONS: MaritimeSearchDefinition[] = [
     label: 'Cape of Good Hope 48h route evidence sweep',
     region: 'cape',
     query: '("Cape of Good Hope" OR "Cape route" OR "around Africa" OR "South Africa shipping") (shipping OR vessel OR tanker OR container OR freight OR rerouting OR bunker OR "voyage delay")',
+  },
+  {
+    label: 'South Africa ports and Cape route 48h sweep',
+    region: 'cape',
+    query: '("Transnet National Ports Authority" OR SAMSA OR "Cape Town port" OR "Durban port" OR "South Africa ports") (shipping OR vessel OR cargo OR congestion OR delay OR weather OR "port operations" OR "Cape route")',
   },
 ]
 
