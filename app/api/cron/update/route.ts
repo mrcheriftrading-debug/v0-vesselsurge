@@ -73,6 +73,7 @@ const TRUSTED_FEEDS = [
 ] satisfies TrustedFeed[]
 
 const TRUSTED_PAGES = [
+  { source: 'MARAD Hormuz Security Advisory', url: 'https://www.maritime.dot.gov/msci/2024-009-strait-hormuz-and-gulf-oman-iranian-illegal-boarding-detention-seizure', credibility: 10, region: 'hormuz' },
   { source: 'ReCAAP ISC Alerts', url: 'https://www.recaap.org/alerts', credibility: 10, region: 'malacca' },
   { source: 'ReCAAP ISC Reports', url: 'https://www.recaap.org/reports', credibility: 10, region: 'malacca' },
   { source: 'Norwegian Maritime Authority', url: 'https://www.sdir.no/en/accidents-and-safety/maritim-sikring/security-level-for-norwegian-vessels/gulf-of-aden-bab-el-mandeb-red-sea/', credibility: 9, region: 'bab' },

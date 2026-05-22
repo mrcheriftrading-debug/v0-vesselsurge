@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { execFileSync } from 'node:child_process'
 
 const ROOT = process.cwd()
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vesselsurge.com'
@@ -132,6 +133,19 @@ function checkRepoWiring(checks) {
   const market = crons.find((cron) => cron.path === '/api/cron/market-pro')
   record(checks, 'vercel_watch_cron', watch?.schedule === '*/2 * * * *', watch ? `schedule=${watch.schedule}` : 'missing')
   record(checks, 'vercel_market_pro_cron', market?.schedule === '*/5 * * * *', market ? `schedule=${market.schedule}` : 'missing')
+
+  try {
+    const contract = JSON.parse(execFileSync('node', ['scripts/hotspot-contract.mjs', '--json'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }))
+    record(
+      checks,
+      'hotspot_contract',
+      contract.status === 'ok' && contract.expectedHotspots?.length === 9,
+      `status=${contract.status} hotspots=${contract.expectedHotspots?.length || 0} failed=${contract.failed || 0}`,
+      { owner: 'Data quality agent' },
+    )
+  } catch (error) {
+    record(checks, 'hotspot_contract', false, error?.message || 'hotspot contract failed', { owner: 'Data quality agent' })
+  }
 }
 
 async function checkProduction(checks) {

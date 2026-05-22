@@ -8,6 +8,12 @@ export type OfficialMaritimeWatchSource = {
 }
 
 export const OFFICIAL_MARITIME_WATCH_SOURCES: OfficialMaritimeWatchSource[] = [
+  {
+    source: 'MARAD Hormuz Security Advisory',
+    url: 'https://www.maritime.dot.gov/msci/2024-009-strait-hormuz-and-gulf-oman-iranian-illegal-boarding-detention-seizure',
+    kind: 'html',
+    regionHint: 'hormuz',
+  },
   { source: 'UKMTO Products', url: 'https://www.ukmto.org/ukmto-products', kind: 'html', regionHint: 'bab' },
   { source: 'MSCIO Alerts', url: 'https://www.mscio.eu/alerts/', kind: 'html', regionHint: 'bab' },
   { source: 'ReCAAP ISC Alerts', url: 'https://www.recaap.org/alerts', kind: 'html', regionHint: 'malacca' },
