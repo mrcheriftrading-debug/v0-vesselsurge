@@ -283,6 +283,10 @@ function googleNewsTitle(title: string) {
   return parts.length > 1 ? parts.slice(0, -1).join(' - ').trim() : title.trim()
 }
 
+function isGoogleNewsSearchFeed(source: string) {
+  return source.startsWith('Google News Search:') || source.startsWith('Google News 48h Search:')
+}
+
 function broadenGoogleNewsWindow(url: string) {
   return url.replace('when%3A1d', 'when%3A7d').replace('when:1d', 'when:7d')
 }
@@ -311,11 +315,12 @@ async function fetchDirectLiveNews(region: string | null, topic: string | null, 
     if (!response.ok) return []
     const xml = await response.text()
     const items = xml.split('<item>').slice(1, 8)
+    const googleNewsSearchFeed = isGoogleNewsSearchFeed(feed.source)
 
     return items.map((item, index) => {
       const rawTitle = decodeHtml(between(item, '<title>', '</title>'))
-      const source = feed.source.startsWith('Google News Search:') ? googleNewsSource(rawTitle) : feed.source
-      const title = feed.source.startsWith('Google News Search:') ? googleNewsTitle(rawTitle) : rawTitle.trim()
+      const source = googleNewsSearchFeed ? googleNewsSource(rawTitle) : feed.source
+      const title = googleNewsSearchFeed ? googleNewsTitle(rawTitle) : rawTitle.trim()
       const summary = decodeHtml(between(item, '<description>', '</description>'))
       const url = decodeHtml(between(item, '<link>', '</link>'))
       const publishedAt = safeIsoDate(decodeHtml(between(item, '<pubDate>', '</pubDate>')))
