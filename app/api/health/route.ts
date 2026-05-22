@@ -14,6 +14,7 @@ const WATCH_DEGRADED_MS = 15 * 60 * 1000
 const WATCH_UNHEALTHY_MS = 60 * 60 * 1000
 const HEALTH_CACHE_QUERY_TIMEOUT_MS = 2200
 const AUTH_HEALTH_TIMEOUT_MS = 4200
+const MARKET_PRO_HEALTH_TIMEOUT_MS = 1800
 
 type Status = 'ok' | 'degraded' | 'unhealthy'
 
@@ -231,7 +232,11 @@ export async function GET(request: Request) {
     const admin = createAdminClient()
     const [cacheRow, marketProCache, authHealth] = await Promise.all([
       getMaritimeDashboardCacheRow(admin, HEALTH_CACHE_QUERY_TIMEOUT_MS),
-      getLastMarketProAnalysisCache(admin, 'health check reads last saved Market Pro analysis').catch(() => null),
+      withTimeout(
+        getLastMarketProAnalysisCache(admin, 'health check reads last saved Market Pro analysis'),
+        MARKET_PRO_HEALTH_TIMEOUT_MS,
+        'Market Pro health cache',
+      ).catch(() => null),
       checkSupabaseAuth(admin),
     ])
 
