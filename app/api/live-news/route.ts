@@ -573,6 +573,23 @@ function dedupeNewsItems<T extends { title?: string | null; source?: string | nu
   })
 }
 
+function dashboardArticlesToLiveNews(cachedArticles: any[], region: string | null, topic: string | null) {
+  return dedupeNewsItems(cachedArticles
+    .filter((article: any) => !region || region === 'all' || article.region === region)
+    .filter((article: any) => !topic || topic === 'all' || article.category === topic)
+    .map((article: any) => ({
+      id: article.id,
+      title: article.title,
+      summary: article.summary || '',
+      source: article.source,
+      sourceUrl: article.sourceUrl || null,
+      topic: article.category || 'global',
+      region: article.region || 'global',
+      timestamp: article.timestamp,
+      derivedFrom: 'maritime_dashboard_cache',
+    })))
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const topic = searchParams.get('topic') || null
@@ -588,6 +605,36 @@ export async function GET(request: Request) {
     })
     const sourceSweepContext = eventOnly ? [] : buildSourceSweepNewsContext(directNews, region, limit)
     const mergedDirectNews = balanceLiveNewsCoverage([...directNews, ...sourceSweepContext], limit)
+
+    if (mergedDirectNews.length === 0) {
+      const cached = await withTimeout(
+        getLastMaritimeDashboardCache(createAdminClient(), 'direct source sweep unavailable; serving last known source-reviewed news'),
+        1400,
+        'direct stale dashboard cache',
+      ).catch(() => null)
+      const cachedArticles = cached?.data?.articles?.length
+        ? dashboardArticlesToLiveNews(cached.data.articles, region, topic)
+        : []
+      const cachedSourceSweepContext = eventOnly ? [] : buildSourceSweepNewsContext(cachedArticles, region, limit)
+      const cachedFallback = balanceLiveNewsCoverage([...cachedArticles, ...cachedSourceSweepContext], limit)
+
+      if (cachedFallback.length > 0) {
+        return NextResponse.json({
+          success: true,
+          articles: cachedFallback,
+          count: cachedFallback.length,
+          fallbackCount: 0,
+          watchCount: 0,
+          directNewsCount: 0,
+          sourceSweepCount: cachedSourceSweepContext.length,
+          sourceMode: 'direct-cache',
+          cached: true,
+          generatedAt: cached?.meta?.generatedAt,
+          warning: 'direct source sweep unavailable; served last known source-reviewed news',
+        }, { headers: LIVE_NEWS_FALLBACK_CACHE_HEADERS })
+      }
+    }
+
     const fallback = mergedDirectNews.length > 0 ? mergedDirectNews : buildWatchFallback(region).slice(0, Math.min(limit, DIRECT_NEWS_MAX_RESULTS))
 
     return NextResponse.json({
@@ -608,20 +655,7 @@ export async function GET(request: Request) {
     const cached = await withTimeout(getFreshMaritimeDashboardCache(supabase), 700, 'dashboard cache')
       .catch(() => withTimeout(getLastMaritimeDashboardCache(supabase, 'fresh news query unavailable; serving last known source-reviewed news'), 700, 'stale dashboard cache').catch(() => null))
     if (cached?.data?.articles?.length) {
-      const cachedArticles = dedupeNewsItems(cached.data.articles
-        .filter((article: any) => !region || region === 'all' || article.region === region)
-        .filter((article: any) => !topic || topic === 'all' || article.category === topic)
-        .map((article: any) => ({
-          id: article.id,
-          title: article.title,
-          summary: article.summary || '',
-          source: article.source,
-          sourceUrl: article.sourceUrl || null,
-          topic: article.category || 'global',
-          region: article.region || 'global',
-          timestamp: article.timestamp,
-          derivedFrom: 'maritime_dashboard_cache',
-        })))
+      const cachedArticles = dashboardArticlesToLiveNews(cached.data.articles, region, topic)
       const sourceSweepContext = buildSourceSweepNewsContext(cachedArticles, region, limit)
       const balancedCachedArticles = balanceLiveNewsCoverage([...cachedArticles, ...sourceSweepContext], limit)
 
