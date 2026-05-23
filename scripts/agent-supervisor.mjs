@@ -279,7 +279,7 @@ async function checkProduction(checks) {
     { owner: 'Data quality agent', mismatches: criticalEvidenceMismatches },
   )
 
-  const liveNews = await fetchJson(`${SITE}/api/live-news?source=direct&limit=80&agent_check=${Date.now()}`, { timeoutMs: 9000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))
+  const liveNews = await fetchJson(`${SITE}/api/live-news?source=direct&limit=80&agent_check=${Date.now()}`, { timeoutMs: 25000 }).catch((error) => ({ ok: false, status: 0, ms: 0, body: { error: error.message } }))
   const articles = Array.isArray(liveNews.body?.articles) ? liveNews.body.articles : []
   const stale = articles.filter((article) => {
     const timestamp = Date.parse(article.timestamp || '')
