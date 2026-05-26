@@ -37,23 +37,44 @@ function checkLiteralContract(checks, name, file, detail) {
   record(checks, name, missing.length === 0, `${detail}: ${EXPECTED_HOTSPOTS.length - missing.length}/${EXPECTED_HOTSPOTS.length}`, { file, missing })
 }
 
-function checkVercelCrons(checks) {
+function isAggressiveCronSchedule(schedule) {
+  const minute = String(schedule || '').trim().split(/\s+/)[0] || ''
+  if (minute === '*') return true
+  const every = minute.match(/^\*\/(\d+)$/)
+  return every ? Number(every[1]) < 15 : false
+}
+
+function checkSchedulerContract(checks) {
   const text = readText('vercel.json')
   try {
     const config = JSON.parse(text)
     const crons = Array.isArray(config.crons) ? config.crons : []
-    const watch = crons.find((cron) => cron.path === '/api/cron/watch')
-    const market = crons.find((cron) => cron.path === '/api/cron/market-pro')
+    const aggressive = crons.filter((cron) => isAggressiveCronSchedule(cron.schedule))
     record(
       checks,
-      'vercel_cron_contract',
-      watch?.schedule === '*/2 * * * *' && market?.schedule === '*/5 * * * *',
-      `watch=${watch?.schedule || 'missing'} market=${market?.schedule || 'missing'}`,
+      'vercel_cron_cost_guard',
+      aggressive.length === 0,
+      aggressive.length ? `aggressive=${aggressive.map((cron) => `${cron.path}:${cron.schedule}`).join(', ')}` : 'no aggressive Vercel crons',
       { file: 'vercel.json' },
     )
   } catch (error) {
-    record(checks, 'vercel_cron_contract', false, `invalid vercel.json: ${error.message}`, { file: 'vercel.json' })
+    record(checks, 'vercel_cron_cost_guard', false, `invalid vercel.json: ${error.message}`, { file: 'vercel.json' })
   }
+
+  const workflow = readText('.github/workflows/vesselsurge-free-scheduler.yml')
+  const runner = readText('scripts/external-cron-runner.mjs')
+  const worker = readText('workers/vesselsurge-scheduler/worker.js')
+  record(
+    checks,
+    'external_scheduler_contract',
+    workflow.includes('scripts/external-cron-runner.mjs') &&
+      workflow.includes('*/15 * * * *') &&
+      runner.includes('/api/cron/update?scope=news') &&
+      worker.includes('scheduled(event') &&
+      worker.includes('CRON_SECRET'),
+    'GitHub Actions runner and Cloudflare Worker scheduler present',
+    { file: '.github/workflows/vesselsurge-free-scheduler.yml' },
+  )
 }
 
 const checks = []
@@ -70,7 +91,7 @@ checkLiteralContract(checks, 'supabase_region_constraints', 'scripts/009_expand_
 checkLiteralContract(checks, 'supabase_signal_schema', 'scripts/006_create_maritime_signals.sql', 'maritime signal schema constraints')
 checkLiteralContract(checks, 'supabase_hotspot_defaults', 'scripts/010_hotspot_contract_defaults.sql', 'Supabase hotspot defaults and constraints')
 checkLiteralContract(checks, 'openclaw_agent_contract', '.agent.md', 'OpenClaw agent hotspot contract')
-checkVercelCrons(checks)
+checkSchedulerContract(checks)
 
 const failed = checks.filter((check) => check.status !== 'ok')
 const summary = {

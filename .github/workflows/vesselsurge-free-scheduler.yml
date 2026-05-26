@@ -1,0 +1,61 @@
+name: VesselSurge Free Scheduler
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Scheduler mode to run
+        required: true
+        default: news
+        type: choice
+        options:
+          - news
+          - market
+          - hourly
+          - full
+          - all
+
+jobs:
+  refresh-maritime-cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    permissions:
+      contents: read
+    env:
+      VESSELSURGE_CRON_BASE_URL: ${{ secrets.VESSELSURGE_CRON_BASE_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Checkout scheduler
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run cache refresh
+        shell: bash
+        run: |
+          if [ -z "$VESSELSURGE_CRON_BASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::warning::Missing VESSELSURGE_CRON_BASE_URL or CRON_SECRET repository secret; external scheduler skipped."
+            exit 0
+          fi
+
+          MODE="${{ github.event.inputs.mode || 'news' }}"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            minute="$(date -u +%M)"
+            hour="$(date -u +%H)"
+            minute_num=$((10#$minute))
+            hour_num=$((10#$hour))
+            MODE="news"
+            if [ "$minute_num" -lt 15 ]; then
+              MODE="hourly"
+              if [ $((hour_num % 3)) -eq 0 ]; then
+                MODE="all"
+              fi
+            fi
+          fi
+
+          node scripts/external-cron-runner.mjs "$MODE"

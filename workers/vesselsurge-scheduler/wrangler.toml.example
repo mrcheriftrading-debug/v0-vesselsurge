@@ -1,0 +1,12 @@
+name = "vesselsurge-scheduler"
+main = "worker.js"
+compatibility_date = "2026-05-26"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[vars]
+VESSELSURGE_CRON_BASE_URL = "https://www.vesselsurge.com"
+
+# Set the secret with:
+# wrangler secret put CRON_SECRET

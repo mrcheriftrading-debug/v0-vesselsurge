@@ -134,6 +134,13 @@ function sourceSweepBreadthByHotspot(maritimeData, hotspots) {
   })
 }
 
+function isAggressiveCronSchedule(schedule) {
+  const minute = String(schedule || '').trim().split(/\s+/)[0] || ''
+  if (minute === '*') return true
+  const every = minute.match(/^\*\/(\d+)$/)
+  return every ? Number(every[1]) < 15 : false
+}
+
 function automationPath(id) {
   return path.join(AUTOMATIONS_DIR, id, 'automation.toml')
 }
@@ -173,6 +180,13 @@ function checkRepoWiring(checks) {
   record(checks, 'maritime_update_script', Boolean(scripts['maritime:update'] && scripts['maritime:update:full']), 'maritime update scripts present')
   record(
     checks,
+    'external_cron_scripts',
+    Boolean(scripts['external:cron'] && scripts['external:cron:dry-run']),
+    scripts['external:cron'] || 'missing',
+    { owner: 'DevOps agent' },
+  )
+  record(
+    checks,
     'x_guard_scripts',
     Boolean(scripts['x:check'] && scripts['x:post-new-direct'] && scripts['x:compose-new']),
     'X direct and browser fallback scripts present',
@@ -189,10 +203,33 @@ function checkRepoWiring(checks) {
 
   const vercelConfig = JSON.parse(readText(path.join(ROOT, 'vercel.json')) || '{}')
   const crons = Array.isArray(vercelConfig.crons) ? vercelConfig.crons : []
-  const watch = crons.find((cron) => cron.path === '/api/cron/watch')
-  const market = crons.find((cron) => cron.path === '/api/cron/market-pro')
-  record(checks, 'vercel_watch_cron', watch?.schedule === '*/2 * * * *', watch ? `schedule=${watch.schedule}` : 'missing')
-  record(checks, 'vercel_market_pro_cron', market?.schedule === '*/5 * * * *', market ? `schedule=${market.schedule}` : 'missing')
+  const aggressiveCrons = crons.filter((cron) => isAggressiveCronSchedule(cron.schedule))
+  record(
+    checks,
+    'vercel_cron_cost_guard',
+    aggressiveCrons.length === 0,
+    aggressiveCrons.length
+      ? aggressiveCrons.map((cron) => `${cron.path}:${cron.schedule}`).join(', ')
+      : 'no aggressive Vercel crons',
+    { owner: 'DevOps agent', fix: 'Keep high-frequency scheduling on GitHub Actions or Cloudflare Workers, not Vercel Cron.' },
+  )
+
+  const workflowText = readText(path.join(ROOT, '.github/workflows/vesselsurge-free-scheduler.yml'))
+  const workerText = readText(path.join(ROOT, 'workers/vesselsurge-scheduler/worker.js'))
+  record(
+    checks,
+    'external_scheduler_workflow',
+    workflowText.includes('scripts/external-cron-runner.mjs') && workflowText.includes('*/15 * * * *'),
+    workflowText ? 'GitHub external scheduler workflow present' : 'missing',
+    { owner: 'DevOps agent', fix: 'Restore .github/workflows/vesselsurge-free-scheduler.yml.' },
+  )
+  record(
+    checks,
+    'external_scheduler_worker',
+    workerText.includes('scheduled(event') && workerText.includes('CRON_SECRET') && workerText.includes('/api/cron/update?scope=news'),
+    workerText ? 'Cloudflare scheduler worker present' : 'missing',
+    { owner: 'DevOps agent', fix: 'Restore workers/vesselsurge-scheduler/worker.js.' },
+  )
 
   try {
     const contract = JSON.parse(execFileSync('node', ['scripts/hotspot-contract.mjs', '--json'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }))
