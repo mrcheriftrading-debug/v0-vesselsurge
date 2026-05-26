@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VesselSurge Emergency Maritime Cache</title>
+  <meta name="description" content="Read-only VesselSurge maritime intelligence mirror generated from the Supabase live-map cache while the primary Vercel deployment is unavailable." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="icon" href="./favicon.ico" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #0d1a2d;
+      --panel-soft: #101f35;
+      --line: rgba(148, 163, 184, .22);
+      --text: #edf5ff;
+      --muted: #93a4bb;
+      --green: #22c55e;
+      --amber: #facc15;
+      --orange: #fb923c;
+      --red: #ef4444;
+      --cyan: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, .14), transparent 32rem), var(--bg);
+      color: var(--text);
+      font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    header { padding: 28px 0 18px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand img { width: 44px; height: 44px; border-radius: 8px; background: #0b1728; }
+    .brand strong { font-size: 22px; letter-spacing: 0; }
+    .hero { padding: 34px 0 28px; display: grid; grid-template-columns: 1.35fr .65fr; gap: 28px; align-items: end; }
+    h1 { font-size: clamp(32px, 5vw, 64px); line-height: 1; margin: 0 0 18px; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 0 0 10px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    p { color: #c8d3e3; margin: 0 0 14px; }
+    .notice {
+      border: 1px solid rgba(250, 204, 21, .3);
+      background: rgba(250, 204, 21, .08);
+      padding: 14px 16px;
+      border-radius: 8px;
+      color: #fde68a;
+      margin-top: 18px;
+    }
+    .status-panel {
+      background: rgba(13, 26, 45, .88);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+    .stat { background: var(--panel-soft); border: 1px solid var(--line); border-radius: 8px; padding: 13px; }
+    .stat strong { display: block; font-size: 24px; line-height: 1; }
+    .stat small, small, .muted { color: var(--muted); }
+    .toolbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: #13233a; color: var(--text); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 24px 0; }
+    .hotspot-card, .news-panel {
+      background: rgba(13, 26, 45, .92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+    }
+    .hotspot-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .eyebrow { margin: 0 0 3px; font-size: 12px; color: var(--cyan); text-transform: uppercase; letter-spacing: .08em; }
+    .risk { flex: 0 0 auto; padding: 7px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; border: 1px solid currentColor; }
+    .risk-critical, .risk-high { color: var(--red); background: rgba(239, 68, 68, .11); }
+    .risk-medium { color: var(--amber); background: rgba(250, 204, 21, .1); }
+    .risk-low { color: var(--green); background: rgba(34, 197, 94, .1); }
+    .metrics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .metrics span { border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px; color: #dbeafe; font-size: 12px; }
+    .analysis-headline { color: var(--text); font-weight: 800; font-size: 16px; }
+    .list-block { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .source-row, .news-row { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid rgba(148, 163, 184, .14); }
+    .source-row:first-of-type, .news-row:first-of-type { border-top: 0; }
+    .source-row span, .news-row strong { color: #f8fbff; }
+    .news-section { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 0 34px; }
+    .region { color: var(--cyan); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    footer { padding: 28px 0 42px; border-top: 1px solid var(--line); color: var(--muted); }
+    @media (max-width: 820px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell brand">
+      <img src="./logo.png" alt="VesselSurge" />
+      <strong>VesselSurge</strong>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Emergency read-only mirror</p>
+        <h1>Maritime intelligence cache remains available.</h1>
+        <p>This mirror is generated directly from the VesselSurge Supabase live-map cache while the primary Vercel deployment is unavailable. It preserves source links, hotspot risk labels and analysis text from the last available cache.</p>
+        <div class="notice">Primary app status: Vercel deployment disabled. This page is a continuity surface, not a replacement for the interactive logged-in product.</div>
+      </div>
+      <aside class="status-panel">
+        <h3>Cache Status</h3>
+        <p>Top current risk: <strong>LOW</strong></p>
+        <p>Cache generated: <strong>2026-05-26 18:48:02 UTC</strong></p>
+        <p>Mirror built: <strong>2026-05-26 18:49:58 UTC</strong></p>
+        <div class="stats">
+          <div class="stat"><strong>9</strong><small>hotspots</small></div>
+          <div class="stat"><strong>33</strong><small>articles</small></div>
+          <div class="stat"><strong>33</strong><small>signals</small></div>
+          <div class="stat"><strong>33</strong><small>sources</small></div>
+        </div>
+      </aside>
+    </section>
+    <section class="toolbar">
+      <div>
+        <strong>Read-only operational view</strong>
+        <p class="muted">Use original source links for verification before operational or commercial decisions.</p>
+      </div>
+      <a class="button" href="https://www.vesselsurge.com">Try primary app</a>
+    </section>
+    <section class="grid">
+      
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">bab</p>
+          <h2>Bab el-Mandeb</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>3 sources</span>
+        <span>3 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Bab el-Mandeb: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 3 sources. Main evidence: UKMTO Products: Bab el-Mandeb: official source checked | Google News Search: Tier-1 Red Sea newsroom sweep: Bab el-Mandeb: tier-1 newsroom sweep checked | Bing News Search: Red Sea vessel security: Bab el-Mandeb: general search sweep checked.</p>
+      <p class="muted">Red Sea and Gulf of Aden cargo can face rerouting, insurance pressure and longer Asia-Europe voyages. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.ukmto.org/ukmto-products" rel="noopener noreferrer" target="_blank">
+              <span>Bab el-Mandeb: official source checked</span>
+              <small>UKMTO Products · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Red%20Sea%22%20OR%20%22Bab%20el-Mandeb%22%20OR%20%22Bab%20el%20Mandeb%22%20OR%20%22Gulf%20of%20Aden%22%20OR%20Yemen%20OR%20Houthi)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20cargo%20OR%20route%20OR%20rerouting%20OR%20insurance%20OR%20freight%20OR%20attack%20OR%20advisory)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Bab el-Mandeb: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Red Sea newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://www.bing.com/news/search?q=(%22Red%20Sea%22%20OR%20%22Bab%20el-Mandeb%22%20OR%20%22Gulf%20of%20Aden%22)%20(ship%20OR%20vessel%20OR%20tanker%20OR%20cargo)%20(attack%20OR%20missile%20OR%20drone%20OR%20Houthi%20OR%20warning%20OR%20incident)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+              <span>Bab el-Mandeb: general search sweep checked</span>
+              <small>Bing News Search: Red Sea vessel security · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">cape</p>
+          <h2>Cape of Good Hope</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>4 sources</span>
+        <span>4 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Cape of Good Hope: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 4 sources. Main evidence: South African Maritime Safety Authority: Cape of Good Hope: official source checked | Google News 48h Search: Cape of Good Hope 48h route evidence sweep: Cape of Good Hope: recent news sweep checked | Google News Search: Cape route trade-source sweep: Cape of Good Hope: trade-source sweep checked.</p>
+      <p class="muted">Cape routing pressure can add voyage time, fuel cost and schedule risk when Red Sea routes are avoided. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.samsa.org.za/Pages/Notices.aspx" rel="noopener noreferrer" target="_blank">
+              <span>Cape of Good Hope: official source checked</span>
+              <small>South African Maritime Safety Authority · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Cape of Good Hope: recent news sweep checked</span>
+              <small>Google News 48h Search: Cape of Good Hope 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Cape of Good Hope: trade-source sweep checked</span>
+              <small>Google News Search: Cape route trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Cape of Good Hope: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Cape of Good Hope newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">gibraltar</p>
+          <h2>Strait of Gibraltar</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>4 sources</span>
+        <span>4 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Strait of Gibraltar: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 4 sources. Main evidence: Gibraltar Port Authority: Strait of Gibraltar: official source checked | Google News 48h Search: Gibraltar 48h route evidence sweep: Strait of Gibraltar: recent news sweep checked | Google News Search: Gibraltar trade-source sweep: Strait of Gibraltar: trade-source sweep checked.</p>
+      <p class="muted">Atlantic-Mediterranean entry flow can be affected by congestion, port constraints and security signals. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.gibraltarport.com/port-information/vessel-traffic-services" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Gibraltar: official source checked</span>
+              <small>Gibraltar Port Authority · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20bunkering%20OR%20%22port%20traffic%22%20OR%20congestion%20OR%20incident%20OR%20weather)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Gibraltar: recent news sweep checked</span>
+              <small>Google News 48h Search: Gibraltar 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20port%20OR%20bunkering%20OR%20congestion%20OR%20incident)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Gibraltar: trade-source sweep checked</span>
+              <small>Google News Search: Gibraltar trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20Gibraltar)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20port%20OR%20congestion%20OR%20security%20OR%20traffic%20OR%20incident)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Gibraltar: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Gibraltar newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">hormuz</p>
+          <h2>Strait of Hormuz</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>3 sources</span>
+        <span>3 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Strait of Hormuz: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 3 sources. Main evidence: MARAD Hormuz Security Advisory: Strait of Hormuz: official source checked | Google News Search: Tier-1 Hormuz newsroom sweep: Strait of Hormuz: tier-1 newsroom sweep checked | Bing News Search: Global maritime chokepoint disruption: Strait of Hormuz: general search sweep checked.</p>
+      <p class="muted">Oil, LNG and Gulf tanker routes can face delays, rerouting pressure and higher war-risk costs. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.maritime.dot.gov/msci/2024-009-strait-hormuz-and-gulf-oman-iranian-illegal-boarding-detention-seizure" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Hormuz: official source checked</span>
+              <small>MARAD Hormuz Security Advisory · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Hormuz%22%20OR%20Hormuz%20OR%20%22Persian%20Gulf%22%20OR%20%22Gulf%20of%20Oman%22%20OR%20Iran)%20(shipping%20OR%20tanker%20OR%20maritime%20OR%20vessel%20OR%20oil%20OR%20crude%20OR%20insurance%20OR%20freight%20OR%20sanctions)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Hormuz: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Hormuz newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://www.bing.com/news/search?q=(%22shipping%20chokepoint%22%20OR%20%22maritime%20chokepoint%22%20OR%20%22oil%20route%22%20OR%20%22tanker%20route%22)%20(disruption%20OR%20risk%20OR%20warning%20OR%20incident%20OR%20delay%20OR%20insurance%20OR%20freight)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Hormuz: general search sweep checked</span>
+              <small>Bing News Search: Global maritime chokepoint disruption · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">malacca</p>
+          <h2>Strait of Malacca</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>3 sources</span>
+        <span>3 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Strait of Malacca: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 3 sources. Main evidence: ReCAAP ISC Alerts: Strait of Malacca: official source checked | Google News Search: Tier-1 Malacca newsroom sweep: Strait of Malacca: tier-1 newsroom sweep checked | Bing News Search: Malacca piracy and incidents: Strait of Malacca: general search sweep checked.</p>
+      <p class="muted">Dense tanker, container and bunker traffic can be affected by incidents around Malacca and Singapore Strait. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.recaap.org/alerts" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Malacca: official source checked</span>
+              <small>ReCAAP ISC Alerts · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22%20OR%20%22Port%20of%20Singapore%22%20OR%20ReCAAP)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20cargo%20OR%20congestion%20OR%20piracy%20OR%20%22armed%20robbery%22%20OR%20port)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Malacca: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Malacca newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://www.bing.com/news/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22%20OR%20%22Straits%20of%20Malacca%22)%20(piracy%20OR%20%22armed%20robbery%22%20OR%20incident%20OR%20ReCAAP%20OR%20vessel)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+              <span>Strait of Malacca: general search sweep checked</span>
+              <small>Bing News Search: Malacca piracy and incidents · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">panama</p>
+          <h2>Panama Canal</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>4 sources</span>
+        <span>4 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Panama Canal: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 4 sources. Main evidence: Panama Canal Authority: Panama Canal: official source checked | Google News Search: Panama Canal trade-source sweep: Panama Canal: trade-source sweep checked | Google News Search: Tier-1 Panama Canal newsroom sweep: Panama Canal: tier-1 newsroom sweep checked.</p>
+      <p class="muted">Canal limits can affect Atlantic-Pacific schedules, queues, draught limits and booking capacity. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://pancanal.com/en/maritime-services/advisory-to-shipping/" rel="noopener noreferrer" target="_blank">
+              <span>Panama Canal: official source checked</span>
+              <small>Panama Canal Authority · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Panama%20Canal%22%20OR%20pancanal%20OR%20%22Gatun%20Lake%22%20OR%20Neopanamax)%20(shipping%20OR%20vessel%20OR%20transit%20OR%20queue%20OR%20draft%20OR%20water%20OR%20delay%20OR%20slots%20OR%20booking)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Panama Canal: trade-source sweep checked</span>
+              <small>Google News Search: Panama Canal trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Panama%20Canal%22%20OR%20%22Panama%20Canal%20Authority%22)%20(shipping%20OR%20vessel%20OR%20transit%20OR%20queue%20OR%20water%20OR%20drought%20OR%20canal%20OR%20maintenance%20OR%20delay)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Panama Canal: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Panama Canal newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://www.bing.com/news/search?q=(%22Panama%20Canal%22%20OR%20%22Panama%20Canal%20Authority%22)%20(ship%20OR%20vessel%20OR%20shipping%20OR%20maritime%20OR%20transit%20OR%20queue%20OR%20draft%20OR%20water%20OR%20drought%20OR%20delay%20OR%20maintenance)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+              <span>Panama Canal: general search sweep checked</span>
+              <small>Bing News Search: Panama Canal transit pressure · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">suez</p>
+          <h2>Suez Canal</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>4 sources</span>
+        <span>4 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Suez Canal: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 4 sources. Main evidence: Suez Canal Authority: Suez Canal: official source checked | Google News 48h Search: Suez 48h route evidence sweep: Suez Canal: recent news sweep checked | Google News Search: Tier-1 Suez newsroom sweep: Suez Canal: tier-1 newsroom sweep checked.</p>
+      <p class="muted">Canal delays can affect Asia-Europe schedules, container flow and feeder connections. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx" rel="noopener noreferrer" target="_blank">
+              <span>Suez Canal: official source checked</span>
+              <small>Suez Canal Authority · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Suez%20Canal%22%20OR%20%22Suez%20Canal%20Authority%22%20OR%20%22Port%20Said%22%20OR%20%22canal%20convoy%22)%20(shipping%20OR%20vessel%20OR%20transit%20OR%20queue%20OR%20delay%20OR%20advisory%20OR%20navigation%20OR%20freight%20OR%20rerouting%20OR%20%22Red%20Sea%20route%22)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Suez Canal: recent news sweep checked</span>
+              <small>Google News 48h Search: Suez 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Suez%20Canal%22%20OR%20Suez%20OR%20%22Port%20Said%22%20OR%20%22Red%20Sea%20route%22%20OR%20%22Cape%20of%20Good%20Hope%22)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20canal%20OR%20convoy%20OR%20transit%20OR%20queue%20OR%20delay%20OR%20freight%20OR%20rerouting)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Suez Canal: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Suez newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://www.bing.com/news/search?q=(%22Suez%20Canal%22%20OR%20%22Port%20Said%22%20OR%20Suez)%20(vessel%20OR%20convoy%20OR%20transit%20OR%20shipping%20OR%20queue%20OR%20congestion%20OR%20delay)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+              <span>Suez Canal: general search sweep checked</span>
+              <small>Bing News Search: Suez traffic and queues · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">taiwan</p>
+          <h2>Taiwan Strait</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>4 sources</span>
+        <span>4 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Taiwan Strait: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 4 sources. Main evidence: Taiwan Maritime and Port Bureau: Taiwan Strait: official source checked | Google News 48h Search: Taiwan Strait 48h route evidence sweep: Taiwan Strait: recent news sweep checked | Google News Search: Taiwan Strait trade-source sweep: Taiwan Strait: trade-source sweep checked.</p>
+      <p class="muted">Asia cargo continuity can be affected by maritime alerts, port constraints or naval activity. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.motcmpb.gov.tw/RSS" rel="noopener noreferrer" target="_blank">
+              <span>Taiwan Strait: official source checked</span>
+              <small>Taiwan Maritime and Port Bureau · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Kaohsiung%20port%22%20OR%20%22Keelung%20port%22%20OR%20%22Taiwan%20ports%22)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20maritime%20OR%20%22port%20operations%22%20OR%20%22naval%20exercise%22%20OR%20warning%20OR%20disruption)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Taiwan Strait: recent news sweep checked</span>
+              <small>Google News 48h Search: Taiwan Strait 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Taiwan%20ports%22%20OR%20Kaohsiung%20OR%20Keelung)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20port%20OR%20naval%20OR%20maritime%20OR%20disruption)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Taiwan Strait: trade-source sweep checked</span>
+              <small>Google News Search: Taiwan Strait trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20Taiwan)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20cargo%20OR%20port%20OR%20naval%20OR%20trade%20lane%20OR%20alert%20OR%20disruption%20OR%20risk)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Taiwan Strait: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Taiwan Strait newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    <article class="hotspot-card">
+      <div class="hotspot-head">
+        <div>
+          <p class="eyebrow">turkish</p>
+          <h2>Turkish Straits</h2>
+        </div>
+        <span class="risk risk-low">LOW</span>
+      </div>
+      <div class="metrics">
+        <span>0 reports</span>
+        <span>4 sources</span>
+        <span>4 signals</span>
+        <span>Source sweep</span>
+      </div>
+      <p class="analysis-headline">Turkish Straits: no fresh verified disruption found</p>
+      <p>Based on 0 reports across 4 sources. Main evidence: Turkish Directorate General of Coastal Safety: Turkish Straits: official source checked | Google News 48h Search: Turkish Straits 48h route evidence sweep: Turkish Straits: recent news sweep checked | Google News Search: Turkish Straits trade-source sweep: Turkish Straits: trade-source sweep checked.</p>
+      <p class="muted">Black Sea tanker and dry-bulk flow can be affected by weather holds, traffic stops and transit restrictions. No fresh verified disruption is being claimed right now.</p>
+      
+        <div class="list-block">
+          <h3>Current source trail</h3>
+          
+            <a class="source-row" href="https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2" rel="noopener noreferrer" target="_blank">
+              <span>Turkish Straits: official source checked</span>
+              <small>Turkish Directorate General of Coastal Safety · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Bosporus%22%20OR%20%22Bosphorus%22%20OR%20%22Dardanelles%22%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22)%20(%22vessel%20traffic%22%20OR%20shipping%20OR%20tanker%20OR%20transit%20OR%20fog%20OR%20closure%20OR%20suspension%20OR%20delay)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Turkish Straits: recent news sweep checked</span>
+              <small>Google News 48h Search: Turkish Straits 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(Bosporus%20OR%20Bosphorus%20OR%20Dardanelles%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22%20OR%20%22Canakkale%20Strait%22)%20(shipping%20OR%20tanker%20OR%20vessel%20OR%20transit%20OR%20traffic%20OR%20closure%20OR%20delay%20OR%20Black%20Sea)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Turkish Straits: trade-source sweep checked</span>
+              <small>Google News Search: Turkish Straits trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+            <a class="source-row" href="https://news.google.com/rss/search?q=(%22Turkish%20Straits%22%20OR%20Bosporus%20OR%20Bosphorus%20OR%20Dardanelles)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20transit%20OR%20Black%20Sea%20OR%20delay%20OR%20closure%20OR%20traffic)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+              <span>Turkish Straits: tier-1 newsroom sweep checked</span>
+              <small>Google News Search: Tier-1 Turkish Straits newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+            </a>
+          
+        </div>
+      
+    </article>
+  
+    </section>
+    <section class="news-section">
+      <div class="news-panel">
+        <h2>Latest cached source trail</h2>
+        
+    <a class="news-row" href="https://www.maritime.dot.gov/msci/2024-009-strait-hormuz-and-gulf-oman-iranian-illegal-boarding-detention-seizure" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Hormuz</span>
+      <strong>Strait of Hormuz: official source checked</strong>
+      <small>MARAD Hormuz Security Advisory · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.ukmto.org/ukmto-products" rel="noopener noreferrer" target="_blank">
+      <span class="region">Bab el-Mandeb</span>
+      <strong>Bab el-Mandeb: official source checked</strong>
+      <small>UKMTO Products · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/default.aspx" rel="noopener noreferrer" target="_blank">
+      <span class="region">Suez Canal</span>
+      <strong>Suez Canal: official source checked</strong>
+      <small>Suez Canal Authority · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.recaap.org/alerts" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Malacca</span>
+      <strong>Strait of Malacca: official source checked</strong>
+      <small>ReCAAP ISC Alerts · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://pancanal.com/en/maritime-services/advisory-to-shipping/" rel="noopener noreferrer" target="_blank">
+      <span class="region">Panama Canal</span>
+      <strong>Panama Canal: official source checked</strong>
+      <small>Panama Canal Authority · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.motcmpb.gov.tw/RSS" rel="noopener noreferrer" target="_blank">
+      <span class="region">Taiwan Strait</span>
+      <strong>Taiwan Strait: official source checked</strong>
+      <small>Taiwan Maritime and Port Bureau · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2" rel="noopener noreferrer" target="_blank">
+      <span class="region">Turkish Straits</span>
+      <strong>Turkish Straits: official source checked</strong>
+      <small>Turkish Directorate General of Coastal Safety · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.gibraltarport.com/port-information/vessel-traffic-services" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Gibraltar</span>
+      <strong>Strait of Gibraltar: official source checked</strong>
+      <small>Gibraltar Port Authority · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.samsa.org.za/Pages/Notices.aspx" rel="noopener noreferrer" target="_blank">
+      <span class="region">Cape of Good Hope</span>
+      <strong>Cape of Good Hope: official source checked</strong>
+      <small>South African Maritime Safety Authority · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Hormuz%22%20OR%20Hormuz%20OR%20%22Persian%20Gulf%22%20OR%20%22Gulf%20of%20Oman%22%20OR%20Iran)%20(shipping%20OR%20tanker%20OR%20maritime%20OR%20vessel%20OR%20oil%20OR%20crude%20OR%20insurance%20OR%20freight%20OR%20sanctions)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Hormuz</span>
+      <strong>Strait of Hormuz: tier-1 newsroom sweep checked</strong>
+      <small>Google News Search: Tier-1 Hormuz newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Red%20Sea%22%20OR%20%22Bab%20el-Mandeb%22%20OR%20%22Bab%20el%20Mandeb%22%20OR%20%22Gulf%20of%20Aden%22%20OR%20Yemen%20OR%20Houthi)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20cargo%20OR%20route%20OR%20rerouting%20OR%20insurance%20OR%20freight%20OR%20attack%20OR%20advisory)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Bab el-Mandeb</span>
+      <strong>Bab el-Mandeb: tier-1 newsroom sweep checked</strong>
+      <small>Google News Search: Tier-1 Red Sea newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Suez%20Canal%22%20OR%20%22Suez%20Canal%20Authority%22%20OR%20%22Port%20Said%22%20OR%20%22canal%20convoy%22)%20(shipping%20OR%20vessel%20OR%20transit%20OR%20queue%20OR%20delay%20OR%20advisory%20OR%20navigation%20OR%20freight%20OR%20rerouting%20OR%20%22Red%20Sea%20route%22)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Suez Canal</span>
+      <strong>Suez Canal: recent news sweep checked</strong>
+      <small>Google News 48h Search: Suez 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22%20OR%20%22Port%20of%20Singapore%22%20OR%20ReCAAP)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20cargo%20OR%20congestion%20OR%20piracy%20OR%20%22armed%20robbery%22%20OR%20port)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Malacca</span>
+      <strong>Strait of Malacca: tier-1 newsroom sweep checked</strong>
+      <small>Google News Search: Tier-1 Malacca newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Panama%20Canal%22%20OR%20pancanal%20OR%20%22Gatun%20Lake%22%20OR%20Neopanamax)%20(shipping%20OR%20vessel%20OR%20transit%20OR%20queue%20OR%20draft%20OR%20water%20OR%20delay%20OR%20slots%20OR%20booking)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Panama Canal</span>
+      <strong>Panama Canal: trade-source sweep checked</strong>
+      <small>Google News Search: Panama Canal trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Kaohsiung%20port%22%20OR%20%22Keelung%20port%22%20OR%20%22Taiwan%20ports%22)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20maritime%20OR%20%22port%20operations%22%20OR%20%22naval%20exercise%22%20OR%20warning%20OR%20disruption)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Taiwan Strait</span>
+      <strong>Taiwan Strait: recent news sweep checked</strong>
+      <small>Google News 48h Search: Taiwan Strait 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Bosporus%22%20OR%20%22Bosphorus%22%20OR%20%22Dardanelles%22%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22)%20(%22vessel%20traffic%22%20OR%20shipping%20OR%20tanker%20OR%20transit%20OR%20fog%20OR%20closure%20OR%20suspension%20OR%20delay)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Turkish Straits</span>
+      <strong>Turkish Straits: recent news sweep checked</strong>
+      <small>Google News 48h Search: Turkish Straits 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20bunkering%20OR%20%22port%20traffic%22%20OR%20congestion%20OR%20incident%20OR%20weather)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Gibraltar</span>
+      <strong>Strait of Gibraltar: recent news sweep checked</strong>
+      <small>Google News 48h Search: Gibraltar 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Cape of Good Hope</span>
+      <strong>Cape of Good Hope: recent news sweep checked</strong>
+      <small>Google News 48h Search: Cape of Good Hope 48h route evidence sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.bing.com/news/search?q=(%22shipping%20chokepoint%22%20OR%20%22maritime%20chokepoint%22%20OR%20%22oil%20route%22%20OR%20%22tanker%20route%22)%20(disruption%20OR%20risk%20OR%20warning%20OR%20incident%20OR%20delay%20OR%20insurance%20OR%20freight)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Hormuz</span>
+      <strong>Strait of Hormuz: general search sweep checked</strong>
+      <small>Bing News Search: Global maritime chokepoint disruption · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.bing.com/news/search?q=(%22Red%20Sea%22%20OR%20%22Bab%20el-Mandeb%22%20OR%20%22Gulf%20of%20Aden%22)%20(ship%20OR%20vessel%20OR%20tanker%20OR%20cargo)%20(attack%20OR%20missile%20OR%20drone%20OR%20Houthi%20OR%20warning%20OR%20incident)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+      <span class="region">Bab el-Mandeb</span>
+      <strong>Bab el-Mandeb: general search sweep checked</strong>
+      <small>Bing News Search: Red Sea vessel security · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Suez%20Canal%22%20OR%20Suez%20OR%20%22Port%20Said%22%20OR%20%22Red%20Sea%20route%22%20OR%20%22Cape%20of%20Good%20Hope%22)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20canal%20OR%20convoy%20OR%20transit%20OR%20queue%20OR%20delay%20OR%20freight%20OR%20rerouting)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Suez Canal</span>
+      <strong>Suez Canal: tier-1 newsroom sweep checked</strong>
+      <small>Google News Search: Tier-1 Suez newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.bing.com/news/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22%20OR%20%22Straits%20of%20Malacca%22)%20(piracy%20OR%20%22armed%20robbery%22%20OR%20incident%20OR%20ReCAAP%20OR%20vessel)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Malacca</span>
+      <strong>Strait of Malacca: general search sweep checked</strong>
+      <small>Bing News Search: Malacca piracy and incidents · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Panama%20Canal%22%20OR%20%22Panama%20Canal%20Authority%22)%20(shipping%20OR%20vessel%20OR%20transit%20OR%20queue%20OR%20water%20OR%20drought%20OR%20canal%20OR%20maintenance%20OR%20delay)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Panama Canal</span>
+      <strong>Panama Canal: tier-1 newsroom sweep checked</strong>
+      <small>Google News Search: Tier-1 Panama Canal newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Taiwan%20ports%22%20OR%20Kaohsiung%20OR%20Keelung)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20port%20OR%20naval%20OR%20maritime%20OR%20disruption)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Taiwan Strait</span>
+      <strong>Taiwan Strait: trade-source sweep checked</strong>
+      <small>Google News Search: Taiwan Strait trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(Bosporus%20OR%20Bosphorus%20OR%20Dardanelles%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22%20OR%20%22Canakkale%20Strait%22)%20(shipping%20OR%20tanker%20OR%20vessel%20OR%20transit%20OR%20traffic%20OR%20closure%20OR%20delay%20OR%20Black%20Sea)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Turkish Straits</span>
+      <strong>Turkish Straits: trade-source sweep checked</strong>
+      <small>Google News Search: Turkish Straits trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20port%20OR%20bunkering%20OR%20congestion%20OR%20incident)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Strait of Gibraltar</span>
+      <strong>Strait of Gibraltar: trade-source sweep checked</strong>
+      <small>Google News Search: Gibraltar trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Cape of Good Hope</span>
+      <strong>Cape of Good Hope: trade-source sweep checked</strong>
+      <small>Google News Search: Cape route trade-source sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.bing.com/news/search?q=(%22Suez%20Canal%22%20OR%20%22Port%20Said%22%20OR%20Suez)%20(vessel%20OR%20convoy%20OR%20transit%20OR%20shipping%20OR%20queue%20OR%20congestion%20OR%20delay)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+      <span class="region">Suez Canal</span>
+      <strong>Suez Canal: general search sweep checked</strong>
+      <small>Bing News Search: Suez traffic and queues · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://www.bing.com/news/search?q=(%22Panama%20Canal%22%20OR%20%22Panama%20Canal%20Authority%22)%20(ship%20OR%20vessel%20OR%20shipping%20OR%20maritime%20OR%20transit%20OR%20queue%20OR%20draft%20OR%20water%20OR%20drought%20OR%20delay%20OR%20maintenance)&amp;format=rss" rel="noopener noreferrer" target="_blank">
+      <span class="region">Panama Canal</span>
+      <strong>Panama Canal: general search sweep checked</strong>
+      <small>Bing News Search: Panama Canal transit pressure · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+    <a class="news-row" href="https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20Taiwan)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20cargo%20OR%20port%20OR%20naval%20OR%20trade%20lane%20OR%20alert%20OR%20disruption%20OR%20risk)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&amp;hl=en-US&amp;gl=US&amp;ceid=US:en" rel="noopener noreferrer" target="_blank">
+      <span class="region">Taiwan Strait</span>
+      <strong>Taiwan Strait: tier-1 newsroom sweep checked</strong>
+      <small>Google News Search: Tier-1 Taiwan Strait newsroom sweep · 2026-05-26 18:48:00 UTC</small>
+    </a>
+  
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="shell">VesselSurge emergency cache. No investment advice. No invented maritime events. Verify sources before acting.</div>
+  </footer>
+</body>
+</html>
