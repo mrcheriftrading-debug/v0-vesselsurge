@@ -187,6 +187,13 @@ function checkRepoWiring(checks) {
   )
   record(
     checks,
+    'emergency_pages_script',
+    Boolean(scripts['emergency:pages']),
+    scripts['emergency:pages'] || 'missing',
+    { owner: 'DevOps agent' },
+  )
+  record(
+    checks,
     'x_guard_scripts',
     Boolean(scripts['x:check'] && scripts['x:post-new-direct'] && scripts['x:compose-new']),
     'X direct and browser fallback scripts present',
@@ -215,6 +222,7 @@ function checkRepoWiring(checks) {
   )
 
   const workflowText = readText(path.join(ROOT, '.github/workflows/vesselsurge-free-scheduler.yml'))
+  const emergencyWorkflowText = readText(path.join(ROOT, '.github/workflows/vesselsurge-emergency-pages.yml'))
   const workerText = readText(path.join(ROOT, 'workers/vesselsurge-scheduler/worker.js'))
   record(
     checks,
@@ -229,6 +237,13 @@ function checkRepoWiring(checks) {
     workerText.includes('scheduled(event') && workerText.includes('CRON_SECRET') && workerText.includes('/api/cron/update?scope=news'),
     workerText ? 'Cloudflare scheduler worker present' : 'missing',
     { owner: 'DevOps agent', fix: 'Restore workers/vesselsurge-scheduler/worker.js.' },
+  )
+  record(
+    checks,
+    'emergency_pages_workflow',
+    emergencyWorkflowText.includes('scripts/generate-emergency-pages.mjs') && emergencyWorkflowText.includes('actions/deploy-pages'),
+    emergencyWorkflowText ? 'GitHub Pages emergency mirror workflow present' : 'missing',
+    { owner: 'DevOps agent', fix: 'Restore .github/workflows/vesselsurge-emergency-pages.yml.' },
   )
 
   try {

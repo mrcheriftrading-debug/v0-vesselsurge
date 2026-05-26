@@ -18,6 +18,7 @@
     "maritime:update:full": "MARITIME_UPDATE_URL=https://www.vesselsurge.com/api/cron/update node scripts/run-maritime-update.mjs",
     "external:cron": "node scripts/external-cron-runner.mjs",
     "external:cron:dry-run": "node scripts/external-cron-runner.mjs --dry-run all",
+    "emergency:pages": "node scripts/generate-emergency-pages.mjs",
     "x:check": "node scripts/x-check-auth.mjs",
     "x:oauth2": "node scripts/x-oauth2-authorize.mjs",
     "x:post": "node scripts/x-post.mjs",

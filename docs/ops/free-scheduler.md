@@ -40,3 +40,13 @@ The worker exposes `/health` so the ops agent can confirm it is configured.
 ## Vercel Cost Guard
 
 `vercel.json` intentionally has no scheduled crons. `npm run ops:hotspots` and `npm run ops:agents` now fail if an aggressive Vercel cron such as every 2 or 5 minutes is reintroduced.
+
+## Emergency Read-Only Mirror
+
+If the primary deployment is unavailable, run:
+
+```bash
+npm run emergency:pages
+```
+
+This generates `emergency-pages/` directly from the Supabase `maritime_dashboard_cache` row. The GitHub Actions workflow `.github/workflows/vesselsurge-emergency-pages.yml` publishes the same read-only cache to GitHub Pages every 30 minutes without using Vercel.
