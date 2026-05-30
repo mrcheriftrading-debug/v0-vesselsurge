@@ -48,58 +48,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    const tavilyKey = process.env.TAVILY_API_KEY
-    if (!tavilyKey) {
-      return searchStoredMaritimeIntel(normalizedQuery, safeMaxResults)
-    }
-
-    // Call Tavily API for real-time web search
-    const tavilyResponse = await fetch("https://api.tavily.com/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        api_key: tavilyKey,
-        query: normalizedQuery,
-        max_results: safeMaxResults,
-        include_answer: true,
-        include_raw_content: false,
-      }),
-    })
-
-    if (!tavilyResponse.ok) {
-      console.error("[v0] Tavily API error:", tavilyResponse.statusText)
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Tavily API error: ${tavilyResponse.statusText}`,
-          timestamp: new Date().toISOString(),
-        },
-        { status: 500 }
-      )
-    }
-
-    const tavilyData = await tavilyResponse.json()
-
-    // Transform Tavily results to our format
-    const results: SearchResult[] = (tavilyData.results || []).map(
-      (result: any) => ({
-        title: result.title,
-        link: result.url,
-        snippet: result.content,
-        source: new URL(result.url).hostname.replace("www.", ""),
-        date: result.published_date || undefined,
-      })
-    )
-
-    const response: SearchResponse = {
-      success: true,
-      query: normalizedQuery,
-      results,
-      count: results.length,
-      timestamp: new Date().toISOString(),
-    }
-
-    return NextResponse.json(response, { status: 200 })
+    // Search is served from free stored maritime intelligence in Supabase.
+    // The paid Tavily web-search API has been removed to avoid usage charges.
+    return searchStoredMaritimeIntel(normalizedQuery, safeMaxResults)
   } catch (error) {
     console.error("[v0] Search API error:", error)
     return NextResponse.json(

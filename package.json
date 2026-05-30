@@ -25,9 +25,7 @@
     "x:post-image": "node scripts/x-post-with-image.mjs",
     "x:post-new": "node scripts/x-post-new-maritime-item.mjs",
     "x:post-new-direct": "node scripts/x-post-new-maritime-item-direct.mjs",
-    "x:compose-new": "node scripts/x-open-compose-new-maritime-item.mjs",
-    "buffer:post-new": "node scripts/buffer-post-new-maritime-item.mjs",
-    "buffer:dry-run": "node scripts/buffer-post-new-maritime-item.mjs --dry-run"
+    "x:compose-new": "node scripts/x-open-compose-new-maritime-item.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
