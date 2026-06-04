@@ -1,0 +1,91 @@
+name: VesselSurge Deploy
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build (Test)
+        run: npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+
+      - name: Build Project
+        run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
+
+      - name: Deploy to Vercel
+        id: vercel-deploy
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            vercel deploy --prebuilt --prod > deployment-url.txt
+          else
+            vercel deploy --prebuilt > deployment-url.txt
+          fi
+        continue-on-error: true
+
+      - name: Get Deployment URL
+        id: get-url
+        run: echo "url=$(cat deployment-url.txt | tail -1)" >> $GITHUB_OUTPUT
+
+      # Emergency GitHub Pages om Vercel misslyckas
+      - name: Emergency Pages - Generate
+        if: steps.vercel-deploy.outcome != 'success'
+        run: npm run emergency:pages
+
+      - name: Emergency Pages - Deploy
+        if: steps.vercel-deploy.outcome != 'success'
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: emergency-pages
