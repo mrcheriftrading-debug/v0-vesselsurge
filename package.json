@@ -19,6 +19,7 @@
     "external:cron": "node scripts/external-cron-runner.mjs",
     "external:cron:dry-run": "node scripts/external-cron-runner.mjs --dry-run all",
     "emergency:pages": "node scripts/generate-emergency-pages.mjs",
+    "emergency:refresh": "node scripts/refresh-emergency-mirror.mjs",
     "x:check": "node scripts/x-check-auth.mjs",
     "x:oauth2": "node scripts/x-oauth2-authorize.mjs",
     "x:post": "node scripts/x-post.mjs",

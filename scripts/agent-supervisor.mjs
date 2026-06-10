@@ -194,6 +194,13 @@ function checkRepoWiring(checks) {
   )
   record(
     checks,
+    'emergency_refresh_script',
+    Boolean(scripts['emergency:refresh']),
+    scripts['emergency:refresh'] || 'missing',
+    { owner: 'OpenClaw assistant', fix: 'Keep a no-Vercel emergency refresh path available for the OpenClaw maritime job.' },
+  )
+  record(
+    checks,
     'x_guard_scripts',
     Boolean(scripts['x:check'] && scripts['x:post-new-direct'] && scripts['x:compose-new']),
     'X direct and browser fallback scripts present',
