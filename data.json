@@ -1,30 +1,30 @@
 {
-  "generatedAt": "2026-06-23T15:52:20.655Z",
+  "generatedAt": "2026-06-23T16:22:22.327Z",
   "cacheSource": "redis-kv",
   "payload": {
     "success": true,
     "data": {
       "articles": [
         {
-          "id": "direct-hormuz-24h-2-aHR0cHM6Ly9uZXdz",
-          "title": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty",
-          "summary": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty qz.com",
-          "source": "Google News: qz.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQTFFLMy1SOThpdWZwNFlGb2RBcjJEVmdkWnJ6YkVnVldaWlQ3a09DZ2RhZzRIc05IM0IwakIwNHQ4VEIzWTVXcDE1aXE1ckxGOXhaUlZZckRaSTlkUWRWa1BVUkdzQm1rczFMTVJNbkIyNFp5YmMyeGJzajl2NGJpWGQtZWlWVU0?oc=5",
+          "id": "direct-hormuz-publisher-2-aHR0cHM6Ly93d3cu",
+          "title": "Oil Steadies While Tankers Openly Enter Hormuz After Peace Deal",
+          "summary": "Oil steadied while tankers become more overt in transiting the Strait of Hormuz following an agreement between Iran and the US to end their conflict. Ellen Fraser, Partner and Energy expert at Baringa Partners, discusses the recent moves in oil as the US greenlights Iran to sell on the open market. (Source: Bloomberg)",
+          "source": "Bloomberg Markets",
+          "sourceUrl": "https://www.bloomberg.com/news/videos/2026-06-23/oil-steadies-while-tankers-enter-hormuz-after-peace-deal-video",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T15:09:42.000Z",
+          "timestamp": "2026-06-23T15:39:37.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
+          "sourceQualityLabel": "Tier-1 newsroom",
+          "sourceQualityScore": 92,
+          "sourceQualityTier": "tierOne",
           "freshnessScore": 100,
-          "intelligenceScore": 83,
-          "derivedFrom": "direct_news_search_rss",
+          "intelligenceScore": 96,
+          "derivedFrom": "trusted_publisher_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 82/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 82,
-          "reviewedAt": "2026-06-23T15:52:20.661Z"
+          "reviewReason": "Approved for live map: 96/100 review score, Tier-1 newsroom, route evidence confirmed.",
+          "reviewScore": 96,
+          "reviewedAt": "2026-06-23T16:22:22.330Z"
         },
         {
           "id": "direct-bab-24h-0-aHR0cHM6Ly9uZXdz",
@@ -45,7 +45,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-06-23T15:52:20.662Z"
+          "reviewedAt": "2026-06-23T16:22:22.331Z"
         },
         {
           "id": "direct-hormuz-publisher-2-aHR0cHM6Ly9jb250-suez",
@@ -66,7 +66,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.662Z"
+          "reviewedAt": "2026-06-23T16:22:22.331Z"
         },
         {
           "id": "direct-malacca-24h-0-aHR0cHM6Ly9uZXdz",
@@ -87,28 +87,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-06-23T15:52:20.662Z"
-        },
-        {
-          "id": "direct-panama-24h-2-aHR0cHM6Ly9uZXdz",
-          "title": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation",
-          "summary": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation Puente de Mando",
-          "source": "Google News: Puente de Mando",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1sMG9IRXg2MmwzMzdZYTU3aW5DUndxNHRZdU1DNVVvS0F1bHNqUFF6dy1rN2w1eHN3YUJFMVc3c25YaWxCdDhoSVMzaHU2bjNBdGk0Vjh4N3N1bWhjWkJkYVQ4aDhKcXMz?oc=5",
-          "category": "live_maritime_news",
-          "region": "panama",
-          "timestamp": "2026-06-23T10:27:30.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 88,
-          "intelligenceScore": 78,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.331Z"
         },
         {
           "id": "source-sweep-news-taiwan-0-VGFpd2FuIE1hcm",
@@ -118,7 +97,7 @@
           "sourceUrl": "https://www.motcmpb.gov.tw/RSS",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -129,7 +108,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.331Z"
         },
         {
           "id": "source-sweep-news-turkish-0-VHVya2lzaCBEaX",
@@ -139,7 +118,7 @@
           "sourceUrl": "https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -150,7 +129,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.331Z"
         },
         {
           "id": "direct-gibraltar-24h-1-aHR0cHM6Ly9uZXdz",
@@ -171,7 +150,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-cape-0-U291dGggQWZyaW",
@@ -181,7 +160,7 @@
           "sourceUrl": "https://www.samsa.org.za/Pages/Notices.aspx",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -192,17 +171,17 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
-          "id": "direct-hormuz-24h-10-aHR0cHM6Ly9uZXdz",
-          "title": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks",
-          "summary": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks GV Wire",
-          "source": "Google News: GV Wire",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOQXY0Vnd1Zkl5YllCN3MwUXJyZ21UMXBrdm95Y1c5RzdVU2Rqc2x5akRBTkRvZzl5bzIxQmxnWmJNTG5tMUd1VEliSnRCdXpVZHAxeDVWQ0Y3X0V5cllaaGpUMmstSjNwYzJhQ2Ria0NKcV9yNTd3bVVNelB5QzhiV01kSk55X0Y3dEVlVVdXWkhaTlo1eWdodE1yMA?oc=5",
+          "id": "direct-hormuz-24h-2-aHR0cHM6Ly9uZXdz",
+          "title": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty",
+          "summary": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty qz.com",
+          "source": "Google News: qz.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQTFFLMy1SOThpdWZwNFlGb2RBcjJEVmdkWnJ6YkVnVldaWlQ3a09DZ2RhZzRIc05IM0IwakIwNHQ4VEIzWTVXcDE1aXE1ckxGOXhaUlZZckRaSTlkUWRWa1BVUkdzQm1rczFMTVJNbkIyNFp5YmMyeGJzajl2NGJpWGQtZWlWVU0?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T14:48:34.000Z",
+          "timestamp": "2026-06-23T15:09:42.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -213,10 +192,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
-          "id": "direct-bab-7d-7-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-7d-14-aHR0cHM6Ly9uZXdz",
           "title": "Armed Skiff Approaches Tanker Off Yemen Coast, Second Incident In Two Weeks",
           "summary": "Armed Skiff Approaches Tanker Off Yemen Coast, Second Incident In Two Weeks Marine Insight",
           "source": "Google News: Marine Insight",
@@ -234,7 +213,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "direct-suez-publisher-2-aHR0cHM6Ly9zcGxh",
@@ -255,7 +234,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "direct-malacca-7d-5-aHR0cHM6Ly9uZXdz",
@@ -276,7 +255,28 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
+        },
+        {
+          "id": "direct-panama-24h-1-aHR0cHM6Ly9uZXdz",
+          "title": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation",
+          "summary": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation Puente de Mando",
+          "source": "Google News: Puente de Mando",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1sMG9IRXg2MmwzMzdZYTU3aW5DUndxNHRZdU1DNVVvS0F1bHNqUFF6dy1rN2w1eHN3YUJFMVc3c25YaWxCdDhoSVMzaHU2bjNBdGk0Vjh4N3N1bWhjWkJkYVQ4aDhKcXMz?oc=5",
+          "category": "live_maritime_news",
+          "region": "panama",
+          "timestamp": "2026-06-23T10:27:30.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 88,
+          "intelligenceScore": 78,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-taiwan-1-R29vZ2xlIE5ld3",
@@ -286,7 +286,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Kaohsiung%20port%22%20OR%20%22Keelung%20port%22%20OR%20%22Taiwan%20ports%22)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20maritime%20OR%20%22port%20operations%22%20OR%20%22naval%20exercise%22%20OR%20warning%20OR%20disruption)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -297,7 +297,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-turkish-1-R29vZ2xlIE5ld3",
@@ -307,7 +307,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Bosporus%22%20OR%20%22Bosphorus%22%20OR%20%22Dardanelles%22%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22)%20(%22vessel%20traffic%22%20OR%20shipping%20OR%20tanker%20OR%20transit%20OR%20fog%20OR%20closure%20OR%20suspension%20OR%20delay)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -318,10 +318,10 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
-          "id": "direct-gibraltar-24h-1-aHR0cHM6Ly9uZXdz",
+          "id": "direct-gibraltar-24h-0-aHR0cHM6Ly9uZXdz",
           "title": "Gibraltar bunker calls shoot up to record high in May",
           "summary": "Gibraltar bunker calls shoot up to record high in May engine.online",
           "source": "Google News: engine.online",
@@ -339,7 +339,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-cape-1-R29vZ2xlIE5ld3",
@@ -349,7 +349,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -360,17 +360,17 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
-          "id": "direct-hormuz-24h-1-aHR0cHM6Ly9uZXdz",
-          "title": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show",
-          "summary": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show Reuters",
-          "source": "Google News: Reuters",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNWHQ2dnJnYy1wZUlwem9vMktVc3VBek1xd3pSQS1mY0NNazBvbU1neWdWS0VEZ3hEY1pmVVZPMi1CcG4wLTBpNVZ0R3RucFZzYm1sOHlCZjJ3NDJPbXZrdWVhNlVyczBHTHNxLXExZXJiQ25tMXdwbkdqYmp4QnExeDE5allHNm84UTBtdkQyekNWNF9PU1BuSlFBalgxZFdpSHVqSkJHVjd2Y3UwcTRidXlrLXhkNGtwaFBSbDBn?oc=5",
+          "id": "direct-hormuz-24h-0-aHR0cHM6Ly9uZXdz",
+          "title": "Strait Reopens and Iranian Oil Flows, But the Path Through Is Complicated",
+          "summary": "Strait Reopens and Iranian Oil Flows, But the Path Through Is Complicated The New York Times",
+          "source": "Google News: The New York Times",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNNG83cHJRdTdzM1FlQ0l5cFFjcV9NMkxqb0luTVdONWZaSThMVWZHb21kSU5KVWJEeEZPT002ZHoyVjNkb2x1SVN0cGlZTklZRndndDFsZTFyanU1a001Rlhnd091Sl9MUHRRd2RLVkVJOHoxYmIzbUZudjNMQVBwSE90MHpkSVlUV2Ntd1lPWDUydw?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T14:46:11.000Z",
+          "timestamp": "2026-06-23T15:00:00.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Tier-1 newsroom",
           "sourceQualityScore": 92,
@@ -381,7 +381,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 92,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "direct-bab-7d-13-aHR0cHM6Ly9uZXdz",
@@ -402,7 +402,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "direct-suez-24h-0-aHR0cHM6Ly9uZXdz",
@@ -423,7 +423,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-malacca-0-UmVDQUFQIElTQy",
@@ -433,7 +433,7 @@
           "sourceUrl": "https://www.recaap.org/alerts",
           "category": "source_sweep",
           "region": "malacca",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -444,10 +444,10 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
-          "id": "direct-panama-24h-1-aHR0cHM6Ly9uZXdz",
+          "id": "direct-panama-7d-7-aHR0cHM6Ly9uZXdz",
           "title": "Panama Canal Dry Chamber Operation at Gatun Locks: Maintenance and Inspection Work - News and Statistics",
           "summary": "Panama Canal Dry Chamber Operation at Gatun Locks: Maintenance and Inspection Work - News and Statistics IndexBox",
           "source": "Google News: IndexBox",
@@ -465,7 +465,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-taiwan-2-R29vZ2xlIE5ld3",
@@ -475,7 +475,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Taiwan%20ports%22%20OR%20Kaohsiung%20OR%20Keelung)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20port%20OR%20naval%20OR%20maritime%20OR%20disruption)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -486,7 +486,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-turkish-2-R29vZ2xlIE5ld3",
@@ -496,7 +496,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(Bosporus%20OR%20Bosphorus%20OR%20Dardanelles%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22%20OR%20%22Canakkale%20Strait%22)%20(shipping%20OR%20tanker%20OR%20vessel%20OR%20transit%20OR%20traffic%20OR%20closure%20OR%20delay%20OR%20Black%20Sea)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -507,7 +507,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "source-sweep-news-cape-2-R29vZ2xlIE5ld3",
@@ -517,7 +517,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -528,28 +528,28 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
-          "id": "direct-hormuz-24h-14-aHR0cHM6Ly9uZXdz",
-          "title": "Phillips 66 CEO says Hormuz supply disruptions may linger amid shipping uncertainty",
-          "summary": "Phillips 66 CEO says Hormuz supply disruptions may linger amid shipping uncertainty Reuters",
-          "source": "Google News: Reuters",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPcGVWUUxvSXIxQWNHU28xbHp1SjI3UjM3NnJzTGF2ZVdNY2lrSUtYdTRMcU5zZXNZYmFTZ1dETlR6SURnNlg4akF5UFdtbXRtTTBTdllJRHdYbGhJNTVSZ29qUDdsQy1vMHhPRjJtU0pZaGtoYk15NUc2UUR2dXRWMTlwNHdoYjF3U0pNeVJ5TUpvaGRMd2lmYUNkVUhvOWlzNmhvUTItSExVRm1WNkpmNFlPd0UwcS0wYXVjODZSbGU?oc=5",
+          "id": "direct-hormuz-24h-9-aHR0cHM6Ly9uZXdz",
+          "title": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks",
+          "summary": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks GV Wire",
+          "source": "Google News: GV Wire",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOQXY0Vnd1Zkl5YllCN3MwUXJyZ21UMXBrdm95Y1c5RzdVU2Rqc2x5akRBTkRvZzl5bzIxQmxnWmJNTG5tMUd1VEliSnRCdXpVZHAxeDVWQ0Y3X0V5cllaaGpUMmstSjNwYzJhQ2Ria0NKcV9yNTd3bVVNelB5QzhiV01kSk55X0Y3dEVlVVdXWkhaTlo1eWdodE1yMA?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T14:34:06.000Z",
+          "timestamp": "2026-06-23T14:48:34.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Tier-1 newsroom",
-          "sourceQualityScore": 92,
-          "sourceQualityTier": "tierOne",
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
           "freshnessScore": 88,
-          "intelligenceScore": 92,
+          "intelligenceScore": 78,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
-          "reviewScore": 92,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "direct-bab-7d-12-aHR0cHM6Ly9uZXdz",
@@ -570,7 +570,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-06-23T15:52:20.663Z"
+          "reviewedAt": "2026-06-23T16:22:22.332Z"
         },
         {
           "id": "direct-suez-24h-12-aHR0cHM6Ly9uZXdz",
@@ -591,7 +591,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-06-23T15:52:20.664Z"
+          "reviewedAt": "2026-06-23T16:22:22.333Z"
         },
         {
           "id": "source-sweep-news-malacca-1-R29vZ2xlIE5ld3",
@@ -601,7 +601,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22%20OR%20%22Port%20of%20Singapore%22%20OR%20ReCAAP)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20cargo%20OR%20congestion%20OR%20piracy%20OR%20%22armed%20robbery%22%20OR%20port)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "malacca",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -612,10 +612,10 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.664Z"
+          "reviewedAt": "2026-06-23T16:22:22.333Z"
         },
         {
-          "id": "direct-panama-24h-10-aHR0cHM6Ly9uZXdz",
+          "id": "direct-panama-7d-10-aHR0cHM6Ly9uZXdz",
           "title": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply",
           "summary": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply EnergyNow",
           "source": "Google News: EnergyNow",
@@ -633,7 +633,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.664Z"
+          "reviewedAt": "2026-06-23T16:22:22.333Z"
         },
         {
           "id": "source-sweep-news-taiwan-3-R29vZ2xlIE5ld3",
@@ -643,7 +643,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20Taiwan)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20cargo%20OR%20port%20OR%20naval%20OR%20trade%20lane%20OR%20alert%20OR%20disruption%20OR%20risk)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -654,7 +654,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.664Z"
+          "reviewedAt": "2026-06-23T16:22:22.333Z"
         },
         {
           "id": "source-sweep-news-turkish-3-R29vZ2xlIE5ld3",
@@ -664,7 +664,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Turkish%20Straits%22%20OR%20Bosporus%20OR%20Bosphorus%20OR%20Dardanelles)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20transit%20OR%20Black%20Sea%20OR%20delay%20OR%20closure%20OR%20traffic)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -675,7 +675,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.664Z"
+          "reviewedAt": "2026-06-23T16:22:22.333Z"
         },
         {
           "id": "direct-gibraltar-live-7-aHR0cHM6Ly9uZXdz",
@@ -696,7 +696,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "source-sweep-news-cape-3-R29vZ2xlIE5ld3",
@@ -706,7 +706,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -717,28 +717,28 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-publisher-0-aHR0cHM6Ly93d3cu",
-          "title": "Hormuz daily vessel transits hit highest level since end Feb",
-          "summary": "Since the MoU between US and Iran daily traffic volumes reached 27% of pre-conflict levels according to AXSMarine",
-          "source": "Seatrade Maritime News",
-          "sourceUrl": "https://www.seatrade-maritime.com/tankers/hormuz-daily-vessel-transits-hit-highest-level-since-end-feb",
+          "id": "direct-hormuz-24h-1-aHR0cHM6Ly9uZXdz",
+          "title": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show",
+          "summary": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show Reuters",
+          "source": "Google News: Reuters",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNWHQ2dnJnYy1wZUlwem9vMktVc3VBek1xd3pSQS1mY0NNazBvbU1neWdWS0VEZ3hEY1pmVVZPMi1CcG4wLTBpNVZ0R3RucFZzYm1sOHlCZjJ3NDJPbXZrdWVhNlVyczBHTHNxLXExZXJiQ25tMXdwbkdqYmp4QnExeDE5allHNm84UTBtdkQyekNWNF9PU1BuSlFBalgxZFdpSHVqSkJHVjd2Y3UwcTRidXlrLXhkNGtwaFBSbDBn?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T14:14:51.000Z",
+          "timestamp": "2026-06-23T14:46:11.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
+          "sourceQualityLabel": "Tier-1 newsroom",
+          "sourceQualityScore": 92,
+          "sourceQualityTier": "tierOne",
           "freshnessScore": 88,
-          "intelligenceScore": 86,
-          "derivedFrom": "trusted_publisher_rss",
+          "intelligenceScore": 92,
+          "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
+          "reviewScore": 92,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-bab-7d-9-aHR0cHM6Ly9uZXdz",
@@ -759,7 +759,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-suez-24h-1-aHR0cHM6Ly9uZXdz",
@@ -780,7 +780,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "source-sweep-news-malacca-2-QmluZyBOZXdzIF",
@@ -790,7 +790,7 @@
           "sourceUrl": "https://www.bing.com/news/search?q=(%22Strait%20of%20Malacca%22%20OR%20%22Singapore%20Strait%22%20OR%20%22Straits%20of%20Malacca%22)%20(piracy%20OR%20%22armed%20robbery%22%20OR%20incident%20OR%20ReCAAP%20OR%20vessel)&format=rss",
           "category": "source_sweep",
           "region": "malacca",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -801,7 +801,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "source-sweep-news-panama-0-UGFuYW1hIENhbm",
@@ -811,7 +811,7 @@
           "sourceUrl": "https://pancanal.com/en/maritime-services/advisory-to-shipping/",
           "category": "source_sweep",
           "region": "panama",
-          "timestamp": "2026-06-23T15:52:18.134Z",
+          "timestamp": "2026-06-23T16:22:20.614Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -822,7 +822,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-gibraltar-7d-3-aHR0cHM6Ly9uZXdz",
@@ -843,28 +843,28 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
-          "title": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged",
-          "summary": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged صحيفة مال",
-          "source": "Google News: صحيفة مال",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA1M1dlNEFnWWVITXY3YUdqdmJRSU9XX3NLMVJNaGJfZTc4S2ludkwtMWV5Wks2bS1HdDZpU2Qxanpka3hxbzNwSDQwemNLNFY2eUhXOGNlSDNvZXBEMXNEZWZQX0FxVWJPRXJMNw?oc=5",
+          "id": "direct-hormuz-publisher-0-aHR0cHM6Ly93d3cu",
+          "title": "Hormuz daily vessel transits hit highest level since end Feb",
+          "summary": "Since the MoU between US and Iran daily traffic volumes reached 27% of pre-conflict levels according to AXSMarine",
+          "source": "Seatrade Maritime News",
+          "sourceUrl": "https://www.seatrade-maritime.com/tankers/hormuz-daily-vessel-transits-hit-highest-level-since-end-feb",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T13:21:33.000Z",
+          "timestamp": "2026-06-23T14:14:51.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
           "freshnessScore": 88,
-          "intelligenceScore": 78,
-          "derivedFrom": "direct_news_search_rss",
+          "intelligenceScore": 86,
+          "derivedFrom": "trusted_publisher_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-bab-7d-10-aHR0cHM6Ly9uZXdz",
@@ -885,7 +885,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-suez-24h-6-aHR0cHM6Ly9uZXdz",
@@ -906,28 +906,28 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
-          "title": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains",
-          "summary": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains Marine Insight",
-          "source": "Google News: Marine Insight",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNLXIzRlFSY1lLQkRrWEF1TnlyTnNYYVFQMTJ6TUpZT19zZ0Q4RWdtZzlreksteHBSSDF3LTMtb0ZUTXpSendhRWlxU0lpejhfbVkwMGFWQmcxQW4ybDlrRjRLMlJhY1RNWW1Id1g3QkhiZVI2eEpUakhXQlVKcGE2SmZ6NG5wQXo5aXZEb25scHJQMnZJUTY4SWtUOGhwYjBmc1Q3TTNZbmctYlphTFE?oc=5",
+          "id": "direct-hormuz-24h-9-aHR0cHM6Ly9uZXdz",
+          "title": "Iran’s Hormuz insurance scheme ‘amounts to transit fee’",
+          "summary": "Iran’s Hormuz insurance scheme ‘amounts to transit fee’ Arabian Gulf Business Insight | AGBI",
+          "source": "Google News: Arabian Gulf Business Insight | AGBI",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQbDJEMklYQjNJQ1NEVTBvMUVDYjJSV0RoT244OExycnhUUjlwUjR0NFZWc2d2V1JPNk5nbGIxODdYa05UVWsyZjA2aWdJcmtmQmEwZUFyYms1ekpEX0VlUzh1Z2ZtMGp0c01qUEUydXdFYWh0cUN4RFhyUmZmMEdMVlI3aHNtSTY1cnJTdmhGVmwyeFRwWDBlMk1UMXByS29iUWc?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T13:09:59.000Z",
+          "timestamp": "2026-06-23T13:28:18.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
           "freshnessScore": 88,
-          "intelligenceScore": 86,
+          "intelligenceScore": 78,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-bab-7d-13-aHR0cHM6Ly9uZXdz",
@@ -948,7 +948,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-suez-live-7-aHR0cHM6Ly9uZXdz",
@@ -969,112 +969,28 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-publisher-5-aHR0cHM6Ly93d3cu",
-          "title": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz",
-          "summary": "Oil falls Tuesday as investors continue to assess the latest developments in the Middle East, while showing optimism the conflict may end soon.",
-          "source": "CNBC World News",
-          "sourceUrl": "https://www.cnbc.com/2026/06/23/oil-prices-rise-as-investors-mull-middle-east-developments-.html",
+          "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
+          "title": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged",
+          "summary": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged صحيفة مال",
+          "source": "Google News: صحيفة مال",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA1M1dlNEFnWWVITXY3YUdqdmJRSU9XX3NLMVJNaGJfZTc4S2ludkwtMWV5Wks2bS1HdDZpU2Qxanpka3hxbzNwSDQwemNLNFY2eUhXOGNlSDNvZXBEMXNEZWZQX0FxVWJPRXJMNw?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T12:53:15.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Tier-1 newsroom",
-          "sourceQualityScore": 92,
-          "sourceQualityTier": "tierOne",
-          "freshnessScore": 88,
-          "intelligenceScore": 92,
-          "derivedFrom": "trusted_publisher_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
-          "reviewScore": 92,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
-        },
-        {
-          "id": "direct-bab-7d-0-aHR0cHM6Ly9uZXdz",
-          "title": "UKMTO Receives Report Of Tanker Incident Southeast Of Al-shihr, Yemen",
-          "summary": "UKMTO Receives Report Of Tanker Incident Southeast Of Al-shihr, Yemen gCaptain",
-          "source": "Google News: gCaptain",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNTXg1TTk0YjJsWVlhbmpmREJLSHkxRmVENWJwdkxScWE4SUNJbmRpRTg3Q1czc3U0OERvMG42R1RKSlEySkVjYlNfRkp2UDF4ZERVV1Rqenh6YzM3RHh3a1JPbkswR21NRFhJdm5iMHQwM1c4eVlMY2xyejdTczJfNHBFM1pqSHdqbnF2R2lHTFBpM1ZK?oc=5",
-          "category": "live_maritime_news",
-          "region": "bab",
-          "timestamp": "2026-06-21T23:59:43.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
-          "freshnessScore": 45,
-          "intelligenceScore": 71,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 71,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
-        },
-        {
-          "id": "direct-suez-7d-6-aHR0cHM6Ly9uZXdz",
-          "title": "Suez Canal welcomes advanced LNG container ship",
-          "summary": "Suez Canal welcomes advanced LNG container ship African Review",
-          "source": "Google News: African Review",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNdVQwbGlCUEJBTWRpb1JmMTRSRm03VXZDcG9GbzlSekNROWF1cGNJTDY2SEdOaWJTVC1xU3JmSTAwTjgzdDJoQ2d2Y081R1FPN190cWxLd3JyQmNLMGRpLUY5RW9DNGthb193SkRrQ0x1Um1BWGd2MUJzQUVMRFk2OE9MQmhpNXpPSTNzaXlNNjZvdjJGa0I3YTBHMA?oc=5",
-          "category": "live_maritime_news",
-          "region": "suez",
-          "timestamp": "2026-06-22T08:13:25.000Z",
+          "timestamp": "2026-06-23T13:21:33.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
           "sourceQualityTier": "search",
-          "freshnessScore": 45,
-          "intelligenceScore": 64,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "watch",
-          "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
-          "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
-        },
-        {
-          "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
-          "title": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers",
-          "summary": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers Crude Oil Prices Today | OilPrice.com",
-          "source": "Google News: Crude Oil Prices Today | OilPrice.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOM3NzQW52dmhubzJoc0szVlJPdk01akdEYXZUZnYxLVEzZlVpLUFTV0dER0VQZFVJZ2dadjRneXd3M1dSNWo2RTBfdlJQempVWFFwRUtXSTZYVV9pX1dEZ0phOE5mc0NGclhpRlBCM05iczFJMndRU0gtSEo4YS1pWmRidHFlTlZqbFdFR2FubTNKS2VUdTZtQnVLaDVDQ3VhTkItbDVoaTNIQXdoMzlHLXFB0gG3AUFVX3lxTE1sYlBGZHhYR1F5Q2Z0dkhtQ1B1S1R4SXdKUUVnbFVDVEVPU1hnT2ZwWl9rcUx4c2tSeEZlR2FZcXEzUzdlQk91cldnemFKVHJydFRzbTRTc21vVDZjUl9VeUxKakVXaHRxLWhKUWJjbjZBd0RmMmVXdmVoQmJYbmRMcTRXUkhqQVdPNEYwUlY1NEFtalp3UzNqMm9wWTRTQmlKbnJDSDA3Mlk5ekFpOTBQUzlXdEdYOA?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-06-23T12:30:00.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
           "freshnessScore": 88,
-          "intelligenceScore": 86,
+          "intelligenceScore": 78,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
-        },
-        {
-          "id": "direct-hormuz-24h-0-aHR0cHM6Ly9uZXdz",
-          "title": "Iranian Oil Is Moving Again, but Getting Through the Strait Is Complicated",
-          "summary": "Iranian Oil Is Moving Again, but Getting Through the Strait Is Complicated The New York Times",
-          "source": "Google News: The New York Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNNG83cHJRdTdzM1FlQ0l5cFFjcV9NMkxqb0luTVdONWZaSThMVWZHb21kSU5KVWJEeEZPT002ZHoyVjNkb2x1SVN0cGlZTklZRndndDFsZTFyanU1a001Rlhnd091Sl9MUHRRd2RLVkVJOHoxYmIzbUZudjNMQVBwSE90MHpkSVlUV2Ntd1lPWDUydw?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-06-23T12:24:00.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Tier-1 newsroom",
-          "sourceQualityScore": 92,
-          "sourceQualityTier": "tierOne",
-          "freshnessScore": 88,
-          "intelligenceScore": 92,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
-          "reviewScore": 92,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-bab-7d-6-aHR0cHM6Ly9uZXdz",
@@ -1095,28 +1011,49 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-8-aHR0cHM6Ly9uZXdz",
-          "title": "Oil Prices Continue to Fall on Hopes for Iran Deal",
-          "summary": "Oil Prices Continue to Fall on Hopes for Iran Deal Transport Topics",
-          "source": "Google News: Transport Topics",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBWVjk4RXNnQjVLMGZiWTY0RFJEcklmVDQxeE5IVTFEeXVFLXdOalRYc2xtLWRDcGNWdUx4dW1rc2dVWldUV1A4bFBGTmJ1Z2NRVDBOVHhna0dlc2NVX1V2TEFrM3NpdmM?oc=5",
+          "id": "direct-suez-7d-6-aHR0cHM6Ly9uZXdz",
+          "title": "Suez Canal welcomes advanced LNG container ship",
+          "summary": "Suez Canal welcomes advanced LNG container ship African Review",
+          "source": "Google News: African Review",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNdVQwbGlCUEJBTWRpb1JmMTRSRm03VXZDcG9GbzlSekNROWF1cGNJTDY2SEdOaWJTVC1xU3JmSTAwTjgzdDJoQ2d2Y081R1FPN190cWxLd3JyQmNLMGRpLUY5RW9DNGthb193SkRrQ0x1Um1BWGd2MUJzQUVMRFk2OE9MQmhpNXpPSTNzaXlNNjZvdjJGa0I3YTBHMA?oc=5",
           "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-06-23T12:08:37.000Z",
+          "region": "suez",
+          "timestamp": "2026-06-22T08:13:25.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
           "sourceQualityTier": "search",
+          "freshnessScore": 45,
+          "intelligenceScore": 64,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "watch",
+          "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
+          "reviewScore": 63,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
+        },
+        {
+          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
+          "title": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains",
+          "summary": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains Marine Insight",
+          "source": "Google News: Marine Insight",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNLXIzRlFSY1lLQkRrWEF1TnlyTnNYYVFQMTJ6TUpZT19zZ0Q4RWdtZzlreksteHBSSDF3LTMtb0ZUTXpSendhRWlxU0lpejhfbVkwMGFWQmcxQW4ybDlrRjRLMlJhY1RNWW1Id1g3QkhiZVI2eEpUakhXQlVKcGE2SmZ6NG5wQXo5aXZEb25scHJQMnZJUTY4SWtUOGhwYjBmc1Q3TTNZbmctYlphTFE?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-06-23T13:09:59.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
           "freshnessScore": 88,
-          "intelligenceScore": 78,
+          "intelligenceScore": 86,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-bab-7d-2-aHR0cHM6Ly9uZXdz",
@@ -1137,17 +1074,59 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-3-aHR0cHM6Ly9uZXdz",
-          "title": "CHARTED: Oil Trade Through the Strait of Hormuz by Country – Visual Capitalist",
-          "summary": "CHARTED: Oil Trade Through the Strait of Hormuz by Country – Visual Capitalist EnergyNow.com",
-          "source": "Google News: EnergyNow.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQeU1tdWFDbEwyc2R5ZEFYN3Y4Q3czZEZKX2ZMWUZWUjVDaHljOVZXY1dTX1h1LXFMSlNJcGtad1VURWhBaHFPWm5nNmY5YzJDX1B1RU1ISDFKWEs1US1TNkptS3lIYXVyWUZsdUM4OTFzRk8zOU1abWE5M3IwV0dtX2VqWlhBUW5mbERvOVVoU2EyR25PQk5qbk9PNXBfbmZ3NTFlR1hXVVZNUQ?oc=5",
+          "id": "direct-hormuz-publisher-5-aHR0cHM6Ly93d3cu",
+          "title": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz",
+          "summary": "Oil falls Tuesday as investors continue to assess the latest developments in the Middle East, while showing optimism the conflict may end soon.",
+          "source": "CNBC World News",
+          "sourceUrl": "https://www.cnbc.com/2026/06/23/oil-prices-rise-as-investors-mull-middle-east-developments-.html",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-06-23T11:40:32.000Z",
+          "timestamp": "2026-06-23T12:53:15.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Tier-1 newsroom",
+          "sourceQualityScore": 92,
+          "sourceQualityTier": "tierOne",
+          "freshnessScore": 88,
+          "intelligenceScore": 92,
+          "derivedFrom": "trusted_publisher_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
+          "reviewScore": 92,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
+        },
+        {
+          "id": "direct-hormuz-24h-2-aHR0cHM6Ly9uZXdz",
+          "title": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers",
+          "summary": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers Crude Oil Prices Today | OilPrice.com",
+          "source": "Google News: Crude Oil Prices Today | OilPrice.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOM3NzQW52dmhubzJoc0szVlJPdk01akdEYXZUZnYxLVEzZlVpLUFTV0dER0VQZFVJZ2dadjRneXd3M1dSNWo2RTBfdlJQempVWFFwRUtXSTZYVV9pX1dEZ0phOE5mc0NGclhpRlBCM05iczFJMndRU0gtSEo4YS1pWmRidHFlTlZqbFdFR2FubTNKS2VUdTZtQnVLaDVDQ3VhTkItbDVoaTNIQXdoMzlHLXFB0gG3AUFVX3lxTE1sYlBGZHhYR1F5Q2Z0dkhtQ1B1S1R4SXdKUUVnbFVDVEVPU1hnT2ZwWl9rcUx4c2tSeEZlR2FZcXEzUzdlQk91cldnemFKVHJydFRzbTRTc21vVDZjUl9VeUxKakVXaHRxLWhKUWJjbjZBd0RmMmVXdmVoQmJYbmRMcTRXUkhqQVdPNEYwUlY1NEFtalp3UzNqMm9wWTRTQmlKbnJDSDA3Mlk5ekFpOTBQUzlXdEdYOA?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-06-23T12:30:00.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
+          "freshnessScore": 88,
+          "intelligenceScore": 86,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
+        },
+        {
+          "id": "direct-hormuz-24h-8-aHR0cHM6Ly9uZXdz",
+          "title": "Oil Prices Continue to Fall on Hopes for Iran Deal",
+          "summary": "Oil Prices Continue to Fall on Hopes for Iran Deal Transport Topics",
+          "source": "Google News: Transport Topics",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBWVjk4RXNnQjVLMGZiWTY0RFJEcklmVDQxeE5IVTFEeXVFLXdOalRYc2xtLWRDcGNWdUx4dW1rc2dVWldUV1A4bFBGTmJ1Z2NRVDBOVHhna0dlc2NVX1V2TEFrM3NpdmM?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-06-23T12:08:37.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -1158,28 +1137,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
-        },
-        {
-          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
-          "title": "U.S. Eases Sanctions on Iranian Oil, but Progress on Nuclear Issues Is Muddy",
-          "summary": "U.S. Eases Sanctions on Iranian Oil, but Progress on Nuclear Issues Is Muddy The New York Times",
-          "source": "Google News: The New York Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1Nd2paNC1kanF0d2V6aWlYd2tLYUpFLXRXRWVwUmN1MTNyYlNlR3dsNDFQNkc2ZDdGSVd3UXh5djQtWV9UNENCSnlydkEyNTh2Z2YtdDhaUGptVFVveFlOOTZvZTF5amhVMXF1X1hLVTdyNGxYZGc?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-06-23T10:38:00.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Tier-1 newsroom",
-          "sourceQualityScore": 92,
-          "sourceQualityTier": "tierOne",
-          "freshnessScore": 88,
-          "intelligenceScore": 92,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
-          "reviewScore": 92,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
@@ -1200,7 +1158,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-6-aHR0cHM6Ly9uZXdz",
@@ -1215,13 +1173,13 @@
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
           "sourceQualityTier": "search",
-          "freshnessScore": 88,
-          "intelligenceScore": 78,
+          "freshnessScore": 78,
+          "intelligenceScore": 75,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 74,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-10-aHR0cHM6Ly9uZXdz",
@@ -1236,16 +1194,16 @@
           "sourceQualityLabel": "Maritime trade source",
           "sourceQualityScore": 78,
           "sourceQualityTier": "trade",
-          "freshnessScore": 88,
-          "intelligenceScore": 86,
+          "freshnessScore": 78,
+          "intelligenceScore": 82,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 82,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-9-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-7-aHR0cHM6Ly9uZXdz",
           "title": "Iran closes Strait of Hormuz, shipping slows and oil flows stall",
           "summary": "Iran closes Strait of Hormuz, shipping slows and oil flows stall mezha.net",
           "source": "Google News: mezha.net",
@@ -1263,7 +1221,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-publisher-3-aHR0cHM6Ly93d3cu",
@@ -1284,7 +1242,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 89/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 89,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-0-aHR0cHM6Ly9uZXdz",
@@ -1305,7 +1263,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-5-aHR0cHM6Ly9uZXdz",
@@ -1326,7 +1284,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 89/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 89,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-10-aHR0cHM6Ly9uZXdz",
@@ -1347,10 +1305,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 89/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 89,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-7-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-6-aHR0cHM6Ly9uZXdz",
           "title": "Oil Falls As Signs Of Hormuz Recovery Weigh On Market",
           "summary": "Oil Falls As Signs Of Hormuz Recovery Weigh On Market Marine News Magazine",
           "source": "Google News: Marine News Magazine",
@@ -1368,7 +1326,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-3-aHR0cHM6Ly9uZXdz",
@@ -1389,7 +1347,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
           "id": "direct-hormuz-24h-5-aHR0cHM6Ly9uZXdz",
@@ -1410,10 +1368,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-6-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
           "title": "Vessels moving in Hormuz despite Iran’s threat of closure",
           "summary": "Vessels moving in Hormuz despite Iran’s threat of closure Seatrade Maritime News",
           "source": "Google News: Seatrade Maritime News",
@@ -1431,10 +1389,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 78/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 78,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         },
         {
-          "id": "direct-hormuz-24h-6-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-5-aHR0cHM6Ly9uZXdz",
           "title": "Iran Oil Waiver Offers Lifeline to Tehran as Talks Proceed",
           "summary": "Iran Oil Waiver Offers Lifeline to Tehran as Talks Proceed Bloomberg",
           "source": "Google News: Bloomberg",
@@ -1452,7 +1410,70 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-06-23T15:52:20.665Z"
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
+        },
+        {
+          "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
+          "title": "Iran says Hormuz will not return to old order, claims administration of key oil route",
+          "summary": "Iran says Hormuz will not return to old order, claims administration of key oil route newsdrum.in",
+          "source": "Google News: newsdrum.in",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPX1NPRWRIcENTRnpGV3dURHJVVzZvY21kYzZ0M1ctajJpdjlWRXR6UzJFVDctcmpzclVyMFBuOGVKMU9HTExoZjRXVEdWQ0tTQjdPQlVHSWduVnZKbzZjRWgtSExqX0pRT0JNTlVsdUlYbV8tSDVJa1U1QXg1TlpfWXBaempvS1BadHo2M2djUDRERXNjc1prS0lRZlNoQ2N0TVFDQjJmcVRBZlZXcEExM1BFbFR0dmdya0VpQzB2dDhpZVU4WFUzcTNtQdIBywFBVV95cUxPX1NPRWRIcENTRnpGV3dURHJVVzZvY21kYzZ0M1ctajJpdjlWRXR6UzJFVDctcmpzclVyMFBuOGVKMU9HTExoZjRXVEdWQ0tTQjdPQlVHSWduVnZKbzZjRWgtSExqX0pRT0JNTlVsdUlYbV8tSDVJa1U1QXg1TlpfWXBaempvS1BadHo2M2djUDRERXNjc1prS0lRZlNoQ2N0TVFDQjJmcVRBZlZXcEExM1BFbFR0dmdya0VpQzB2dDhpZVU4WFUzcTNtQQ?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-06-23T01:32:44.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 66,
+          "intelligenceScore": 71,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 70,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
+        },
+        {
+          "id": "direct-hormuz-24h-3-aHR0cHM6Ly9uZXdz",
+          "title": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz",
+          "summary": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz CNBC",
+          "source": "Google News: CNBC",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMinAFBVV95cUxObnk3bnlweGtJUG1mY2FWcWdsVHpfUnZCT3RmbGxXdTlWcl9SUjM3V1U1YjhIMFAtcTRuV2ZJakdXemJTUFlnWDcwUWx6aFlQOTFJbjVWeTBtY3NZNmNGM29rYnliUVNCUWFNLXFWcFhocmVJYWZUekpOWEVncF9vMFVYZ0VjVGwtb1drUVNTU18zSVlubmZZek5STFXSAaIBQVVfeXFMTm1lbDdpb2lhRXpBbmxSLXVFYzVnUXRHdlp2Y0l1QWlNM3dVTF9YUkIzLXVCR2x0UFZjWnNudk9zTGcweXZ6cUJ1TDZrVl9KV1BVRldwRGRFSGk3cnVqaklmMjVINUhGVVk1VGZ3WVBPMHV1aFhGSkwtdUkyNzVSSWstazZaVm45Q2hNMlJWUDVOM2UxOFAyVmF1R0dzYy1oa2d3?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-06-23T00:33:00.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Tier-1 newsroom",
+          "sourceQualityScore": 92,
+          "sourceQualityTier": "tierOne",
+          "freshnessScore": 66,
+          "intelligenceScore": 85,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 85/100 review score, Tier-1 newsroom, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
+        },
+        {
+          "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
+          "title": "Half-Open, Half-Closed Strait of Hormuz Baffles Oil Markets",
+          "summary": "Half-Open, Half-Closed Strait of Hormuz Baffles Oil Markets Crude Oil Prices Today | OilPrice.com",
+          "source": "Google News: Crude Oil Prices Today | OilPrice.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQem5ab2xfOEtyczVaVkdHSzFuLVBGVmowQWNpOHBJQ3lvQUUzdFEzU2NkR2d2aHZFMVptMW94WUlxakVPSDVHZHRPcTlXS2xlTkM4NU5sX1lIUHVMSDFobk1kQmptVzYzQ1N3TzhJbXh5YmRLc01Gal95UnAxbkdkTkVCaXMyZEFyQnFBZ0VlaGl3cy1pSnpEb0l0MW5OY2tuSERB0gGoAUFVX3lxTE5VR2FmeFlJWE1pZnN6X2VQRFBHeFE3dmFEcjJ2YjZxS0w0T09rZjMxT2tUbTRvYzM2ZU91RExjcVI3UUxLOGFDZno2NG5QV3FMRHMtRXdhRFIxY20tZEJnanpVYjJhclBqOTlocFNZRDVPdzEzMVVoelRZMXI0S21qMlJ0RUVKc3FRWi1aRExqYW83MzFRQXptYUMyUFg1V3NHYzZCbld0Zg?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-06-22T23:00:00.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
+          "freshnessScore": 66,
+          "intelligenceScore": 78,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 78/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 78,
+          "reviewedAt": "2026-06-23T16:22:22.334Z"
         }
       ],
       "hotspots": [
@@ -1461,30 +1482,30 @@
           "hotspot": "hormuz",
           "activeVessels": 0,
           "dailyTransits": 0,
-          "avgWaitTime": "26 live source signals",
+          "avgWaitTime": "28 live source signals",
           "marketVolume": 21000000,
-          "riskLevel": "medium",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
-          "verifiedReports": 26,
-          "sourceCount": 23,
-          "latestSource": "Google News: qz.com",
-          "signalCount": 26,
+          "riskLevel": "high",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
+          "verifiedReports": 28,
+          "sourceCount": 25,
+          "latestSource": "Bloomberg Markets",
+          "signalCount": 28,
           "officialSignalCount": 0,
           "aisSignalCount": 0,
           "confidenceScore": 84,
           "confidenceLabel": "Corroborated",
-          "riskSummary": "MEDIUM from 26 current source-linked reports across 23 sources; latest source: Google News: qz.com.",
+          "riskSummary": "HIGH from 28 current source-linked reports across 25 sources; latest source: Bloomberg Markets.",
           "riskDrivers": [
+            "Bloomberg Markets: Oil Steadies While Tankers Openly Enter Hormuz After Peace Deal",
             "Google News: qz.com: Oil futures rebound after Iran sanction waivers, Hormuz uncertainty",
-            "Google News: GV Wire: Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks",
-            "Google News: Reuters: More vessels transit Hormuz, Qatar-linked LNG tankers return, data show"
+            "Google News: The New York Times: Strait Reopens and Iranian Oil Flows, But the Path Through Is Complicated"
           ],
           "analysisBrief": {
-            "headline": "Strait of Hormuz: route pressure is present",
+            "headline": "Strait of Hormuz: active disruption signals",
             "impact": "Oil, LNG and Gulf tanker routes can face delays, rerouting pressure and higher war-risk costs.",
-            "why": "Based on 26 reports across 23 sources. Main evidence: Google News: qz.com: Oil futures rebound after Iran sanction waivers, Hormuz uncertainty | Google News: GV Wire: Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks | Google News: Reuters: More vessels transit Hormuz, Qatar-linked LNG tankers return, data show.",
+            "why": "Based on 28 reports across 25 sources. Main evidence: Bloomberg Markets: Oil Steadies While Tankers Openly Enter Hormuz After Peace Deal | Google News: qz.com: Oil futures rebound after Iran sanction waivers, Hormuz uncertainty | Google News: The New York Times: Strait Reopens and Iranian Oil Flows, But the Path Through Is Complicated.",
             "watch": "Watch for official navigation warnings, confirmed transit flow, tanker diversions and independent closure or reopening reports.",
-            "sourceBasis": "26 current source-linked reports, 23 sources, 26 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
+            "sourceBasis": "28 current source-linked reports, 25 sources, 28 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
             "confidence": "Strong"
           }
         },
@@ -1493,19 +1514,19 @@
           "hotspot": "bab",
           "activeVessels": 0,
           "dailyTransits": 0,
-          "avgWaitTime": "10 live source signals",
+          "avgWaitTime": "9 live source signals",
           "marketVolume": 280000000,
           "riskLevel": "high",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
-          "verifiedReports": 10,
-          "sourceCount": 10,
+          "updatedAt": "2026-06-23T16:22:22.327Z",
+          "verifiedReports": 9,
+          "sourceCount": 9,
           "latestSource": "Google News: Global Trade Magazine",
-          "signalCount": 10,
+          "signalCount": 9,
           "officialSignalCount": 0,
           "aisSignalCount": 0,
           "confidenceScore": 84,
           "confidenceLabel": "Corroborated",
-          "riskSummary": "HIGH from 10 current source-linked reports across 10 sources; latest source: Google News: Global Trade Magazine.",
+          "riskSummary": "HIGH from 9 current source-linked reports across 9 sources; latest source: Google News: Global Trade Magazine.",
           "riskDrivers": [
             "Google News: Global Trade Magazine: Container Shipping Recovery Speeds: From Pandemic to Red Sea Crisis",
             "Google News: Marine Insight: Armed Skiff Approaches Tanker Off Yemen Coast, Second Incident In Two Weeks",
@@ -1514,9 +1535,9 @@
           "analysisBrief": {
             "headline": "Bab el-Mandeb: active disruption signals",
             "impact": "Red Sea and Gulf of Aden cargo can face rerouting, insurance pressure and longer Asia-Europe voyages.",
-            "why": "Based on 10 reports across 10 sources. Main evidence: Google News: Global Trade Magazine: Container Shipping Recovery Speeds: From Pandemic to Red Sea Crisis | Google News: Marine Insight: Armed Skiff Approaches Tanker Off Yemen Coast, Second Incident In Two Weeks | Google News: safety4sea: Product tanker gets approached by skiff off Yemen.",
+            "why": "Based on 9 reports across 9 sources. Main evidence: Google News: Global Trade Magazine: Container Shipping Recovery Speeds: From Pandemic to Red Sea Crisis | Google News: Marine Insight: Armed Skiff Approaches Tanker Off Yemen Coast, Second Incident In Two Weeks | Google News: safety4sea: Product tanker gets approached by skiff off Yemen.",
             "watch": "Watch UKMTO/MARAD/MSCIO alerts, confirmed vessel incidents, rerouting data and insurance changes.",
-            "sourceBasis": "10 current source-linked reports, 10 sources, 10 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
+            "sourceBasis": "9 current source-linked reports, 9 sources, 9 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
             "confidence": "Strong"
           }
         },
@@ -1528,7 +1549,7 @@
           "avgWaitTime": "8 live source signals",
           "marketVolume": 150000000,
           "riskLevel": "low",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 8,
           "sourceCount": 8,
           "latestSource": "Container News",
@@ -1560,7 +1581,7 @@
           "avgWaitTime": "2 live source signals",
           "marketVolume": 500000000,
           "riskLevel": "high",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 2,
           "sourceCount": 2,
           "latestSource": "Google News: safety4sea",
@@ -1591,7 +1612,7 @@
           "avgWaitTime": "3 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 3,
           "sourceCount": 3,
           "latestSource": "Google News: Puente de Mando",
@@ -1623,7 +1644,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 0,
           "sourceCount": 4,
           "latestSource": "Taiwan Maritime and Port Bureau",
@@ -1653,7 +1674,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 0,
           "sourceCount": 4,
           "latestSource": "Turkish Directorate General of Coastal Safety",
@@ -1683,7 +1704,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 4,
           "sourceCount": 3,
           "latestSource": "Google News: Puente de Mando",
@@ -1715,7 +1736,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-06-23T15:52:20.655Z",
+          "updatedAt": "2026-06-23T16:22:22.327Z",
           "verifiedReports": 0,
           "sourceCount": 4,
           "latestSource": "South African Maritime Safety Authority",
@@ -1740,16 +1761,16 @@
       ],
       "signals": [
         {
-          "signalKey": "direct-live-WKVhPJlHdrx3b_QsFIdDVU",
-          "source": "Google News: qz.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQTFFLMy1SOThpdWZwNFlGb2RBcjJEVmdkWnJ6YkVnVldaWlQ3a09DZ2RhZzRIc05IM0IwakIwNHQ4VEIzWTVXcDE1aXE1ckxGOXhaUlZZckRaSTlkUWRWa1BVUkdzQm1rczFMTVJNbkIyNFp5YmMyeGJzajl2NGJpWGQtZWlWVU0?oc=5",
-          "title": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty",
-          "summary": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty qz.com",
+          "signalKey": "direct-live-6yVEhQtqIHADKZff9LHLob",
+          "source": "Bloomberg Markets",
+          "sourceUrl": "https://www.bloomberg.com/news/videos/2026-06-23/oil-steadies-while-tankers-enter-hormuz-after-peace-deal-video",
+          "title": "Oil Steadies While Tankers Openly Enter Hormuz After Peace Deal",
+          "summary": "Oil steadied while tankers become more overt in transiting the Strait of Hormuz following an agreement between Iran and the US to end their conflict. Ellen Fraser, Partner and Energy expert at Baringa Partners, discusses the recent moves in oil as the US greenlights Iran to sell on the open market. (Source: Bloomberg)",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 75,
-          "observedAt": "2026-06-23T15:09:42.000Z",
+          "confidence": 82,
+          "observedAt": "2026-06-23T15:39:37.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1796,20 +1817,6 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-6rTz5-IdqMXI8R4uWWyiQh",
-          "source": "Google News: Puente de Mando",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1sMG9IRXg2MmwzMzdZYTU3aW5DUndxNHRZdU1DNVVvS0F1bHNqUFF6dy1rN2w1eHN3YUJFMVc3c25YaWxCdDhoSVMzaHU2bjNBdGk0Vjh4N3N1bWhjWkJkYVQ4aDhKcXMz?oc=5",
-          "title": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation",
-          "summary": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation Puente de Mando",
-          "region": "panama",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 71,
-          "observedAt": "2026-06-23T10:27:30.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
           "signalKey": "direct-live-D-A_F8Qf0lAQ3yR3k9oAE9",
           "source": "Google News: Puente de Mando",
           "sourceUrl": "https://news.google.com/rss/articles/CBMifkFVX3lxTE9SMVB1ZC05cFhnLU9HT1ZOZm5PUk5vSEttWk81b2dtS0tITjVGOC1uUDdxMW1GR2FKY3Y3N1JxX2htbk5yY21Ecm84NTlxc1F0a29tNmtmVVN3MmNwWlNtbk5yRVVNaHFFaHNDQVFRUUxVSnZMMXJQT2MtSFUtQQ?oc=5",
@@ -1824,16 +1831,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-srlpO2CtRQJi-KLF4_xClr",
-          "source": "Google News: GV Wire",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOQXY0Vnd1Zkl5YllCN3MwUXJyZ21UMXBrdm95Y1c5RzdVU2Rqc2x5akRBTkRvZzl5bzIxQmxnWmJNTG5tMUd1VEliSnRCdXpVZHAxeDVWQ0Y3X0V5cllaaGpUMmstSjNwYzJhQ2Ria0NKcV9yNTd3bVVNelB5QzhiV01kSk55X0Y3dEVlVVdXWkhaTlo1eWdodE1yMA?oc=5",
-          "title": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks",
-          "summary": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks GV Wire",
+          "signalKey": "direct-live-WKVhPJlHdrx3b_QsFIdDVU",
+          "source": "Google News: qz.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMihwFBVV95cUxQTFFLMy1SOThpdWZwNFlGb2RBcjJEVmdkWnJ6YkVnVldaWlQ3a09DZ2RhZzRIc05IM0IwakIwNHQ4VEIzWTVXcDE1aXE1ckxGOXhaUlZZckRaSTlkUWRWa1BVUkdzQm1rczFMTVJNbkIyNFp5YmMyeGJzajl2NGJpWGQtZWlWVU0?oc=5",
+          "title": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty",
+          "summary": "Oil futures rebound after Iran sanction waivers, Hormuz uncertainty qz.com",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 71,
-          "observedAt": "2026-06-23T14:48:34.000Z",
+          "observedAt": "2026-06-23T15:09:42.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1880,6 +1887,20 @@
           "sourceAuditSources": []
         },
         {
+          "signalKey": "direct-live-6rTz5-IdqMXI8R4uWWyiQh",
+          "source": "Google News: Puente de Mando",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1sMG9IRXg2MmwzMzdZYTU3aW5DUndxNHRZdU1DNVVvS0F1bHNqUFF6dy1rN2w1eHN3YUJFMVc3c25YaWxCdDhoSVMzaHU2bjNBdGk0Vjh4N3N1bWhjWkJkYVQ4aDhKcXMz?oc=5",
+          "title": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation",
+          "summary": "Between 10 and 15 Days to Cross the Panama Canal Without a Reservation Puente de Mando",
+          "region": "panama",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 71,
+          "observedAt": "2026-06-23T10:27:30.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
           "signalKey": "direct-live-8VvK-AufzKso8A8k9Qiq9n",
           "source": "Google News: engine.online",
           "sourceUrl": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQakFXSHo5UzhvNGRVbDhNalZ2ekZ1dUk4ZGdBTzFzelBhb18tR1hXUnY3SlpuOHBWTjBTOWVFT0NPMkNlTVdweGhYN1picXJJZFdUa05aYU9EZkxvZjBSQUtVNzVWM3FhYV8wQnk2STFYV1RKcF9PMDhKcFNYWDJOZ0h1QkpVcEJ1bENCc1VNMG9RUFk?oc=5",
@@ -1894,16 +1915,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-W_KjbVApeemRaXC1wmBotU",
-          "source": "Google News: Reuters",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNWHQ2dnJnYy1wZUlwem9vMktVc3VBek1xd3pSQS1mY0NNazBvbU1neWdWS0VEZ3hEY1pmVVZPMi1CcG4wLTBpNVZ0R3RucFZzYm1sOHlCZjJ3NDJPbXZrdWVhNlVyczBHTHNxLXExZXJiQ25tMXdwbkdqYmp4QnExeDE5allHNm84UTBtdkQyekNWNF9PU1BuSlFBalgxZFdpSHVqSkJHVjd2Y3UwcTRidXlrLXhkNGtwaFBSbDBn?oc=5",
-          "title": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show",
-          "summary": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show Reuters",
+          "signalKey": "direct-live-HhBmh95w5F2L6lpBwRV3Dj",
+          "source": "Google News: The New York Times",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNNG83cHJRdTdzM1FlQ0l5cFFjcV9NMkxqb0luTVdONWZaSThMVWZHb21kSU5KVWJEeEZPT002ZHoyVjNkb2x1SVN0cGlZTklZRndndDFsZTFyanU1a001Rlhnd091Sl9MUHRRd2RLVkVJOHoxYmIzbUZudjNMQVBwSE90MHpkSVlUV2Ntd1lPWDUydw?oc=5",
+          "title": "Strait Reopens and Iranian Oil Flows, But the Path Through Is Complicated",
+          "summary": "Strait Reopens and Iranian Oil Flows, But the Path Through Is Complicated The New York Times",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-06-23T14:46:11.000Z",
+          "observedAt": "2026-06-23T15:00:00.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1950,16 +1971,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-vg2dbYgn5gJkgW_9u4kcIr",
-          "source": "Google News: Reuters",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPcGVWUUxvSXIxQWNHU28xbHp1SjI3UjM3NnJzTGF2ZVdNY2lrSUtYdTRMcU5zZXNZYmFTZ1dETlR6SURnNlg4akF5UFdtbXRtTTBTdllJRHdYbGhJNTVSZ29qUDdsQy1vMHhPRjJtU0pZaGtoYk15NUc2UUR2dXRWMTlwNHdoYjF3U0pNeVJ5TUpvaGRMd2lmYUNkVUhvOWlzNmhvUTItSExVRm1WNkpmNFlPd0UwcS0wYXVjODZSbGU?oc=5",
-          "title": "Phillips 66 CEO says Hormuz supply disruptions may linger amid shipping uncertainty",
-          "summary": "Phillips 66 CEO says Hormuz supply disruptions may linger amid shipping uncertainty Reuters",
+          "signalKey": "direct-live-srlpO2CtRQJi-KLF4_xClr",
+          "source": "Google News: GV Wire",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOQXY0Vnd1Zkl5YllCN3MwUXJyZ21UMXBrdm95Y1c5RzdVU2Rqc2x5akRBTkRvZzl5bzIxQmxnWmJNTG5tMUd1VEliSnRCdXpVZHAxeDVWQ0Y3X0V5cllaaGpUMmstSjNwYzJhQ2Ria0NKcV9yNTd3bVVNelB5QzhiV01kSk55X0Y3dEVlVVdXWkhaTlo1eWdodE1yMA?oc=5",
+          "title": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks",
+          "summary": "Oil Drops $1 as Investors Focus on Hormuz Flows After Peace Talks GV Wire",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-06-23T14:34:06.000Z",
+          "confidence": 71,
+          "observedAt": "2026-06-23T14:48:34.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2020,16 +2041,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-L2a1BQZMTaF7z6jhHkfDNg",
-          "source": "Seatrade Maritime News",
-          "sourceUrl": "https://www.seatrade-maritime.com/tankers/hormuz-daily-vessel-transits-hit-highest-level-since-end-feb",
-          "title": "Hormuz daily vessel transits hit highest level since end Feb",
-          "summary": "Since the MoU between US and Iran daily traffic volumes reached 27% of pre-conflict levels according to AXSMarine",
+          "signalKey": "direct-live-W_KjbVApeemRaXC1wmBotU",
+          "source": "Google News: Reuters",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNWHQ2dnJnYy1wZUlwem9vMktVc3VBek1xd3pSQS1mY0NNazBvbU1neWdWS0VEZ3hEY1pmVVZPMi1CcG4wLTBpNVZ0R3RucFZzYm1sOHlCZjJ3NDJPbXZrdWVhNlVyczBHTHNxLXExZXJiQ25tMXdwbkdqYmp4QnExeDE5allHNm84UTBtdkQyekNWNF9PU1BuSlFBalgxZFdpSHVqSkJHVjd2Y3UwcTRidXlrLXhkNGtwaFBSbDBn?oc=5",
+          "title": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show",
+          "summary": "More vessels transit Hormuz, Qatar-linked LNG tankers return, data show Reuters",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-06-23T14:14:51.000Z",
+          "observedAt": "2026-06-23T14:46:11.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2076,16 +2097,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-rilBcsUNCC9zEBEfeVah50",
-          "source": "Google News: صحيفة مال",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA1M1dlNEFnWWVITXY3YUdqdmJRSU9XX3NLMVJNaGJfZTc4S2ludkwtMWV5Wks2bS1HdDZpU2Qxanpka3hxbzNwSDQwemNLNFY2eUhXOGNlSDNvZXBEMXNEZWZQX0FxVWJPRXJMNw?oc=5",
-          "title": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged",
-          "summary": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged صحيفة مال",
+          "signalKey": "direct-live-L2a1BQZMTaF7z6jhHkfDNg",
+          "source": "Seatrade Maritime News",
+          "sourceUrl": "https://www.seatrade-maritime.com/tankers/hormuz-daily-vessel-transits-hit-highest-level-since-end-feb",
+          "title": "Hormuz daily vessel transits hit highest level since end Feb",
+          "summary": "Since the MoU between US and Iran daily traffic volumes reached 27% of pre-conflict levels according to AXSMarine",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 71,
-          "observedAt": "2026-06-23T13:21:33.000Z",
+          "confidence": 82,
+          "observedAt": "2026-06-23T14:14:51.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2118,16 +2139,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-qaan3MDxoXpNbvxYi8NIEW",
-          "source": "Google News: Marine Insight",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNLXIzRlFSY1lLQkRrWEF1TnlyTnNYYVFQMTJ6TUpZT19zZ0Q4RWdtZzlreksteHBSSDF3LTMtb0ZUTXpSendhRWlxU0lpejhfbVkwMGFWQmcxQW4ybDlrRjRLMlJhY1RNWW1Id1g3QkhiZVI2eEpUakhXQlVKcGE2SmZ6NG5wQXo5aXZEb25scHJQMnZJUTY4SWtUOGhwYjBmc1Q3TTNZbmctYlphTFE?oc=5",
-          "title": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains",
-          "summary": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains Marine Insight",
+          "signalKey": "direct-live-IwDygYIZOqAF7Q8pYePlL5",
+          "source": "Google News: Arabian Gulf Business Insight | AGBI",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQbDJEMklYQjNJQ1NEVTBvMUVDYjJSV0RoT244OExycnhUUjlwUjR0NFZWc2d2V1JPNk5nbGIxODdYa05UVWsyZjA2aWdJcmtmQmEwZUFyYms1ekpEX0VlUzh1Z2ZtMGp0c01qUEUydXdFYWh0cUN4RFhyUmZmMEdMVlI3aHNtSTY1cnJTdmhGVmwyeFRwWDBlMk1UMXByS29iUWc?oc=5",
+          "title": "Iran’s Hormuz insurance scheme ‘amounts to transit fee’",
+          "summary": "Iran’s Hormuz insurance scheme ‘amounts to transit fee’ Arabian Gulf Business Insight | AGBI",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-06-23T13:09:59.000Z",
+          "confidence": 71,
+          "observedAt": "2026-06-23T13:28:18.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2160,72 +2181,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-k9xp0XSzq_bLd0AyPOOJoP",
-          "source": "CNBC World News",
-          "sourceUrl": "https://www.cnbc.com/2026/06/23/oil-prices-rise-as-investors-mull-middle-east-developments-.html",
-          "title": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz",
-          "summary": "Oil falls Tuesday as investors continue to assess the latest developments in the Middle East, while showing optimism the conflict may end soon.",
+          "signalKey": "direct-live-rilBcsUNCC9zEBEfeVah50",
+          "source": "Google News: صحيفة مال",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMibEFVX3lxTFA1M1dlNEFnWWVITXY3YUdqdmJRSU9XX3NLMVJNaGJfZTc4S2ludkwtMWV5Wks2bS1HdDZpU2Qxanpka3hxbzNwSDQwemNLNFY2eUhXOGNlSDNvZXBEMXNEZWZQX0FxVWJPRXJMNw?oc=5",
+          "title": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged",
+          "summary": "Tanker traffic through the Strait of Hormuz gradually increased, but prices remained largely unchanged صحيفة مال",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-06-23T12:53:15.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-8CQV_K0AiAsZJOEaAy7z7-",
-          "source": "Google News: gCaptain",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNTXg1TTk0YjJsWVlhbmpmREJLSHkxRmVENWJwdkxScWE4SUNJbmRpRTg3Q1czc3U0OERvMG42R1RKSlEySkVjYlNfRkp2UDF4ZERVV1Rqenh6YzM3RHh3a1JPbkswR21NRFhJdm5iMHQwM1c4eVlMY2xyejdTczJfNHBFM1pqSHdqbnF2R2lHTFBpM1ZK?oc=5",
-          "title": "UKMTO Receives Report Of Tanker Incident Southeast Of Al-shihr, Yemen",
-          "summary": "UKMTO Receives Report Of Tanker Incident Southeast Of Al-shihr, Yemen gCaptain",
-          "region": "bab",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 66,
-          "observedAt": "2026-06-21T23:59:43.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-eP0Zets6OZFuBbnKJyugSi",
-          "source": "Google News: African Review",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNdVQwbGlCUEJBTWRpb1JmMTRSRm03VXZDcG9GbzlSekNROWF1cGNJTDY2SEdOaWJTVC1xU3JmSTAwTjgzdDJoQ2d2Y081R1FPN190cWxLd3JyQmNLMGRpLUY5RW9DNGthb193SkRrQ0x1Um1BWGd2MUJzQUVMRFk2OE9MQmhpNXpPSTNzaXlNNjZvdjJGa0I3YTBHMA?oc=5",
-          "title": "Suez Canal welcomes advanced LNG container ship",
-          "summary": "Suez Canal welcomes advanced LNG container ship African Review",
-          "region": "suez",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 56,
-          "observedAt": "2026-06-22T08:13:25.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-LrHQwv17FrkPzypj-aqeaE",
-          "source": "Google News: Crude Oil Prices Today | OilPrice.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOM3NzQW52dmhubzJoc0szVlJPdk01akdEYXZUZnYxLVEzZlVpLUFTV0dER0VQZFVJZ2dadjRneXd3M1dSNWo2RTBfdlJQempVWFFwRUtXSTZYVV9pX1dEZ0phOE5mc0NGclhpRlBCM05iczFJMndRU0gtSEo4YS1pWmRidHFlTlZqbFdFR2FubTNKS2VUdTZtQnVLaDVDQ3VhTkItbDVoaTNIQXdoMzlHLXFB0gG3AUFVX3lxTE1sYlBGZHhYR1F5Q2Z0dkhtQ1B1S1R4SXdKUUVnbFVDVEVPU1hnT2ZwWl9rcUx4c2tSeEZlR2FZcXEzUzdlQk91cldnemFKVHJydFRzbTRTc21vVDZjUl9VeUxKakVXaHRxLWhKUWJjbjZBd0RmMmVXdmVoQmJYbmRMcTRXUkhqQVdPNEYwUlY1NEFtalp3UzNqMm9wWTRTQmlKbnJDSDA3Mlk5ekFpOTBQUzlXdEdYOA?oc=5",
-          "title": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers",
-          "summary": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers Crude Oil Prices Today | OilPrice.com",
-          "region": "hormuz",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-06-23T12:30:00.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-HhBmh95w5F2L6lpBwRV3Dj",
-          "source": "Google News: The New York Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNNG83cHJRdTdzM1FlQ0l5cFFjcV9NMkxqb0luTVdONWZaSThMVWZHb21kSU5KVWJEeEZPT002ZHoyVjNkb2x1SVN0cGlZTklZRndndDFsZTFyanU1a001Rlhnd091Sl9MUHRRd2RLVkVJOHoxYmIzbUZudjNMQVBwSE90MHpkSVlUV2Ntd1lPWDUydw?oc=5",
-          "title": "Iranian Oil Is Moving Again, but Getting Through the Strait Is Complicated",
-          "summary": "Iranian Oil Is Moving Again, but Getting Through the Strait Is Complicated The New York Times",
-          "region": "hormuz",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-06-23T12:24:00.000Z",
+          "confidence": 71,
+          "observedAt": "2026-06-23T13:21:33.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2244,16 +2209,30 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-AW_PWQkBcF12J8oj28ltaO",
-          "source": "Google News: Transport Topics",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBWVjk4RXNnQjVLMGZiWTY0RFJEcklmVDQxeE5IVTFEeXVFLXdOalRYc2xtLWRDcGNWdUx4dW1rc2dVWldUV1A4bFBGTmJ1Z2NRVDBOVHhna0dlc2NVX1V2TEFrM3NpdmM?oc=5",
-          "title": "Oil Prices Continue to Fall on Hopes for Iran Deal",
-          "summary": "Oil Prices Continue to Fall on Hopes for Iran Deal Transport Topics",
+          "signalKey": "direct-live-eP0Zets6OZFuBbnKJyugSi",
+          "source": "Google News: African Review",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNdVQwbGlCUEJBTWRpb1JmMTRSRm03VXZDcG9GbzlSekNROWF1cGNJTDY2SEdOaWJTVC1xU3JmSTAwTjgzdDJoQ2d2Y081R1FPN190cWxLd3JyQmNLMGRpLUY5RW9DNGthb193SkRrQ0x1Um1BWGd2MUJzQUVMRFk2OE9MQmhpNXpPSTNzaXlNNjZvdjJGa0I3YTBHMA?oc=5",
+          "title": "Suez Canal welcomes advanced LNG container ship",
+          "summary": "Suez Canal welcomes advanced LNG container ship African Review",
+          "region": "suez",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 56,
+          "observedAt": "2026-06-22T08:13:25.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-qaan3MDxoXpNbvxYi8NIEW",
+          "source": "Google News: Marine Insight",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNLXIzRlFSY1lLQkRrWEF1TnlyTnNYYVFQMTJ6TUpZT19zZ0Q4RWdtZzlreksteHBSSDF3LTMtb0ZUTXpSendhRWlxU0lpejhfbVkwMGFWQmcxQW4ybDlrRjRLMlJhY1RNWW1Id1g3QkhiZVI2eEpUakhXQlVKcGE2SmZ6NG5wQXo5aXZEb25scHJQMnZJUTY4SWtUOGhwYjBmc1Q3TTNZbmctYlphTFE?oc=5",
+          "title": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains",
+          "summary": "Shipping Slowdown in Strait of Hormuz Threatens Global Aluminium Supply Chains Marine Insight",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 71,
-          "observedAt": "2026-06-23T12:08:37.000Z",
+          "confidence": 82,
+          "observedAt": "2026-06-23T13:09:59.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2272,30 +2251,44 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-frTnJaHYd87LS2nKcUG6Jn",
-          "source": "Google News: EnergyNow.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQeU1tdWFDbEwyc2R5ZEFYN3Y4Q3czZEZKX2ZMWUZWUjVDaHljOVZXY1dTX1h1LXFMSlNJcGtad1VURWhBaHFPWm5nNmY5YzJDX1B1RU1ISDFKWEs1US1TNkptS3lIYXVyWUZsdUM4OTFzRk8zOU1abWE5M3IwV0dtX2VqWlhBUW5mbERvOVVoU2EyR25PQk5qbk9PNXBfbmZ3NTFlR1hXVVZNUQ?oc=5",
-          "title": "CHARTED: Oil Trade Through the Strait of Hormuz by Country – Visual Capitalist",
-          "summary": "CHARTED: Oil Trade Through the Strait of Hormuz by Country – Visual Capitalist EnergyNow.com",
-          "region": "hormuz",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 71,
-          "observedAt": "2026-06-23T11:40:32.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-VBMA9LwRS06lA8cMeP7LwK",
-          "source": "Google News: The New York Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1Nd2paNC1kanF0d2V6aWlYd2tLYUpFLXRXRWVwUmN1MTNyYlNlR3dsNDFQNkc2ZDdGSVd3UXh5djQtWV9UNENCSnlydkEyNTh2Z2YtdDhaUGptVFVveFlOOTZvZTF5amhVMXF1X1hLVTdyNGxYZGc?oc=5",
-          "title": "U.S. Eases Sanctions on Iranian Oil, but Progress on Nuclear Issues Is Muddy",
-          "summary": "U.S. Eases Sanctions on Iranian Oil, but Progress on Nuclear Issues Is Muddy The New York Times",
+          "signalKey": "direct-live-k9xp0XSzq_bLd0AyPOOJoP",
+          "source": "CNBC World News",
+          "sourceUrl": "https://www.cnbc.com/2026/06/23/oil-prices-rise-as-investors-mull-middle-east-developments-.html",
+          "title": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz",
+          "summary": "Oil falls Tuesday as investors continue to assess the latest developments in the Middle East, while showing optimism the conflict may end soon.",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-06-23T10:38:00.000Z",
+          "observedAt": "2026-06-23T12:53:15.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-LrHQwv17FrkPzypj-aqeaE",
+          "source": "Google News: Crude Oil Prices Today | OilPrice.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOM3NzQW52dmhubzJoc0szVlJPdk01akdEYXZUZnYxLVEzZlVpLUFTV0dER0VQZFVJZ2dadjRneXd3M1dSNWo2RTBfdlJQempVWFFwRUtXSTZYVV9pX1dEZ0phOE5mc0NGclhpRlBCM05iczFJMndRU0gtSEo4YS1pWmRidHFlTlZqbFdFR2FubTNKS2VUdTZtQnVLaDVDQ3VhTkItbDVoaTNIQXdoMzlHLXFB0gG3AUFVX3lxTE1sYlBGZHhYR1F5Q2Z0dkhtQ1B1S1R4SXdKUUVnbFVDVEVPU1hnT2ZwWl9rcUx4c2tSeEZlR2FZcXEzUzdlQk91cldnemFKVHJydFRzbTRTc21vVDZjUl9VeUxKakVXaHRxLWhKUWJjbjZBd0RmMmVXdmVoQmJYbmRMcTRXUkhqQVdPNEYwUlY1NEFtalp3UzNqMm9wWTRTQmlKbnJDSDA3Mlk5ekFpOTBQUzlXdEdYOA?oc=5",
+          "title": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers",
+          "summary": "IOC's Tanker Tender Comes Up Empty as Hormuz Risk Lingers Crude Oil Prices Today | OilPrice.com",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 82,
+          "observedAt": "2026-06-23T12:30:00.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-AW_PWQkBcF12J8oj28ltaO",
+          "source": "Google News: Transport Topics",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBWVjk4RXNnQjVLMGZiWTY0RFJEcklmVDQxeE5IVTFEeXVFLXdOalRYc2xtLWRDcGNWdUx4dW1rc2dVWldUV1A4bFBGTmJ1Z2NRVDBOVHhna0dlc2NVX1V2TEFrM3NpdmM?oc=5",
+          "title": "Oil Prices Continue to Fall on Hopes for Iran Deal",
+          "summary": "Oil Prices Continue to Fall on Hopes for Iran Deal Transport Topics",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 71,
+          "observedAt": "2026-06-23T12:08:37.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2322,7 +2315,7 @@
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 71,
+          "confidence": 68,
           "observedAt": "2026-06-23T10:10:00.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
@@ -2336,7 +2329,7 @@
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 82,
+          "confidence": 78,
           "observedAt": "2026-06-23T10:04:58.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
@@ -2482,7 +2475,49 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-source-sweep-taiwan-0-NTb4146ae7Xx",
+          "signalKey": "direct-live-KC_OTB7pbGCKkwfB22h6LK",
+          "source": "Google News: newsdrum.in",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPX1NPRWRIcENTRnpGV3dURHJVVzZvY21kYzZ0M1ctajJpdjlWRXR6UzJFVDctcmpzclVyMFBuOGVKMU9HTExoZjRXVEdWQ0tTQjdPQlVHSWduVnZKbzZjRWgtSExqX0pRT0JNTlVsdUlYbV8tSDVJa1U1QXg1TlpfWXBaempvS1BadHo2M2djUDRERXNjc1prS0lRZlNoQ2N0TVFDQjJmcVRBZlZXcEExM1BFbFR0dmdya0VpQzB2dDhpZVU4WFUzcTNtQdIBywFBVV95cUxPX1NPRWRIcENTRnpGV3dURHJVVzZvY21kYzZ0M1ctajJpdjlWRXR6UzJFVDctcmpzclVyMFBuOGVKMU9HTExoZjRXVEdWQ0tTQjdPQlVHSWduVnZKbzZjRWgtSExqX0pRT0JNTlVsdUlYbV8tSDVJa1U1QXg1TlpfWXBaempvS1BadHo2M2djUDRERXNjc1prS0lRZlNoQ2N0TVFDQjJmcVRBZlZXcEExM1BFbFR0dmdya0VpQzB2dDhpZVU4WFUzcTNtQQ?oc=5",
+          "title": "Iran says Hormuz will not return to old order, claims administration of key oil route",
+          "summary": "Iran says Hormuz will not return to old order, claims administration of key oil route newsdrum.in",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 63,
+          "observedAt": "2026-06-23T01:32:44.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-E4nss9ZfGTEnB8GfiZRxYq",
+          "source": "Google News: CNBC",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMinAFBVV95cUxObnk3bnlweGtJUG1mY2FWcWdsVHpfUnZCT3RmbGxXdTlWcl9SUjM3V1U1YjhIMFAtcTRuV2ZJakdXemJTUFlnWDcwUWx6aFlQOTFJbjVWeTBtY3NZNmNGM29rYnliUVNCUWFNLXFWcFhocmVJYWZUekpOWEVncF9vMFVYZ0VjVGwtb1drUVNTU18zSVlubmZZek5STFXSAaIBQVVfeXFMTm1lbDdpb2lhRXpBbmxSLXVFYzVnUXRHdlp2Y0l1QWlNM3dVTF9YUkIzLXVCR2x0UFZjWnNudk9zTGcweXZ6cUJ1TDZrVl9KV1BVRldwRGRFSGk3cnVqaklmMjVINUhGVVk1VGZ3WVBPMHV1aFhGSkwtdUkyNzVSSWstazZaVm45Q2hNMlJWUDVOM2UxOFAyVmF1R0dzYy1oa2d3?oc=5",
+          "title": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz",
+          "summary": "Oil prices are lower as market monitors tanker traffic through Strait of Hormuz CNBC",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 82,
+          "observedAt": "2026-06-23T00:33:00.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-3m-TtyeEp0gH8fkNakRZ1Z",
+          "source": "Google News: Crude Oil Prices Today | OilPrice.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQem5ab2xfOEtyczVaVkdHSzFuLVBGVmowQWNpOHBJQ3lvQUUzdFEzU2NkR2d2aHZFMVptMW94WUlxakVPSDVHZHRPcTlXS2xlTkM4NU5sX1lIUHVMSDFobk1kQmptVzYzQ1N3TzhJbXh5YmRLc01Gal95UnAxbkdkTkVCaXMyZEFyQnFBZ0VlaGl3cy1pSnpEb0l0MW5OY2tuSERB0gGoAUFVX3lxTE5VR2FmeFlJWE1pZnN6X2VQRFBHeFE3dmFEcjJ2YjZxS0w0T09rZjMxT2tUbTRvYzM2ZU91RExjcVI3UUxLOGFDZno2NG5QV3FMRHMtRXdhRFIxY20tZEJnanpVYjJhclBqOTlocFNZRDVPdzEzMVVoelRZMXI0S21qMlJ0RUVKc3FRWi1aRExqYW83MzFRQXptYUMyUFg1V3NHYzZCbld0Zg?oc=5",
+          "title": "Half-Open, Half-Closed Strait of Hormuz Baffles Oil Markets",
+          "summary": "Half-Open, Half-Closed Strait of Hormuz Baffles Oil Markets Crude Oil Prices Today | OilPrice.com",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 74,
+          "observedAt": "2026-06-22T23:00:00.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-source-sweep-taiwan-0-bVcUo3X8UrIf",
           "source": "Taiwan Maritime and Port Bureau",
           "sourceUrl": "https://www.motcmpb.gov.tw/RSS",
           "title": "Taiwan Strait: official source checked",
@@ -2491,7 +2526,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -2501,7 +2536,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-taiwan-1-1VbKC7ZVLLVD",
+          "signalKey": "direct-source-sweep-taiwan-1-Roua0yaty1Bi",
           "source": "Google News 48h Search: Taiwan Strait 48h route evidence sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Kaohsiung%20port%22%20OR%20%22Keelung%20port%22%20OR%20%22Taiwan%20ports%22)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20maritime%20OR%20%22port%20operations%22%20OR%20%22naval%20exercise%22%20OR%20warning%20OR%20disruption)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "title": "Taiwan Strait: recent news sweep checked",
@@ -2510,7 +2545,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -2520,7 +2555,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-taiwan-2-THjttoNNh8R6",
+          "signalKey": "direct-source-sweep-taiwan-2--WahykhXBCRm",
           "source": "Google News Search: Taiwan Strait trade-source sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Taiwan%20ports%22%20OR%20Kaohsiung%20OR%20Keelung)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20port%20OR%20naval%20OR%20maritime%20OR%20disruption)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Taiwan Strait: trade-source sweep checked",
@@ -2529,7 +2564,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -2539,7 +2574,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-taiwan-3-yfUVeFWBOpmC",
+          "signalKey": "direct-source-sweep-taiwan-3-wRd9Xge1SNXS",
           "source": "Google News Search: Tier-1 Taiwan Strait newsroom sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20Taiwan)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20cargo%20OR%20port%20OR%20naval%20OR%20trade%20lane%20OR%20alert%20OR%20disruption%20OR%20risk)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Taiwan Strait: tier-1 newsroom sweep checked",
@@ -2548,7 +2583,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -2558,7 +2593,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-turkish-0-OZQVfx7C_rK5",
+          "signalKey": "direct-source-sweep-turkish-0-PC8JV2nzpIHp",
           "source": "Turkish Directorate General of Coastal Safety",
           "sourceUrl": "https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2",
           "title": "Turkish Straits: official source checked",
@@ -2567,7 +2602,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Turkish Directorate General of Coastal Safety",
@@ -2577,7 +2612,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-turkish-1-F-HYX2cTQm1U",
+          "signalKey": "direct-source-sweep-turkish-1-CUCc7Bid7IL8",
           "source": "Google News 48h Search: Turkish Straits 48h route evidence sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Bosporus%22%20OR%20%22Bosphorus%22%20OR%20%22Dardanelles%22%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22)%20(%22vessel%20traffic%22%20OR%20shipping%20OR%20tanker%20OR%20transit%20OR%20fog%20OR%20closure%20OR%20suspension%20OR%20delay)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "title": "Turkish Straits: recent news sweep checked",
@@ -2586,7 +2621,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Turkish Directorate General of Coastal Safety",
@@ -2596,7 +2631,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-turkish-2-lPxdnvmKn7-B",
+          "signalKey": "direct-source-sweep-turkish-2-7VBfy5wq0K6D",
           "source": "Google News Search: Turkish Straits trade-source sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(Bosporus%20OR%20Bosphorus%20OR%20Dardanelles%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22%20OR%20%22Canakkale%20Strait%22)%20(shipping%20OR%20tanker%20OR%20vessel%20OR%20transit%20OR%20traffic%20OR%20closure%20OR%20delay%20OR%20Black%20Sea)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Turkish Straits: trade-source sweep checked",
@@ -2605,7 +2640,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Turkish Directorate General of Coastal Safety",
@@ -2615,7 +2650,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-turkish-3-tbaneHqoRgiB",
+          "signalKey": "direct-source-sweep-turkish-3-b3jn5iJTD956",
           "source": "Google News Search: Tier-1 Turkish Straits newsroom sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Turkish%20Straits%22%20OR%20Bosporus%20OR%20Bosphorus%20OR%20Dardanelles)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20transit%20OR%20Black%20Sea%20OR%20delay%20OR%20closure%20OR%20traffic)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Turkish Straits: tier-1 newsroom sweep checked",
@@ -2624,7 +2659,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Turkish Directorate General of Coastal Safety",
@@ -2634,7 +2669,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-0-BqVJEQyEwjuK",
+          "signalKey": "direct-source-sweep-cape-0-pdQSo9sz8ung",
           "source": "South African Maritime Safety Authority",
           "sourceUrl": "https://www.samsa.org.za/Pages/Notices.aspx",
           "title": "Cape of Good Hope: official source checked",
@@ -2643,7 +2678,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2653,7 +2688,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-1-r5ovYzCRdMRR",
+          "signalKey": "direct-source-sweep-cape-1-s-vuHB8h8p3h",
           "source": "Google News 48h Search: Cape of Good Hope 48h route evidence sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "title": "Cape of Good Hope: recent news sweep checked",
@@ -2662,7 +2697,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2672,7 +2707,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-2-T8S1eM2ncEXD",
+          "signalKey": "direct-source-sweep-cape-2-wIIttStmjBpY",
           "source": "Google News Search: Cape route trade-source sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Cape of Good Hope: trade-source sweep checked",
@@ -2681,7 +2716,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2691,7 +2726,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-3-mDbX3Cpw6Ibw",
+          "signalKey": "direct-source-sweep-cape-3-qyYmp0NZSiUx",
           "source": "Google News Search: Tier-1 Cape of Good Hope newsroom sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Cape of Good Hope: tier-1 newsroom sweep checked",
@@ -2700,7 +2735,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-06-23T15:52:20.655Z",
+          "observedAt": "2026-06-23T16:22:22.327Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2710,27 +2745,27 @@
           ]
         }
       ],
-      "timestamp": "2026-06-23T15:52:20.655Z",
+      "timestamp": "2026-06-23T16:22:22.327Z",
       "count": {
-        "articles": 69,
+        "articles": 70,
         "hotspots": 9,
-        "signals": 65
+        "signals": 66
       },
       "qualityAudit": {
         "status": "healthy",
         "sourceMix": {
           "official": 5,
-          "tierOne": 6,
-          "trade": 10,
-          "search": 39,
+          "tierOne": 7,
+          "trade": 9,
+          "search": 40,
           "general": 0,
           "watch": 0
         },
         "reviewGate": {
-          "approved": 42,
+          "approved": 43,
           "watch": 27,
-          "blocked": 3,
-          "visible": 69
+          "blocked": 2,
+          "visible": 70
         },
         "coverageGaps": [
           {
@@ -2738,16 +2773,16 @@
             "score": 94,
             "status": "strong",
             "missing": [],
-            "sourceCount": 23,
-            "latestNewsAt": "2026-06-23T15:09:42.000Z",
-            "latestSignalAt": "2026-06-23T15:09:42.000Z"
+            "sourceCount": 25,
+            "latestNewsAt": "2026-06-23T15:39:37.000Z",
+            "latestSignalAt": "2026-06-23T15:39:37.000Z"
           },
           {
             "hotspot": "bab",
             "score": 94,
             "status": "strong",
             "missing": [],
-            "sourceCount": 10,
+            "sourceCount": 9,
             "latestNewsAt": "2026-06-23T09:01:50.000Z",
             "latestSignalAt": "2026-06-23T09:01:50.000Z"
           },
@@ -2787,7 +2822,7 @@
             ],
             "sourceCount": 4,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-06-23T15:52:20.655Z"
+            "latestSignalAt": "2026-06-23T16:22:22.327Z"
           },
           {
             "hotspot": "turkish",
@@ -2798,7 +2833,7 @@
             ],
             "sourceCount": 4,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-06-23T15:52:20.655Z"
+            "latestSignalAt": "2026-06-23T16:22:22.327Z"
           },
           {
             "hotspot": "gibraltar",
@@ -2818,11 +2853,11 @@
             ],
             "sourceCount": 4,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-06-23T15:52:20.655Z"
+            "latestSignalAt": "2026-06-23T16:22:22.327Z"
           }
         ],
         "recommendations": [
-          "3 low-evidence direct reports were blocked before the live map.",
+          "2 low-evidence direct reports were blocked before the live map.",
           "27 direct reports are watch-listed until stronger confirmation arrives."
         ]
       }
@@ -2832,7 +2867,7 @@
       "source": "VesselSurge direct source sweep",
       "cacheControl": "public, s-maxage=120, stale-while-revalidate=300",
       "cached": true,
-      "generatedAt": "2026-06-23T15:52:20.655Z",
+      "generatedAt": "2026-06-23T16:22:22.327Z",
       "stale": false
     }
   }
