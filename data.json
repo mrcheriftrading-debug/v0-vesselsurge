@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-03T17:10:23.220Z",
+  "generatedAt": "2026-07-03T17:40:22.269Z",
   "cacheSource": "redis-kv",
   "payload": {
     "success": true,
@@ -24,7 +24,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-03T17:10:23.227Z"
+          "reviewedAt": "2026-07-03T17:40:22.277Z"
         },
         {
           "id": "direct-suez-24h-1-aHR0cHM6Ly9uZXdz",
@@ -45,7 +45,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.228Z"
+          "reviewedAt": "2026-07-03T17:40:22.278Z"
         },
         {
           "id": "direct-malacca-24h-1-aHR0cHM6Ly9uZXdz",
@@ -66,7 +66,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.228Z"
+          "reviewedAt": "2026-07-03T17:40:22.278Z"
         },
         {
           "id": "source-sweep-news-taiwan-0-VGFpd2FuIE1hcm",
@@ -76,7 +76,7 @@
           "sourceUrl": "https://www.motcmpb.gov.tw/RSS",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -87,7 +87,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.229Z"
+          "reviewedAt": "2026-07-03T17:40:22.279Z"
         },
         {
           "id": "direct-turkish-7d-4-aHR0cHM6Ly9uZXdz",
@@ -108,7 +108,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "source-sweep-news-cape-0-U291dGggQWZyaW",
@@ -118,7 +118,7 @@
           "sourceUrl": "https://www.samsa.org.za/Pages/Notices.aspx",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -129,7 +129,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-hormuz-24h-11-aHR0cHM6Ly9uZXdz",
@@ -150,7 +150,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-bab-24h-1-aHR0cHM6Ly9uZXdz",
@@ -171,7 +171,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-suez-24h-1-aHR0cHM6Ly9uZXdz",
@@ -192,7 +192,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-malacca-24h-5-aHR0cHM6Ly9uZXdz",
@@ -213,7 +213,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "source-sweep-news-taiwan-1-R29vZ2xlIE5ld3",
@@ -223,7 +223,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Kaohsiung%20port%22%20OR%20%22Keelung%20port%22%20OR%20%22Taiwan%20ports%22)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20maritime%20OR%20%22port%20operations%22%20OR%20%22naval%20exercise%22%20OR%20warning%20OR%20disruption)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -234,7 +234,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-turkish-7d-0-aHR0cHM6Ly9uZXdz",
@@ -255,7 +255,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "source-sweep-news-cape-1-R29vZ2xlIE5ld3",
@@ -265,7 +265,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -276,7 +276,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
@@ -297,7 +297,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.280Z"
         },
         {
           "id": "direct-suez-24h-2-aHR0cHM6Ly9uZXdz",
@@ -318,7 +318,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-malacca-7d-5-aHR0cHM6Ly9uZXdz",
@@ -339,7 +339,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-taiwan-2-R29vZ2xlIE5ld3",
@@ -349,7 +349,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Taiwan%20ports%22%20OR%20Kaohsiung%20OR%20Keelung)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20port%20OR%20naval%20OR%20maritime%20OR%20disruption)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -360,7 +360,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-turkish-0-VHVya2lzaCBEaX",
@@ -370,7 +370,7 @@
           "sourceUrl": "https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -381,7 +381,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-gibraltar-0-R2licmFsdGFyIF",
@@ -391,7 +391,7 @@
           "sourceUrl": "https://www.gibraltarport.com/port-information/vessel-traffic-services",
           "category": "source_sweep",
           "region": "gibraltar",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -402,7 +402,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-cape-2-R29vZ2xlIE5ld3",
@@ -412,7 +412,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -423,7 +423,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
@@ -444,10 +444,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-suez-24h-5-aHR0cHM6Ly9uZXdz",
+          "id": "direct-suez-24h-4-aHR0cHM6Ly9uZXdz",
           "title": "Suez Canal Terminal to Run on Solar and Wind Power Under New PPA - News and Statistics",
           "summary": "Suez Canal Terminal to Run on Solar and Wind Power Under New PPA - News and Statistics IndexBox",
           "source": "Google News: IndexBox",
@@ -465,7 +465,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-malacca-7d-12-aHR0cHM6Ly9uZXdz",
@@ -486,7 +486,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-taiwan-3-R29vZ2xlIE5ld3",
@@ -496,7 +496,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20Taiwan)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20cargo%20OR%20port%20OR%20naval%20OR%20trade%20lane%20OR%20alert%20OR%20disruption%20OR%20risk)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -507,7 +507,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-turkish-1-R29vZ2xlIE5ld3",
@@ -517,7 +517,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Bosporus%22%20OR%20%22Bosphorus%22%20OR%20%22Dardanelles%22%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22)%20(%22vessel%20traffic%22%20OR%20shipping%20OR%20tanker%20OR%20transit%20OR%20fog%20OR%20closure%20OR%20suspension%20OR%20delay)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -528,7 +528,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-gibraltar-1-R29vZ2xlIE5ld3",
@@ -538,7 +538,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20bunkering%20OR%20%22port%20traffic%22%20OR%20congestion%20OR%20incident%20OR%20weather)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "gibraltar",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -549,7 +549,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-cape-3-R29vZ2xlIE5ld3",
@@ -559,7 +559,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -570,10 +570,10 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-hormuz-publisher-2-aHR0cHM6Ly9jb250",
+          "id": "direct-hormuz-publisher-3-aHR0cHM6Ly9jb250",
           "title": "NORDEN raises 2026 profit outlook on stronger dry cargo performance",
           "summary": "NORDEN has raised its full-year 2026 net profit guidance after stronger-than-expected dry cargo performance, lower costs linked to disruptions in the Persian Gulf and additional vessel sales. The company now expects a net profit of US$120-190 million, up from its previous guidance of US$70-140 million. NORDEN said its dry cargo business benefited from a fleet [&#8230;] The post NORDEN raises 2026 profit outlook on stronger dry cargo performance appeared first on Container News .",
           "source": "Container News",
@@ -591,10 +591,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-bab-24h-5-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-24h-7-aHR0cHM6Ly9uZXdz",
           "title": "Emerging Houthi–Al-Shabaab co-operation and the growing threat to Red Sea shipping",
           "summary": "Emerging Houthi–Al-Shabaab co-operation and the growing threat to Red Sea shipping Diário Carioca",
           "source": "Google News: Diário Carioca",
@@ -606,13 +606,13 @@
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
           "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
+          "freshnessScore": 66,
+          "intelligenceScore": 71,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 70,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-suez-24h-0-aHR0cHM6Ly9uZXdz",
@@ -633,28 +633,28 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-malacca-7d-6-aHR0cHM6Ly9uZXdz",
-          "title": "Three piracy incidents along Singapore Straits in last 20 days",
-          "summary": "Three piracy incidents along Singapore Straits in last 20 days Manifold Times",
-          "source": "Google News: Manifold Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNWDg0UTlLQnlHOHNCREQ2dF83Wmh0eVVhLUtTQjZZYUpjQmxJc1FyNlhmTFczUDRtVDB1UXhIZTVOOTQwQWRtcTliTTBrVXVEQkhDbkxSN3R4WjAwOTc3NlN1THhUMDY5U0xJdU1DSGNyTHBKVF9KdEpxQlpNUUtZUm5FYXZLZXNoWHYtNEZGVDJzcVZTMXNEbXkzXzNOYzQ?oc=5",
-          "category": "live_maritime_news",
+          "id": "source-sweep-news-malacca-0-UmVDQUFQIElTQy",
+          "title": "Strait of Malacca: official source checked",
+          "summary": "The latest VesselSurge source sweep checked ReCAAP ISC Alerts, Google News Search: Tier-1 Malacca newsroom sweep, Bing News Search: Malacca piracy and incidents; no current source-backed disruption is being claimed for Strait of Malacca. This is source coverage, not a confirmed incident.",
+          "source": "ReCAAP ISC Alerts",
+          "sourceUrl": "https://www.recaap.org/alerts",
+          "category": "source_sweep",
           "region": "malacca",
-          "timestamp": "2026-07-02T05:31:38.000Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 45,
-          "intelligenceScore": 64,
-          "derivedFrom": "direct_news_search_rss",
+          "sourceQualityLabel": "Official source",
+          "sourceQualityScore": 100,
+          "sourceQualityTier": "official",
+          "freshnessScore": 100,
+          "intelligenceScore": 100,
+          "derivedFrom": "source_sweep_audit",
           "reviewStatus": "watch",
-          "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
-          "reviewScore": 63,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
+          "reviewScore": 68,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-turkish-2-R29vZ2xlIE5ld3",
@@ -664,7 +664,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(Bosporus%20OR%20Bosphorus%20OR%20Dardanelles%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22%20OR%20%22Canakkale%20Strait%22)%20(shipping%20OR%20tanker%20OR%20vessel%20OR%20transit%20OR%20traffic%20OR%20closure%20OR%20delay%20OR%20Black%20Sea)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -675,7 +675,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "source-sweep-news-gibraltar-2-R29vZ2xlIE5ld3",
@@ -685,7 +685,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20port%20OR%20bunkering%20OR%20congestion%20OR%20incident)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "gibraltar",
-          "timestamp": "2026-07-03T17:10:21.457Z",
+          "timestamp": "2026-07-03T17:40:20.119Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -696,7 +696,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
@@ -717,49 +717,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 92,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
-        },
-        {
-          "id": "direct-suez-24h-11-aHR0cHM6Ly9uZXdz",
-          "title": "Canal Shipping Agencies outlines its role in Egypt's maritime trade",
-          "summary": "Canal Shipping Agencies outlines its role in Egypt's maritime trade Ad-hoc-news.de",
-          "source": "Google News: Ad-hoc-news.de",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQTGpWc2NISkNrMVZ2dXh4RG9COHd4OEpNMHJGWWdxZWtJOFl2eVJmX3A2SVFPcGxoeVpZTEpKaTQ0UUMyc0hFbWlKYTlaLWtHLVV3MDNQRkwyZ05RaEVWeWZTSXk4cDMwUVo3OFVNSlFrMlZKbjgwQUxXVjl1NzhOUXpIUmtGTTNuV2k0R2llVVIwSnU3R1A2ejZHQXRNSHJTRDNTRzM0bW9CaTE4MEZPX045WW42X0M5d1BlTUhQcVI4bndi?oc=5",
-          "category": "live_maritime_news",
-          "region": "suez",
-          "timestamp": "2026-07-02T17:00:42.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 45,
-          "intelligenceScore": 64,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "watch",
-          "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
-          "reviewScore": 63,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
-        },
-        {
-          "id": "direct-hormuz-publisher-3-aHR0cHM6Ly9nY2Fw",
-          "title": "China Urges ‘Unimpeded Passage’ of Hormuz as Fee Chatter Mounts",
-          "summary": "China called for the unhindered flow of shipping through the Strait of Hormuz, comments that come as leading European powers are apparently accepting that vessels will have to pay fees to Iran and Oman.",
-          "source": "gCaptain",
-          "sourceUrl": "https://gcaptain.com/china-urges-unimpeded-passage-of-hormuz-as-fee-chatter-mounts/",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-07-03T12:54:43.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
-          "freshnessScore": 88,
-          "intelligenceScore": 86,
-          "derivedFrom": "trusted_publisher_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-suez-7d-5-aHR0cHM6Ly9uZXdz",
@@ -780,28 +738,28 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
-          "title": "Riyadh sends biggest oil shipment through Hormuz since February conflict",
-          "summary": "Riyadh sends biggest oil shipment through Hormuz since February conflict AzerNews",
-          "source": "Google News: AzerNews",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBFazdLZjAzNGF3S0QtNWtyMFQzQ0RNbzBQTXF3cnp4QVg5SUQzWEhacEVXOV9YVGxXbmJLY1J4ZVdlQzJCZWg5TFJvSHQyS3JMZUJLOQ?oc=5",
+          "id": "direct-hormuz-publisher-3-aHR0cHM6Ly9nY2Fw",
+          "title": "China Urges ‘Unimpeded Passage’ of Hormuz as Fee Chatter Mounts",
+          "summary": "China called for the unhindered flow of shipping through the Strait of Hormuz, comments that come as leading European powers are apparently accepting that vessels will have to pay fees to Iran and Oman.",
+          "source": "gCaptain",
+          "sourceUrl": "https://gcaptain.com/china-urges-unimpeded-passage-of-hormuz-as-fee-chatter-mounts/",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-07-03T12:27:00.000Z",
+          "timestamp": "2026-07-03T12:54:43.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
           "freshnessScore": 88,
-          "intelligenceScore": 78,
-          "derivedFrom": "direct_news_search_rss",
+          "intelligenceScore": 86,
+          "derivedFrom": "trusted_publisher_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-suez-7d-7-aHR0cHM6Ly9uZXdz",
@@ -822,28 +780,49 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-panama-24h-7-aHR0cHM6Ly9uZXdz",
-          "title": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply",
-          "summary": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply EnergyNow",
-          "source": "Google News: EnergyNow",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQMkZGaVNycjBQQ2F5T0ZhaWJIbDZaOUJiTTdubV8zSWpUbTBRdG54dkxSXzR4S2ttVWtnRzRYcUdxMTFqbThwazhpZGdaVHBGNUpocnlBNE1BQmFFUXlITUJ3dXljbkdHc3pDcHBrMUlFMjZIbGplUl81WnROT1l5eGVjT2YyZS1FQUdraFhGQVEwOFpyVVlBZ0JXTGFoRVYtLXlPYmF6azdmOGoxWGI3VE5ZWDM?oc=5",
+          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
+          "title": "Riyadh sends biggest oil shipment through Hormuz since February conflict",
+          "summary": "Riyadh sends biggest oil shipment through Hormuz since February conflict AzerNews",
+          "source": "Google News: AzerNews",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBFazdLZjAzNGF3S0QtNWtyMFQzQ0RNbzBQTXF3cnp4QVg5SUQzWEhacEVXOV9YVGxXbmJLY1J4ZVdlQzJCZWg5TFJvSHQyS3JMZUJLOQ?oc=5",
           "category": "live_maritime_news",
-          "region": "panama",
-          "timestamp": "2026-07-02T23:22:49.000Z",
+          "region": "hormuz",
+          "timestamp": "2026-07-03T12:27:00.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
           "sourceQualityTier": "search",
-          "freshnessScore": 66,
-          "intelligenceScore": 71,
+          "freshnessScore": 88,
+          "intelligenceScore": 78,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 70,
-          "reviewedAt": "2026-07-03T17:10:23.230Z"
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
+        },
+        {
+          "id": "direct-suez-7d-12-aHR0cHM6Ly9uZXdz",
+          "title": "APM Terminals signs a 100% renewable energy agreement for its terminal at the Suez Canal",
+          "summary": "APM Terminals signs a 100% renewable energy agreement for its terminal at the Suez Canal El Estrecho Digital",
+          "source": "Google News: El Estrecho Digital",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNWU9GdDRRdGNRWUVDSjNlSXV5NDZjaXFRakgzRzNyVjJiV19iOHlGbFk0TUd4QjFrbXhTcmdFb1FMSk1kX05kcjR2OUdUQWh4ejdNMlBaeDVlYjBkcEJiSjh4d3JnOHhjZjhrd2wwSFlMWlJQenhOd2VwcGFmY3QxT2ZiRFRqUVVJZ0lwRUNQNzRXeC1icG5WV0paazItOVlBMlF2Y2g1MjYxNGlhVUVHRml4Q0FDeWhUdHJhQzQzTHZtbkZYY3VfQ29xX0lMdjYy?oc=5",
+          "category": "live_maritime_news",
+          "region": "suez",
+          "timestamp": "2026-07-02T00:12:35.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 45,
+          "intelligenceScore": 64,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "watch",
+          "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
+          "reviewScore": 63,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-hormuz-24h-8-aHR0cHM6Ly9uZXdz",
@@ -864,38 +843,17 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-hormuz-24h-14-aHR0cHM6Ly9uZXdz",
-          "title": "Oil Prices Retreat as Hormuz Reopens, but Supply Risks Persist",
-          "summary": "Oil Prices Retreat as Hormuz Reopens, but Supply Risks Persist IndraStra Global",
-          "source": "Google News: IndraStra Global",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPZjl3UXo4bkNqUW41SXE3TldiT1JrTE12Tmo1VjllbmNMTGE0VnlDRUdveEx4dGZsR0l4b2tHREFxWjA1TnBRZFotR1FZcUNzeGtaUlg4clF1VDlfajZqM3hHYVFfNk1xQU8yaGVSRlhZUXJFNEZ1N1hHb0xXTjBUUA?oc=5",
+          "id": "direct-panama-24h-6-aHR0cHM6Ly9uZXdz",
+          "title": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply",
+          "summary": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply EnergyNow",
+          "source": "Google News: EnergyNow",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQMkZGaVNycjBQQ2F5T0ZhaWJIbDZaOUJiTTdubV8zSWpUbTBRdG54dkxSXzR4S2ttVWtnRzRYcUdxMTFqbThwazhpZGdaVHBGNUpocnlBNE1BQmFFUXlITUJ3dXljbkdHc3pDcHBrMUlFMjZIbGplUl81WnROT1l5eGVjT2YyZS1FQUdraFhGQVEwOFpyVVlBZ0JXTGFoRVYtLXlPYmF6azdmOGoxWGI3VE5ZWDM?oc=5",
           "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-07-03T10:15:00.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
-        },
-        {
-          "id": "direct-bab-24h-8-aHR0cHM6Ly9uZXdz",
-          "title": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden",
-          "summary": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden The Indian Express",
-          "source": "Google News: The Indian Express",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOSmQyaUlKNG90U2FsYWR0dVZVU1hmX3VTS05TdGdBUmotaG8wR0k1UG1ySllFVEtWcXBfY0JFY0Zia3N0bE5CQnhpOHhOZUNXVHpKRXZXajEtRHo0dS1xUUYxdW4zY3RyRTNienRjSmFLUGJZRGhFZlp3U0llOFlLRVh1T3Qyek15Vnc4b2FscGRlSXZtN2pEOGRjdTNRcWJVbXVRS0RuWWhQRG93V21qNllVUGZ6TFZt0gG_AUFVX3lxTE9fTGY0eGM1V3VZT2VmcE1wR0IxNU9NSWtYVVQyWF9nUnA4Qjd2WTNiNUJ4X1VBQjVxbEdNRkZNNE11NWNCb2RPWmpDVU1tVU5KSUtQRjZwdS1jMXJDMTduOEYxaC1VSEZiTGdVZjY0cjN1Ykh2T3NQWmYzTXdteXNOMzdlYlJvWFJRTW5lVFkzX3ZIS3lDTWNTb1RRY1d4cVF1aGxqZ3RoQUJycjdTaEExWGNPMTFLUktTMTlfZFlr?oc=5",
-          "category": "live_maritime_news",
-          "region": "bab",
-          "timestamp": "2026-07-02T23:39:57.000Z",
+          "region": "panama",
+          "timestamp": "2026-07-02T23:22:49.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -906,7 +864,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-hormuz-publisher-2-aHR0cHM6Ly93d3cu",
@@ -927,7 +885,49 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
+        },
+        {
+          "id": "direct-bab-24h-8-aHR0cHM6Ly9uZXdz",
+          "title": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden",
+          "summary": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden The Indian Express",
+          "source": "Google News: The Indian Express",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOSmQyaUlKNG90U2FsYWR0dVZVU1hmX3VTS05TdGdBUmotaG8wR0k1UG1ySllFVEtWcXBfY0JFY0Zia3N0bE5CQnhpOHhOZUNXVHpKRXZXajEtRHo0dS1xUUYxdW4zY3RyRTNienRjSmFLUGJZRGhFZlp3U0llOFlLRVh1T3Qyek15Vnc4b2FscGRlSXZtN2pEOGRjdTNRcWJVbXVRS0RuWWhQRG93V21qNllVUGZ6TFZt0gG_AUFVX3lxTE9fTGY0eGM1V3VZT2VmcE1wR0IxNU9NSWtYVVQyWF9nUnA4Qjd2WTNiNUJ4X1VBQjVxbEdNRkZNNE11NWNCb2RPWmpDVU1tVU5KSUtQRjZwdS1jMXJDMTduOEYxaC1VSEZiTGdVZjY0cjN1Ykh2T3NQWmYzTXdteXNOMzdlYlJvWFJRTW5lVFkzX3ZIS3lDTWNTb1RRY1d4cVF1aGxqZ3RoQUJycjdTaEExWGNPMTFLUktTMTlfZFlr?oc=5",
+          "category": "live_maritime_news",
+          "region": "bab",
+          "timestamp": "2026-07-02T23:39:57.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 66,
+          "intelligenceScore": 71,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 70,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
+        },
+        {
+          "id": "direct-hormuz-24h-5-aHR0cHM6Ly9uZXdz",
+          "title": "Oil heads for fourth weekly loss as Strait of Hormuz shipping recovery erases war premium",
+          "summary": "Oil heads for fourth weekly loss as Strait of Hormuz shipping recovery erases war premium thenationalnews.com",
+          "source": "Google News: thenationalnews.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOc2V3QWRsMjI5ZnI2VlZyQkE2U193VFloUTFfaDFfcVhROC1fRVVXM1lwZTh6OEU0R1BQWnRGZVFRTldoX2dhT1g4eHo0cWtyem9kX1piQzBUQm5CbDQtaWs1YVd6S282Uk1wQUg2S2xieTROMHN2MGxvRWNQQXdCSUZVQlJSbTdiMFBhUTExVEhXcHV2bzZndWo1a05adnc4QjJlV2hyOGdKZkFUQlA2U25NZWZhNXNrZkZ3dmFtWEhtbDVLc2FYRDNJYlYtLXgzc0p1enlkRk9DR2xaWjMtaDZNQQ?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-07-03T09:53:33.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 78,
+          "intelligenceScore": 75,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 74,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
           "id": "direct-hormuz-24h-0-aHR0cHM6Ly9uZXdz-bab",
@@ -948,31 +948,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
-          "title": "Oil heads for fourth weekly loss as Strait of Hormuz shipping recovery erases war premium",
-          "summary": "Oil heads for fourth weekly loss as Strait of Hormuz shipping recovery erases war premium thenationalnews.com",
-          "source": "Google News: thenationalnews.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOc2V3QWRsMjI5ZnI2VlZyQkE2U193VFloUTFfaDFfcVhROC1fRVVXM1lwZTh6OEU0R1BQWnRGZVFRTldoX2dhT1g4eHo0cWtyem9kX1piQzBUQm5CbDQtaWs1YVd6S282Uk1wQUg2S2xieTROMHN2MGxvRWNQQXdCSUZVQlJSbTdiMFBhUTExVEhXcHV2bzZndWo1a05adnc4QjJlV2hyOGdKZkFUQlA2U25NZWZhNXNrZkZ3dmFtWEhtbDVLc2FYRDNJYlYtLXgzc0p1enlkRk9DR2xaWjMtaDZNQQ?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-07-03T09:53:33.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
-        },
-        {
-          "id": "direct-hormuz-24h-11-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
           "title": "Oil Flows Through Strait Of Hormuz Recover To 10 Million Barrels A Day As Prices Dip",
           "summary": "Oil Flows Through Strait Of Hormuz Recover To 10 Million Barrels A Day As Prices Dip Marine Insight",
           "source": "Google News: Marine Insight",
@@ -990,10 +969,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         },
         {
-          "id": "direct-hormuz-24h-9-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-10-aHR0cHM6Ly9uZXdz",
           "title": "Saudi Arabia Surges Oil Shipments Through Strait of Hormuz After US-Iran Deal, Data Shows",
           "summary": "Saudi Arabia Surges Oil Shipments Through Strait of Hormuz After US-Iran Deal, Data Shows کوردستان 24",
           "source": "Google News: کوردستان 24",
@@ -1011,7 +990,28 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-03T17:10:23.231Z"
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
+        },
+        {
+          "id": "direct-hormuz-24h-3-aHR0cHM6Ly9uZXdz",
+          "title": "Japan cuts gas in favour of coal as Hormuz disruption chokes LNG",
+          "summary": "Japan cuts gas in favour of coal as Hormuz disruption chokes LNG Mining Weekly",
+          "source": "Google News: Mining Weekly",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQRUhPWTFHRjA1VndORnhaY3MwTlpsMkFldUJXaWtyS2dXYm9uWHNKSTRZMGRucV9ESXFoUE5CanZaN2FMemllbnVacDUxWW5ZNHplWGZLS3F2MkhFdUdNQ2RoMVFPNFA5T1QwSWp4bUdodXFKOF9SRVN5SmNfZ3U0NUZIUzlYRWZTOHh0X09QbHhxZ0xDQXBaU1RzaE1CdF90Mm55SUxCWktDR0ZWOW5teWZB?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-07-03T08:03:00.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 78,
+          "intelligenceScore": 75,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 74,
+          "reviewedAt": "2026-07-03T17:40:22.281Z"
         }
       ],
       "hotspots": [
@@ -1022,8 +1022,8 @@
           "dailyTransits": 0,
           "avgWaitTime": "14 live source signals",
           "marketVolume": 21000000,
-          "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "riskLevel": "medium",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 14,
           "sourceCount": 14,
           "latestSource": "Google News: Lloyd's List",
@@ -1032,14 +1032,14 @@
           "aisSignalCount": 0,
           "confidenceScore": 84,
           "confidenceLabel": "Corroborated",
-          "riskSummary": "LOW because 14 current reports did not meet corroboration or operational-impact thresholds; latest source: Google News: Lloyd's List.",
+          "riskSummary": "MEDIUM from 14 current source-linked reports across 14 sources; latest source: Google News: Lloyd's List.",
           "riskDrivers": [
             "Google News: Lloyd's List: Hormuz contract disputes shaping up as huge issue for shipping and marine insurance",
             "Google News: GuruFocus: Hormuz Fee Risk Puts Global Energy Shipping Back in Focus",
             "Google News: Global Trade Magazine: Hormuz Flows are Rising, but don't Call it normal yet: What the US-Iran MoU really means for Global Shipping"
           ],
           "analysisBrief": {
-            "headline": "Strait of Hormuz: reports are being watched",
+            "headline": "Strait of Hormuz: route pressure is present",
             "impact": "Oil, LNG and Gulf tanker routes can face delays, rerouting pressure and higher war-risk costs.",
             "why": "Based on 14 reports across 14 sources. Main evidence: Google News: Lloyd's List: Hormuz contract disputes shaping up as huge issue for shipping and marine insurance | Google News: GuruFocus: Hormuz Fee Risk Puts Global Energy Shipping Back in Focus | Google News: Global Trade Magazine: Hormuz Flows are Rising, but don't Call it normal yet: What the US-Iran MoU really means for Global Shipping.",
             "watch": "Watch for official navigation warnings, confirmed transit flow, tanker diversions and independent closure or reopening reports.",
@@ -1055,7 +1055,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 280000000,
           "riskLevel": "high",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 4,
           "sourceCount": 4,
           "latestSource": "Google News: Asharq Al-Awsat English",
@@ -1087,7 +1087,7 @@
           "avgWaitTime": "8 live source signals",
           "marketVolume": 150000000,
           "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 8,
           "sourceCount": 8,
           "latestSource": "Google News: engine.online",
@@ -1116,30 +1116,30 @@
           "hotspot": "malacca",
           "activeVessels": 0,
           "dailyTransits": 0,
-          "avgWaitTime": "5 live source signals",
+          "avgWaitTime": "4 live source signals",
           "marketVolume": 500000000,
-          "riskLevel": "medium",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
-          "verifiedReports": 5,
-          "sourceCount": 5,
+          "riskLevel": "low",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
+          "verifiedReports": 4,
+          "sourceCount": 4,
           "latestSource": "Google News: IndexBox",
-          "signalCount": 5,
+          "signalCount": 4,
           "officialSignalCount": 0,
           "aisSignalCount": 0,
-          "confidenceScore": 80,
+          "confidenceScore": 76,
           "confidenceLabel": "Corroborated",
-          "riskSummary": "MEDIUM from 5 current source-linked reports across 5 sources; latest source: Google News: IndexBox.",
+          "riskSummary": "LOW because 4 current reports did not meet corroboration or operational-impact thresholds; latest source: Google News: IndexBox.",
           "riskDrivers": [
             "Google News: IndexBox: Singapore Port Container Throughput Rises 3% in May 2026 Despite Cargo and Bunker Decline - News and Statistics",
             "Google News: financialexpress.com: Malacca Strait spillover: How Hormuz turmoil is putting Asia’s busiest shipping route under pressure",
             "Google News: livemint.com: Strait of Malacca in the spotlight amid Hormuz tensions: Why it is crucial to global shipping"
           ],
           "analysisBrief": {
-            "headline": "Strait of Malacca: route pressure is present",
+            "headline": "Strait of Malacca: reports are being watched",
             "impact": "Dense tanker, container and bunker traffic can be affected by incidents around Malacca and Singapore Strait.",
-            "why": "Based on 5 reports across 5 sources. Main evidence: Google News: IndexBox: Singapore Port Container Throughput Rises 3% in May 2026 Despite Cargo and Bunker Decline - News and Statistics | Google News: financialexpress.com: Malacca Strait spillover: How Hormuz turmoil is putting Asia’s busiest shipping route under pressure | Google News: livemint.com: Strait of Malacca in the spotlight amid Hormuz tensions: Why it is crucial to global shipping.",
+            "why": "Based on 4 reports across 4 sources. Main evidence: Google News: IndexBox: Singapore Port Container Throughput Rises 3% in May 2026 Despite Cargo and Bunker Decline - News and Statistics | Google News: financialexpress.com: Malacca Strait spillover: How Hormuz turmoil is putting Asia’s busiest shipping route under pressure | Google News: livemint.com: Strait of Malacca in the spotlight amid Hormuz tensions: Why it is crucial to global shipping.",
             "watch": "Watch ReCAAP alerts, Singapore Strait incidents, port congestion and tanker-density changes.",
-            "sourceBasis": "5 current source-linked reports, 5 sources, 5 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
+            "sourceBasis": "4 current source-linked reports, 4 sources, 4 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
             "confidence": "Strong"
           }
         },
@@ -1151,7 +1151,7 @@
           "avgWaitTime": "1 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 1,
           "sourceCount": 1,
           "latestSource": "Google News: EnergyNow",
@@ -1181,7 +1181,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 0,
           "sourceCount": 4,
           "latestSource": "Taiwan Maritime and Port Bureau",
@@ -1211,7 +1211,7 @@
           "avgWaitTime": "2 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 2,
           "sourceCount": 2,
           "latestSource": "Google News: News On AIR",
@@ -1242,7 +1242,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 0,
           "sourceCount": 4,
           "latestSource": "Gibraltar Port Authority",
@@ -1272,7 +1272,7 @@
           "avgWaitTime": "4 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-03T17:10:23.220Z",
+          "updatedAt": "2026-07-03T17:40:22.269Z",
           "verifiedReports": 0,
           "sourceCount": 4,
           "latestSource": "South African Maritime Safety Authority",
@@ -1529,7 +1529,7 @@
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 68,
+          "confidence": 63,
           "observedAt": "2026-07-03T05:31:32.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
@@ -1549,20 +1549,6 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-2foipVFq2mMEXHKDW-QaaK",
-          "source": "Google News: Manifold Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNWDg0UTlLQnlHOHNCREQ2dF83Wmh0eVVhLUtTQjZZYUpjQmxJc1FyNlhmTFczUDRtVDB1UXhIZTVOOTQwQWRtcTliTTBrVXVEQkhDbkxSN3R4WjAwOTc3NlN1THhUMDY5U0xJdU1DSGNyTHBKVF9KdEpxQlpNUUtZUm5FYXZLZXNoWHYtNEZGVDJzcVZTMXNEbXkzXzNOYzQ?oc=5",
-          "title": "Three piracy incidents along Singapore Straits in last 20 days",
-          "summary": "Three piracy incidents along Singapore Straits in last 20 days Manifold Times",
-          "region": "malacca",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 56,
-          "observedAt": "2026-07-02T05:31:38.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
           "signalKey": "direct-live-80_0LhSDpo2ZHUoDGbiRho",
           "source": "Google News: Reuters",
           "sourceUrl": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNMG9oa3VPLW5oa2dhSDc5NXA3czBNYlVLR3lrdGprX2FpQ1VYOGxtNngweEJVVm52d0F0RmVuQXhfc0xWcWxjck9oUWN6S0NLRjhoSEkyTVN4R3Rod05JeWRPS1M0LUZtamZ6NlFDUGRmSnBxTTgxYUlZdkRjb2NaNmV3d2tKZkZ0ZEd4MmU3X19EZzhQdVlzTDM2ZDVfSjU1ZmFJZWF2QllXNkU?oc=5",
@@ -1573,34 +1559,6 @@
           "severity": "low",
           "confidence": 82,
           "observedAt": "2026-07-03T13:52:45.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-ImtyCCtf5hYp6cwemagvjy",
-          "source": "Google News: Ad-hoc-news.de",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQTGpWc2NISkNrMVZ2dXh4RG9COHd4OEpNMHJGWWdxZWtJOFl2eVJmX3A2SVFPcGxoeVpZTEpKaTQ0UUMyc0hFbWlKYTlaLWtHLVV3MDNQRkwyZ05RaEVWeWZTSXk4cDMwUVo3OFVNSlFrMlZKbjgwQUxXVjl1NzhOUXpIUmtGTTNuV2k0R2llVVIwSnU3R1A2ejZHQXRNSHJTRDNTRzM0bW9CaTE4MEZPX045WW42X0M5d1BlTUhQcVI4bndi?oc=5",
-          "title": "Canal Shipping Agencies outlines its role in Egypt's maritime trade",
-          "summary": "Canal Shipping Agencies outlines its role in Egypt's maritime trade Ad-hoc-news.de",
-          "region": "suez",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 56,
-          "observedAt": "2026-07-02T17:00:42.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-3hJ68gRgJXydVWzTYb1X2m",
-          "source": "gCaptain",
-          "sourceUrl": "https://gcaptain.com/china-urges-unimpeded-passage-of-hormuz-as-fee-chatter-mounts/",
-          "title": "China Urges ‘Unimpeded Passage’ of Hormuz as Fee Chatter Mounts",
-          "summary": "China called for the unhindered flow of shipping through the Strait of Hormuz, comments that come as leading European powers are apparently accepting that vessels will have to pay fees to Iran and Oman.",
-          "region": "hormuz",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-07-03T12:54:43.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1619,16 +1577,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-8reGAYz0yCiL6Ca2BsQv4h",
-          "source": "Google News: AzerNews",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBFazdLZjAzNGF3S0QtNWtyMFQzQ0RNbzBQTXF3cnp4QVg5SUQzWEhacEVXOV9YVGxXbmJLY1J4ZVdlQzJCZWg5TFJvSHQyS3JMZUJLOQ?oc=5",
-          "title": "Riyadh sends biggest oil shipment through Hormuz since February conflict",
-          "summary": "Riyadh sends biggest oil shipment through Hormuz since February conflict AzerNews",
+          "signalKey": "direct-live-3hJ68gRgJXydVWzTYb1X2m",
+          "source": "gCaptain",
+          "sourceUrl": "https://gcaptain.com/china-urges-unimpeded-passage-of-hormuz-as-fee-chatter-mounts/",
+          "title": "China Urges ‘Unimpeded Passage’ of Hormuz as Fee Chatter Mounts",
+          "summary": "China called for the unhindered flow of shipping through the Strait of Hormuz, comments that come as leading European powers are apparently accepting that vessels will have to pay fees to Iran and Oman.",
           "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 71,
-          "observedAt": "2026-07-03T12:27:00.000Z",
+          "confidence": 82,
+          "observedAt": "2026-07-03T12:54:43.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1647,16 +1605,30 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-j2xLZ9GO7rzVcd3YE2A6XK",
-          "source": "Google News: EnergyNow",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQMkZGaVNycjBQQ2F5T0ZhaWJIbDZaOUJiTTdubV8zSWpUbTBRdG54dkxSXzR4S2ttVWtnRzRYcUdxMTFqbThwazhpZGdaVHBGNUpocnlBNE1BQmFFUXlITUJ3dXljbkdHc3pDcHBrMUlFMjZIbGplUl81WnROT1l5eGVjT2YyZS1FQUdraFhGQVEwOFpyVVlBZ0JXTGFoRVYtLXlPYmF6azdmOGoxWGI3VE5ZWDM?oc=5",
-          "title": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply",
-          "summary": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply EnergyNow",
-          "region": "panama",
+          "signalKey": "direct-live-8reGAYz0yCiL6Ca2BsQv4h",
+          "source": "Google News: AzerNews",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiVEFVX3lxTFBFazdLZjAzNGF3S0QtNWtyMFQzQ0RNbzBQTXF3cnp4QVg5SUQzWEhacEVXOV9YVGxXbmJLY1J4ZVdlQzJCZWg5TFJvSHQyS3JMZUJLOQ?oc=5",
+          "title": "Riyadh sends biggest oil shipment through Hormuz since February conflict",
+          "summary": "Riyadh sends biggest oil shipment through Hormuz since February conflict AzerNews",
+          "region": "hormuz",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 63,
-          "observedAt": "2026-07-02T23:22:49.000Z",
+          "confidence": 71,
+          "observedAt": "2026-07-03T12:27:00.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-7vaSYPMElKP4ues5D3BSgJ",
+          "source": "Google News: El Estrecho Digital",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNWU9GdDRRdGNRWUVDSjNlSXV5NDZjaXFRakgzRzNyVjJiV19iOHlGbFk0TUd4QjFrbXhTcmdFb1FMSk1kX05kcjR2OUdUQWh4ejdNMlBaeDVlYjBkcEJiSjh4d3JnOHhjZjhrd2wwSFlMWlJQenhOd2VwcGFmY3QxT2ZiRFRqUVVJZ0lwRUNQNzRXeC1icG5WV0paazItOVlBMlF2Y2g1MjYxNGlhVUVHRml4Q0FDeWhUdHJhQzQzTHZtbkZYY3VfQ29xX0lMdjYy?oc=5",
+          "title": "APM Terminals signs a 100% renewable energy agreement for its terminal at the Suez Canal",
+          "summary": "APM Terminals signs a 100% renewable energy agreement for its terminal at the Suez Canal El Estrecho Digital",
+          "region": "suez",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 56,
+          "observedAt": "2026-07-02T00:12:35.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1675,30 +1647,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-JdW6ykUOVAO2DkPsS_9rNx",
-          "source": "Google News: IndraStra Global",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPZjl3UXo4bkNqUW41SXE3TldiT1JrTE12Tmo1VjllbmNMTGE0VnlDRUdveEx4dGZsR0l4b2tHREFxWjA1TnBRZFotR1FZcUNzeGtaUlg4clF1VDlfajZqM3hHYVFfNk1xQU8yaGVSRlhZUXJFNEZ1N1hHb0xXTjBUUA?oc=5",
-          "title": "Oil Prices Retreat as Hormuz Reopens, but Supply Risks Persist",
-          "summary": "Oil Prices Retreat as Hormuz Reopens, but Supply Risks Persist IndraStra Global",
-          "region": "hormuz",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 68,
-          "observedAt": "2026-07-03T10:15:00.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-2Bhy8LB5Ac1FmSFAEpO-yT",
-          "source": "Google News: The Indian Express",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOSmQyaUlKNG90U2FsYWR0dVZVU1hmX3VTS05TdGdBUmotaG8wR0k1UG1ySllFVEtWcXBfY0JFY0Zia3N0bE5CQnhpOHhOZUNXVHpKRXZXajEtRHo0dS1xUUYxdW4zY3RyRTNienRjSmFLUGJZRGhFZlp3U0llOFlLRVh1T3Qyek15Vnc4b2FscGRlSXZtN2pEOGRjdTNRcWJVbXVRS0RuWWhQRG93V21qNllVUGZ6TFZt0gG_AUFVX3lxTE9fTGY0eGM1V3VZT2VmcE1wR0IxNU9NSWtYVVQyWF9nUnA4Qjd2WTNiNUJ4X1VBQjVxbEdNRkZNNE11NWNCb2RPWmpDVU1tVU5KSUtQRjZwdS1jMXJDMTduOEYxaC1VSEZiTGdVZjY0cjN1Ykh2T3NQWmYzTXdteXNOMzdlYlJvWFJRTW5lVFkzX3ZIS3lDTWNTb1RRY1d4cVF1aGxqZ3RoQUJycjdTaEExWGNPMTFLUktTMTlfZFlr?oc=5",
-          "title": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden",
-          "summary": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden The Indian Express",
-          "region": "bab",
+          "signalKey": "direct-live-j2xLZ9GO7rzVcd3YE2A6XK",
+          "source": "Google News: EnergyNow",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQMkZGaVNycjBQQ2F5T0ZhaWJIbDZaOUJiTTdubV8zSWpUbTBRdG54dkxSXzR4S2ttVWtnRzRYcUdxMTFqbThwazhpZGdaVHBGNUpocnlBNE1BQmFFUXlITUJ3dXljbkdHc3pDcHBrMUlFMjZIbGplUl81WnROT1l5eGVjT2YyZS1FQUdraFhGQVEwOFpyVVlBZ0JXTGFoRVYtLXlPYmF6azdmOGoxWGI3VE5ZWDM?oc=5",
+          "title": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply",
+          "summary": "European Buyers Hold Talks to Ship Canadian LNG via Panama Canal to Diversify Supply EnergyNow",
+          "region": "panama",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 63,
-          "observedAt": "2026-07-02T23:39:57.000Z",
+          "observedAt": "2026-07-02T23:22:49.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1717,16 +1675,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-IIQBS4K9lZOvSA239-mLkI",
-          "source": "Google News: EnergyNow.com",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNT1RvZTBldy1KRkRoR0hMYUJHVFRxd2w3R19DdzJfa3pqbHQ4TGpaWUdsTUx1LU5Wb1BPbmJKWUs4b2pnUXgtTVZ5ZlhhSXNUVG5Bek9FV3pwbURtd2JNZWdQUTBuaENyaVNVSVc4aE40RlQwYnBHZ3BlZmZENWZUN2hSeVlVQzhXaFE2S2xCeFk3SVVUZWVOZU9OSVFvd2dHMEplT3VwQQ?oc=5",
-          "title": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk",
-          "summary": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk EnergyNow.com",
+          "signalKey": "direct-live-2Bhy8LB5Ac1FmSFAEpO-yT",
+          "source": "Google News: The Indian Express",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOSmQyaUlKNG90U2FsYWR0dVZVU1hmX3VTS05TdGdBUmotaG8wR0k1UG1ySllFVEtWcXBfY0JFY0Zia3N0bE5CQnhpOHhOZUNXVHpKRXZXajEtRHo0dS1xUUYxdW4zY3RyRTNienRjSmFLUGJZRGhFZlp3U0llOFlLRVh1T3Qyek15Vnc4b2FscGRlSXZtN2pEOGRjdTNRcWJVbXVRS0RuWWhQRG93V21qNllVUGZ6TFZt0gG_AUFVX3lxTE9fTGY0eGM1V3VZT2VmcE1wR0IxNU9NSWtYVVQyWF9nUnA4Qjd2WTNiNUJ4X1VBQjVxbEdNRkZNNE11NWNCb2RPWmpDVU1tVU5KSUtQRjZwdS1jMXJDMTduOEYxaC1VSEZiTGdVZjY0cjN1Ykh2T3NQWmYzTXdteXNOMzdlYlJvWFJRTW5lVFkzX3ZIS3lDTWNTb1RRY1d4cVF1aGxqZ3RoQUJycjdTaEExWGNPMTFLUktTMTlfZFlr?oc=5",
+          "title": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden",
+          "summary": "INS Trikand foils piracy attempt on merchant vessel in Gulf of Aden The Indian Express",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 63,
-          "observedAt": "2026-07-02T23:19:57.000Z",
+          "observedAt": "2026-07-02T23:39:57.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1741,6 +1699,20 @@
           "severity": "low",
           "confidence": 68,
           "observedAt": "2026-07-03T09:53:33.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-IIQBS4K9lZOvSA239-mLkI",
+          "source": "Google News: EnergyNow.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNT1RvZTBldy1KRkRoR0hMYUJHVFRxd2w3R19DdzJfa3pqbHQ4TGpaWUdsTUx1LU5Wb1BPbmJKWUs4b2pnUXgtTVZ5ZlhhSXNUVG5Bek9FV3pwbURtd2JNZWdQUTBuaENyaVNVSVc4aE40RlQwYnBHZ3BlZmZENWZUN2hSeVlVQzhXaFE2S2xCeFk3SVVUZWVOZU9OSVFvd2dHMEplT3VwQQ?oc=5",
+          "title": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk",
+          "summary": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk EnergyNow.com",
+          "region": "bab",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 63,
+          "observedAt": "2026-07-02T23:19:57.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1773,6 +1745,20 @@
           "sourceAuditSources": []
         },
         {
+          "signalKey": "direct-live-ZPvENNepAki5x_ZDHLCEr2",
+          "source": "Google News: Mining Weekly",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQRUhPWTFHRjA1VndORnhaY3MwTlpsMkFldUJXaWtyS2dXYm9uWHNKSTRZMGRucV9ESXFoUE5CanZaN2FMemllbnVacDUxWW5ZNHplWGZLS3F2MkhFdUdNQ2RoMVFPNFA5T1QwSWp4bUdodXFKOF9SRVN5SmNfZ3U0NUZIUzlYRWZTOHh0X09QbHhxZ0xDQXBaU1RzaE1CdF90Mm55SUxCWktDR0ZWOW5teWZB?oc=5",
+          "title": "Japan cuts gas in favour of coal as Hormuz disruption chokes LNG",
+          "summary": "Japan cuts gas in favour of coal as Hormuz disruption chokes LNG Mining Weekly",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 68,
+          "observedAt": "2026-07-03T08:03:00.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
           "signalKey": "direct-source-sweep-taiwan-0-2x7OzhRGGkkr",
           "source": "Taiwan Maritime and Port Bureau",
           "sourceUrl": "https://www.motcmpb.gov.tw/RSS",
@@ -1782,7 +1768,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -1801,7 +1787,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -1820,7 +1806,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -1839,7 +1825,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Taiwan Maritime and Port Bureau",
@@ -1858,7 +1844,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Gibraltar Port Authority",
@@ -1877,7 +1863,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Gibraltar Port Authority",
@@ -1896,7 +1882,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Gibraltar Port Authority",
@@ -1915,7 +1901,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "Gibraltar Port Authority",
@@ -1934,7 +1920,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -1953,7 +1939,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -1972,7 +1958,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -1991,7 +1977,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-03T17:10:23.220Z",
+          "observedAt": "2026-07-03T17:40:22.269Z",
           "sourceAuditCount": 4,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2001,19 +1987,19 @@
           ]
         }
       ],
-      "timestamp": "2026-07-03T17:10:23.220Z",
+      "timestamp": "2026-07-03T17:40:22.269Z",
       "count": {
         "articles": 48,
         "hotspots": 9,
-        "signals": 46
+        "signals": 45
       },
       "qualityAudit": {
         "status": "healthy",
         "sourceMix": {
-          "official": 4,
+          "official": 5,
           "tierOne": 1,
           "trade": 9,
-          "search": 34,
+          "search": 33,
           "general": 0,
           "watch": 0
         },
@@ -2056,7 +2042,7 @@
             "score": 94,
             "status": "strong",
             "missing": [],
-            "sourceCount": 5,
+            "sourceCount": 4,
             "latestNewsAt": "2026-07-03T08:30:00.000Z",
             "latestSignalAt": "2026-07-03T08:30:00.000Z"
           },
@@ -2080,7 +2066,7 @@
             ],
             "sourceCount": 4,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-07-03T17:10:23.220Z"
+            "latestSignalAt": "2026-07-03T17:40:22.269Z"
           },
           {
             "hotspot": "turkish",
@@ -2100,7 +2086,7 @@
             ],
             "sourceCount": 4,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-07-03T17:10:23.220Z"
+            "latestSignalAt": "2026-07-03T17:40:22.269Z"
           },
           {
             "hotspot": "cape",
@@ -2111,7 +2097,7 @@
             ],
             "sourceCount": 4,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-07-03T17:10:23.220Z"
+            "latestSignalAt": "2026-07-03T17:40:22.269Z"
           }
         ],
         "recommendations": [
@@ -2125,7 +2111,7 @@
       "source": "VesselSurge direct source sweep",
       "cacheControl": "public, s-maxage=120, stale-while-revalidate=300",
       "cached": true,
-      "generatedAt": "2026-07-03T17:10:23.220Z",
+      "generatedAt": "2026-07-03T17:40:22.269Z",
       "stale": false
     }
   }
