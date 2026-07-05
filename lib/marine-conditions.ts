@@ -1,5 +1,5 @@
 export type HotspotMarinePoint = {
-  id: 'hormuz' | 'bab' | 'suez' | 'malacca' | 'panama' | 'taiwan' | 'turkish' | 'gibraltar' | 'cape'
+  id: 'hormuz' | 'bab' | 'suez' | 'malacca' | 'panama' | 'taiwan' | 'turkish' | 'gibraltar' | 'cape' | 'stockholm'
   name: string
   latitude: number
   longitude: number
@@ -27,6 +27,7 @@ export const HOTSPOT_MARINE_POINTS: HotspotMarinePoint[] = [
   { id: 'bab', name: 'Bab el-Mandeb', latitude: 12.65, longitude: 43.32 },
   { id: 'suez', name: 'Suez Canal approaches', latitude: 29.95, longitude: 32.58 },
   { id: 'malacca', name: 'Strait of Malacca', latitude: 2.45, longitude: 102.15 },
+  { id: "stockholm", name: "Stockholm Archipelago", latitude: 59.33, longitude: 18.07 },
   { id: 'panama', name: 'Panama Canal approaches', latitude: 9.08, longitude: -79.68 },
   { id: 'taiwan', name: 'Taiwan Strait', latitude: 24.4, longitude: 120.8 },
   { id: 'turkish', name: 'Turkish Straits', latitude: 41.08, longitude: 29.05 },
