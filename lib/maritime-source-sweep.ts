@@ -18,40 +18,50 @@ function uniqueAuditSources(sources: SourceSweepAuditSource[]) {
 }
 
 export function sourceSweepAuditSourcesForRegion(region: string): SourceSweepAuditSource[] {
-  const officialSource = officialMaritimeWatchSourceForRegion(region)
+  const officialSources = OFFICIAL_MARITIME_WATCH_SOURCES.filter((source) => source.regionHint === region)
+    .map((source) => ({
+      source: source.source,
+      url: source.url,
+      layer: 'official' as const,
+    }))
+
   const feeds = MARITIME_SEARCH_FEEDS.filter((feed) => feed.regionHint === region)
   const recentSearch = feeds.find((feed) => feed.source.startsWith('Google News 48h Search:'))
   const tradeSearch = feeds.find((feed) => /trade-source sweep/i.test(feed.source))
   const tierOneSearch = feeds.find((feed) => /Tier-1/i.test(feed.source))
   const generalSearch = feeds.find((feed) => feed.source.startsWith('Bing News Search:'))
 
-  return uniqueAuditSources([
-    ...(officialSource ? [{
-      source: officialSource.source,
-      url: officialSource.url,
-      layer: 'official' as const,
-    }] : []),
-    ...(recentSearch ? [{
+  const layers = []
+  if (recentSearch) {
+    layers.push({
       source: recentSearch.source,
       url: recentSearch.url,
       layer: 'recent-search' as const,
-    }] : []),
-    ...(tradeSearch ? [{
+    })
+  }
+  if (tradeSearch) {
+    layers.push({
       source: tradeSearch.source,
       url: tradeSearch.url,
       layer: 'trade-search' as const,
-    }] : []),
-    ...(tierOneSearch ? [{
+    })
+  }
+  if (tierOneSearch) {
+    layers.push({
       source: tierOneSearch.source,
       url: tierOneSearch.url,
       layer: 'tier-one-search' as const,
-    }] : []),
-    ...(generalSearch ? [{
+    })
+  }
+  if (generalSearch) {
+    layers.push({
       source: generalSearch.source,
       url: generalSearch.url,
       layer: 'search' as const,
-    }] : []),
-  ]).slice(0, 4)
+    })
+  }
+
+  return [...officialSources, ...layers]
 }
 
 export function sourceSweepSummary(routeName: string, auditSources: SourceSweepAuditSource[]) {
