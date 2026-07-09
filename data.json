@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-09T18:51:46.256Z",
+  "generatedAt": "2026-07-09T19:21:49.865Z",
   "cacheSource": "redis-kv",
   "payload": {
     "success": true,
@@ -18,34 +18,13 @@
           "sourceQualityLabel": "Tier-1 newsroom",
           "sourceQualityScore": 92,
           "sourceQualityTier": "tierOne",
-          "freshnessScore": 100,
-          "intelligenceScore": 96,
+          "freshnessScore": 88,
+          "intelligenceScore": 92,
           "derivedFrom": "trusted_publisher_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 96/100 review score, Tier-1 newsroom, route evidence confirmed.",
-          "reviewScore": 96,
-          "reviewedAt": "2026-07-09T18:51:46.262Z"
-        },
-        {
-          "id": "direct-bab-24h-1-aHR0cHM6Ly9uZXdz",
-          "title": "Second Maersk service to transit Red Sea as Middle East war resumes",
-          "summary": "Second Maersk service to transit Red Sea as Middle East war resumes Journal of Commerce",
-          "source": "Google News: Journal of Commerce",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ1NUWm5RaHlYcmRkUXdZN0J5YUtWNEhoUV9BQURFejRuSTdrd3l2dTY0VlNYMGg0MU5nSlpYNzc1d1JfSnhROVFBX2kxR1hsNVBlOXpwek9KSjR4N2c5X2FOSnU2cUI1WDBPNHF0R1NVYk0zNHBEVWFmZjI1X2hLLUVsUm84Qk1CUjloTDhaZV9iNlkyVG1JWVF5ZUpzRndBOE9FMUlB?oc=5",
-          "category": "live_maritime_news",
-          "region": "bab",
-          "timestamp": "2026-07-09T16:17:00.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
-          "freshnessScore": 88,
-          "intelligenceScore": 86,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.262Z"
+          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
+          "reviewScore": 92,
+          "reviewedAt": "2026-07-09T19:21:49.869Z"
         },
         {
           "id": "direct-suez-24h-5-aHR0cHM6Ly9uZXdz",
@@ -66,7 +45,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.262Z"
+          "reviewedAt": "2026-07-09T19:21:49.870Z"
         },
         {
           "id": "direct-malacca-24h-1-aHR0cHM6Ly9uZXdz",
@@ -87,10 +66,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-07-09T18:51:46.262Z"
+          "reviewedAt": "2026-07-09T19:21:49.870Z"
         },
         {
-          "id": "direct-panama-24h-1-aHR0cHM6Ly9uZXdz",
+          "id": "direct-panama-24h-2-aHR0cHM6Ly9uZXdz",
           "title": "Panama Canal, Port Houston renew 2003 cooperation pact",
           "summary": "Panama Canal, Port Houston renew 2003 cooperation pact Port Technology",
           "source": "Google News: Port Technology",
@@ -108,7 +87,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 82,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.870Z"
         },
         {
           "id": "direct-taiwan-24h-0-aHR0cHM6Ly9uZXdz",
@@ -129,7 +108,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.870Z"
         },
         {
           "id": "direct-turkish-24h-0-aHR0cHM6Ly9uZXdz",
@@ -150,7 +129,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-gibraltar-24h-2-aHR0cHM6Ly9uZXdz",
@@ -171,7 +150,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-cape-0-U291dGggQWZyaW",
@@ -181,7 +160,7 @@
           "sourceUrl": "https://www.samsa.org.za/Pages/Notices.aspx",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -192,10 +171,10 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-hormuz-24h-6-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-5-aHR0cHM6Ly9uZXdz",
           "title": "U.S., Iran exchange airstrikes as Hormuz shipping disruptions deepen",
           "summary": "U.S., Iran exchange airstrikes as Hormuz shipping disruptions deepen Oil & Gas 360",
           "source": "Google News: Oil & Gas 360",
@@ -213,31 +192,31 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-publisher-3-aHR0cHM6Ly9jb250",
-          "title": "Mombasa's next test isn't containers it's fuel",
-          "summary": "Kenya's port has spent two years converting Red Sea disruption into permanent market share. Rwanda's tenfold fuel-volume increase now asks whether that operational discipline extends beyond boxes to barrels. The post Mombasa's next test isn't containers it's fuel appeared first on Container News .",
-          "source": "Container News",
-          "sourceUrl": "https://container-news.com/mombasas-next-test-isnt-containers-its-fuel/",
+          "id": "direct-bab-24h-1-aHR0cHM6Ly9uZXdz",
+          "title": "Second Maersk service to transit Red Sea as Middle East war resumes",
+          "summary": "Second Maersk service to transit Red Sea as Middle East war resumes Journal of Commerce",
+          "source": "Google News: Journal of Commerce",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ1NUWm5RaHlYcmRkUXdZN0J5YUtWNEhoUV9BQURFejRuSTdrd3l2dTY0VlNYMGg0MU5nSlpYNzc1d1JfSnhROVFBX2kxR1hsNVBlOXpwek9KSjR4N2c5X2FOSnU2cUI1WDBPNHF0R1NVYk0zNHBEVWFmZjI1X2hLLUVsUm84Qk1CUjloTDhaZV9iNlkyVG1JWVF5ZUpzRndBOE9FMUlB?oc=5",
           "category": "live_maritime_news",
           "region": "bab",
-          "timestamp": "2026-07-09T15:00:07.000Z",
+          "timestamp": "2026-07-09T16:17:00.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Maritime trade source",
           "sourceQualityScore": 78,
           "sourceQualityTier": "trade",
           "freshnessScore": 88,
           "intelligenceScore": 86,
-          "derivedFrom": "trusted_publisher_rss",
+          "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-suez-7d-11-aHR0cHM6Ly9uZXdz",
+          "id": "direct-suez-24h-1-aHR0cHM6Ly9uZXdz",
           "title": "Maersk Resumes Suez Canal Route From Middle East To US",
           "summary": "Maersk Resumes Suez Canal Route From Middle East To US Marine News Magazine",
           "source": "Google News: Marine News Magazine",
@@ -255,7 +234,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.263Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-malacca-24h-5-aHR0cHM6Ly9uZXdz",
@@ -276,10 +255,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-panama-24h-2-aHR0cHM6Ly9uZXdz",
+          "id": "direct-panama-24h-4-aHR0cHM6Ly9uZXdz",
           "title": "The Panama Canal and the Port of Houston Renew a Strategic Cooperation Agreement",
           "summary": "The Panama Canal and the Port of Houston Renew a Strategic Cooperation Agreement Autoridad del Canal de Panamá",
           "source": "Google News: Autoridad del Canal de Panamá",
@@ -297,7 +276,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-taiwan-0-VGFpd2FuIE1hcm",
@@ -307,7 +286,7 @@
           "sourceUrl": "https://www.motcmpb.gov.tw/RSS",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -318,7 +297,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-turkish-0-VHVya2lzaCBEaX",
@@ -328,7 +307,7 @@
           "sourceUrl": "https://www.kiyiemniyeti.gov.tr/strait_traffic?lang=2",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -339,7 +318,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-gibraltar-24h-4-aHR0cHM6Ly9uZXdz",
@@ -360,7 +339,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-cape-1-R29vZ2xlIE5ld3",
@@ -370,7 +349,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -381,10 +360,10 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-hormuz-24h-5-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-4-aHR0cHM6Ly9uZXdz",
           "title": "Hormuz tanker traffic grinds to a halt",
           "summary": "Hormuz tanker traffic grinds to a halt Washington Examiner",
           "source": "Google News: Washington Examiner",
@@ -402,28 +381,28 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-24h-5-aHR0cHM6Ly9uZXdz",
-          "title": "Maersk deepens Red Sea return with MECL shift",
-          "summary": "Maersk deepens Red Sea return with MECL shift Seatrade Maritime News",
-          "source": "Google News: Seatrade Maritime News",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQZEp4UEFJZ1ZWUUlFT2dEcEhiOWFENGViVUNLczdHUFpfdFVLUERKWm0zSXJ6RVFwSUxyZnp6ajJqN1RMVG1Rb2xNT0lOQ1h5VzVqWnAxQkNwNnpoVzFhNDhwLVhXQ1YzV1NkQ1l5WFRXZTVPUHlXNXRvZDJRM05jUDNzdHdxNzZyNGh5d2pOY3AwbVNy?oc=5",
+          "id": "direct-bab-24h-4-aHR0cHM6Ly9uZXdz",
+          "title": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk",
+          "summary": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk EnergyNow",
+          "source": "Google News: EnergyNow",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOeFJUdEstYWRWaXFweFNEbFNDZ3BhcXh6YndhZVg1QXJnbXFFSmhIbGQyLUpySHc5c2xyZUtEMGdIeWh4S1puZDBBWllGNVk3ZzhycHVrekMtaE9hZkF2VmRXbjJDWEp6Wl9QMUtqcjRqQ3dtdlUtbjI1dGlzTXVraVVCMUR2c0psMnZRcWhRVWhUa2Z1VW9TM0FBMGpnMmZYbHNVMTVn?oc=5",
           "category": "live_maritime_news",
           "region": "bab",
-          "timestamp": "2026-07-09T14:47:52.000Z",
+          "timestamp": "2026-07-09T15:18:05.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
           "freshnessScore": 88,
-          "intelligenceScore": 86,
+          "intelligenceScore": 78,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-suez-publisher-1-aHR0cHM6Ly93d3cu",
@@ -444,7 +423,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-malacca-7d-8-aHR0cHM6Ly9uZXdz",
@@ -465,7 +444,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-taiwan-1-R29vZ2xlIE5ld3",
@@ -475,7 +454,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Kaohsiung%20port%22%20OR%20%22Keelung%20port%22%20OR%20%22Taiwan%20ports%22)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20maritime%20OR%20%22port%20operations%22%20OR%20%22naval%20exercise%22%20OR%20warning%20OR%20disruption)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -486,7 +465,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-turkish-1-R29vZ2xlIE5ld3",
@@ -496,7 +475,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Bosporus%22%20OR%20%22Bosphorus%22%20OR%20%22Dardanelles%22%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22)%20(%22vessel%20traffic%22%20OR%20shipping%20OR%20tanker%20OR%20transit%20OR%20fog%20OR%20closure%20OR%20suspension%20OR%20delay)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -507,7 +486,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-gibraltar-7d-3-aHR0cHM6Ly9uZXdz",
@@ -528,7 +507,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-cape-2-R29vZ2xlIE5ld3",
@@ -538,7 +517,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -549,7 +528,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-hormuz-24h-1-aHR0cHM6Ly9uZXdz",
@@ -570,16 +549,37 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-24h-4-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-publisher-3-aHR0cHM6Ly9jb250",
+          "title": "Mombasa's next test isn't containers it's fuel",
+          "summary": "Kenya's port has spent two years converting Red Sea disruption into permanent market share. Rwanda's tenfold fuel-volume increase now asks whether that operational discipline extends beyond boxes to barrels. The post Mombasa's next test isn't containers it's fuel appeared first on Container News .",
+          "source": "Container News",
+          "sourceUrl": "https://container-news.com/mombasas-next-test-isnt-containers-its-fuel/",
+          "category": "live_maritime_news",
+          "region": "bab",
+          "timestamp": "2026-07-09T15:00:07.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
+          "freshnessScore": 88,
+          "intelligenceScore": 86,
+          "derivedFrom": "trusted_publisher_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-bab-24h-8-aHR0cHM6Ly9uZXdz-suez",
           "title": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal",
           "summary": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal gCaptain",
           "source": "Google News: gCaptain",
           "sourceUrl": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNVFZpSDh1ZFg4MTlWVi1JLXZ6OWlxVkNjRWJNWmlRMmtJQTJoLVJ3RVg4Z3ZtTElLNVJpZnN4VGd6b3o4Ty14T29QRmV3Sy0zek93b1BfR2dkSUVDdHNVaU80dG90VV9wUlJRcWpaZGpxMFZJempIWXBZejFRaU9DLTY0enRvUzlwY25RcDkzZTlvZw?oc=5",
           "category": "live_maritime_news",
-          "region": "bab",
+          "region": "suez",
           "timestamp": "2026-07-09T14:45:55.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Maritime trade source",
@@ -591,28 +591,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-bab-publisher-5-aHR0cHM6Ly9nY2Fw-suez",
-          "title": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal",
-          "summary": "Maersk is expanding its gradual return to the Suez Canal, announcing that its MECL service linking India, the Middle East and the U.S. East Coast will once again transit the...",
-          "source": "gCaptain",
-          "sourceUrl": "https://gcaptain.com/maersk-expands-red-sea-return-with-mecl-service-through-suez-canal/",
-          "category": "live_maritime_news",
-          "region": "suez",
-          "timestamp": "2026-07-09T14:07:58.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
-          "freshnessScore": 88,
-          "intelligenceScore": 86,
-          "derivedFrom": "trusted_publisher_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-malacca-0-UmVDQUFQIElTQy",
@@ -622,7 +601,7 @@
           "sourceUrl": "https://www.recaap.org/alerts",
           "category": "source_sweep",
           "region": "malacca",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -633,7 +612,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-panama-7d-5-aHR0cHM6Ly9uZXdz",
@@ -654,7 +633,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-taiwan-2-R29vZ2xlIE5ld3",
@@ -664,7 +643,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20%22Taiwan%20ports%22%20OR%20Kaohsiung%20OR%20Keelung)%20(shipping%20OR%20vessel%20OR%20cargo%20OR%20container%20OR%20port%20OR%20naval%20OR%20maritime%20OR%20disruption)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -675,7 +654,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-turkish-2-R29vZ2xlIE5ld3",
@@ -685,7 +664,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(Bosporus%20OR%20Bosphorus%20OR%20Dardanelles%20OR%20%22Turkish%20Straits%22%20OR%20%22Istanbul%20Strait%22%20OR%20%22Canakkale%20Strait%22)%20(shipping%20OR%20tanker%20OR%20vessel%20OR%20transit%20OR%20traffic%20OR%20closure%20OR%20delay%20OR%20Black%20Sea)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -696,7 +675,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-gibraltar-0-R2licmFsdGFyIF",
@@ -706,7 +685,7 @@
           "sourceUrl": "https://www.gibraltarport.com/port-information/vessel-traffic-services",
           "category": "source_sweep",
           "region": "gibraltar",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -717,7 +696,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-cape-3-R29vZ2xlIE5ld3",
@@ -727,7 +706,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -738,7 +717,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-hormuz-publisher-1-aHR0cHM6Ly9nY2Fw",
@@ -759,38 +738,38 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-publisher-0-aHR0cHM6Ly93d3cu",
+          "id": "direct-bab-24h-6-aHR0cHM6Ly9uZXdz",
           "title": "Maersk deepens Red Sea return with MECL shift",
-          "summary": "Will it be second time lucky for Maersk's bid to bring MECL back to shorter, faster Red Sea route?",
-          "source": "Seatrade Maritime News",
-          "sourceUrl": "https://www.seatrade-maritime.com/containers/maersk-deepens-red-sea-return-with-mecl-shift",
+          "summary": "Maersk deepens Red Sea return with MECL shift Seatrade Maritime News",
+          "source": "Google News: Seatrade Maritime News",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQZEp4UEFJZ1ZWUUlFT2dEcEhiOWFENGViVUNLczdHUFpfdFVLUERKWm0zSXJ6RVFwSUxyZnp6ajJqN1RMVG1Rb2xNT0lOQ1h5VzVqWnAxQkNwNnpoVzFhNDhwLVhXQ1YzV1NkQ1l5WFRXZTVPUHlXNXRvZDJRM05jUDNzdHdxNzZyNGh5d2pOY3AwbVNy?oc=5",
           "category": "live_maritime_news",
           "region": "bab",
-          "timestamp": "2026-07-09T14:35:10.000Z",
+          "timestamp": "2026-07-09T14:47:52.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Maritime trade source",
           "sourceQualityScore": 78,
           "sourceQualityTier": "trade",
           "freshnessScore": 88,
           "intelligenceScore": 86,
-          "derivedFrom": "trusted_publisher_rss",
+          "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-publisher-5-aHR0cHM6Ly9jb250-suez",
-          "title": "Maersk returns MECL service to Suez Canal route",
-          "summary": "Maersk has announced that its MECL service will return to the trans-Suez route via the Red Sea, following the successful transit of Majestic Maersk and the earlier structural changes to its AE15 service. Maersk and Hapag-Lloyd return AE15 service to Suez route The carrier said the move marks another step in its gradual return to [&#8230;] The post Maersk returns MECL service to Suez Canal route appeared first on Container News .",
-          "source": "Container News",
-          "sourceUrl": "https://container-news.com/maersk-returns-mecl-service-to-suez-canal-route/",
+          "id": "direct-bab-publisher-5-aHR0cHM6Ly9nY2Fw-suez",
+          "title": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal",
+          "summary": "Maersk is expanding its gradual return to the Suez Canal, announcing that its MECL service linking India, the Middle East and the U.S. East Coast will once again transit the...",
+          "source": "gCaptain",
+          "sourceUrl": "https://gcaptain.com/maersk-expands-red-sea-return-with-mecl-service-through-suez-canal/",
           "category": "live_maritime_news",
           "region": "suez",
-          "timestamp": "2026-07-09T12:55:57.000Z",
+          "timestamp": "2026-07-09T14:07:58.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Maritime trade source",
           "sourceQualityScore": 78,
@@ -801,7 +780,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-malacca-1-UmVDQUFQIElTQy",
@@ -811,7 +790,7 @@
           "sourceUrl": "https://www.recaap.org/reports",
           "category": "source_sweep",
           "region": "malacca",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Official source",
           "sourceQualityScore": 100,
@@ -822,7 +801,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-panama-7d-12-aHR0cHM6Ly9uZXdz",
@@ -843,7 +822,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-taiwan-3-R29vZ2xlIE5ld3",
@@ -853,7 +832,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Taiwan%20Strait%22%20OR%20Taiwan)%20(shipping%20OR%20vessel%20OR%20maritime%20OR%20cargo%20OR%20port%20OR%20naval%20OR%20trade%20lane%20OR%20alert%20OR%20disruption%20OR%20risk)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "taiwan",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -864,7 +843,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-turkish-3-R29vZ2xlIE5ld3",
@@ -874,7 +853,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Turkish%20Straits%22%20OR%20Bosporus%20OR%20Bosphorus%20OR%20Dardanelles)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20maritime%20OR%20transit%20OR%20Black%20Sea%20OR%20delay%20OR%20closure%20OR%20traffic)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "turkish",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -885,7 +864,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-gibraltar-1-R29vZ2xlIE5ld3",
@@ -895,7 +874,7 @@
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Strait%20of%20Gibraltar%22%20OR%20%22Gibraltar%20Port%22%20OR%20Algeciras%20OR%20%22Algeciras%20Bay%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20bunkering%20OR%20%22port%20traffic%22%20OR%20congestion%20OR%20incident%20OR%20weather)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "category": "source_sweep",
           "region": "gibraltar",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -906,7 +885,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "source-sweep-news-cape-4-QmluZyBOZXdzIF",
@@ -916,7 +895,7 @@
           "sourceUrl": "https://www.bing.com/news/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)&format=rss",
           "category": "source_sweep",
           "region": "cape",
-          "timestamp": "2026-07-09T18:51:44.311Z",
+          "timestamp": "2026-07-09T19:21:46.274Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -927,7 +906,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Source-sweep context: shown as source coverage only, not counted as a verified incident report.",
           "reviewScore": 68,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-hormuz-publisher-2-aHR0cHM6Ly93d3cu",
@@ -948,35 +927,35 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-24h-14-aHR0cHM6Ly9uZXdz",
-          "title": "Somalia approves maritime cooperation deal with Egypt as Cairo expands Red Sea port partnerships after Eritrea pact",
-          "summary": "Somalia approves maritime cooperation deal with Egypt as Cairo expands Red Sea port partnerships after Eritrea pact Addis Standard",
-          "source": "Google News: Addis Standard",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNUE52REs3NFVJR1FsTGJNal9ON09HdkxaSXFDYVB5a3Y5aWdBb1FSVUo0V1h4WGRpelZyR010bjZVUHV2Y3FoWVJJMWdFS1JKbENoU3RIcEpZQWp5VjNXaXdndGNnLXlQSXBjbUdpamtEVXljS1dDMEkxNkxvb09fTGVNbjdnU3lFTmY5dUNhN1MwODhCcXVfQ2t2cVRGdUxBeUVmQjBlQV94TmFfelUwMXAtS2NqQW5VbVViU3dKWGpEWEtGVFFMaEFSZWc5Qzd6ZElOZldYMDJXUQ?oc=5",
+          "id": "direct-bab-publisher-1-aHR0cHM6Ly93d3cu",
+          "title": "Maersk deepens Red Sea return with MECL shift",
+          "summary": "Will it be second time lucky for Maersk's bid to bring MECL back to shorter, faster Red Sea route?",
+          "source": "Seatrade Maritime News",
+          "sourceUrl": "https://www.seatrade-maritime.com/containers/maersk-deepens-red-sea-return-with-mecl-shift",
           "category": "live_maritime_news",
           "region": "bab",
-          "timestamp": "2026-07-09T13:15:21.000Z",
+          "timestamp": "2026-07-09T14:35:10.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
           "freshnessScore": 88,
-          "intelligenceScore": 78,
-          "derivedFrom": "direct_news_search_rss",
+          "intelligenceScore": 86,
+          "derivedFrom": "trusted_publisher_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 85,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-suez-24h-9-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-publisher-5-aHR0cHM6Ly9jb250-suez",
           "title": "Maersk returns MECL service to Suez Canal route",
-          "summary": "Maersk returns MECL service to Suez Canal route Container News",
-          "source": "Google News: Container News",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPRHk2dGt5dXRLdjN4ZEhIVWlwUFBiSVBZNnBZVnZIR0E0b0hWOVFhV3VJZzB1dENrY0JHcHl3bXRJSElyZUYwQld5RzJlams2N1pTR183SkkweVdMTTZzdDZuc0EwSkExNnF1WFYwNHNhZlZINW9oNklqcFF6ZnF5VA?oc=5",
+          "summary": "Maersk has announced that its MECL service will return to the trans-Suez route via the Red Sea, following the successful transit of Majestic Maersk and the earlier structural changes to its AE15 service. Maersk and Hapag-Lloyd return AE15 service to Suez route The carrier said the move marks another step in its gradual return to [&#8230;] The post Maersk returns MECL service to Suez Canal route appeared first on Container News .",
+          "source": "Container News",
+          "sourceUrl": "https://container-news.com/maersk-returns-mecl-service-to-suez-canal-route/",
           "category": "live_maritime_news",
           "region": "suez",
           "timestamp": "2026-07-09T12:55:57.000Z",
@@ -984,13 +963,13 @@
           "sourceQualityLabel": "Maritime trade source",
           "sourceQualityScore": 78,
           "sourceQualityTier": "trade",
-          "freshnessScore": 88,
-          "intelligenceScore": 86,
-          "derivedFrom": "direct_news_search_rss",
+          "freshnessScore": 78,
+          "intelligenceScore": 82,
+          "derivedFrom": "trusted_publisher_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 85/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 85,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 82,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-panama-7d-1-aHR0cHM6Ly9uZXdz",
@@ -1011,94 +990,31 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 71/100 review score, Maritime trade source, route evidence confirmed.",
           "reviewScore": 71,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-hormuz-24h-10-aHR0cHM6Ly9uZXdz",
-          "title": "France eyes Syria as alternative oil route to Hormuz",
-          "summary": "France eyes Syria as alternative oil route to Hormuz Middle East Eye",
-          "source": "Google News: Middle East Eye",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQVmdMbE5vREhjd2hmUG1uUW1HRWp3TmVseXdtMnJHMVZpZHdPNG1naHVhTmw3UWR2T19vd3hLX0F6SHdoNXN2ZEpaSDdxSWZpMXFYaVJpbFd2WnV1bEFRdDl3bkJTMVBRanYxZUNyYXNGQmJnV1haTkVtMFdzbDBNLWtwNzhoWFRnXzFRcVlqRnVjZnpoLTU5Xy1iNlBtQ0NqM21ITFFn?oc=5",
+          "title": "Hormuz Traffic Grinds to a Near Halt as Ceasefire Under Threat",
+          "summary": "Hormuz Traffic Grinds to a Near Halt as Ceasefire Under Threat Bloomberg.com",
+          "source": "Google News: Bloomberg.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPcHpndHJ3M3JpWEstNXA2Yi1OMVljWnJPU3pJVm1oTm5IaTR0ZEhwbjRqck5jaURtaFoxb1BkSGZWQkt3TUFlLWV4RUVLT2xDNi10V3dkTHVRYWNYNnpwOG5STlBuSzRkSEpZTFhVazIxbjNTLW13ZncwSHZhOUV2Q3lEWERXMmZ1bFBmN0dYZmg2X2NRQnBzNnBVM0pzYldDV3J0RDRST1Z5X3hIcDhBTGZvZw?oc=5",
           "category": "live_maritime_news",
           "region": "hormuz",
-          "timestamp": "2026-07-09T15:43:00.000Z",
+          "timestamp": "2026-07-09T16:04:58.000Z",
           "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
+          "sourceQualityLabel": "Tier-1 newsroom",
+          "sourceQualityScore": 92,
+          "sourceQualityTier": "tierOne",
           "freshnessScore": 88,
-          "intelligenceScore": 78,
+          "intelligenceScore": 92,
           "derivedFrom": "direct_news_search_rss",
           "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
+          "reviewScore": 92,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-suez-24h-2-aHR0cHM6Ly9uZXdz-bab",
-          "title": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit",
-          "summary": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit TradeWinds News",
-          "source": "Google News: TradeWinds News",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOdGpnSl9TS1FVTXdGYTVYOEpfekhmS2ZteDl3QU53OVZkRXhQRjJMbWNlX2FSUTg0U0U3WDRBUmRLb0dfQWhqVVdvZmFpLVREdGVnUmwtVUoyOC00d3gzN2h3ZHhLeG9nODlfWGh6VlNELW50UlBLYVlpZEtWVjNhamtWdTh2Q0JiclRRWk83NjRJNlU5LWUxa1dySzFaZGl3TUhlZWxZNnZ4TzVEWmVZUGd4eXJpRmYwNHJLV3FyVnA5U0oxMDZQZVl5Y1dDdzB1RXIzS0t0NHBOZGc3SnFKSVZZNWpjOE0?oc=5",
-          "category": "live_maritime_news",
-          "region": "bab",
-          "timestamp": "2026-07-09T12:37:06.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Maritime trade source",
-          "sourceQualityScore": 78,
-          "sourceQualityTier": "trade",
-          "freshnessScore": 78,
-          "intelligenceScore": 82,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
-          "reviewScore": 82,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-suez-24h-14-aHR0cHM6Ly9uZXdz",
-          "title": "Maersk to resume Middle East-US East Coast shipping through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast shipping through Suez Canal The Edge Malaysia",
-          "source": "Google News: The Edge Malaysia",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5zdTg2aTdLZTBFZTVldXZ5eWRTZ3hNaTFvbXQyOVdfSDAwTlI2N1Z4UmJDWWZvQ2F3a1N2cVFnd1BKa2NFU3p6NVN0cHVSV3htRFFJ?oc=5",
-          "category": "live_maritime_news",
-          "region": "suez",
-          "timestamp": "2026-07-09T12:41:12.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-hormuz-24h-7-aHR0cHM6Ly9uZXdz",
-          "title": "Hormuz strait on ‘severe’ alert as insurance costs soar",
-          "summary": "Hormuz strait on ‘severe’ alert as insurance costs soar The New Arab",
-          "source": "Google News: The New Arab",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNejJTSzhBUVlaTUV5OFI3RWxBYllZeDQ0dVVNZk1qLXR4Z3RsNFFZWTZwUmNOQ3FGZlZLelhwTWZ5VERZODl2ZEFwR1JGeVR4NEVtQV9xd3VZVC1sWDhlUTlnRjFHT3ltSXc2SkdwYmRIWm9GaWFqenZza1c1aGNtU19B?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-07-09T15:31:18.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 88,
-          "intelligenceScore": 78,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-bab-24h-2-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-24h-4-aHR0cHM6Ly9uZXdz",
           "title": "British military says attack on cargo ship in Red Sea off coast of Yemen",
           "summary": "British military says attack on cargo ship in Red Sea off coast of Yemen News On AIR",
           "source": "Google News: News On AIR",
@@ -1116,7 +1032,175 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-suez-24h-7-aHR0cHM6Ly9uZXdz",
+          "title": "Maersk returns MECL service to Suez Canal route",
+          "summary": "Maersk returns MECL service to Suez Canal route Container News",
+          "source": "Google News: Container News",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPRHk2dGt5dXRLdjN4ZEhIVWlwUFBiSVBZNnBZVnZIR0E0b0hWOVFhV3VJZzB1dENrY0JHcHl3bXRJSElyZUYwQld5RzJlams2N1pTR183SkkweVdMTTZzdDZuc0EwSkExNnF1WFYwNHNhZlZINW9oNklqcFF6ZnF5VA?oc=5",
+          "category": "live_maritime_news",
+          "region": "suez",
+          "timestamp": "2026-07-09T12:55:57.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
+          "freshnessScore": 78,
+          "intelligenceScore": 82,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 82,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-hormuz-24h-9-aHR0cHM6Ly9uZXdz",
+          "title": "France eyes Syria as alternative oil route to Hormuz",
+          "summary": "France eyes Syria as alternative oil route to Hormuz Middle East Eye",
+          "source": "Google News: Middle East Eye",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQVmdMbE5vREhjd2hmUG1uUW1HRWp3TmVseXdtMnJHMVZpZHdPNG1naHVhTmw3UWR2T19vd3hLX0F6SHdoNXN2ZEpaSDdxSWZpMXFYaVJpbFd2WnV1bEFRdDl3bkJTMVBRanYxZUNyYXNGQmJnV1haTkVtMFdzbDBNLWtwNzhoWFRnXzFRcVlqRnVjZnpoLTU5Xy1iNlBtQ0NqM21ITFFn?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-07-09T15:43:00.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 88,
+          "intelligenceScore": 78,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-bab-24h-5-aHR0cHM6Ly9uZXdz",
+          "title": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall",
+          "summary": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall ChemAnalyst",
+          "source": "Google News: ChemAnalyst",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOUTdxcVI2bllRQkNOR2l2RnFZNHBrUXg3RC1SdDJtaURpOGZ0ZW9QZ2stQnNyMG1HSFhFdExJU1VyekpNWm5VU1JUaG9YbnBQczR3SF9pX3BKTHZLRjZqU29UZ0c3dlRaWk1sWC1GcGg0TXJRUXREVERmOEhWYU5VRWNiZTJSUS1KOGVwZURoSm9hcWVOaGtZUF9VVHF6Mjc4VHNVaGlmcE5hUm1pN1VLc1RGU19CTzdpcUZtZg?oc=5",
+          "category": "live_maritime_news",
+          "region": "bab",
+          "timestamp": "2026-07-09T12:19:07.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 78,
+          "intelligenceScore": 75,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 74,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-suez-24h-12-aHR0cHM6Ly9uZXdz",
+          "title": "Maersk to resume Middle East-US East Coast shipping through Suez Canal",
+          "summary": "Maersk to resume Middle East-US East Coast shipping through Suez Canal The Edge Malaysia",
+          "source": "Google News: The Edge Malaysia",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE5zdTg2aTdLZTBFZTVldXZ5eWRTZ3hNaTFvbXQyOVdfSDAwTlI2N1Z4UmJDWWZvQ2F3a1N2cVFnd1BKa2NFU3p6NVN0cHVSV3htRFFJ?oc=5",
+          "category": "live_maritime_news",
+          "region": "suez",
+          "timestamp": "2026-07-09T12:41:12.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 78,
+          "intelligenceScore": 75,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 74,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-hormuz-24h-6-aHR0cHM6Ly9uZXdz",
+          "title": "Hormuz strait on ‘severe’ alert as insurance costs soar",
+          "summary": "Hormuz strait on ‘severe’ alert as insurance costs soar The New Arab",
+          "source": "Google News: The New Arab",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNejJTSzhBUVlaTUV5OFI3RWxBYllZeDQ0dVVNZk1qLXR4Z3RsNFFZWTZwUmNOQ3FGZlZLelhwTWZ5VERZODl2ZEFwR1JGeVR4NEVtQV9xd3VZVC1sWDhlUTlnRjFHT3ltSXc2SkdwYmRIWm9GaWFqenZza1c1aGNtU19B?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-07-09T15:31:18.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 88,
+          "intelligenceScore": 78,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-suez-24h-2-aHR0cHM6Ly9uZXdz",
+          "title": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit",
+          "summary": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit TradeWinds News",
+          "source": "Google News: TradeWinds News",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOdGpnSl9TS1FVTXdGYTVYOEpfekhmS2ZteDl3QU53OVZkRXhQRjJMbWNlX2FSUTg0U0U3WDRBUmRLb0dfQWhqVVdvZmFpLVREdGVnUmwtVUoyOC00d3gzN2h3ZHhLeG9nODlfWGh6VlNELW50UlBLYVlpZEtWVjNhamtWdTh2Q0JiclRRWk83NjRJNlU5LWUxa1dySzFaZGl3TUhlZWxZNnZ4TzVEWmVZUGd4eXJpRmYwNHJLV3FyVnA5U0oxMDZQZVl5Y1dDdzB1RXIzS0t0NHBOZGc3SnFKSVZZNWpjOE0?oc=5",
+          "category": "live_maritime_news",
+          "region": "suez",
+          "timestamp": "2026-07-09T12:37:06.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Maritime trade source",
+          "sourceQualityScore": 78,
+          "sourceQualityTier": "trade",
+          "freshnessScore": 78,
+          "intelligenceScore": 82,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 82/100 review score, Maritime trade source, route evidence confirmed.",
+          "reviewScore": 82,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
+          "title": "Ceasefire collapses as US–Iran strikes resume, Hormuz shipping stalls",
+          "summary": "Ceasefire collapses as US–Iran strikes resume, Hormuz shipping stalls المنصة | ما رواه الناس",
+          "source": "Google News: المنصة | ما رواه الناس",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE1xbjlsQXRGRi0talVWWUYxMzdiSlJkNDhBNWtobWstRlVuRkRKSjdCR0lkQzY5cU5xNW1NLXl3dTBIazJYV1ZCZzNB?oc=5",
+          "category": "live_maritime_news",
+          "region": "hormuz",
+          "timestamp": "2026-07-09T15:22:36.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 88,
+          "intelligenceScore": 78,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 77,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
+        },
+        {
+          "id": "direct-bab-24h-5-aHR0cHM6Ly9uZXdz",
+          "title": "The Red Sea: A Strategic Basin Far Beyond the Houthi Threat",
+          "summary": "The Red Sea: A Strategic Basin Far Beyond the Houthi Threat Geopolitical Futures",
+          "source": "Google News: Geopolitical Futures",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNZlp5UDVCV214S1E3bzR6YlgyaDFqTlQzeW9GNnQwZjBUeTV6d0VNUFpadmpzc0lTQWF6YWFsWlpDenV4Q3FmVVZxRUh6TzV3bUpUb0FrSU0tNzJfMTVqd3ZZQ1VtbTlXU3hQU3JlamVkM0xTVzVONzdjNkNJRHR4azFESmktOWE1d0FaVmRUV21DQlpVMnc?oc=5",
+          "category": "live_maritime_news",
+          "region": "bab",
+          "timestamp": "2026-07-09T10:00:59.000Z",
+          "isBreaking": false,
+          "sourceQualityLabel": "Search-surfaced source",
+          "sourceQualityScore": 62,
+          "sourceQualityTier": "search",
+          "freshnessScore": 78,
+          "intelligenceScore": 75,
+          "derivedFrom": "direct_news_search_rss",
+          "reviewStatus": "approved",
+          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
+          "reviewScore": 74,
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-suez-24h-0-aHR0cHM6Ly9uZXdz",
@@ -1137,112 +1221,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
-          "title": "Ceasefire collapses as US–Iran strikes resume, Hormuz shipping stalls",
-          "summary": "Ceasefire collapses as US–Iran strikes resume, Hormuz shipping stalls المنصة | ما رواه الناس",
-          "source": "Google News: المنصة | ما رواه الناس",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiSkFVX3lxTE1xbjlsQXRGRi0talVWWUYxMzdiSlJkNDhBNWtobWstRlVuRkRKSjdCR0lkQzY5cU5xNW1NLXl3dTBIazJYV1ZCZzNB?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-07-09T15:22:36.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 88,
-          "intelligenceScore": 78,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-bab-24h-3-aHR0cHM6Ly9uZXdz",
-          "title": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall",
-          "summary": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall ChemAnalyst",
-          "source": "Google News: ChemAnalyst",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOUTdxcVI2bllRQkNOR2l2RnFZNHBrUXg3RC1SdDJtaURpOGZ0ZW9QZ2stQnNyMG1HSFhFdExJU1VyekpNWm5VU1JUaG9YbnBQczR3SF9pX3BKTHZLRjZqU29UZ0c3dlRaWk1sWC1GcGg0TXJRUXREVERmOEhWYU5VRWNiZTJSUS1KOGVwZURoSm9hcWVOaGtZUF9VVHF6Mjc4VHNVaGlmcE5hUm1pN1VLc1RGU19CTzdpcUZtZg?oc=5",
-          "category": "live_maritime_news",
-          "region": "bab",
-          "timestamp": "2026-07-09T12:19:07.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-suez-24h-11-aHR0cHM6Ly9uZXdz",
-          "title": "Maersk to resume Middle East-US East Coast shipping through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast shipping through Suez Canal Devdiscourse",
-          "source": "Google News: Devdiscourse",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOdVVDYlZFbjlpRldhNUl1RVhqZENmZG9TSlVmWW1jM21uVjFpZUdOV2J6dFphRjVzM2lTc0Z3eDVuVmNEdmd3d1dzaDJodklBMm5Oc2FuZGt2X2h5TzVKOUZCMG92WHI4dVJlZFpKU01Rc21majNtb01zN2ZocUFPdFpzMzNRUHNRVDBEal9Dd3BvQWczUndhZ2NLX09GUTZrZEt4RHlVTHpoWm1WcXlmS0tWTVIyYzdZemNIWExqUFFLNHBNaXpr0gHHAUFVX3lxTE51VUNiVkVuOWlGV2E1SXVFWGpkQ2Zkb1NKVWZZbWMzbW5WMWllR05XYnp0WmFGNXMzaVNzRnd4NW5WY0R2Z3d3V3NoMmh2SUEybk5zYW5ka3ZfaHlPNUo5RkIwb3ZYcjh1UmVkWkpTTVFzbWZqM21vTXM3ZmhxQU90WnMzM1FQc1FUMERqX0N3cG9BZzNSd2FnY0tfT0ZRNmtkS3hEeVVMemhabVZxeWZLS1ZNUjJjN1l6Y0hYTGpQUUs0cE1pems?oc=5",
-          "category": "live_maritime_news",
-          "region": "suez",
-          "timestamp": "2026-07-09T12:05:01.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-hormuz-24h-3-aHR0cHM6Ly9uZXdz",
-          "title": "Oil Prices Remain Elevated Amid Shipping Traffic Slowdown in Strait of Hormuz",
-          "summary": "Oil Prices Remain Elevated Amid Shipping Traffic Slowdown in Strait of Hormuz The New York Times",
-          "source": "Google News: The New York Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQelBMcndHVzViVTg4Z0V3ejd4YUk5aFkweXA2NUtKWXVkTC1EdzhHSll5N2FrV1l6Q21BeDdkSWIyX0UtM01nQy1yalZraFRsZkQ5WDROeFdtWFphM29BcWUyenRNYVpnaWNrYUpjZC1RZlpld244eXRzenBIUHVCLTV0Z056VFlyZ3pyRQ?oc=5",
-          "category": "live_maritime_news",
-          "region": "hormuz",
-          "timestamp": "2026-07-09T14:50:05.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Tier-1 newsroom",
-          "sourceQualityScore": 92,
-          "sourceQualityTier": "tierOne",
-          "freshnessScore": 88,
-          "intelligenceScore": 92,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
-          "reviewScore": 92,
-          "reviewedAt": "2026-07-09T18:51:46.264Z"
-        },
-        {
-          "id": "direct-suez-24h-8-aHR0cHM6Ly9uZXdz",
-          "title": "Maersk to resume Middle East-US East Coast sailings through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Euronext Markets: Real-time Stock Market Data | live",
-          "source": "Google News: Euronext Markets: Real-time Stock Market Data | live",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOalh3MkJmci1BZTJSXy1Hc1pYaXVBQnV5dXVleXFrbExhV3cwbjFlamNKbXNxQXJDTnpKU0lYWUd4bW9yeWwxemFuckF3T0JZNXZ3VnFRWkpvN2NuT0ZPUmFZNENSSEZLSUFKTks0TnF0Z1ozUGREcFVpeTlDVnB5NVV2ckxVU3FIa2htTnNTMW1ObUlKZ0RaUlhrb0kzdWVZSXR2R1pXMUx1c1I5V3dXSw?oc=5",
-          "category": "live_maritime_news",
-          "region": "suez",
-          "timestamp": "2026-07-09T12:03:39.000Z",
-          "isBreaking": false,
-          "sourceQualityLabel": "Search-surfaced source",
-          "sourceQualityScore": 62,
-          "sourceQualityTier": "search",
-          "freshnessScore": 78,
-          "intelligenceScore": 75,
-          "derivedFrom": "direct_news_search_rss",
-          "reviewStatus": "approved",
-          "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
-          "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-hormuz-publisher-1-aHR0cHM6Ly93d3cu",
@@ -1263,7 +1242,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 92,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-bab-24h-0-aHR0cHM6Ly9uZXdz",
@@ -1284,17 +1263,17 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-suez-24h-10-aHR0cHM6Ly9uZXdz",
-          "title": "Maersk to resume Suez Canal sailings By Investing.com",
-          "summary": "Maersk to resume Suez Canal sailings By Investing.com Investing.com Nigeria",
-          "source": "Google News: Investing.com Nigeria",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMingFBVV95cUxPZkZ1QzU3LUp2SlkyTi1RUnJzd0Q0ZHRkbHZQZ3dPY0tZVVJ4VDJzQkFBaS1HWGw5YnlPcTRqOEZ0Y3ZSeXJoZHVxSGZkWW1vSGNtUThDUVBIYTQ0cWtEY0JhSVVtLUItNm5DZjIzNnRGSzJqdXV1NEtDVzd2Z3RNRHdONXR5UC05eURodlZFZlJuejJ0TFFKVnZUY252QQ?oc=5",
+          "title": "Maersk to resume Middle East-US East Coast shipping through Suez Canal",
+          "summary": "Maersk to resume Middle East-US East Coast shipping through Suez Canal Devdiscourse",
+          "source": "Google News: Devdiscourse",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOdVVDYlZFbjlpRldhNUl1RVhqZENmZG9TSlVmWW1jM21uVjFpZUdOV2J6dFphRjVzM2lTc0Z3eDVuVmNEdmd3d1dzaDJodklBMm5Oc2FuZGt2X2h5TzVKOUZCMG92WHI4dVJlZFpKU01Rc21majNtb01zN2ZocUFPdFpzMzNRUHNRVDBEal9Dd3BvQWczUndhZ2NLX09GUTZrZEt4RHlVTHpoWm1WcXlmS0tWTVIyYzdZemNIWExqUFFLNHBNaXpr0gHHAUFVX3lxTE51VUNiVkVuOWlGV2E1SXVFWGpkQ2Zkb1NKVWZZbWMzbW5WMWllR05XYnp0WmFGNXMzaVNzRnd4NW5WY0R2Z3d3V3NoMmh2SUEybk5zYW5ka3ZfaHlPNUo5RkIwb3ZYcjh1UmVkWkpTTVFzbWZqM21vTXM3ZmhxQU90WnMzM1FQc1FUMERqX0N3cG9BZzNSd2FnY0tfT0ZRNmtkS3hEeVVMemhabVZxeWZLS1ZNUjJjN1l6Y0hYTGpQUUs0cE1pems?oc=5",
           "category": "live_maritime_news",
           "region": "suez",
-          "timestamp": "2026-07-09T11:01:27.000Z",
+          "timestamp": "2026-07-09T12:05:01.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -1305,10 +1284,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-hormuz-24h-12-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
           "title": "US-Iran strikes: Strait of Hormuz ship traffic falls steeply",
           "summary": "US-Iran strikes: Strait of Hormuz ship traffic falls steeply BBC",
           "source": "Google News: BBC",
@@ -1326,10 +1305,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 92/100 review score, Tier-1 newsroom, route evidence confirmed.",
           "reviewScore": 92,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-24h-9-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-24h-10-aHR0cHM6Ly9uZXdz",
           "title": "Yemen’s Iran-backed Houthis threaten Israeli shipping in the Red Sea",
           "summary": "Yemen’s Iran-backed Houthis threaten Israeli shipping in the Red Sea DD News",
           "source": "Google News: DD News",
@@ -1347,17 +1326,17 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-suez-24h-14-aHR0cHM6Ly9uZXdz",
+          "id": "direct-suez-live-8-aHR0cHM6Ly9uZXdz",
           "title": "Maersk to resume Middle East-US East Coast sailings through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Devdiscourse",
-          "source": "Google News: Devdiscourse",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPSlFZdmhnUFY2Y0lQVjJGenJhSS1zcEtrRmxiSkM1OE90eGZHN2pHLWhwV0k3MDl3YXI4dUtwN1VEN3NJQVBraWgxRWQ4dVNGTUQ1LUJmSUxUOHVGMkhNTnRNdmRhVG5RREowSVNMM0lvbUNveEJNSmhCZ2dOQ3VGVHdUT1JvT25UY0RkdDBGT2dMWHJqR2hLZ3dWRTNua09LbGZtNHpUaElxRE9RVktWZDFyZDZiTkZaM2xrSTlKRTJRR3BNSGNR0gHHAUFVX3lxTE9KUVl2aGdQVjZjSVBWMkZ6cmFJLXNwS2tGbGJKQzU4T3R4Zkc3akctaHBXSTcwOXdhcjh1S3A3VUQ3c0lBUGtpaDFFZDh1U0ZNRDUtQmZJTFQ4dUYySE1OdE12ZGFUblFESjBJU0wzSW9tQ294Qk1KaEJnZ05DdUZUd1RPUm9PblRjRGR0MEZPZ0xYcmpHaEtnd1ZFM25rT0tsZm00elRoSXFET1FWS1ZkMXJkNmJORlozbGtJOUpFMlFHcE1IY1E?oc=5",
+          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Euronext Markets: Real-time Stock Market Data | live",
+          "source": "Google News: Euronext Markets: Real-time Stock Market Data | live",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOalh3MkJmci1BZTJSXy1Hc1pYaXVBQnV5dXVleXFrbExhV3cwbjFlamNKbXNxQXJDTnpKU0lYWUd4bW9yeWwxemFuckF3T0JZNXZ3VnFRWkpvN2NuT0ZPUmFZNENSSEZLSUFKTks0TnF0Z1ozUGREcFVpeTlDVnB5NVV2ckxVU3FIa2htTnNTMW1ObUlKZ0RaUlhrb0kzdWVZSXR2R1pXMUx1c1I5V3dXSw?oc=5",
           "category": "live_maritime_news",
           "region": "suez",
-          "timestamp": "2026-07-09T11:00:13.000Z",
+          "timestamp": "2026-07-09T12:03:39.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -1368,10 +1347,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-hormuz-24h-13-aHR0cHM6Ly9uZXdz",
+          "id": "direct-hormuz-24h-14-aHR0cHM6Ly9uZXdz",
           "title": "Strait of Hormuz shipping slows to near standstill after latest attacks (USO:NYSEARCA)",
           "summary": "Strait of Hormuz shipping slows to near standstill after latest attacks (USO:NYSEARCA) Seeking Alpha",
           "source": "Google News: Seeking Alpha",
@@ -1389,10 +1368,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-24h-5-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-24h-7-aHR0cHM6Ly9uZXdz",
           "title": "Western Powers Were Unable to Secure Shipping in the Red Sea. Hormuz Will Be Harder",
           "summary": "Western Powers Were Unable to Secure Shipping in the Red Sea. Hormuz Will Be Harder EnergyNow.com",
           "source": "Google News: EnergyNow.com",
@@ -1410,17 +1389,17 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 70/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 70,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-suez-live-13-aHR0cHM6Ly9uZXdz",
-          "title": "Maersk to resume Middle East-US East Coast sailings through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Devdiscourse",
-          "source": "Google News: Devdiscourse",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPalZLc2FMWTg2N3NlOGFVOVNON2otZFZmR0ItbTFKMnRPYW11M0xtaExXU3hzd2RhQU5DQ0g5YXV4US1ZUnhjYnpzZEo0cTVsaGx5eVMwS2VwUHFGQmdiN25pM3dDZnVRQVJvekNhZFl0blVWUlF3OXVNWjFsMjlRWGd4WVNSTVQtVTZSWEh0NGpDenlkeDlKN3BlQXdSNmtmTG1GbFZ5MGdma2Q2c3JDUW5odG8zZjNCa2hha3RIQ2NDZ9IBxwFBVV95cUxPSlFZdmhnUFY2Y0lQVjJGenJhSS1zcEtrRmxiSkM1OE90eGZHN2pHLWhwV0k3MDl3YXI4dUtwN1VEN3NJQVBraWgxRWQ4dVNGTUQ1LUJmSUxUOHVGMkhNTnRNdmRhVG5RREowSVNMM0lvbUNveEJNSmhCZ2dOQ3VGVHdUT1JvT25UY0RkdDBGT2dMWHJqR2hLZ3dWRTNua09LbGZtNHpUaElxRE9RVktWZDFyZDZiTkZaM2xrSTlKRTJRR3BNSGNR?oc=5",
+          "id": "direct-suez-24h-8-aHR0cHM6Ly9uZXdz",
+          "title": "Maersk to resume Suez Canal sailings By Investing.com",
+          "summary": "Maersk to resume Suez Canal sailings By Investing.com Investing.com Nigeria",
+          "source": "Google News: Investing.com Nigeria",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMingFBVV95cUxPZkZ1QzU3LUp2SlkyTi1RUnJzd0Q0ZHRkbHZQZ3dPY0tZVVJ4VDJzQkFBaS1HWGw5YnlPcTRqOEZ0Y3ZSeXJoZHVxSGZkWW1vSGNtUThDUVBIYTQ0cWtEY0JhSVVtLUItNm5DZjIzNnRGSzJqdXV1NEtDVzd2Z3RNRHdONXR5UC05eURodlZFZlJuejJ0TFFKVnZUY252QQ?oc=5",
           "category": "live_maritime_news",
           "region": "suez",
-          "timestamp": "2026-07-09T11:00:13.000Z",
+          "timestamp": "2026-07-09T11:01:27.000Z",
           "isBreaking": false,
           "sourceQualityLabel": "Search-surfaced source",
           "sourceQualityScore": 62,
@@ -1431,7 +1410,7 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 74/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 74,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
           "id": "direct-hormuz-24h-14-aHR0cHM6Ly9uZXdz",
@@ -1452,10 +1431,10 @@
           "reviewStatus": "approved",
           "reviewReason": "Approved for live map: 77/100 review score, Search-surfaced source, route evidence confirmed.",
           "reviewScore": 77,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         },
         {
-          "id": "direct-bab-7d-5-aHR0cHM6Ly9uZXdz",
+          "id": "direct-bab-7d-6-aHR0cHM6Ly9uZXdz",
           "title": "The Red Sea, Maritime Coercion and Regional Escalation Dynamics",
           "summary": "The Red Sea, Maritime Coercion and Regional Escalation Dynamics horn review",
           "source": "Google News: horn review",
@@ -1473,7 +1452,7 @@
           "reviewStatus": "watch",
           "reviewReason": "Watch-listed for live map: 63/100 review score; keep until fresher or stronger confirmation arrives.",
           "reviewScore": 63,
-          "reviewedAt": "2026-07-09T18:51:46.265Z"
+          "reviewedAt": "2026-07-09T19:21:49.871Z"
         }
       ],
       "hotspots": [
@@ -1485,7 +1464,7 @@
           "avgWaitTime": "14 live source signals",
           "marketVolume": 21000000,
           "riskLevel": "critical",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 14,
           "sourceCount": 14,
           "latestSource": "Bloomberg Business",
@@ -1498,7 +1477,7 @@
           "riskDrivers": [
             "gCaptain: Oil Tanker Traffic Through Hormuz at Near Standstill as Attacks Strain MoU",
             "MarineLink: Oil Prices Lower Ahead of Possible US-Iran Peace",
-            "Google News: The New Arab: Hormuz strait on ‘severe’ alert as insurance costs soar"
+            "Google News: Bloomberg.com: Hormuz Traffic Grinds to a Near Halt as Ceasefire Under Threat"
           ],
           "analysisBrief": {
             "headline": "Strait of Hormuz: severe source-backed route disruption",
@@ -1514,30 +1493,30 @@
           "hotspot": "bab",
           "activeVessels": 0,
           "dailyTransits": 0,
-          "avgWaitTime": "13 live source signals",
+          "avgWaitTime": "12 live source signals",
           "marketVolume": 280000000,
           "riskLevel": "high",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
-          "verifiedReports": 13,
-          "sourceCount": 13,
+          "updatedAt": "2026-07-09T19:21:49.865Z",
+          "verifiedReports": 12,
+          "sourceCount": 12,
           "latestSource": "Google News: Journal of Commerce",
-          "signalCount": 13,
+          "signalCount": 12,
           "officialSignalCount": 0,
           "aisSignalCount": 0,
           "confidenceScore": 84,
           "confidenceLabel": "Corroborated",
-          "riskSummary": "HIGH from 13 current source-linked reports across 13 sources; latest source: Google News: Journal of Commerce.",
+          "riskSummary": "HIGH from 12 current source-linked reports across 12 sources; latest source: Google News: Journal of Commerce.",
           "riskDrivers": [
             "Google News: Journal of Commerce: Second Maersk service to transit Red Sea as Middle East war resumes",
-            "Container News: Mombasa's next test isn't containers it's fuel",
-            "Google News: Seatrade Maritime News: Maersk deepens Red Sea return with MECL shift"
+            "Google News: EnergyNow: Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk",
+            "Container News: Mombasa's next test isn't containers it's fuel"
           ],
           "analysisBrief": {
             "headline": "Bab el-Mandeb: active disruption signals",
             "impact": "Red Sea and Gulf of Aden cargo can face rerouting, insurance pressure and longer Asia-Europe voyages.",
-            "why": "Based on 13 reports across 13 sources. Main evidence: Google News: Journal of Commerce: Second Maersk service to transit Red Sea as Middle East war resumes | Container News: Mombasa's next test isn't containers it's fuel | Google News: Seatrade Maritime News: Maersk deepens Red Sea return with MECL shift.",
+            "why": "Based on 12 reports across 12 sources. Main evidence: Google News: Journal of Commerce: Second Maersk service to transit Red Sea as Middle East war resumes | Google News: EnergyNow: Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk | Container News: Mombasa's next test isn't containers it's fuel.",
             "watch": "Watch UKMTO/MARAD/MSCIO alerts, confirmed vessel incidents, rerouting data and insurance changes.",
-            "sourceBasis": "13 current source-linked reports, 13 sources, 13 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
+            "sourceBasis": "12 current source-linked reports, 12 sources, 12 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
             "confidence": "Strong"
           }
         },
@@ -1549,9 +1528,9 @@
           "avgWaitTime": "13 live source signals",
           "marketVolume": 150000000,
           "riskLevel": "low",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 13,
-          "sourceCount": 11,
+          "sourceCount": 13,
           "latestSource": "Google News: ZAWYA",
           "signalCount": 13,
           "officialSignalCount": 0,
@@ -1567,9 +1546,9 @@
           "analysisBrief": {
             "headline": "Suez Canal: reports are being watched",
             "impact": "Canal delays can affect Asia-Europe schedules, container flow and feeder connections.",
-            "why": "Based on 13 reports across 11 sources. Main evidence: Google News: ZAWYA: Maersk to resume Middle East-US East Coast sailings through Suez Canal | Google News: Marine News Magazine: Maersk Resumes Suez Canal Route From Middle East To US | MarineLink: Maersk Resumes Suez Canal Route From Middle East to US.",
+            "why": "Based on 13 reports across 13 sources. Main evidence: Google News: ZAWYA: Maersk to resume Middle East-US East Coast sailings through Suez Canal | Google News: Marine News Magazine: Maersk Resumes Suez Canal Route From Middle East To US | MarineLink: Maersk Resumes Suez Canal Route From Middle East to US.",
             "watch": "Watch canal authority updates, convoy changes, queue growth and Red Sea spillover into Suez schedules.",
-            "sourceBasis": "13 current source-linked reports, 11 sources, 13 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
+            "sourceBasis": "13 current source-linked reports, 13 sources, 13 operational signals and 0 source-sweep layer checks. Risk cannot move on one weak article alone; it needs corroboration or official/strong operational evidence.",
             "confidence": "Strong"
           }
         },
@@ -1581,7 +1560,7 @@
           "avgWaitTime": "3 live source signals",
           "marketVolume": 500000000,
           "riskLevel": "medium",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 3,
           "sourceCount": 3,
           "latestSource": "Google News: Safety4Sea",
@@ -1613,7 +1592,7 @@
           "avgWaitTime": "5 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 5,
           "sourceCount": 5,
           "latestSource": "Google News: Port Technology",
@@ -1645,7 +1624,7 @@
           "avgWaitTime": "1 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 1,
           "sourceCount": 1,
           "latestSource": "Google News: 19FortyFive",
@@ -1675,7 +1654,7 @@
           "avgWaitTime": "1 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 1,
           "sourceCount": 1,
           "latestSource": "Google News: News On AIR",
@@ -1705,7 +1684,7 @@
           "avgWaitTime": "3 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 3,
           "sourceCount": 2,
           "latestSource": "Google News: El Estrecho Digital",
@@ -1737,7 +1716,7 @@
           "avgWaitTime": "5 live source signals",
           "marketVolume": 0,
           "riskLevel": "low",
-          "updatedAt": "2026-07-09T18:51:46.256Z",
+          "updatedAt": "2026-07-09T19:21:49.865Z",
           "verifiedReports": 0,
           "sourceCount": 5,
           "latestSource": "South African Maritime Safety Authority",
@@ -1772,20 +1751,6 @@
           "severity": "low",
           "confidence": 82,
           "observedAt": "2026-07-09T18:16:59.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-T8_HW0ccavuVspfIn5DeQQ",
-          "source": "Google News: Journal of Commerce",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ1NUWm5RaHlYcmRkUXdZN0J5YUtWNEhoUV9BQURFejRuSTdrd3l2dTY0VlNYMGg0MU5nSlpYNzc1d1JfSnhROVFBX2kxR1hsNVBlOXpwek9KSjR4N2c5X2FOSnU2cUI1WDBPNHF0R1NVYk0zNHBEVWFmZjI1X2hLLUVsUm84Qk1CUjloTDhaZV9iNlkyVG1JWVF5ZUpzRndBOE9FMUlB?oc=5",
-          "title": "Second Maersk service to transit Red Sea as Middle East war resumes",
-          "summary": "Second Maersk service to transit Red Sea as Middle East war resumes Journal of Commerce",
-          "region": "bab",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-07-09T16:17:00.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1888,16 +1853,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-WvkK_Bea5Ail9Vxg-PSBVD",
-          "source": "Container News",
-          "sourceUrl": "https://container-news.com/mombasas-next-test-isnt-containers-its-fuel/",
-          "title": "Mombasa's next test isn't containers it's fuel",
-          "summary": "Kenya's port has spent two years converting Red Sea disruption into permanent market share. Rwanda's tenfold fuel-volume increase now asks whether that operational discipline extends beyond boxes to barrels. The post Mombasa's next test isn't containers it's fuel appeared first on Container News .",
+          "signalKey": "direct-live-T8_HW0ccavuVspfIn5DeQQ",
+          "source": "Google News: Journal of Commerce",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNQ1NUWm5RaHlYcmRkUXdZN0J5YUtWNEhoUV9BQURFejRuSTdrd3l2dTY0VlNYMGg0MU5nSlpYNzc1d1JfSnhROVFBX2kxR1hsNVBlOXpwek9KSjR4N2c5X2FOSnU2cUI1WDBPNHF0R1NVYk0zNHBEVWFmZjI1X2hLLUVsUm84Qk1CUjloTDhaZV9iNlkyVG1JWVF5ZUpzRndBOE9FMUlB?oc=5",
+          "title": "Second Maersk service to transit Red Sea as Middle East war resumes",
+          "summary": "Second Maersk service to transit Red Sea as Middle East war resumes Journal of Commerce",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-07-09T15:00:07.000Z",
+          "observedAt": "2026-07-09T16:17:00.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -1972,16 +1937,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-xCe2sdA7DkTNCilyMNRptI",
-          "source": "Google News: Seatrade Maritime News",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQZEp4UEFJZ1ZWUUlFT2dEcEhiOWFENGViVUNLczdHUFpfdFVLUERKWm0zSXJ6RVFwSUxyZnp6ajJqN1RMVG1Rb2xNT0lOQ1h5VzVqWnAxQkNwNnpoVzFhNDhwLVhXQ1YzV1NkQ1l5WFRXZTVPUHlXNXRvZDJRM05jUDNzdHdxNzZyNGh5d2pOY3AwbVNy?oc=5",
-          "title": "Maersk deepens Red Sea return with MECL shift",
-          "summary": "Maersk deepens Red Sea return with MECL shift Seatrade Maritime News",
+          "signalKey": "direct-live-DyF9RRkgkWaXmBvRHS9naV",
+          "source": "Google News: EnergyNow",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOeFJUdEstYWRWaXFweFNEbFNDZ3BhcXh6YndhZVg1QXJnbXFFSmhIbGQyLUpySHc5c2xyZUtEMGdIeWh4S1puZDBBWllGNVk3ZzhycHVrekMtaE9hZkF2VmRXbjJDWEp6Wl9QMUtqcjRqQ3dtdlUtbjI1dGlzTXVraVVCMUR2c0psMnZRcWhRVWhUa2Z1VW9TM0FBMGpnMmZYbHNVMTVn?oc=5",
+          "title": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk",
+          "summary": "Yemen’s Houthis Ready to Join Iran War if Needed, Raising New Shipping Risk EnergyNow",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-07-09T14:47:52.000Z",
+          "confidence": 71,
+          "observedAt": "2026-07-09T15:18:05.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2042,30 +2007,30 @@
           "sourceAuditSources": []
         },
         {
+          "signalKey": "direct-live-WvkK_Bea5Ail9Vxg-PSBVD",
+          "source": "Container News",
+          "sourceUrl": "https://container-news.com/mombasas-next-test-isnt-containers-its-fuel/",
+          "title": "Mombasa's next test isn't containers it's fuel",
+          "summary": "Kenya's port has spent two years converting Red Sea disruption into permanent market share. Rwanda's tenfold fuel-volume increase now asks whether that operational discipline extends beyond boxes to barrels. The post Mombasa's next test isn't containers it's fuel appeared first on Container News .",
+          "region": "bab",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 82,
+          "observedAt": "2026-07-09T15:00:07.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
           "signalKey": "direct-live-lvPFqxjv864YeE2xNFXE4G",
           "source": "Google News: gCaptain",
           "sourceUrl": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNVFZpSDh1ZFg4MTlWVi1JLXZ6OWlxVkNjRWJNWmlRMmtJQTJoLVJ3RVg4Z3ZtTElLNVJpZnN4VGd6b3o4Ty14T29QRmV3Sy0zek93b1BfR2dkSUVDdHNVaU80dG90VV9wUlJRcWpaZGpxMFZJempIWXBZejFRaU9DLTY0enRvUzlwY25RcDkzZTlvZw?oc=5",
           "title": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal",
           "summary": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal gCaptain",
-          "region": "bab",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-07-09T14:45:55.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-33C1dIbtgi9-mDHsDOAEQJ",
-          "source": "gCaptain",
-          "sourceUrl": "https://gcaptain.com/maersk-expands-red-sea-return-with-mecl-service-through-suez-canal/",
-          "title": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal",
-          "summary": "Maersk is expanding its gradual return to the Suez Canal, announcing that its MECL service linking India, the Middle East and the U.S. East Coast will once again transit the...",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-07-09T14:07:58.000Z",
+          "observedAt": "2026-07-09T14:45:55.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2098,30 +2063,30 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-RyO9-RsuxI6FNTVtDTV-QV",
-          "source": "Seatrade Maritime News",
-          "sourceUrl": "https://www.seatrade-maritime.com/containers/maersk-deepens-red-sea-return-with-mecl-shift",
+          "signalKey": "direct-live-xCe2sdA7DkTNCilyMNRptI",
+          "source": "Google News: Seatrade Maritime News",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQZEp4UEFJZ1ZWUUlFT2dEcEhiOWFENGViVUNLczdHUFpfdFVLUERKWm0zSXJ6RVFwSUxyZnp6ajJqN1RMVG1Rb2xNT0lOQ1h5VzVqWnAxQkNwNnpoVzFhNDhwLVhXQ1YzV1NkQ1l5WFRXZTVPUHlXNXRvZDJRM05jUDNzdHdxNzZyNGh5d2pOY3AwbVNy?oc=5",
           "title": "Maersk deepens Red Sea return with MECL shift",
-          "summary": "Will it be second time lucky for Maersk's bid to bring MECL back to shorter, faster Red Sea route?",
+          "summary": "Maersk deepens Red Sea return with MECL shift Seatrade Maritime News",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-07-09T14:35:10.000Z",
+          "observedAt": "2026-07-09T14:47:52.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-YbV-iqimrnBCU0hyeFWuhq",
-          "source": "Container News",
-          "sourceUrl": "https://container-news.com/maersk-returns-mecl-service-to-suez-canal-route/",
-          "title": "Maersk returns MECL service to Suez Canal route",
-          "summary": "Maersk has announced that its MECL service will return to the trans-Suez route via the Red Sea, following the successful transit of Majestic Maersk and the earlier structural changes to its AE15 service. Maersk and Hapag-Lloyd return AE15 service to Suez route The carrier said the move marks another step in its gradual return to [&#8230;] The post Maersk returns MECL service to Suez Canal route appeared first on Container News .",
+          "signalKey": "direct-live-33C1dIbtgi9-mDHsDOAEQJ",
+          "source": "gCaptain",
+          "sourceUrl": "https://gcaptain.com/maersk-expands-red-sea-return-with-mecl-service-through-suez-canal/",
+          "title": "Maersk Expands Red Sea Return With MECL Service Through Suez Canal",
+          "summary": "Maersk is expanding its gradual return to the Suez Canal, announcing that its MECL service linking India, the Middle East and the U.S. East Coast will once again transit the...",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 82,
-          "observedAt": "2026-07-09T12:55:57.000Z",
+          "observedAt": "2026-07-09T14:07:58.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2154,29 +2119,29 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-8LgiBufPaXidhAiiEYsbob",
-          "source": "Google News: Addis Standard",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNUE52REs3NFVJR1FsTGJNal9ON09HdkxaSXFDYVB5a3Y5aWdBb1FSVUo0V1h4WGRpelZyR010bjZVUHV2Y3FoWVJJMWdFS1JKbENoU3RIcEpZQWp5VjNXaXdndGNnLXlQSXBjbUdpamtEVXljS1dDMEkxNkxvb09fTGVNbjdnU3lFTmY5dUNhN1MwODhCcXVfQ2t2cVRGdUxBeUVmQjBlQV94TmFfelUwMXAtS2NqQW5VbVViU3dKWGpEWEtGVFFMaEFSZWc5Qzd6ZElOZldYMDJXUQ?oc=5",
-          "title": "Somalia approves maritime cooperation deal with Egypt as Cairo expands Red Sea port partnerships after Eritrea pact",
-          "summary": "Somalia approves maritime cooperation deal with Egypt as Cairo expands Red Sea port partnerships after Eritrea pact Addis Standard",
+          "signalKey": "direct-live-RyO9-RsuxI6FNTVtDTV-QV",
+          "source": "Seatrade Maritime News",
+          "sourceUrl": "https://www.seatrade-maritime.com/containers/maersk-deepens-red-sea-return-with-mecl-shift",
+          "title": "Maersk deepens Red Sea return with MECL shift",
+          "summary": "Will it be second time lucky for Maersk's bid to bring MECL back to shorter, faster Red Sea route?",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 71,
-          "observedAt": "2026-07-09T13:15:21.000Z",
+          "confidence": 82,
+          "observedAt": "2026-07-09T14:35:10.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-2oy2ygII6LdODgwpfShJvG",
-          "source": "Google News: Container News",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPRHk2dGt5dXRLdjN4ZEhIVWlwUFBiSVBZNnBZVnZIR0E0b0hWOVFhV3VJZzB1dENrY0JHcHl3bXRJSElyZUYwQld5RzJlams2N1pTR183SkkweVdMTTZzdDZuc0EwSkExNnF1WFYwNHNhZlZINW9oNklqcFF6ZnF5VA?oc=5",
+          "signalKey": "direct-live-YbV-iqimrnBCU0hyeFWuhq",
+          "source": "Container News",
+          "sourceUrl": "https://container-news.com/maersk-returns-mecl-service-to-suez-canal-route/",
           "title": "Maersk returns MECL service to Suez Canal route",
-          "summary": "Maersk returns MECL service to Suez Canal route Container News",
+          "summary": "Maersk has announced that its MECL service will return to the trans-Suez route via the Red Sea, following the successful transit of Majestic Maersk and the earlier structural changes to its AE15 service. Maersk and Hapag-Lloyd return AE15 service to Suez route The carrier said the move marks another step in its gradual return to [&#8230;] The post Maersk returns MECL service to Suez Canal route appeared first on Container News .",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 82,
+          "confidence": 78,
           "observedAt": "2026-07-09T12:55:57.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
@@ -2196,6 +2161,48 @@
           "sourceAuditSources": []
         },
         {
+          "signalKey": "direct-live-LL7AMzyzez57a8cUCYIury",
+          "source": "Google News: Bloomberg.com",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPcHpndHJ3M3JpWEstNXA2Yi1OMVljWnJPU3pJVm1oTm5IaTR0ZEhwbjRqck5jaURtaFoxb1BkSGZWQkt3TUFlLWV4RUVLT2xDNi10V3dkTHVRYWNYNnpwOG5STlBuSzRkSEpZTFhVazIxbjNTLW13ZncwSHZhOUV2Q3lEWERXMmZ1bFBmN0dYZmg2X2NRQnBzNnBVM0pzYldDV3J0RDRST1Z5X3hIcDhBTGZvZw?oc=5",
+          "title": "Hormuz Traffic Grinds to a Near Halt as Ceasefire Under Threat",
+          "summary": "Hormuz Traffic Grinds to a Near Halt as Ceasefire Under Threat Bloomberg.com",
+          "region": "hormuz",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 82,
+          "observedAt": "2026-07-09T16:04:58.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-W6AVNsC7OsMmjVBXlNH74l",
+          "source": "Google News: News On AIR",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQUktHLVc2QjBfQWlIUkg5Mm55SlVRT3VzdlA5d0Vpd1V4SnR3Z1c1MnNTYlZaY1dMUHpiUV9NRy1vbDk5bzJ1OTNDZWdjU1ZjQTVCZmZPQ28tSElDNW9ybVQ0QTBlYlBsNFRPdHIyd25xVDhwNXdHVFJTN09Sa1EwVFdwUVdaN2xmY0pmd1RySnQ0Y3g0STBabXJhOE1Bdzg?oc=5",
+          "title": "British military says attack on cargo ship in Red Sea off coast of Yemen",
+          "summary": "British military says attack on cargo ship in Red Sea off coast of Yemen News On AIR",
+          "region": "bab",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 68,
+          "observedAt": "2026-07-09T12:22:34.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
+          "signalKey": "direct-live-2oy2ygII6LdODgwpfShJvG",
+          "source": "Google News: Container News",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPRHk2dGt5dXRLdjN4ZEhIVWlwUFBiSVBZNnBZVnZIR0E0b0hWOVFhV3VJZzB1dENrY0JHcHl3bXRJSElyZUYwQld5RzJlams2N1pTR183SkkweVdMTTZzdDZuc0EwSkExNnF1WFYwNHNhZlZINW9oNklqcFF6ZnF5VA?oc=5",
+          "title": "Maersk returns MECL service to Suez Canal route",
+          "summary": "Maersk returns MECL service to Suez Canal route Container News",
+          "region": "suez",
+          "signalType": "news_corroboration",
+          "severity": "low",
+          "confidence": 78,
+          "observedAt": "2026-07-09T12:55:57.000Z",
+          "sourceAuditCount": 0,
+          "sourceAuditSources": []
+        },
+        {
           "signalKey": "direct-live-5VGhTB-3WUEIMKKUW03uXI",
           "source": "Google News: Middle East Eye",
           "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQVmdMbE5vREhjd2hmUG1uUW1HRWp3TmVseXdtMnJHMVZpZHdPNG1naHVhTmw3UWR2T19vd3hLX0F6SHdoNXN2ZEpaSDdxSWZpMXFYaVJpbFd2WnV1bEFRdDl3bkJTMVBRanYxZUNyYXNGQmJnV1haTkVtMFdzbDBNLWtwNzhoWFRnXzFRcVlqRnVjZnpoLTU5Xy1iNlBtQ0NqM21ITFFn?oc=5",
@@ -2210,16 +2217,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-U_0Uo5emDbKBlDY-TGrKQy",
-          "source": "Google News: TradeWinds News",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOdGpnSl9TS1FVTXdGYTVYOEpfekhmS2ZteDl3QU53OVZkRXhQRjJMbWNlX2FSUTg0U0U3WDRBUmRLb0dfQWhqVVdvZmFpLVREdGVnUmwtVUoyOC00d3gzN2h3ZHhLeG9nODlfWGh6VlNELW50UlBLYVlpZEtWVjNhamtWdTh2Q0JiclRRWk83NjRJNlU5LWUxa1dySzFaZGl3TUhlZWxZNnZ4TzVEWmVZUGd4eXJpRmYwNHJLV3FyVnA5U0oxMDZQZVl5Y1dDdzB1RXIzS0t0NHBOZGc3SnFKSVZZNWpjOE0?oc=5",
-          "title": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit",
-          "summary": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit TradeWinds News",
+          "signalKey": "direct-live-FydiBR8B927nWhYFaib2dM",
+          "source": "Google News: ChemAnalyst",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOUTdxcVI2bllRQkNOR2l2RnFZNHBrUXg3RC1SdDJtaURpOGZ0ZW9QZ2stQnNyMG1HSFhFdExJU1VyekpNWm5VU1JUaG9YbnBQczR3SF9pX3BKTHZLRjZqU29UZ0c3dlRaWk1sWC1GcGg0TXJRUXREVERmOEhWYU5VRWNiZTJSUS1KOGVwZURoSm9hcWVOaGtZUF9VVHF6Mjc4VHNVaGlmcE5hUm1pN1VLc1RGU19CTzdpcUZtZg?oc=5",
+          "title": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall",
+          "summary": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall ChemAnalyst",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 78,
-          "observedAt": "2026-07-09T12:37:06.000Z",
+          "confidence": 68,
+          "observedAt": "2026-07-09T12:19:07.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2252,30 +2259,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-W6AVNsC7OsMmjVBXlNH74l",
-          "source": "Google News: News On AIR",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQUktHLVc2QjBfQWlIUkg5Mm55SlVRT3VzdlA5d0Vpd1V4SnR3Z1c1MnNTYlZaY1dMUHpiUV9NRy1vbDk5bzJ1OTNDZWdjU1ZjQTVCZmZPQ28tSElDNW9ybVQ0QTBlYlBsNFRPdHIyd25xVDhwNXdHVFJTN09Sa1EwVFdwUVdaN2xmY0pmd1RySnQ0Y3g0STBabXJhOE1Bdzg?oc=5",
-          "title": "British military says attack on cargo ship in Red Sea off coast of Yemen",
-          "summary": "British military says attack on cargo ship in Red Sea off coast of Yemen News On AIR",
-          "region": "bab",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 68,
-          "observedAt": "2026-07-09T12:22:34.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-2oQFq5zJRBNTb7ZJkSeghh",
-          "source": "Google News: Daily Sabah",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOYWxZV21ZT2lyb2hMby1zbWc4NGNvTlA0ZEF6WUZLVFl2YWRDLWxmQ1dES25OdkVfQkgyQ0hFa1R1bGMtc3VSQkFScGlHcWExQTZFQzRLTE0wcnUwd1pxUjVWUjhjV2x2TmlwX1pBdW8zWjJadEozRVVCS2xWU1gwZ0JjdDltWjZhZkhZbEw0TjgyNjJTaGNpWlM5SlNpaS1UbVpVWEpkTDBmME1vc3V4NEUyNmE1Z9IBtgFBVV95cUxOYWxZV21ZT2lyb2hMby1zbWc4NGNvTlA0ZEF6WUZLVFl2YWRDLWxmQ1dES25OdkVfQkgyQ0hFa1R1bGMtc3VSQkFScGlHcWExQTZFQzRLTE0wcnUwd1pxUjVWUjhjV2x2TmlwX1pBdW8zWjJadEozRVVCS2xWU1gwZ0JjdDltWjZhZkhZbEw0TjgyNjJTaGNpWlM5SlNpaS1UbVpVWEpkTDBmME1vc3V4NEUyNmE1Zw?oc=5",
-          "title": "Maersk to restart Middle East-US shipping through Suez Canal | Daily Sabah",
-          "summary": "Maersk to restart Middle East-US shipping through Suez Canal | Daily Sabah Daily Sabah",
+          "signalKey": "direct-live-U_0Uo5emDbKBlDY-TGrKQy",
+          "source": "Google News: TradeWinds News",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOdGpnSl9TS1FVTXdGYTVYOEpfekhmS2ZteDl3QU53OVZkRXhQRjJMbWNlX2FSUTg0U0U3WDRBUmRLb0dfQWhqVVdvZmFpLVREdGVnUmwtVUoyOC00d3gzN2h3ZHhLeG9nODlfWGh6VlNELW50UlBLYVlpZEtWVjNhamtWdTh2Q0JiclRRWk83NjRJNlU5LWUxa1dySzFaZGl3TUhlZWxZNnZ4TzVEWmVZUGd4eXJpRmYwNHJLV3FyVnA5U0oxMDZQZVl5Y1dDdzB1RXIzS0t0NHBOZGc3SnFKSVZZNWpjOE0?oc=5",
+          "title": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit",
+          "summary": "Maersk restores Red Sea routing on Middle East–US East Coast service after successful Suez transit TradeWinds News",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
-          "confidence": 68,
-          "observedAt": "2026-07-09T12:20:00.000Z",
+          "confidence": 78,
+          "observedAt": "2026-07-09T12:37:06.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2294,58 +2287,30 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-FydiBR8B927nWhYFaib2dM",
-          "source": "Google News: ChemAnalyst",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOUTdxcVI2bllRQkNOR2l2RnFZNHBrUXg3RC1SdDJtaURpOGZ0ZW9QZ2stQnNyMG1HSFhFdExJU1VyekpNWm5VU1JUaG9YbnBQczR3SF9pX3BKTHZLRjZqU29UZ0c3dlRaWk1sWC1GcGg0TXJRUXREVERmOEhWYU5VRWNiZTJSUS1KOGVwZURoSm9hcWVOaGtZUF9VVHF6Mjc4VHNVaGlmcE5hUm1pN1VLc1RGU19CTzdpcUZtZg?oc=5",
-          "title": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall",
-          "summary": "Troubled Waters, Bigger Profits: How Houthi Attacks Are Fueling Cheniere's LNG Windfall ChemAnalyst",
+          "signalKey": "direct-live-ZxBfOocaL8ufJcoSWf_U5s",
+          "source": "Google News: Geopolitical Futures",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNZlp5UDVCV214S1E3bzR6YlgyaDFqTlQzeW9GNnQwZjBUeTV6d0VNUFpadmpzc0lTQWF6YWFsWlpDenV4Q3FmVVZxRUh6TzV3bUpUb0FrSU0tNzJfMTVqd3ZZQ1VtbTlXU3hQU3JlamVkM0xTVzVONzdjNkNJRHR4azFESmktOWE1d0FaVmRUV21DQlpVMnc?oc=5",
+          "title": "The Red Sea: A Strategic Basin Far Beyond the Houthi Threat",
+          "summary": "The Red Sea: A Strategic Basin Far Beyond the Houthi Threat Geopolitical Futures",
           "region": "bab",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T12:19:07.000Z",
+          "observedAt": "2026-07-09T10:00:59.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-c2dA_5hs_t_hEpFr84tahb",
-          "source": "Google News: Devdiscourse",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOdVVDYlZFbjlpRldhNUl1RVhqZENmZG9TSlVmWW1jM21uVjFpZUdOV2J6dFphRjVzM2lTc0Z3eDVuVmNEdmd3d1dzaDJodklBMm5Oc2FuZGt2X2h5TzVKOUZCMG92WHI4dVJlZFpKU01Rc21majNtb01zN2ZocUFPdFpzMzNRUHNRVDBEal9Dd3BvQWczUndhZ2NLX09GUTZrZEt4RHlVTHpoWm1WcXlmS0tWTVIyYzdZemNIWExqUFFLNHBNaXpr0gHHAUFVX3lxTE51VUNiVkVuOWlGV2E1SXVFWGpkQ2Zkb1NKVWZZbWMzbW5WMWllR05XYnp0WmFGNXMzaVNzRnd4NW5WY0R2Z3d3V3NoMmh2SUEybk5zYW5ka3ZfaHlPNUo5RkIwb3ZYcjh1UmVkWkpTTVFzbWZqM21vTXM3ZmhxQU90WnMzM1FQc1FUMERqX0N3cG9BZzNSd2FnY0tfT0ZRNmtkS3hEeVVMemhabVZxeWZLS1ZNUjJjN1l6Y0hYTGpQUUs0cE1pems?oc=5",
-          "title": "Maersk to resume Middle East-US East Coast shipping through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast shipping through Suez Canal Devdiscourse",
+          "signalKey": "direct-live-2oQFq5zJRBNTb7ZJkSeghh",
+          "source": "Google News: Daily Sabah",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOYWxZV21ZT2lyb2hMby1zbWc4NGNvTlA0ZEF6WUZLVFl2YWRDLWxmQ1dES25OdkVfQkgyQ0hFa1R1bGMtc3VSQkFScGlHcWExQTZFQzRLTE0wcnUwd1pxUjVWUjhjV2x2TmlwX1pBdW8zWjJadEozRVVCS2xWU1gwZ0JjdDltWjZhZkhZbEw0TjgyNjJTaGNpWlM5SlNpaS1UbVpVWEpkTDBmME1vc3V4NEUyNmE1Z9IBtgFBVV95cUxOYWxZV21ZT2lyb2hMby1zbWc4NGNvTlA0ZEF6WUZLVFl2YWRDLWxmQ1dES25OdkVfQkgyQ0hFa1R1bGMtc3VSQkFScGlHcWExQTZFQzRLTE0wcnUwd1pxUjVWUjhjV2x2TmlwX1pBdW8zWjJadEozRVVCS2xWU1gwZ0JjdDltWjZhZkhZbEw0TjgyNjJTaGNpWlM5SlNpaS1UbVpVWEpkTDBmME1vc3V4NEUyNmE1Zw?oc=5",
+          "title": "Maersk to restart Middle East-US shipping through Suez Canal | Daily Sabah",
+          "summary": "Maersk to restart Middle East-US shipping through Suez Canal | Daily Sabah Daily Sabah",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T12:05:01.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-LO9o0C7bcqPYNmSjTb5eU4",
-          "source": "Google News: The New York Times",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQelBMcndHVzViVTg4Z0V3ejd4YUk5aFkweXA2NUtKWXVkTC1EdzhHSll5N2FrV1l6Q21BeDdkSWIyX0UtM01nQy1yalZraFRsZkQ5WDROeFdtWFphM29BcWUyenRNYVpnaWNrYUpjZC1RZlpld244eXRzenBIUHVCLTV0Z056VFlyZ3pyRQ?oc=5",
-          "title": "Oil Prices Remain Elevated Amid Shipping Traffic Slowdown in Strait of Hormuz",
-          "summary": "Oil Prices Remain Elevated Amid Shipping Traffic Slowdown in Strait of Hormuz The New York Times",
-          "region": "hormuz",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 82,
-          "observedAt": "2026-07-09T14:50:05.000Z",
-          "sourceAuditCount": 0,
-          "sourceAuditSources": []
-        },
-        {
-          "signalKey": "direct-live-vGY5Akiuht_ButQmTUKBg1",
-          "source": "Google News: Euronext Markets: Real-time Stock Market Data | live",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOalh3MkJmci1BZTJSXy1Hc1pYaXVBQnV5dXVleXFrbExhV3cwbjFlamNKbXNxQXJDTnpKU0lYWUd4bW9yeWwxemFuckF3T0JZNXZ3VnFRWkpvN2NuT0ZPUmFZNENSSEZLSUFKTks0TnF0Z1ozUGREcFVpeTlDVnB5NVV2ckxVU3FIa2htTnNTMW1ObUlKZ0RaUlhrb0kzdWVZSXR2R1pXMUx1c1I5V3dXSw?oc=5",
-          "title": "Maersk to resume Middle East-US East Coast sailings through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Euronext Markets: Real-time Stock Market Data | live",
-          "region": "suez",
-          "signalType": "news_corroboration",
-          "severity": "low",
-          "confidence": 68,
-          "observedAt": "2026-07-09T12:03:39.000Z",
+          "observedAt": "2026-07-09T12:20:00.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2378,16 +2343,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-uIr2v08T0kpz1gBUKr0Fin",
-          "source": "Google News: Investing.com Nigeria",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMingFBVV95cUxPZkZ1QzU3LUp2SlkyTi1RUnJzd0Q0ZHRkbHZQZ3dPY0tZVVJ4VDJzQkFBaS1HWGw5YnlPcTRqOEZ0Y3ZSeXJoZHVxSGZkWW1vSGNtUThDUVBIYTQ0cWtEY0JhSVVtLUItNm5DZjIzNnRGSzJqdXV1NEtDVzd2Z3RNRHdONXR5UC05eURodlZFZlJuejJ0TFFKVnZUY252QQ?oc=5",
-          "title": "Maersk to resume Suez Canal sailings By Investing.com",
-          "summary": "Maersk to resume Suez Canal sailings By Investing.com Investing.com Nigeria",
+          "signalKey": "direct-live-c2dA_5hs_t_hEpFr84tahb",
+          "source": "Google News: Devdiscourse",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOdVVDYlZFbjlpRldhNUl1RVhqZENmZG9TSlVmWW1jM21uVjFpZUdOV2J6dFphRjVzM2lTc0Z3eDVuVmNEdmd3d1dzaDJodklBMm5Oc2FuZGt2X2h5TzVKOUZCMG92WHI4dVJlZFpKU01Rc21majNtb01zN2ZocUFPdFpzMzNRUHNRVDBEal9Dd3BvQWczUndhZ2NLX09GUTZrZEt4RHlVTHpoWm1WcXlmS0tWTVIyYzdZemNIWExqUFFLNHBNaXpr0gHHAUFVX3lxTE51VUNiVkVuOWlGV2E1SXVFWGpkQ2Zkb1NKVWZZbWMzbW5WMWllR05XYnp0WmFGNXMzaVNzRnd4NW5WY0R2Z3d3V3NoMmh2SUEybk5zYW5ka3ZfaHlPNUo5RkIwb3ZYcjh1UmVkWkpTTVFzbWZqM21vTXM3ZmhxQU90WnMzM1FQc1FUMERqX0N3cG9BZzNSd2FnY0tfT0ZRNmtkS3hEeVVMemhabVZxeWZLS1ZNUjJjN1l6Y0hYTGpQUUs0cE1pems?oc=5",
+          "title": "Maersk to resume Middle East-US East Coast shipping through Suez Canal",
+          "summary": "Maersk to resume Middle East-US East Coast shipping through Suez Canal Devdiscourse",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T11:01:27.000Z",
+          "observedAt": "2026-07-09T12:05:01.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2420,16 +2385,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-YtrHOovVUzZKsmadS6SNzG",
-          "source": "Google News: Devdiscourse",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPSlFZdmhnUFY2Y0lQVjJGenJhSS1zcEtrRmxiSkM1OE90eGZHN2pHLWhwV0k3MDl3YXI4dUtwN1VEN3NJQVBraWgxRWQ4dVNGTUQ1LUJmSUxUOHVGMkhNTnRNdmRhVG5RREowSVNMM0lvbUNveEJNSmhCZ2dOQ3VGVHdUT1JvT25UY0RkdDBGT2dMWHJqR2hLZ3dWRTNua09LbGZtNHpUaElxRE9RVktWZDFyZDZiTkZaM2xrSTlKRTJRR3BNSGNR0gHHAUFVX3lxTE9KUVl2aGdQVjZjSVBWMkZ6cmFJLXNwS2tGbGJKQzU4T3R4Zkc3akctaHBXSTcwOXdhcjh1S3A3VUQ3c0lBUGtpaDFFZDh1U0ZNRDUtQmZJTFQ4dUYySE1OdE12ZGFUblFESjBJU0wzSW9tQ294Qk1KaEJnZ05DdUZUd1RPUm9PblRjRGR0MEZPZ0xYcmpHaEtnd1ZFM25rT0tsZm00elRoSXFET1FWS1ZkMXJkNmJORlozbGtJOUpFMlFHcE1IY1E?oc=5",
+          "signalKey": "direct-live-vGY5Akiuht_ButQmTUKBg1",
+          "source": "Google News: Euronext Markets: Real-time Stock Market Data | live",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOalh3MkJmci1BZTJSXy1Hc1pYaXVBQnV5dXVleXFrbExhV3cwbjFlamNKbXNxQXJDTnpKU0lYWUd4bW9yeWwxemFuckF3T0JZNXZ3VnFRWkpvN2NuT0ZPUmFZNENSSEZLSUFKTks0TnF0Z1ozUGREcFVpeTlDVnB5NVV2ckxVU3FIa2htTnNTMW1ObUlKZ0RaUlhrb0kzdWVZSXR2R1pXMUx1c1I5V3dXSw?oc=5",
           "title": "Maersk to resume Middle East-US East Coast sailings through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Devdiscourse",
+          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Euronext Markets: Real-time Stock Market Data | live",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T11:00:13.000Z",
+          "observedAt": "2026-07-09T12:03:39.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2462,16 +2427,16 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-live-tKUBOIUKUJT94y1c8-IT86",
-          "source": "Google News: Devdiscourse",
-          "sourceUrl": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPalZLc2FMWTg2N3NlOGFVOVNON2otZFZmR0ItbTFKMnRPYW11M0xtaExXU3hzd2RhQU5DQ0g5YXV4US1ZUnhjYnpzZEo0cTVsaGx5eVMwS2VwUHFGQmdiN25pM3dDZnVRQVJvekNhZFl0blVWUlF3OXVNWjFsMjlRWGd4WVNSTVQtVTZSWEh0NGpDenlkeDlKN3BlQXdSNmtmTG1GbFZ5MGdma2Q2c3JDUW5odG8zZjNCa2hha3RIQ2NDZ9IBxwFBVV95cUxPSlFZdmhnUFY2Y0lQVjJGenJhSS1zcEtrRmxiSkM1OE90eGZHN2pHLWhwV0k3MDl3YXI4dUtwN1VEN3NJQVBraWgxRWQ4dVNGTUQ1LUJmSUxUOHVGMkhNTnRNdmRhVG5RREowSVNMM0lvbUNveEJNSmhCZ2dOQ3VGVHdUT1JvT25UY0RkdDBGT2dMWHJqR2hLZ3dWRTNua09LbGZtNHpUaElxRE9RVktWZDFyZDZiTkZaM2xrSTlKRTJRR3BNSGNR?oc=5",
-          "title": "Maersk to resume Middle East-US East Coast sailings through Suez Canal",
-          "summary": "Maersk to resume Middle East-US East Coast sailings through Suez Canal Devdiscourse",
+          "signalKey": "direct-live-uIr2v08T0kpz1gBUKr0Fin",
+          "source": "Google News: Investing.com Nigeria",
+          "sourceUrl": "https://news.google.com/rss/articles/CBMingFBVV95cUxPZkZ1QzU3LUp2SlkyTi1RUnJzd0Q0ZHRkbHZQZ3dPY0tZVVJ4VDJzQkFBaS1HWGw5YnlPcTRqOEZ0Y3ZSeXJoZHVxSGZkWW1vSGNtUThDUVBIYTQ0cWtEY0JhSVVtLUItNm5DZjIzNnRGSzJqdXV1NEtDVzd2Z3RNRHdONXR5UC05eURodlZFZlJuejJ0TFFKVnZUY252QQ?oc=5",
+          "title": "Maersk to resume Suez Canal sailings By Investing.com",
+          "summary": "Maersk to resume Suez Canal sailings By Investing.com Investing.com Nigeria",
           "region": "suez",
           "signalType": "news_corroboration",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T11:00:13.000Z",
+          "observedAt": "2026-07-09T11:01:27.000Z",
           "sourceAuditCount": 0,
           "sourceAuditSources": []
         },
@@ -2504,7 +2469,7 @@
           "sourceAuditSources": []
         },
         {
-          "signalKey": "direct-source-sweep-cape-0-jvtsvQErhLyl",
+          "signalKey": "direct-source-sweep-cape-0-IiBhA447MDpq",
           "source": "South African Maritime Safety Authority",
           "sourceUrl": "https://www.samsa.org.za/Pages/Notices.aspx",
           "title": "Cape of Good Hope: official source checked",
@@ -2513,7 +2478,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T18:51:46.256Z",
+          "observedAt": "2026-07-09T19:21:49.865Z",
           "sourceAuditCount": 5,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2524,7 +2489,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-1-3d8qnJKQ_4Oq",
+          "signalKey": "direct-source-sweep-cape-1-Lh6MtvS0r9mo",
           "source": "Google News 48h Search: Cape of Good Hope 48h route evidence sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22South%20Africa%20shipping%22)%20(shipping%20OR%20vessel%20OR%20tanker%20OR%20container%20OR%20freight%20OR%20rerouting%20OR%20bunker%20OR%20%22voyage%20delay%22)%20when%3A2d&hl=en-US&gl=US&ceid=US:en",
           "title": "Cape of Good Hope: recent news sweep checked",
@@ -2533,7 +2498,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T18:51:46.256Z",
+          "observedAt": "2026-07-09T19:21:49.865Z",
           "sourceAuditCount": 5,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2544,7 +2509,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-2-38SgdMzfxFaB",
+          "signalKey": "direct-source-sweep-cape-2-aCAHFj9G2Sft",
           "source": "Google News Search: Cape route trade-source sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22around%20Africa%22%20OR%20%22Red%20Sea%20bypass%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20voyage%20OR%20fuel)%20(site%3Agcaptain.com%20OR%20site%3Amarinelink.com%20OR%20site%3Ahellenicshippingnews.com%20OR%20site%3Asplash247.com%20OR%20site%3Aoffshore-energy.biz%20OR%20site%3Asafety4sea.com%20OR%20site%3Amarinelog.com%20OR%20site%3Acontainer-news.com%20OR%20site%3Aship-technology.com%20OR%20site%3Aworldcargonews.com%20OR%20site%3Ajoc.com%20OR%20site%3Ahapag-lloyd.com%20OR%20site%3Aseatrade-maritime.com%20OR%20site%3Amarineinsight.com%20OR%20site%3Aportnews.ru%20OR%20site%3Atheloadstar.com%20OR%20site%3Aporttechnology.org%20OR%20site%3Arivieramm.com%20OR%20site%3Abairdmaritime.com%20OR%20site%3Amaritime-executive.com%20OR%20site%3Amarinenews.com%20OR%20site%3Aenergyintel.com%20OR%20site%3Atradewindsnews.com%20OR%20site%3Ashipandbunker.com)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Cape of Good Hope: trade-source sweep checked",
@@ -2553,7 +2518,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T18:51:46.256Z",
+          "observedAt": "2026-07-09T19:21:49.865Z",
           "sourceAuditCount": 5,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2564,7 +2529,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-3-yy2OqpCdkwfk",
+          "signalKey": "direct-source-sweep-cape-3-R3uY2g4vKhO9",
           "source": "Google News Search: Tier-1 Cape of Good Hope newsroom sweep",
           "sourceUrl": "https://news.google.com/rss/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)%20(site%3Abloomberg.com%20OR%20site%3Anytimes.com%20OR%20site%3Aaljazeera.com%20OR%20site%3Areuters.com%20OR%20site%3Aapnews.com%20OR%20site%3Abbc.com%20OR%20site%3Aft.com%20OR%20site%3Atheguardian.com%20OR%20site%3Acnbc.com%20OR%20site%3Alemonde.fr%20OR%20site%3Abusinesstimes.com.sg)%20when%3A1d&hl=en-US&gl=US&ceid=US:en",
           "title": "Cape of Good Hope: tier-1 newsroom sweep checked",
@@ -2573,7 +2538,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T18:51:46.256Z",
+          "observedAt": "2026-07-09T19:21:49.865Z",
           "sourceAuditCount": 5,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2584,7 +2549,7 @@
           ]
         },
         {
-          "signalKey": "direct-source-sweep-cape-4-lqobvdoRIbP3",
+          "signalKey": "direct-source-sweep-cape-4-WoHSjmi_Husb",
           "source": "Bing News Search: Cape of Good Hope rerouting pressure",
           "sourceUrl": "https://www.bing.com/news/search?q=(%22Cape%20of%20Good%20Hope%22%20OR%20%22Cape%20route%22%20OR%20%22Red%20Sea%20rerouting%22)%20(shipping%20OR%20vessel%20OR%20container%20OR%20tanker%20OR%20freight%20OR%20rerouting%20OR%20delay%20OR%20fuel%20OR%20voyage)&format=rss",
           "title": "Cape of Good Hope: general search sweep checked",
@@ -2593,7 +2558,7 @@
           "signalType": "source_sweep",
           "severity": "low",
           "confidence": 68,
-          "observedAt": "2026-07-09T18:51:46.256Z",
+          "observedAt": "2026-07-09T19:21:49.865Z",
           "sourceAuditCount": 5,
           "sourceAuditSources": [
             "South African Maritime Safety Authority",
@@ -2604,11 +2569,11 @@
           ]
         }
       ],
-      "timestamp": "2026-07-09T18:51:46.256Z",
+      "timestamp": "2026-07-09T19:21:49.865Z",
       "count": {
-        "articles": 70,
+        "articles": 69,
         "hotspots": 9,
-        "signals": 58
+        "signals": 57
       },
       "qualityAudit": {
         "status": "healthy",
@@ -2616,15 +2581,15 @@
           "official": 6,
           "tierOne": 4,
           "trade": 15,
-          "search": 38,
+          "search": 39,
           "general": 0,
           "watch": 0
         },
         "reviewGate": {
-          "approved": 50,
+          "approved": 49,
           "watch": 20,
-          "blocked": 2,
-          "visible": 70
+          "blocked": 3,
+          "visible": 69
         },
         "coverageGaps": [
           {
@@ -2641,7 +2606,7 @@
             "score": 94,
             "status": "strong",
             "missing": [],
-            "sourceCount": 13,
+            "sourceCount": 12,
             "latestNewsAt": "2026-07-09T16:17:00.000Z",
             "latestSignalAt": "2026-07-09T16:17:00.000Z"
           },
@@ -2650,7 +2615,7 @@
             "score": 94,
             "status": "strong",
             "missing": [],
-            "sourceCount": 11,
+            "sourceCount": 13,
             "latestNewsAt": "2026-07-09T17:41:21.000Z",
             "latestSignalAt": "2026-07-09T17:41:21.000Z"
           },
@@ -2712,11 +2677,11 @@
             ],
             "sourceCount": 5,
             "latestNewsAt": null,
-            "latestSignalAt": "2026-07-09T18:51:46.256Z"
+            "latestSignalAt": "2026-07-09T19:21:49.865Z"
           }
         ],
         "recommendations": [
-          "2 low-evidence direct reports were blocked before the live map.",
+          "3 low-evidence direct reports were blocked before the live map.",
           "20 direct reports are watch-listed until stronger confirmation arrives."
         ]
       }
@@ -2726,7 +2691,7 @@
       "source": "VesselSurge direct source sweep",
       "cacheControl": "public, s-maxage=120, stale-while-revalidate=300",
       "cached": true,
-      "generatedAt": "2026-07-09T18:51:46.256Z",
+      "generatedAt": "2026-07-09T19:21:49.865Z",
       "stale": false
     }
   }
